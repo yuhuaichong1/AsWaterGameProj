@@ -1,0 +1,51 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace AsGame.Data
+{
+    [Serializable]
+    public class CupData
+    {
+        public int id;
+        public Vector2 position;
+        public List<int> colors = new List<int>();
+        public int whNums;
+        public int isVideo;
+        public int isLock;
+        public int lockColor;
+        public int lockNums;
+        public int isNull;
+
+        public CupData Clone()
+        {
+            return new CupData
+            {
+                id = id,
+                position = position,
+                colors = new List<int>(colors),
+                whNums = whNums,
+                isVideo = isVideo,
+                isLock = isLock,
+                lockColor = lockColor,
+                lockNums = lockNums,
+                isNull = isNull
+            };
+        }
+    }
+
+    [Serializable]
+    public class PourActionRecord
+    {
+        public int fromId;
+        public int toId;
+        public int colorId;
+        public int num;
+    }
+
+    [Serializable]
+    public class LevelConfigRoot
+    {
+        // JsonUtility 不支持 Dictionary，使用 LevelConfigLoader 解析
+    }
+}
