@@ -30,7 +30,7 @@ namespace cfg
 		public TBProp TBProp {get; private set;}
 		public TBLuckySpin TBLuckySpin {get; private set;}
 		public TBUserLevel TBUserLevel {get; private set;}
-		public TBLoadingTitleSprite TBLoadingTitleSprite {get; private set;}
+		public TBMoneyInterval TBMoneyInterval {get; private set;}
 
 		private Queue<string> configNames;
 		private Queue<System.Action<ByteBuf>> configCbFuncs;
@@ -64,8 +64,8 @@ namespace cfg
 			tables.Add("TBLuckySpin", TBLuckySpin);
 			TBUserLevel = new TBUserLevel(loader("tbuserlevel")); 
 			tables.Add("TBUserLevel", TBUserLevel);
-			TBLoadingTitleSprite = new TBLoadingTitleSprite(loader("tbloadingtitlesprite")); 
-			tables.Add("TBLoadingTitleSprite", TBLoadingTitleSprite);
+			TBMoneyInterval = new TBMoneyInterval(loader("tbmoneyinterval")); 
+			tables.Add("TBMoneyInterval", TBMoneyInterval);
 	
 			PostInit();
 			ResolveAllTable();
@@ -98,8 +98,8 @@ namespace cfg
             configCbFuncs.Enqueue(OnTBLuckySpinDataFinish);
 			configNames.Enqueue("tbuserlevel");
             configCbFuncs.Enqueue(OnTBUserLevelDataFinish);
-			configNames.Enqueue("tbloadingtitlesprite");
-            configCbFuncs.Enqueue(OnTBLoadingTitleSpriteDataFinish);
+			configNames.Enqueue("tbmoneyinterval");
+            configCbFuncs.Enqueue(OnTBMoneyIntervalDataFinish);
 
             LoadAllConfig();
         }
@@ -113,12 +113,7 @@ namespace cfg
             }
             string configName = configNames.Dequeue();
             System.Action<ByteBuf> cb = configCbFuncs.Dequeue();
-#if UNITY_ANDROID || UNITY_EDITOR || UNITY_WEBGL
-			Game.Instance.StartCoroutine(WebLoad(configName, cb,LoadAllConfig));
-#elif UNITY_IOS
-            Game.Instance.StartCoroutine(IOSWebLoad(configName, cb,LoadAllConfig));
-#endif
-
+            Game.Instance.StartCoroutine(WebLoad(configName, cb,LoadAllConfig));
         }
 
         public IEnumerator WebLoad(string fileName, System.Action<ByteBuf> confInst, System.Action cb)
@@ -145,29 +140,6 @@ namespace cfg
             }
         }
 
-		public IEnumerator IOSWebLoad(string fileName, System.Action<ByteBuf> confInst, System.Action cb)
-        {
-            string relativePath = Path.Combine("Data", $"{fileName}.bytes");
-            string url = Path.Combine(Application.streamingAssetsPath, relativePath);
-            url = "file://" + url;
-
-            UnityWebRequest request = UnityWebRequest.Get(url);
-            request.downloadHandler = new DownloadHandlerBuffer();
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                confInst(new ByteBuf(request.downloadHandler.data));
-                cb?.Invoke();
-                Debug.LogError($"[ConfPath]:Load config {fileName} success, size: {request.downloadHandler.data.Length}");
-            }
-            else
-            {
-                Debug.LogError($"[ConfPath]:UnityWebRequest Load fail: {request.result}, Error: {request.error}, URL: {url}");
-            }
-        }
-
 		public void TranslateText(System.Func<string, string, string> translator)
 		{
 			TbUIRes.TranslateText(translator); 
@@ -180,7 +152,7 @@ namespace cfg
 			TBProp.TranslateText(translator); 
 			TBLuckySpin.TranslateText(translator); 
 			TBUserLevel.TranslateText(translator); 
-			TBLoadingTitleSprite.TranslateText(translator); 
+			TBMoneyInterval.TranslateText(translator); 
 		}
 		
 		partial void PostInit();
@@ -198,7 +170,7 @@ namespace cfg
 			TBProp.Resolve(tables);
 			TBLuckySpin.Resolve(tables);
 			TBUserLevel.Resolve(tables);
-			TBLoadingTitleSprite.Resolve(tables);
+			TBMoneyInterval.Resolve(tables);
 		}
 	
 		private void ReloadOneTable(string reloadTableName)
@@ -240,8 +212,8 @@ namespace cfg
 				case "TBUserLevel":
 					TBUserLevel.Reload(_loader("TBUserLevel"));
 					break;
-				case "TBLoadingTitleSprite":
-					TBLoadingTitleSprite.Reload(_loader("TBLoadingTitleSprite"));
+				case "TBMoneyInterval":
+					TBMoneyInterval.Reload(_loader("TBMoneyInterval"));
 					break;
 			}
 	
@@ -312,10 +284,10 @@ namespace cfg
 			TBUserLevel = new TBUserLevel(buf);
 			tables.Add("TBUserLevel", TBUserLevel);
 		}
-		public void OnTBLoadingTitleSpriteDataFinish(ByteBuf buf)
+		public void OnTBMoneyIntervalDataFinish(ByteBuf buf)
 		{
-			TBLoadingTitleSprite = new TBLoadingTitleSprite(buf);
-			tables.Add("TBLoadingTitleSprite", TBLoadingTitleSprite);
+			TBMoneyInterval = new TBMoneyInterval(buf);
+			tables.Add("TBMoneyInterval", TBMoneyInterval);
 		}
 		//Finish Load all table 
 		public void OnLoadTbDataFinish()

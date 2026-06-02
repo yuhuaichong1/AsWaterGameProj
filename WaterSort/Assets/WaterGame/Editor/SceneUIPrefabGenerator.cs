@@ -51,6 +51,8 @@ namespace AsGame.Editor
 
         static void BuildLoadingCanvas()
         {
+            Debug.LogError("?");
+
             const float progressWidth = 490f;
             const float progressHeight = 36f;
             const float progressBarLeft = -245.62f;
@@ -242,7 +244,7 @@ namespace AsGame.Editor
             var temp = new GameObject("BottlePrefabTemp");
             var sprite = GameResourceLoader.LoadSprite("Sprites/Bottle/img_8")
                          ?? GameResourceLoader.LoadSprite("Sprites/Bottle/img_2");
-            var bottle = BottleController.CreateLegacy(temp.transform, sprite);
+            var bottle = Bottle.CreateLegacy(temp.transform, sprite);
             if (bottle != null)
                 SaveAndMirror(bottle.gameObject, PrefabsRoot + "/Game/Bottle.prefab");
             Object.DestroyImmediate(temp);
@@ -253,7 +255,7 @@ namespace AsGame.Editor
             var temp = new GameObject("ShadowPrefabTemp");
             var sprite = GameResourceLoader.LoadSprite("Sprites/Bottle/img_9")
                          ?? GameResourceLoader.LoadSprite("Sprites/Bottle/sgsg");
-            var shadow = BottleController.CreateShadowLegacy(temp.transform, sprite);
+            var shadow = Bottle.CreateShadowLegacy(temp.transform, sprite);
             if (shadow != null)
                 SaveAndMirror(shadow.gameObject, PrefabsRoot + "/Game/BottleShadow.prefab");
             Object.DestroyImmediate(temp);

@@ -350,7 +350,7 @@ namespace XrCode
         public void LoadData()
         {
             money = SPlayerPrefs.GetDouble(PlayerPrefDefines.money, 0);
-            level = SPlayerPrefs.GetInt(PlayerPrefDefines.level, 0);
+            level = SPlayerPrefs.GetInt(PlayerPrefDefines.level, 1);
             energy = SPlayerPrefs.GetInt(PlayerPrefDefines.energy, GameDefines.Default_MaxEnergy);
             prop1Num = SPlayerPrefs.GetInt(PlayerPrefDefines.prop1Num, GameDefines.Default_Prop1_Count);
             prop2Num = SPlayerPrefs.GetInt(PlayerPrefDefines.prop2Num, GameDefines.Default_Prop2_Count);

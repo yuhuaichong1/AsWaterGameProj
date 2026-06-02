@@ -74,7 +74,7 @@ public class GM : MonoBehaviour
         if(int.TryParse(EnergyField.text, out energy))
         {
             FacadePlayer.AddEnergy(energy);
-            FacadeGamePlay.SetCurEnergyShow(EShowEnergyType.All);
+            //FacadeGamePlay.SetCurEnergyShow(EShowEnergyType.All);
         }
         
 

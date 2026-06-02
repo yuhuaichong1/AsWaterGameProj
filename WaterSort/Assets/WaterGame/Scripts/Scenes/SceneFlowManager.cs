@@ -18,7 +18,7 @@ namespace AsGame.Scenes
         GameObject _homeCanvas;
         GameObject _gameplayCanvas;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        //[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Bootstrap()
         {
             if (Instance != null) return;

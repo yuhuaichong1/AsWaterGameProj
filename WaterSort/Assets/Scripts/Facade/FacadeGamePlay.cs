@@ -30,7 +30,9 @@ namespace XrCode
         public static Action SetCurLevelText;                                           //设置当前关卡的显示
         public static Action SetWithdrawalTip;                                          //设置当前兑现通知
 
-        public static Action<EShowEnergyType> SetCurEnergyShow;                         //设置当前体力显示
+        public static Func<Transform> GetCupPart;                                       //获取瓶子父物体
+        public static Func<Transform> GetCupPartShadow;                                 //获取瓶子阴影父物体
+        public static Func<Transform> GetPockets;                                       //获取包装袋父物体
 
         #endregion
     }

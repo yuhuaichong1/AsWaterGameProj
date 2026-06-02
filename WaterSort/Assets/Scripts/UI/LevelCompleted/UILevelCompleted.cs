@@ -53,7 +53,8 @@ namespace XrCode
 
         private void InitShow()
         {
-            curCompletedMoney = TBLevel.Get(curCompletedLevel).LevelReward;
+            //curCompletedMoney = TBLevel.Get(curCompletedLevel).LevelReward;
+            curCompletedMoney = 10;
             curOnlyMoney = curCompletedMoney / 10;
             mMoneyText.text = $"+{FacadePayType.RegionalChange(curCompletedMoney)}";
             mOnlyText.text = string.Format(FacadeLanguage.GetText("10019"), FacadePayType.RegionalChange(curOnlyMoney));

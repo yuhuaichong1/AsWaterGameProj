@@ -6,6 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scene/Start.unity
+    guid: 1de6bc2e6f5d37643ba4646ad7c04505
+  - enabled: 1
+    path: Assets/Scene/Loading.unity
+    guid: 3c64d4523a258ef4fa9ac8222c1dd565
+  - enabled: 1
     path: Assets/WaterGame/Scenes/Game.unity
     guid: b86db6cd8d691234c9c6911355697a61
   m_configObjects: {}

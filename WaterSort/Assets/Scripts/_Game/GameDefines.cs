@@ -101,6 +101,8 @@ public abstract class GameDefines
 
     #region 各种路径
 
+    public static string LevelsDataPath = "Json/Levels/ConfTotal.json";
+
     #region 奖励特效小图标路径
     public static string ERMoneyIconPath = "UI/RewardEffect/icon_qianbidui.png";                            //三叠钱
     public static string ERIAAMoneyIconPath = "UI/LuckySpinIcons/icon_qianbi_IAA.png";                      //一叠硬币

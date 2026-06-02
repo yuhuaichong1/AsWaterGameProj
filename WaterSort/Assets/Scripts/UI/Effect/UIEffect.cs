@@ -48,10 +48,10 @@ namespace XrCode
             mFlyIAAMoney.gameObject.SetActive(false);
             mFlyMoneyTip.gameObject.SetActive(false);
             mFlyIAAMoneyTip.gameObject.SetActive(false);
-            mShaobaEffect.gameObject.SetActive(false);
-            mHammerEffect.gameObject.SetActive(false);
-            mClickEffect.gameObject.SetActive(false);
-            mDifficultyUpEffect.gameObject.SetActive(false);
+            //mShaobaEffect.gameObject.SetActive(false);
+            //mHammerEffect.gameObject.SetActive(false);
+            //mClickEffect.gameObject.SetActive(false);
+            //mDifficultyUpEffect.gameObject.SetActive(false);
         }
 
         protected override void OnEnable()

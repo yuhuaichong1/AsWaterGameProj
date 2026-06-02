@@ -29,7 +29,7 @@ namespace XrCode
         };
             sceneNameDic = new Dictionary<byte, string>()
         {
-            { (byte)ESceneType.MainScene, "MainCity" },
+            { (byte)ESceneType.MainScene, "Game" },
         };
             AddEvent();
             RegisetUpdateObj();

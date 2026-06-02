@@ -33,7 +33,9 @@ namespace XrCode
             FacadeGamePlay.GetCMDialogTextPos += GetCMDialogTextPos;
             FacadeGamePlay.GetFlyObjGoalPos += GetFlyObjGoalPos;
 
-            FacadeGamePlay.SetCurEnergyShow += SetCurEnergyShow;
+            FacadeGamePlay.GetCupPart += GetCupPart;
+            FacadeGamePlay.GetCupPartShadow += GetCupPartShadow;
+            FacadeGamePlay.GetPockets += GetPockets;
         }
 
         /// <summary>
@@ -51,7 +53,9 @@ namespace XrCode
             FacadeGamePlay.GetCMDialogTextPos -= GetCMDialogTextPos;
             FacadeGamePlay.GetFlyObjGoalPos -= GetFlyObjGoalPos;
 
-            FacadeGamePlay.SetCurEnergyShow -= SetCurEnergyShow;
+            FacadeGamePlay.GetCupPart -= GetCupPart;
+            FacadeGamePlay.GetCupPartShadow -= GetCupPartShadow;
+            FacadeGamePlay.GetPockets -= GetPockets;
         }
 
         #endregion
@@ -69,12 +73,11 @@ namespace XrCode
             SetProp1CountShow();
             SetProp2CountShow();
             SetProp3CountShow();
-            SetCurEnergyShow(EShowEnergyType.All);
         }
 
         protected override void OnEnable()
         {
-        
+            FacadeGamePlay.CreateLevel();
         }
 
         #region 设置部分UI的显示
@@ -150,30 +153,6 @@ namespace XrCode
             //mCMDialogText.text = string.Format(FacadeLanguage.GetText(), );
         }
 
-        /// <summary>
-        /// 设置当前体力显示
-        /// </summary>
-        public void SetCurEnergyShow(EShowEnergyType type)
-        {
-            switch(type)
-            {
-                case EShowEnergyType.Energy:
-                    int energy = FacadePlayer.GetEnergy?.Invoke() ?? 0;
-                    mCurEnergyText.text = energy.ToString();
-                    break;
-                case EShowEnergyType.Time:
-                    int time = FacadePlayer.GetCurRemainingTime?.Invoke() ?? 0;
-                    mCurEnergyTimeText.text = time.MSConvert();
-                    break;
-                case EShowEnergyType.All:
-                    int energy2 = FacadePlayer.GetEnergy?.Invoke() ?? 0;
-                    mCurEnergyText.text = energy2.ToString();
-                    int time2 = FacadePlayer.GetCurRemainingTime?.Invoke() ?? 0;
-                    mCurEnergyTimeText.text = time2.MSConvert();
-                    break;
-            }
-        }
-
         #endregion
 
         #region 获取部分UI
@@ -202,6 +181,21 @@ namespace XrCode
             };
 
             return goals;
+        }
+
+        private Transform GetCupPart()
+        {
+            return mCupPart;
+        }
+
+        private Transform GetCupPartShadow()
+        {
+            return mCupPartShadow;
+        }
+
+        private Transform GetPockets()
+        {
+            return mPockets;
         }
 
         #endregion

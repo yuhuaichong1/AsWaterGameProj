@@ -19,12 +19,12 @@ namespace AsGame.Water
         [SerializeField] RectTransform contentRoot;
         [SerializeField] GameHudController hud;
 
-        readonly Dictionary<int, BottleController> _cups = new();
-        readonly Dictionary<int, BottleController> _shadows = new();
+        readonly Dictionary<int, Bottle> _cups = new();
+        readonly Dictionary<int, Bottle> _shadows = new();
         readonly List<int> _pocketColors = new();
         List<CupData> _levelData = new();
         PourActionRecord _pourAction;
-        BottleController _selected;
+        Bottle _selected;
         GameStatus _status = GameStatus.None;
         int _levelIndex;
         int _needCollect;
@@ -177,7 +177,7 @@ namespace AsGame.Water
                 }
 
                 var pos = new Vector3(data.position.x, data.position.y + GameConstants.HalfBottleHeight, 0);
-                var bottle = BottleController.Create(cupRoot, _bottleSprite);
+                var bottle = Bottle.Create(cupRoot, _bottleSprite);
                 if (bottle == null)
                 {
                     Debug.LogError($"[GameController] 创建瓶子失败 id={data.id} pos={data.position}");
@@ -186,7 +186,7 @@ namespace AsGame.Water
 
                 bottle.transform.localPosition = pos;
                 bottle.Init(data, OnCupClick);
-                var shadow = BottleController.CreateShadow(shadowRoot, _shadowSprite);
+                var shadow = Bottle.CreateShadow(shadowRoot, _shadowSprite);
                 if (shadow == null)
                 {
                     Debug.LogError($"[GameController] 创建阴影失败 id={data.id}");
@@ -238,7 +238,7 @@ namespace AsGame.Water
             });
         }
 
-        void OnCupClick(BottleController cup)
+        void OnCupClick(Bottle cup)
         {
             if (cup.IsVideo())
             {
@@ -293,7 +293,7 @@ namespace AsGame.Water
             }
         }
 
-        bool CheckPour(BottleController from, BottleController to)
+        bool CheckPour(Bottle from, Bottle to)
         {
             if (from.IsEmpty()) return false;
             if (!to.IsEmpty())
@@ -305,7 +305,7 @@ namespace AsGame.Water
             return true;
         }
 
-        IEnumerator PourRoutine(BottleController from, BottleController to)
+        IEnumerator PourRoutine(Bottle from, Bottle to)
         {
             _status = GameStatus.Moving;
             try
@@ -354,7 +354,7 @@ namespace AsGame.Water
             }
         }
 
-        void RegisterFullCup(BottleController cup)
+        void RegisterFullCup(Bottle cup)
         {
             if (cup == null || !cup.IsCollect()) return;
             var color = cup.GetTopColorId();
@@ -407,7 +407,7 @@ namespace AsGame.Water
 
         struct PackPair
         {
-            public BottleController cup;
+            public Bottle cup;
             public PocketController pocket;
         }
 
@@ -421,7 +421,7 @@ namespace AsGame.Water
                 if (!_pendingFullCupsByColor.TryGetValue(pocket.PackColorId, out var queue) || queue.Count == 0)
                     continue;
 
-                BottleController cup = null;
+                Bottle cup = null;
                 while (queue.Count > 0)
                 {
                     var cupId = queue.Dequeue();
@@ -438,7 +438,7 @@ namespace AsGame.Water
             return result;
         }
 
-        IEnumerator HandlePack(BottleController cup, PocketController pocket, float delay)
+        IEnumerator HandlePack(Bottle cup, PocketController pocket, float delay)
         {
             if (cup == null || pocket == null) yield break;
             if (delay > 0f)
@@ -514,7 +514,7 @@ namespace AsGame.Water
             hud?.HideShuffleTip();
         }
 
-        IEnumerator ShuffleCup(BottleController cup)
+        IEnumerator ShuffleCup(Bottle cup)
         {
             if (cup.IsEmpty() || cup.IsLock()) yield break;
             for (var i = 0; i < 8; i++)
@@ -561,11 +561,11 @@ namespace AsGame.Water
 
             slot.isNull = 0;
             var pos = new Vector3(slot.position.x, slot.position.y + GameConstants.HalfBottleHeight, 0);
-            var bottle = BottleController.Create(cupRoot, _bottleSprite);
+            var bottle = Bottle.Create(cupRoot, _bottleSprite);
             if (bottle == null) return false;
             bottle.transform.localPosition = pos;
             bottle.Init(slot, OnCupClick);
-            var shadow = BottleController.CreateShadow(shadowRoot, _shadowSprite);
+            var shadow = Bottle.CreateShadow(shadowRoot, _shadowSprite);
             if (shadow == null)
             {
                 Destroy(bottle.gameObject);
