@@ -22,6 +22,7 @@ namespace XrCode
         private Dictionary<int, Bottle> shadows;
         private GameStatus status;
         private bool _shuffleMode;//是否处于刷新状态
+        private bool _shuffleAnimating;
         private Bottle _selected;//被选中的瓶子
         private PourActionRecord pourAction;//上一次的操作结果
         Dictionary<int, Queue<int>> _pendingFullCupsByColor;
@@ -29,6 +30,8 @@ namespace XrCode
         private int _collected;
         private int _needCollect;
         private List<int> _pocketColors;
+        private List<GameObject> _shuffleFxObjects;
+        private Dictionary<int, GameObject> _shuffleFxByCupId;
 
         private int func1timer;
         private float[] pocketXPos;
@@ -41,6 +44,8 @@ namespace XrCode
             shadows = new Dictionary<int, Bottle>();
             _pendingFullCupsByColor = new Dictionary<int, Queue<int>>();
             _pocketColors = new List<int>();
+            _shuffleFxObjects = new List<GameObject>();
+            _shuffleFxByCupId = new Dictionary<int, GameObject>();
 
             float PInterval = Screen.width / 4;
             pocketXPos = new float[4] { PInterval * -1.5f, PInterval * -0.5f, PInterval * 0.5f, PInterval * 1.5f };
@@ -305,9 +310,11 @@ namespace XrCode
                     return;
                 }
 
-                Func_Prop1_Func(cup);
+                Game.Instance.StartCoroutine(Func_Prop1_Func(cup));
                 return;
             }
+
+            Debug.LogError("?");
 
             if (status != GameStatus.Gaming) return;
             if (cup.IsLock() || cup.Pouring) return;
@@ -630,33 +637,123 @@ namespace XrCode
         /// </summary>
         private void Func_Porp1()
         {
+            //status = GameStatus.UsingProp;
+            //_shuffleMode = true;
+            FacadeGamePlay.SetShuffleTipShow(true);
+
+            var any = false;
+            foreach (var kv in cups)
+            {
+                var cup = kv.Value;
+                if (cup == null || cup.IsUnShuffle()) continue;
+                any = true;
+                cup.StartShuffleShake();
+                AddShuffleEffect(cup);
+            }
+
+            if (!any) return;
             status = GameStatus.UsingProp;
             _shuffleMode = true;
+            _shuffleAnimating = false;
             FacadeGamePlay.SetShuffleTipShow(true);
+        }
+
+        private void AddShuffleEffect(Bottle cup)
+        {
+            if (FacadeGamePlay.GetCupPart() == null || cup == null) return;
+            var anchor = new GameObject("ShuffleFxAnchor", typeof(RectTransform));
+            var rt = anchor.GetComponent<RectTransform>();
+            rt.SetParent(FacadeGamePlay.GetCupPart(), false);
+            rt.localPosition = cup.transform.localPosition + new Vector3(0f, -GameConstants.HalfBottleHeight - 110f, 0f);
+            rt.localScale = Vector3.one * 0.8f;
+            // 插在对应瓶子之前绘制，光环在瓶身/水体下层（对齐 Cocos：杯子层盖住 effectFront 光环）
+            rt.SetSiblingIndex(cup.transform.GetSiblingIndex());
+            // 对齐 Cocos Spine_Shuffle：xuan_zhong / idle（spine-unity SkeletonGraphic）
+            SpineService.PlayEffect(rt, Vector3.zero, "xuan_zhong", "idle", loop: true);
+            _shuffleFxObjects.Add(anchor);
+            _shuffleFxByCupId[cup.GetId()] = anchor;
         }
 
         /// <summary>
         /// 刷新功能具体执行逻辑
         /// </summary>
         /// <param name="cup"></param>
-        private void Func_Prop1_Func(Bottle cup)
+        private IEnumerator Func_Prop1_Func(Bottle cup)
         {
-            if (cup.IsEmpty() || cup.IsLock()) return;
+            /*
+            //if (cup.IsEmpty() || cup.IsLock()) return;
 
-            func1timer = 0;
-            FacadeGamePlay.SetShuffleTipShow(false);
+            //func1timer = 0;
+            //FacadeGamePlay.SetShuffleTipShow(false);
 
-            STimerManager.Instance.CreateSTimer(GameDefines.RefreshATime, GameDefines.RefreshLCount, true, true, () => 
+            //STimerManager.Instance.CreateSTimer(GameDefines.RefreshATime, GameDefines.RefreshLCount, true, true, () => 
+            //{
+            //    List<int> colors = cup.Data.colors;
+            //    if (colors.Count >= 2)
+            //        (colors[0], colors[^1]) = (colors[^1], colors[0]);
+            //    cup.RefreshVisual();
+
+            //    func1timer++;
+            //    if (func1timer > GameDefines.RefreshLCount)
+            //        EndShuffleMode();
+            //});
+            */
+
+            if (cup == null || cup.IsUnShuffle()) yield break;
+            _shuffleAnimating = true;
+            var colors = cup.Data.colors;
+            for (var step = 0; step < 20; step++)
             {
-                var colors = cup.Data.colors;
-                if (colors.Count >= 2)
-                    (colors[0], colors[^1]) = (colors[^1], colors[0]);
-                cup.RefreshVisual();
+                if (!_shuffleMode)
+                {
+                    _shuffleAnimating = false;
+                    yield break;
+                }
 
-                func1timer++;
-                if (func1timer > GameDefines.RefreshLCount)
-                    EndShuffleMode();
-            });
+                if (colors.Count == 2)
+                    (colors[0], colors[1]) = (colors[1], colors[0]);
+                else
+                    ShuffleColors(colors);
+                cup.RefreshVisual();
+                yield return new WaitForSeconds(0.02f);
+            }
+
+            if (!_shuffleMode)
+            {
+                _shuffleAnimating = false;
+                yield break;
+            }
+
+            var topBefore = colors.Count > 0 ? colors[^1] : 0;
+            ShuffleColors(colors);
+            var diffIdx = -1;
+            for (var i = 0; i < colors.Count; i++)
+            {
+                if (colors[i] == topBefore) continue;
+                diffIdx = i;
+                break;
+            }
+
+            if (diffIdx >= 0)
+            {
+                var moved = colors[diffIdx];
+                colors.RemoveAt(diffIdx);
+                colors.Add(moved);
+            }
+
+            cup.RefreshVisual();
+            _shuffleAnimating = false;
+
+            EndShuffleMode();
+        }
+
+        static void ShuffleColors(List<int> colors)
+        {
+            for (var i = colors.Count - 1; i > 0; i--)
+            {
+                var j = Random.Range(0, i + 1);
+                (colors[i], colors[j]) = (colors[j], colors[i]);
+            }
         }
 
         /// <summary>
@@ -664,9 +761,28 @@ namespace XrCode
         /// </summary>
         void EndShuffleMode()
         {
+            foreach (var kv in cups)
+                kv.Value?.DoUnShuffle();
+            ClearShuffleEffects();
+            _shuffleMode = false;
+            _shuffleAnimating = false;
+            status = GameStatus.Gaming;
+            FacadeGamePlay.SetShuffleTipShow(false);
+
             _shuffleMode = false;
             status = GameStatus.Gaming;
             FacadeGamePlay.SetShuffleTip2Show(true);
+        }
+
+        void ClearShuffleEffects()
+        {
+            foreach (var go in _shuffleFxObjects)
+            {
+                if (go != null) GameObject.Destroy(go);
+            }
+
+            _shuffleFxObjects.Clear();
+            _shuffleFxByCupId.Clear();
         }
 
         /// <summary>
