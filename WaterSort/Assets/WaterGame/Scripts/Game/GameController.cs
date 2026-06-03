@@ -426,8 +426,6 @@ namespace AsGame.Water
 
         List<PackPair> BatchCheckPack()
         {
-            Debug.LogError(_cups.Count);
-
             var result = new List<PackPair>();
             foreach (Transform child in pocketRoot)
             {

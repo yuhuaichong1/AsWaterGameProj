@@ -3,6 +3,7 @@
  * 游戏中常量、枚举等内容请在这里统一定义
  */
 
+using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class GameDefines
@@ -32,6 +33,19 @@ public abstract class GameDefines
 
     public static float RefreshATime = 0.05f;                                                               //刷新功能特效间隔时间
     public static int RefreshLCount = 8;                                                                    //刷新功能特效重复次数
+
+    public static Dictionary<int, string> dai_ziName = new Dictionary<int, string>()
+    {
+        {0, ""},
+        {1, "cheng"},
+        {2, "huang"},
+        {3, "lv"},
+        {4, "sheng_lan"},
+        {5, "lan"},
+        {6, "zi"},
+        {7, "hui"},
+        {8, "hong"},
+    };                    //颜色id对应的袋子spine动画皮肤名称
 
     #endregion
 

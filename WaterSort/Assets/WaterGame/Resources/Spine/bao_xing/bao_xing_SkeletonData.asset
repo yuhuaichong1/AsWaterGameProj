@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: bao_xing_SkeletonData
   m_EditorClassIdentifier: 
   atlasAssets:
-  - {fileID: 11400000, guid: b8c9d0e1f2a3438695d7e8f9a0b1c2d4, type: 2}
+  - {fileID: 11400000, guid: 2586ac99919b1494cae7a45f7b9b00af, type: 2}
   scale: 0.01
-  skeletonJSON: {fileID: 4900000, guid: f16172d9e6373154a8aff348cfb0ff2a, type: 3}
+  skeletonJSON: {fileID: 4900000, guid: bf7f6495dd4067f43921b2d393732aa3, type: 3}
   isUpgradingBlendModeMaterials: 0
   blendModeMaterials:
     requiresBlendModeMaterials: 0
@@ -27,5 +27,5 @@ MonoBehaviour:
   fromAnimation: []
   toAnimation: []
   duration: []
-  defaultMix: 0
+  defaultMix: 0.2
   controller: {fileID: 0}

@@ -274,7 +274,6 @@ namespace XrCode
                 if (!locked && _pocketColors.Count > 0) _pocketColors.RemoveAt(0);
                 Pocket pocket = Pocket.Create(FacadeGamePlay.GetPockets(), locked);
                 RectTransform rt = (RectTransform)pocket.transform;
-                Debug.LogError(pocketXPos[i]);
                 rt.anchoredPosition = new Vector2(pocketXPos[i], 0);
                 pocket.Init(locked, color, OnUnlockPocket);
             }
@@ -530,22 +529,49 @@ namespace XrCode
             if (delay > 0f)
                 yield return new WaitForSeconds(delay);
 
-            var target = pocket.transform.localPosition + Vector3.up * 100f;
-            yield return TweenHelper.MoveLocal(cup.transform, target, 0.2f);
-            yield return pocket.OnPocketAction();
-            //SpineService.PlayEffect(pocket.transform, Vector3.zero, "he_cheng_1", "zhuang");
-
             var id = cup.GetId();
             var packedColor = cup.GetTopColorId();
+
+            SpineService.ClearEffects(cup.transform);
             if (shadows.TryGetValue(id, out var shadow) && shadow != null)
+            {
                 GameObject.Destroy(shadow.gameObject);
-            shadows.Remove(id);
+                shadows.Remove(id);
+            }
+
+            cup.transform.SetAsLastSibling();
+            Vector3 worldTarget = pocket.transform.position;
+            Vector3 localTarget = cup.transform.parent.InverseTransformPoint(worldTarget) + new Vector3(0, 100f, 0);
+            yield return TweenHelper.MoveLocal(cup.transform, localTarget, 0.2f);
+
             GameObject.Destroy(cup.gameObject);
             cups[id] = null;
+            foreach (var slot in curLevelData)
+            {
+                if (slot.id == id)
+                {
+                    ResetSlotAsPacked(slot);
+                    break;
+                }
+            }
 
+            yield return pocket.OnPocketAction(packedColor);
+            //RefreshAddBottleButton();
             _collected++;
             CheckUnlockCup(packedColor);
             RefillPocket(pocket);
+        }
+
+        static void ResetSlotAsPacked(CupData slot)
+        {
+            if (slot == null) return;
+            slot.colors.Clear();
+            slot.whNums = 0;
+            slot.isVideo = 0;
+            slot.isLock = 0;
+            slot.lockColor = 0;
+            slot.lockNums = 0;
+            slot.isNull = 1;
         }
 
         private IEnumerator WinRoutine()

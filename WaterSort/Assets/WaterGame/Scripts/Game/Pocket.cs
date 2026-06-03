@@ -6,6 +6,7 @@ using AsGame.Core;
 using AsGame.Spine;
 using AsGame.UI;
 using XrCode;
+using Spine.Unity;
 
 namespace AsGame.Water
 {
@@ -14,6 +15,8 @@ namespace AsGame.Water
         [SerializeField] private Image pocketImage;
         [SerializeField] private GameObject lockOverlay;
         [SerializeField] private Button _unlockButton;
+        [SerializeField] private SkeletonGraphic bao_xingEffect;
+        [SerializeField] private SkeletonGraphic dai_ziEffect;
 
         int _colorId;
         bool _locked;
@@ -102,6 +105,8 @@ namespace AsGame.Water
         /// <summary>对齐 Cocos PocketComp.onPocketAction：星星爆开 → 装袋 → 口袋上飞。</summary>
         public IEnumerator OnPocketAction(int packColorId = 0)
         {
+            Debug.LogError("/");
+
             if (packColorId <= 0)
                 yield break;
 
@@ -110,16 +115,17 @@ namespace AsGame.Water
 
             var fxPos = GetPocketFxLocalPos(packColorId);
             var baoDone = false;
-            SpineService.PlayEffect(transform, fxPos, "bao_xing", "bao", loop: false, onComplete: () => baoDone = true);
+            //SpineService.PlayEffect(transform, fxPos, "bao_xing", "bao", loop: false, onComplete: () => baoDone = true);
+            PlayFinishEffect1();
 
             var wait = 0f;
-            while (!baoDone && wait < 2f)
+            while (!baoDone && wait < 0.5f)
             {
                 wait += Time.deltaTime;
                 yield return null;
             }
 
-            yield return new WaitForSeconds(0.1f);
+            //yield return new WaitForSeconds(0.1f);
 
             if (pocketImage != null)
             {
@@ -130,8 +136,8 @@ namespace AsGame.Water
 
             GameConstants.GamePocketSpineSkin.TryGetValue(packColorId, out var skinName);
             var daiDone = false;
-            SpineService.PlayEffect(transform, fxPos, "dai_zi", "zhuang", loop: false, onComplete: () => daiDone = true,
-                skinName: skinName);
+            //SpineService.PlayEffect(transform, fxPos, "dai_zi", "zhuang", loop: false, onComplete: () => daiDone = true, skinName: skinName);
+            PlayFinishEffect2();
 
             wait = 0f;
             while (!daiDone && wait < 2.5f)
@@ -246,6 +252,21 @@ namespace AsGame.Water
 
             ctrl.Init(locked, 0, onUnlock);
             return ctrl;
+        }
+
+        private void PlayFinishEffect1()
+        {
+            bao_xingEffect.gameObject.SetActive(true);
+            bao_xingEffect.AnimationState.SetAnimation(0, "bao", false).Complete += (Entry) => { bao_xingEffect.gameObject.SetActive(false); };
+            
+        }
+
+        private void PlayFinishEffect2()
+        {
+            dai_ziEffect.gameObject.SetActive(true);
+            dai_ziEffect.Skeleton.SetSkin(GameDefines.dai_ziName[_colorId]);
+            dai_ziEffect.Skeleton.SetSlotsToSetupPose();
+            dai_ziEffect.AnimationState.SetAnimation(0, "zhuang", false).Complete += (Entry) => { dai_ziEffect.gameObject.SetActive(false); };
         }
 
         public void RequestUnlock() => _onUnlock?.Invoke(this);

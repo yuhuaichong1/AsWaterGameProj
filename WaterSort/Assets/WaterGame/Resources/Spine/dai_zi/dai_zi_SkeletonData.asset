@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: dai_zi_SkeletonData
   m_EditorClassIdentifier: 
   atlasAssets:
-  - {fileID: 11400000, guid: d0e1f2a3b4c5438695e8f9a0b1c2d3e6, type: 2}
+  - {fileID: 11400000, guid: 7be59f472f39cf8419d5c36708180fd8, type: 2}
   scale: 0.01
-  skeletonJSON: {fileID: 4900000, guid: 517fd492ee62b674badc4c4bbea957c2, type: 3}
+  skeletonJSON: {fileID: 4900000, guid: 602084cfb4a9ddd47976f7c6f1e314ad, type: 3}
   isUpgradingBlendModeMaterials: 0
   blendModeMaterials:
     requiresBlendModeMaterials: 0
@@ -27,5 +27,5 @@ MonoBehaviour:
   fromAnimation: []
   toAnimation: []
   duration: []
-  defaultMix: 0
+  defaultMix: 0.2
   controller: {fileID: 0}

@@ -48,9 +48,6 @@ namespace XrCode
             mFlyIAAMoney.gameObject.SetActive(false);
             mFlyMoneyTip.gameObject.SetActive(false);
             mFlyIAAMoneyTip.gameObject.SetActive(false);
-            //mShaobaEffect.gameObject.SetActive(false);
-            //mHammerEffect.gameObject.SetActive(false);
-            //mClickEffect.gameObject.SetActive(false);
             //mDifficultyUpEffect.gameObject.SetActive(false);
         }
 
@@ -69,7 +66,6 @@ namespace XrCode
             FacadeEffect.PlayFlyMoney += PlayFlyMoney;
             FacadeEffect.PlayFlyMoneyTip += PlayFlyMoneyTip;
             FacadeEffect.PlayFlyProp += PlayFlyProp;
-            FacadeEffect.PlayClickEffect += PlayClickEffect;
             FacadeEffect.PlayDifficultyUpEffect += PlayDifficultyUpEffect;
         }
 
@@ -81,7 +77,6 @@ namespace XrCode
             FacadeEffect.PlayFlyMoney -= PlayFlyMoney;
             FacadeEffect.PlayFlyMoneyTip -= PlayFlyMoneyTip;
             FacadeEffect.PlayFlyProp -= PlayFlyProp;
-            FacadeEffect.PlayClickEffect -= PlayClickEffect;
             FacadeEffect.PlayDifficultyUpEffect -= PlayDifficultyUpEffect;
         }
 
@@ -402,22 +397,6 @@ namespace XrCode
         #endregion
 
         #region Spine动画
-        /// <summary>
-        /// 播放点击特效
-        /// </summary>
-        /// <param name="startPos">起始点</param>
-        private void PlayClickEffect(Transform startPos)
-        {
-            SkeletonGraphic clickObj = clickPool.Count > 0 ? clickPool.Pop() : GameObject.Instantiate(mClickEffect, mClickEffectParent);
-            clickObj.gameObject.SetActive(true);
-            clickObj.transform.position = startPos.position;
-            TrackEntry trackEntry = clickObj.AnimationState.SetAnimation(0, "touch", false);
-            trackEntry.Complete += (trackEntry) =>
-            {
-                clickPool.Push(clickObj);
-                clickObj.gameObject.SetActive(false);
-            };
-        }
 
         /// <summary>
         /// 播放难度提升特效
@@ -425,14 +404,15 @@ namespace XrCode
         /// <param name="endAction">结束事件</param>
         private void PlayDifficultyUpEffect(Action endAction)
         {
-            mDifficultyUpEffect.gameObject.SetActive(true);
-            TrackEntry trackEntry = mDifficultyUpEffect.AnimationState.SetAnimation(0, "animation", false);
-            STimerManager.Instance.CreateSDelay(GameDefines.DifficultyUp_StayTime, () => 
-            {
-                mDifficultyUpEffect.AnimationState.ClearTrack(0);
-                mDifficultyUpEffect.gameObject.SetActive(false);
-                endAction?.Invoke();
-            });
+            //mDifficultyUpEffect.gameObject.SetActive(true);
+            //TrackEntry trackEntry = mDifficultyUpEffect.AnimationState.SetAnimation(0, "animation", false);
+            //STimerManager.Instance.CreateSDelay(GameDefines.DifficultyUp_StayTime, () => 
+            //{
+            //    mDifficultyUpEffect.AnimationState.ClearTrack(0);
+            //    mDifficultyUpEffect.gameObject.SetActive(false);
+            //    endAction?.Invoke();
+            //});
+
             //trackEntry.Complete += (trackEntry) =>
             //{
             //    mDifficultyUpEffect.gameObject.SetActive(false);
