@@ -104,7 +104,10 @@ public abstract class GameDefines
 
     #region 各种路径
 
-    public static string LevelsDataPath = "Json/Levels/ConfTotal.json";
+    public static string LevelsDataPath = "Json/Levels/ConfTotal.json";                                     //关卡数据路径
+    public static string BottlePath = "Prefabs/Game/Bottle.prefab";                                         //瓶子预制体路径
+    public static string BottleShadowPath = "Prefabs/Game/BottleShadow.prefab";                             //瓶子阴影预制体路径
+    public static string PocketPath = "Prefabs/Game/Pocket.prefab";                                         //饮料预制体路径
 
     #region 奖励特效小图标路径
     public static string ERMoneyIconPath = "UI/RewardEffect/icon_qianbidui.png";                            //三叠钱

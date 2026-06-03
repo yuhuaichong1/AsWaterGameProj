@@ -108,7 +108,13 @@ namespace XrCode
             curLevelIndex = FacadePlayer.GetLevel();
             GetLevelData(curLevelIndex);
             GenerateCups();
-            Debug.LogError("===>" + curLevelData.Count);
+            GeneratePockets();
+            foreach (var kv in cups)
+                if (kv.Value != null && kv.Value.IsCollect())
+                    RegisterFullCup(kv.Value);
+            CheckPack();
+
+            status = GameStatus.Gaming;
         }
 
         /// <summary>
@@ -184,7 +190,9 @@ namespace XrCode
             }
         }
 
-
+        /// <summary>
+        /// 生成水瓶
+        /// </summary>
         private void GenerateCups()
         {
             for (int i = 0; i < curLevelData.Count; i++)
@@ -202,6 +210,14 @@ namespace XrCode
                 bottle.transform.localPosition = pos;
                 bottle.Init(data, OnCupClick);
             }
+        }
+
+        /// <summary>
+        /// 生成饮料
+        /// </summary>
+        private void GeneratePockets()
+        {
+
         }
 
         void OnCupClick(Bottle cup)

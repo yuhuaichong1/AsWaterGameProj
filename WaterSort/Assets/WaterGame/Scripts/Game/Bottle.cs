@@ -8,6 +8,7 @@ using AsGame.Data;
 using AsGame.Spine;
 using AsGame.UI;
 using Spine.Unity;
+using XrCode;
 
 namespace AsGame.Water
 {
@@ -1076,14 +1077,14 @@ namespace AsGame.Water
 
         public static Bottle Create(Transform parent)
         {
-            var prefab = Resources.Load<GameObject>(PrefabPaths.Bottle);
+            //GameObject prefab = Resources.Load<GameObject>(PrefabPaths.Bottle);
+            GameObject prefab = ResourceMod.Instance.SyncLoad<GameObject>(GameDefines.BottlePath);
             if (prefab == null)
             {
-                Debug.LogWarning("[BottleController] Missing Resources/" + PrefabPaths.Bottle + ", using legacy build.");
                 return CreateLegacy(parent);
             }
 
-            var go = UnityEngine.Object.Instantiate(prefab, parent);
+            GameObject go = UnityEngine.Object.Instantiate(prefab, parent);
             go.name = "Bottle";
             var rt = go.GetComponent<RectTransform>();
             if (rt != null)
