@@ -1,4 +1,5 @@
 ﻿
+using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -29,6 +30,8 @@ namespace XrCode
             FacadeGamePlay.SetProp3CountShow += SetProp3CountShow;
             FacadeGamePlay.SetCurLevelText += SetCurLevelText;
             FacadeGamePlay.SetWithdrawalTip += SetWithdrawalTip;
+            FacadeGamePlay.SetShuffleTipShow += SetShuffleTipShow;
+            FacadeGamePlay.SetShuffleTip2Show += SetShuffleTip2Show;
 
             FacadeGamePlay.GetCMDialogTextPos += GetCMDialogTextPos;
             FacadeGamePlay.GetFlyObjGoalPos += GetFlyObjGoalPos;
@@ -49,6 +52,8 @@ namespace XrCode
             FacadeGamePlay.SetProp3CountShow -= SetProp3CountShow;
             FacadeGamePlay.SetCurLevelText -= SetCurLevelText;
             FacadeGamePlay.SetWithdrawalTip -= SetWithdrawalTip;
+            FacadeGamePlay.SetShuffleTipShow -= SetShuffleTipShow;
+            FacadeGamePlay.SetShuffleTip2Show -= SetShuffleTip2Show;
 
             FacadeGamePlay.GetCMDialogTextPos -= GetCMDialogTextPos;
             FacadeGamePlay.GetFlyObjGoalPos -= GetFlyObjGoalPos;
@@ -77,6 +82,9 @@ namespace XrCode
 
         protected override void OnEnable()
         {
+            SetShuffleTipShow(false);
+            SetShuffleTip2Show(false);
+
             FacadeGamePlay.CreateLevel();
         }
 
@@ -151,6 +159,34 @@ namespace XrCode
         private void SetWithdrawalTip()
         {
             //mCMDialogText.text = string.Format(FacadeLanguage.GetText(), );
+        }
+
+        /// <summary>
+        /// 设置刷新功能的提示的显影
+        /// </summary>
+        /// <param name="b">显影</param>
+        private void SetShuffleTipShow(bool b)
+        {
+            mShuffleTip.gameObject.SetActive(b);
+        }
+
+        /// <summary>
+        /// 设置刷新功能的提示的显影
+        /// </summary>
+        /// <param name="b">显影</param>
+        private void SetShuffleTip2Show(bool b)
+        {
+            mShuffleTip2.gameObject.SetActive(b);
+            mShuffleTip2.DOKill();
+            if (b)
+            {
+                mShuffleTip2.localScale = Vector3.zero; 
+                Sequence sequence = DOTween.Sequence();
+                sequence.Append(mShuffleTip2.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack));
+                sequence.AppendInterval(1);
+                sequence.Append(mShuffleTip2.DOScale(Vector3.zero, 0.5f).SetEase(Ease.Linear));
+                sequence.Play();
+            }
         }
 
         #endregion
@@ -230,6 +266,11 @@ namespace XrCode
                 UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIConfirm);
             else
                 UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIEnterInfomation);
+        }
+
+        private void OnTipExitBtnClickHandle()
+        {
+            SetShuffleTipShow(false);
         }
 
         #endregion

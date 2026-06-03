@@ -17,6 +17,7 @@ namespace XrCode
         public static Action Func_Porp3;                                                //功能3
         public static Action RePlay;                                                    //重新开始游戏
         public static Func<float> GetCurLevelProgress;                                  //获得当前关卡进度
+        public static Func<GameStatus> GetStatus;                                       //获取当前关卡状态
 
         #endregion
 
@@ -30,12 +31,14 @@ namespace XrCode
         public static Func<Dictionary<ERewardType, Vector3>> GetFlyObjGoalPos;          //获取飞行物体特效的终点
         public static Action SetCurLevelText;                                           //设置当前关卡的显示
         public static Action SetWithdrawalTip;                                          //设置当前兑现通知
+        public static Action<bool> SetShuffleTipShow;                                   //设置刷新功能的提示的显影
+        public static Action<bool> SetShuffleTip2Show;                                  //设置刷新功能的提示2的显影
 
         public static Func<Transform> GetCupPart;                                       //获取瓶子父物体
         public static Func<Transform> GetCupPartShadow;                                 //获取瓶子阴影父物体
         public static Func<Transform> GetPockets;                                       //获取包装袋父物体
 
-        public static Func<GameStatus> GetStatus;                                       //获取当前关卡状态
+       
 
         #endregion
     }

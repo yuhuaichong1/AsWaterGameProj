@@ -29,6 +29,7 @@ namespace XrCode
         private int _needCollect;
         private List<int> _pocketColors;
 
+        private int func1timer;
         protected override void OnLoad()
         {
             curLevelData = new List<CupData>();
@@ -36,6 +37,8 @@ namespace XrCode
             cups = new Dictionary<int, Bottle>();
             shadows = new Dictionary<int, Bottle>();
             _pocketColors = new List<int>();
+
+            func1timer = 0;
 
             FacadeAdd();
 
@@ -513,6 +516,7 @@ namespace XrCode
         {
             status = GameStatus.UsingProp;
             _shuffleMode = true;
+            FacadeGamePlay.SetShuffleTipShow(true);
         }
 
         /// <summary>
@@ -523,15 +527,20 @@ namespace XrCode
         {
             if (cup.IsEmpty() || cup.IsLock()) return;
 
+            func1timer = 0;
+            FacadeGamePlay.SetShuffleTipShow(false);
+
             STimerManager.Instance.CreateSTimer(GameDefines.RefreshATime, GameDefines.RefreshLCount, true, true, () => 
             {
                 var colors = cup.Data.colors;
                 if (colors.Count >= 2)
                     (colors[0], colors[^1]) = (colors[^1], colors[0]);
                 cup.RefreshVisual();
-            });
 
-            EndShuffleMode();
+                func1timer++;
+                if (func1timer >= GameDefines.RefreshLCount)
+                    EndShuffleMode();
+            });
         }
 
         /// <summary>
@@ -541,7 +550,7 @@ namespace XrCode
         {
             _shuffleMode = false;
             status = GameStatus.Gaming;
-            //hud?.HideShuffleTip();
+            FacadeGamePlay.SetShuffleTip2Show(true);
         }
 
         /// <summary>
