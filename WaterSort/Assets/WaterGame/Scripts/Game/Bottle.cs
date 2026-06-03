@@ -204,6 +204,56 @@ namespace AsGame.Water
             return _data.whNums <= 0;
         }
 
+        /// <summary>对齐 Cocos isUnShuffle：不参与打乱的瓶子。</summary>
+        public bool IsUnShuffle() =>
+            IsEmpty() || IsVideo() || IsSameColor() || IsLock() || IsOneWater() || IsCollect();
+
+        public bool IsSameColor()
+        {
+            if (_data == null || _data.colors.Count == 0) return false;
+            var top = GetTopColorId();
+            foreach (var c in _data.colors)
+                if (c != top) return false;
+            return _data.whNums <= 0;
+        }
+
+        public bool IsOneWater() => _data != null && _data.colors.Count == 1;
+
+        Coroutine _shuffleShakeCo;
+
+        public void StartShuffleShake()
+        {
+            StopShuffleShake();
+            _shuffleShakeCo = StartCoroutine(ShuffleShakeLoop());
+        }
+
+        public void StopShuffleShake()
+        {
+            if (_shuffleShakeCo != null)
+            {
+                StopCoroutine(_shuffleShakeCo);
+                _shuffleShakeCo = null;
+            }
+        }
+
+        public void DoUnShuffle()
+        {
+            StopShuffleShake();
+            transform.localPosition = _baseLocalPos;
+            if (_shadow != null)
+                StartCoroutine(_shadow.ResetShadow(0.2f));
+        }
+
+        IEnumerator ShuffleShakeLoop()
+        {
+            while (true)
+            {
+                yield return TweenHelper.MoveLocal(transform, _baseLocalPos + Vector3.up * 10f, 0.2f);
+                yield return TweenHelper.MoveLocal(transform, _baseLocalPos - Vector3.up * 10f, 0.2f);
+                yield return new WaitForSeconds(0.2f);
+            }
+        }
+
         public int GetLayerPourWater()
         {
             var top = GetTopColorId();
@@ -1041,11 +1091,23 @@ namespace AsGame.Water
             }
         }
 
+        /// <summary>满瓶收集：Cocos Spine_Collection = he_cheng_2 / guang（双轨交叉流光）。</summary>
         public IEnumerator DoCollected()
         {
             AudioManager.Instance?.PlaySfx("BottleCollected");
-            SpineService.PlayEffect(transform, new Vector3(0, -GameConstants.HalfBottleHeight, 0), "xuan_zhong", "guang");
-            yield return new WaitForSeconds(0.5f);
+            SpineService.ClearEffects(transform);
+            var fxPos = new Vector3(0f, -GameConstants.HalfBottleHeight, 0f);
+            var finished = false;
+            SpineService.PlayEffect(transform, fxPos, "he_cheng_2", "guang", loop: false, onComplete: () => finished = true);
+            var elapsed = 0f;
+            while (!finished && elapsed < 2f)
+            {
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            yield return new WaitForSeconds(0.2f);
+            SpineService.ClearEffects(transform);
         }
 
         public IEnumerator DisappearEmpty()

@@ -17,12 +17,14 @@ namespace AsGame.Water
         int _colorId;
         bool _locked;
         Action<Pocket> _onUnlock;
+        Vector3 _orgLocalPos;
 
         public int PackColorId => _colorId;
         public bool IsLocked => _locked;
 
         public void Init(bool locked, int colorId, Action<Pocket> onUnlock = null)
         {
+            _orgLocalPos = transform.localPosition;
             _locked = locked;
             _colorId = colorId;
             _onUnlock = onUnlock;
@@ -50,6 +52,7 @@ namespace AsGame.Water
         public void SetColor(int colorId)
         {
             _colorId = colorId;
+            RestorePocketView();
             if (pocketImage == null) return;
 
             if (_locked)
@@ -84,18 +87,77 @@ namespace AsGame.Water
             pocketImage.SetNativeSize();
         }
 
-        public IEnumerator OnPocketAction()
+        /// <summary>对齐 Cocos PocketComp.onPocketAction：星星爆开 → 装袋 → 口袋上飞。</summary>
+        public IEnumerator OnPocketAction(int packColorId = 0)
         {
-            SpineService.PlayEffect(transform, Vector3.zero, "dai_zi", "zhuang");
-            var rt = transform as RectTransform;
-            if (rt == null) yield break;
-            var start = rt.localScale;
-            yield return TweenHelper.ToFloat(0f, 1f, 0.25f, t =>
+            if (packColorId <= 0)
+                yield break;
+
+            AudioManager.Instance?.PlaySfx("PackUp");
+            SpineService.ClearEffects(transform);
+
+            var fxPos = GetPocketFxLocalPos(packColorId);
+            var baoDone = false;
+            SpineService.PlayEffect(transform, fxPos, "bao_xing", "bao", loop: false, onComplete: () => baoDone = true);
+
+            var wait = 0f;
+            while (!baoDone && wait < 2f)
             {
-                var scale = Mathf.Lerp(1f, 1.15f, Mathf.Sin(t * Mathf.PI));
-                rt.localScale = start * scale;
-            });
-            rt.localScale = start;
+                wait += Time.deltaTime;
+                yield return null;
+            }
+
+            yield return new WaitForSeconds(0.1f);
+
+            if (pocketImage != null)
+            {
+                var c = pocketImage.color;
+                c.a = 0f;
+                pocketImage.color = c;
+            }
+
+            GameConstants.GamePocketSpineSkin.TryGetValue(packColorId, out var skinName);
+            var daiDone = false;
+            SpineService.PlayEffect(transform, fxPos, "dai_zi", "zhuang", loop: false, onComplete: () => daiDone = true,
+                skinName: skinName);
+
+            wait = 0f;
+            while (!daiDone && wait < 2.5f)
+            {
+                wait += Time.deltaTime;
+                yield return null;
+            }
+
+            SpineService.ClearEffects(transform);
+
+            var rt = transform as RectTransform;
+            if (rt != null)
+            {
+                var startY = rt.localPosition.y;
+                yield return TweenHelper.ToFloat(0f, 1f, 0.3f, t =>
+                {
+                    var eased = t * t;
+                    var pos = rt.localPosition;
+                    pos.y = Mathf.Lerp(startY, startY + 1000f, eased);
+                    rt.localPosition = pos;
+                });
+            }
+        }
+
+        void RestorePocketView()
+        {
+            transform.localPosition = _orgLocalPos;
+            if (pocketImage == null) return;
+            var c = pocketImage.color;
+            c.a = 1f;
+            pocketImage.color = c;
+        }
+
+        static Vector3 GetPocketFxLocalPos(int colorId)
+        {
+            if (GameConstants.GamePocketSpinePos.TryGetValue(colorId, out var offset))
+                return new Vector3(offset.x, offset.y, 0f);
+            return Vector3.zero;
         }
 
         public void ConfigureLockedState(bool locked, Action<Pocket> onUnlock)

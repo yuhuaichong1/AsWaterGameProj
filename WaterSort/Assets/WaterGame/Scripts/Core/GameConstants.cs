@@ -33,6 +33,34 @@ namespace AsGame.Core
 
         public static readonly int[] NewPlayUnlockLevels = { 3, 6, 7 };
 
+        /// <summary>装袋 Spine 相对口袋节点的偏移（对齐 Cocos GamePocketSpinePos）。</summary>
+        public static readonly Dictionary<int, Vector2> GamePocketSpinePos = new Dictionary<int, Vector2>
+        {
+            { 0, Vector2.zero },
+            { 1, new Vector2(10f, 114f) },
+            { 2, new Vector2(20f, 118f) },
+            { 3, new Vector2(18f, 118f) },
+            { 4, new Vector2(18f, 118f) },
+            { 5, new Vector2(11f, 115f) },
+            { 6, new Vector2(17f, 117f) },
+            { 7, new Vector2(26f, 117f) },
+            { 8, new Vector2(5f, 114f) },
+        };
+
+        /// <summary>装袋 dai_zi Spine 皮肤名（对齐 Cocos GamePocketSpineSkin）。</summary>
+        public static readonly Dictionary<int, string> GamePocketSpineSkin = new Dictionary<int, string>
+        {
+            { 0, "" },
+            { 1, "cheng" },
+            { 2, "huang" },
+            { 3, "lv" },
+            { 4, "sheng_lan" },
+            { 5, "lan" },
+            { 6, "zi" },
+            { 7, "hui" },
+            { 8, "hong" },
+        };
+
         public static readonly Dictionary<int, ColorPair> GameColorData = new Dictionary<int, ColorPair>
         {
             { 0, new ColorPair("#4d4d4d", "#8b8b8b", "灰") },

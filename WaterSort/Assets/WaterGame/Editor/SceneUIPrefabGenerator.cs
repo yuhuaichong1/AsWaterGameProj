@@ -212,14 +212,29 @@ namespace AsGame.Editor
             tipRt.anchorMin = tipRt.anchorMax = new Vector2(0.5f, 1f);
             tipRt.pivot = new Vector2(0.5f, 1f);
             tipRt.anchoredPosition = new Vector2(0f, -402f);
-            tipRt.sizeDelta = new Vector2(500f, 80f);
-            shuffleTip.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.7f);
-            var tipTxt = CreateHudText(shuffleTip.transform, "TipLabel", "点击要打乱的瓶子", Vector2.zero, 24);
-            StretchFull(tipTxt.rectTransform);
-            var btnDone = CreateHudButton(shuffleTip.transform, "Btn_Done", new Vector2(180f, 0f), new Vector2(100f, 44f),
+            tipRt.sizeDelta = new Vector2(500f, 130f);
+            var tipBg = shuffleTip.GetComponent<Image>();
+            tipBg.sprite = GameResourceLoader.LoadSprite("Sprites/UI/frame_1")
+                           ?? GameResourceLoader.LoadSprite("Sprites/UI/frame_prop");
+            tipBg.type = Image.Type.Sliced;
+            tipBg.color = Color.white;
+            tipBg.raycastTarget = false;
+            var tipTxt = CreateHudText(shuffleTip.transform, "TipLabel", "选择一个瓶子进行打乱", Vector2.zero, 35);
+            var tipTxtRt = tipTxt.rectTransform;
+            tipTxtRt.anchorMin = Vector2.zero;
+            tipTxtRt.anchorMax = Vector2.one;
+            tipTxtRt.offsetMin = new Vector2(20f, 0f);
+            tipTxtRt.offsetMax = new Vector2(-80f, 0f);
+            GameHudController.ApplyLevelLabelStyle(tipTxt);
+            var btnClose = CreateHudButton(shuffleTip.transform, "btnClose", new Vector2(241f, 49f), new Vector2(61f, 63f),
                 new Vector2(0.5f, 0.5f));
-            var doneLabel = CreateHudText(btnDone.transform, "Label", "完成", Vector2.zero, 20);
-            StretchFull(doneLabel.rectTransform);
+            var closeImg = btnClose.GetComponent<Image>();
+            var closeSp = GameResourceLoader.LoadSprite("Sprites/UI/btn_4");
+            if (closeSp != null)
+            {
+                closeImg.sprite = closeSp;
+                closeImg.SetNativeSize();
+            }
             shuffleTip.SetActive(false);
 
             Assign(hud, "levelLabel", levelLabel);
@@ -228,7 +243,7 @@ namespace AsGame.Editor
             Assign(hud, "addBottle", addBottle);
             Assign(hud, "shuffleTip", shuffleTip);
             Assign(hud, "btnSetting", btnSettingGo.GetComponent<Button>());
-            Assign(hud, "btnShuffleTipDone", btnDone.GetComponent<Button>());
+            Assign(hud, "btnShuffleTipDone", btnClose.GetComponent<Button>());
         }
 
         static void BuildPopupCanvas()

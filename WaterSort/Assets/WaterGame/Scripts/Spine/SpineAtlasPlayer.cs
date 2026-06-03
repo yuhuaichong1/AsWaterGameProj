@@ -66,11 +66,13 @@ namespace AsGame.Spine
             if (!cache.Animations.TryGetValue(resolvedAnim, out var frames) || frames.Count == 0)
             {
                 if (!cache.Animations.TryGetValue(GetDefaultAnim(folder), out frames) || frames.Count == 0)
-                    return TryPlayBonePulse(host, cache, loop, onComplete, tint, duration);
+                    return ShouldUseBonePulseFallback(folder)
+                        && TryPlayBonePulse(host, cache, loop, onComplete, tint, duration);
             }
 
             if (frames == null || frames.Count == 0)
-                return TryPlayBonePulse(host, cache, loop, onComplete, tint, duration);
+                return ShouldUseBonePulseFallback(folder)
+                    && TryPlayBonePulse(host, cache, loop, onComplete, tint, duration);
 
             SpineRunner.Instance.StartCoroutine(PlayFrames(host, cache, frames, loop, onComplete, tint, duration));
             return true;
@@ -176,7 +178,9 @@ namespace AsGame.Spine
             var img = go.GetComponent<Image>();
             ApplyRegion(img, rt, region);
             img.raycastTarget = false;
-            if (tint.HasValue) img.color = tint.Value;
+            img.color = tint ?? Color.white;
+            // 打乱光环略放大，贴近 Cocos Spine_Shuffle 视觉
+            rt.localScale = Vector3.one * 1.35f;
             var cg = go.GetComponent<CanvasGroup>();
 
             if (duration.HasValue)
@@ -253,6 +257,9 @@ namespace AsGame.Spine
             };
 
         static string GetJsonFileName(string folder) => GetAtlasFileName(folder);
+
+        static bool ShouldUseBonePulseFallback(string folder) =>
+            folder is not ("bao_xing" or "dai_zi" or "he_cheng_2");
 
         static string GetDefaultAnim(string folder) =>
             folder switch

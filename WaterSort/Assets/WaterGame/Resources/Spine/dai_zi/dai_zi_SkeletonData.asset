@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9ae200fb12be1043880b41688a26a38, type: 3}
   m_Name: dai_zi_SkeletonData
   m_EditorClassIdentifier: 
-  atlasAssets: []
+  atlasAssets:
+  - {fileID: 11400000, guid: d0e1f2a3b4c5438695e8f9a0b1c2d3e6, type: 2}
   scale: 0.01
   skeletonJSON: {fileID: 4900000, guid: 517fd492ee62b674badc4c4bbea957c2, type: 3}
   isUpgradingBlendModeMaterials: 0
