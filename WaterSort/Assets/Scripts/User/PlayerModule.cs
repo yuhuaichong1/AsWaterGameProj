@@ -371,7 +371,7 @@ namespace XrCode
             int length = nameChars.Length;
             char c1 = nameChars[UnityEngine.Random.Range(0, length)];
             char c2 = nameChars[UnityEngine.Random.Range(0, length)];
-            string target = $"{FacadeLanguage.GetText("10005")}_{c1}{c2}";
+            string target = $"{FacadeLanguage.GetText("10095")}_{c1}{c2}";
 
             SPlayerPrefs.SetString(PlayerPrefDefines.userName, target);
             SPlayerPrefs.Save();

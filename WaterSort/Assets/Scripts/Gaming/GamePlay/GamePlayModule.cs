@@ -538,7 +538,7 @@ namespace XrCode
                 cup.RefreshVisual();
 
                 func1timer++;
-                if (func1timer >= GameDefines.RefreshLCount)
+                if (func1timer > GameDefines.RefreshLCount)
                     EndShuffleMode();
             });
         }

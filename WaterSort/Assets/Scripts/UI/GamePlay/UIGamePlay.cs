@@ -236,31 +236,64 @@ namespace XrCode
 
         #endregion
 
-        #region 按钮事件
-        private void OnSettingBtnClickHandle()        {            UIManager.Instance.OpenAsync<UISetting>(EUIType.EUISetting);        }	    private void OnReStartBtnClickHandle()        {            UIManager.Instance.OpenAsync<UIReStart>(EUIType.EUIReStart);        }	    private void OnBtn_Prop1ClickHandle()        {            if (FacadeGamePlay.GetStatus() != GameStatus.Gaming)                return;            if(FacadePlayer.GetProp1Num() > 0)
+        #region 按钮事件
+
+        private void OnSettingBtnClickHandle()
+        {
+            UIManager.Instance.OpenAsync<UISetting>(EUIType.EUISetting);
+        }
+
+	    private void OnReStartBtnClickHandle()
+        {
+            UIManager.Instance.OpenAsync<UIReStart>(EUIType.EUIReStart);
+        }
+
+	    private void OnBtn_Prop1ClickHandle()
+        {
+            if (FacadeGamePlay.GetStatus() != GameStatus.Gaming)
+                return;
+
+            if(FacadePlayer.GetProp1Num() > 0)
             {
                 FacadePlayer.AddProp1Num(-1);
                 FacadeGamePlay.Func_Porp1();
                 SetProp1CountShow();
-            }            else                UIManager.Instance.OpenAsync<UIProp>(EUIType.EUIProp, UIOpenType.None, null, EFuncType.Prop1);        }	    private void OnBtn_Prop2ClickHandle()        {
-            if (FacadeGamePlay.GetStatus() != GameStatus.Gaming)                return;
+            }
+            else
+                UIManager.Instance.OpenAsync<UIProp>(EUIType.EUIProp, UIOpenType.None, null, EFuncType.Prop1);
+        }
+
+	    private void OnBtn_Prop2ClickHandle()
+        {
+            if (FacadeGamePlay.GetStatus() != GameStatus.Gaming)
+                return;
 
             if (FacadePlayer.GetProp2Num() > 0)
             {
                 FacadePlayer.AddProp2Num(-1);
                 FacadeGamePlay.Func_Porp2();
                 SetProp2CountShow();
-            }            else
-                UIManager.Instance.OpenAsync<UIProp>(EUIType.EUIProp, UIOpenType.None, null, EFuncType.Prop2);        }	    private void OnBtn_Prop3ClickHandle()        {
-            if (FacadeGamePlay.GetStatus() != GameStatus.Gaming)                return;
+            }
+            else
+                UIManager.Instance.OpenAsync<UIProp>(EUIType.EUIProp, UIOpenType.None, null, EFuncType.Prop2);
+        }
+
+	    private void OnBtn_Prop3ClickHandle()
+        {
+            if (FacadeGamePlay.GetStatus() != GameStatus.Gaming)
+                return;
 
             if (FacadePlayer.GetProp3Num() > 0)
             {
                 FacadePlayer.AddProp3Num(-1);
                 FacadeGamePlay.Func_Porp3();
                 SetProp3CountShow();
-            }            else
-                UIManager.Instance.OpenAsync<UIProp>(EUIType.EUIProp, UIOpenType.None, null, EFuncType.Prop3);        }	    private void OnCMBtnClickHandle()
+            }
+            else
+                UIManager.Instance.OpenAsync<UIProp>(EUIType.EUIProp, UIOpenType.None, null, EFuncType.Prop3);
+        }
+
+	    private void OnCMBtnClickHandle()
         {
             if (!string.IsNullOrEmpty(FacadeWithdraw.GetWName?.Invoke()) && !string.IsNullOrEmpty(FacadeWithdraw.GetWPhoneOrEmail?.Invoke()))
                 UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIConfirm);

@@ -22,8 +22,8 @@ namespace XrCode
             mV_Icon.localPosition = new Vector3(88 * (vT ? 1 : -1), 36, 0);
 
             mUserNameText.text = $"{FacadePlayer.GetPlayerName()}";
-            mUserIDText.text = $"{FacadeLanguage.GetText("10040")}:{FacadePlayer.GetPlayerID().Substring(0, 13)}..."; 
-            mUserLv.text = $"{FacadeLanguage.GetText("10041")}.{FacadePlayer.GetPlayerLevel() + 1}";
+            mUserIDText.text = string.Format(FacadeLanguage.GetText("10040"), $"{FacadePlayer.GetPlayerID().Substring(0, 13)}..."); 
+            mUserLv.text = string.Format(FacadeLanguage.GetText("10041"), FacadePlayer.GetPlayerLevel() + 1);
 
             ShowAnim(mPlane);
             //MT_Show(FacadeAudio.GetMusicVolume() == 1);
