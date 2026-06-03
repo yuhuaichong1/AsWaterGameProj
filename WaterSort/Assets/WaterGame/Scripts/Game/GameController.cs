@@ -30,7 +30,10 @@ namespace AsGame.Water
         int _needCollect;
         int _collected;
         bool _shuffleMode;
+        bool _shuffleAnimating;
         bool _isCheckingPack;
+        readonly List<GameObject> _shuffleFxObjects = new();
+        readonly Dictionary<int, GameObject> _shuffleFxByCupId = new();
         readonly Dictionary<int, Queue<int>> _pendingFullCupsByColor = new();
         Sprite _bottleSprite;
         Sprite _shadowSprite;
@@ -74,6 +77,7 @@ namespace AsGame.Water
             _pourAction = null;
             _selected = null;
             _shuffleMode = false;
+            ClearShuffleEffects();
 
             hud?.RefreshLevel();
             hud?.RefreshHeart();
@@ -95,6 +99,7 @@ namespace AsGame.Water
             foreach (var kv in _cups)
                 if (kv.Value != null && kv.Value.IsCollect())
                     RegisterFullCup(kv.Value);
+            RefreshAddBottleButton();
             yield return CheckPack();
             _status = GameStatus.Gaming;
         }
@@ -253,7 +258,14 @@ namespace AsGame.Water
 
             if (_status == GameStatus.UsingProp && _shuffleMode)
             {
-                StartCoroutine(ShuffleCup(cup));
+                if (_shuffleAnimating) return;
+                if (cup.IsUnShuffle())
+                {
+                    ToastService.Show("该瓶子无法打乱");
+                    return;
+                }
+
+                StartCoroutine(ShuffleCupRoutine(cup));
                 return;
             }
 
@@ -340,6 +352,7 @@ namespace AsGame.Water
 
                 if (to.IsCollect())
                 {
+                    RemoveShuffleEffectForCup(to.GetId());
                     _pourAction = null;
                     hud?.SetUndoGray(true);
                     yield return to.DoCollected();
@@ -444,22 +457,46 @@ namespace AsGame.Water
             if (delay > 0f)
                 yield return new WaitForSeconds(delay);
 
-            var target = pocket.transform.localPosition + Vector3.up * 100f;
-            yield return TweenHelper.MoveLocal(cup.transform, target, 0.2f);
-            yield return pocket.OnPocketAction();
-            SpineService.PlayEffect(pocket.transform, Vector3.zero, "he_cheng_1", "zhuang");
-
             var id = cup.GetId();
             var packedColor = cup.GetTopColorId();
+
+            SpineService.ClearEffects(cup.transform);
             if (_shadows.TryGetValue(id, out var shadow) && shadow != null)
+            {
                 Destroy(shadow.gameObject);
-            _shadows.Remove(id);
+                _shadows.Remove(id);
+            }
+
+            cup.transform.SetAsLastSibling();
+            var target = GetPackMoveTargetLocal(pocket);
+            yield return TweenHelper.MoveLocal(cup.transform, target, 0.2f);
+
             Destroy(cup.gameObject);
             _cups[id] = null;
+            foreach (var slot in _levelData)
+            {
+                if (slot.id == id)
+                {
+                    ResetSlotAsPacked(slot);
+                    break;
+                }
+            }
 
+            yield return pocket.OnPocketAction(packedColor);
+            RefreshAddBottleButton();
             _collected++;
             CheckUnlockCup(packedColor);
             RefillPocket(pocket);
+        }
+
+        /// <summary>将口袋位置换算到 cupRoot 本地坐标（对齐 Cocos getTargetLocalPosAtNode(pocket, cupMgr)）。</summary>
+        Vector3 GetPackMoveTargetLocal(Pocket pocket)
+        {
+            if (cupRoot == null || pocket == null)
+                return Vector3.zero;
+            var world = pocket.transform.position;
+            var local = cupRoot.InverseTransformPoint(world);
+            return local + Vector3.up * (GameConstants.HalfBottleHeight + 100f);
         }
 
         void CheckUnlockCup(int packedColor)
@@ -483,51 +520,175 @@ namespace AsGame.Water
 
         void OnUseProp(object payload)
         {
-            if (_status != GameStatus.Gaming && _status != GameStatus.UsingProp) return;
+            if (_status != GameStatus.Gaming) return;
             if (payload is not GameProp prop) return;
 
             switch (prop)
             {
                 case GameProp.Shuffle:
-                    _status = GameStatus.UsingProp;
-                    _shuffleMode = true;
-                    hud?.ShowShuffleTip();
-                    ToastService.Show("点击要打乱的瓶子");
+                    if (!BeginShuffleMode())
+                        ToastService.Show("没有可打乱的水瓶");
                     break;
                 case GameProp.Undo:
-                    if (_pourAction != null)
-                        StartCoroutine(UndoRoutine());
+                    if (!TryUndo())
+                    {
+                        ToastService.Show("暂无可撤回的操作");
+                        break;
+                    }
+
+                    StartCoroutine(UndoRoutine());
                     break;
                 case GameProp.AddBottle:
                     if (HandleAddBottle())
                         ConsumeProp(prop);
+                    else
+                        ToastService.Show("没有空位添加瓶子");
                     break;
             }
         }
 
-        void OnShuffleEnd(object _) => EndShuffleMode();
-
-        void EndShuffleMode()
+        void OnShuffleEnd(object payload)
         {
-            _shuffleMode = false;
-            _status = GameStatus.Gaming;
-            hud?.HideShuffleTip();
+            var success = payload is bool b && b;
+            FinishShuffleMode(success);
         }
 
-        IEnumerator ShuffleCup(Bottle cup)
+        bool BeginShuffleMode()
         {
-            if (cup.IsEmpty() || cup.IsLock()) yield break;
-            for (var i = 0; i < 8; i++)
+            ClearShuffleEffects();
+            var any = false;
+            foreach (var kv in _cups)
             {
-                var colors = cup.Data.colors;
-                if (colors.Count >= 2)
-                    (colors[0], colors[^1]) = (colors[^1], colors[0]);
-                cup.RefreshVisual();
-                yield return new WaitForSeconds(0.03f);
+                var cup = kv.Value;
+                if (cup == null || cup.IsUnShuffle()) continue;
+                any = true;
+                cup.StartShuffleShake();
+                AddShuffleEffect(cup);
             }
 
-            ConsumeProp(GameProp.Shuffle);
-            EndShuffleMode();
+            if (!any) return false;
+            _status = GameStatus.UsingProp;
+            _shuffleMode = true;
+            _shuffleAnimating = false;
+            hud?.ShowShuffleTip();
+            return true;
+        }
+
+        void AddShuffleEffect(Bottle cup)
+        {
+            if (cupRoot == null || cup == null) return;
+            var anchor = new GameObject("ShuffleFxAnchor", typeof(RectTransform));
+            var rt = anchor.GetComponent<RectTransform>();
+            rt.SetParent(cupRoot, false);
+            rt.localPosition = cup.transform.localPosition + new Vector3(0f, -GameConstants.HalfBottleHeight - 110f, 0f);
+            rt.localScale = Vector3.one * 0.8f;
+            // 插在对应瓶子之前绘制，光环在瓶身/水体下层（对齐 Cocos：杯子层盖住 effectFront 光环）
+            rt.SetSiblingIndex(cup.transform.GetSiblingIndex());
+            // 对齐 Cocos Spine_Shuffle：xuan_zhong / idle（spine-unity SkeletonGraphic）
+            SpineService.PlayEffect(rt, Vector3.zero, "xuan_zhong", "idle", loop: true);
+            _shuffleFxObjects.Add(anchor);
+            _shuffleFxByCupId[cup.GetId()] = anchor;
+        }
+
+        void RemoveShuffleEffectForCup(int cupId)
+        {
+            if (!_shuffleFxByCupId.TryGetValue(cupId, out var anchor)) return;
+            _shuffleFxByCupId.Remove(cupId);
+            _shuffleFxObjects.Remove(anchor);
+            if (anchor != null) Destroy(anchor);
+        }
+
+        void ClearShuffleEffects()
+        {
+            foreach (var go in _shuffleFxObjects)
+            {
+                if (go != null) Destroy(go);
+            }
+
+            _shuffleFxObjects.Clear();
+            _shuffleFxByCupId.Clear();
+        }
+
+        void FinishShuffleMode(bool consumeProp)
+        {
+            foreach (var kv in _cups)
+                kv.Value?.DoUnShuffle();
+            ClearShuffleEffects();
+            _shuffleMode = false;
+            _shuffleAnimating = false;
+            _status = GameStatus.Gaming;
+            hud?.HideShuffleTip();
+            if (consumeProp)
+            {
+                ConsumeProp(GameProp.Shuffle);
+                ToastService.Show("打乱成功!!!");
+            }
+        }
+
+        IEnumerator ShuffleCupRoutine(Bottle cup)
+        {
+            if (cup == null || cup.IsUnShuffle()) yield break;
+            _shuffleAnimating = true;
+            var colors = cup.Data.colors;
+            for (var step = 0; step < 20; step++)
+            {
+                if (!_shuffleMode)
+                {
+                    _shuffleAnimating = false;
+                    yield break;
+                }
+
+                if (colors.Count == 2)
+                    (colors[0], colors[1]) = (colors[1], colors[0]);
+                else
+                    ShuffleColors(colors);
+                cup.RefreshVisual();
+                yield return new WaitForSeconds(0.02f);
+            }
+
+            if (!_shuffleMode)
+            {
+                _shuffleAnimating = false;
+                yield break;
+            }
+
+            var topBefore = colors.Count > 0 ? colors[^1] : 0;
+            ShuffleColors(colors);
+            var diffIdx = -1;
+            for (var i = 0; i < colors.Count; i++)
+            {
+                if (colors[i] == topBefore) continue;
+                diffIdx = i;
+                break;
+            }
+
+            if (diffIdx >= 0)
+            {
+                var moved = colors[diffIdx];
+                colors.RemoveAt(diffIdx);
+                colors.Add(moved);
+            }
+
+            cup.RefreshVisual();
+            _shuffleAnimating = false;
+            EventBus.Publish(GameEvents.ShuffleEnd, true);
+        }
+
+        static void ShuffleColors(List<int> colors)
+        {
+            for (var i = colors.Count - 1; i > 0; i--)
+            {
+                var j = Random.Range(0, i + 1);
+                (colors[i], colors[j]) = (colors[j], colors[i]);
+            }
+        }
+
+        bool TryUndo()
+        {
+            if (_pourAction == null) return false;
+            if (!_cups.TryGetValue(_pourAction.fromId, out var from) || from == null) return false;
+            if (!_cups.TryGetValue(_pourAction.toId, out var to) || to == null) return false;
+            return true;
         }
 
         IEnumerator UndoRoutine()
@@ -557,9 +718,7 @@ namespace AsGame.Water
             var id = GetEmptySlotId();
             if (id == null) return false;
             var slot = _levelData[id.Value];
-            if (slot.isNull == 0) return false;
-
-            slot.isNull = 0;
+            ResetSlotAsEmptyCup(slot);
             var pos = new Vector3(slot.position.x, slot.position.y + GameConstants.HalfBottleHeight, 0);
             var bottle = Bottle.Create(cupRoot);
             if (bottle == null) return false;
@@ -578,14 +737,46 @@ namespace AsGame.Water
             _cups[slot.id] = bottle;
             _shadows[slot.id] = shadow;
             SpineService.PlayEffect(bottle.transform, Vector3.zero, "bao_xing", "bao");
-            hud?.SetAddBottleGray(true);
+            RefreshAddBottleButton();
             return true;
+        }
+
+        void RefreshAddBottleButton() => hud?.SetAddBottleGray(GetEmptySlotId() == null);
+
+        /// <summary>对齐 Cocos CupComp.resetData：打包后槽位标记为空且清空水层等。</summary>
+        static void ResetSlotAsPacked(CupData slot)
+        {
+            if (slot == null) return;
+            slot.colors.Clear();
+            slot.whNums = 0;
+            slot.isVideo = 0;
+            slot.isLock = 0;
+            slot.lockColor = 0;
+            slot.lockNums = 0;
+            slot.isNull = 1;
+        }
+
+        /// <summary>加瓶时写入空瓶数据（仅保留 id / position）。</summary>
+        static void ResetSlotAsEmptyCup(CupData slot)
+        {
+            if (slot == null) return;
+            slot.colors.Clear();
+            slot.whNums = 0;
+            slot.isVideo = 0;
+            slot.isLock = 0;
+            slot.lockColor = 0;
+            slot.lockNums = 0;
+            slot.isNull = 0;
         }
 
         int? GetEmptySlotId()
         {
             foreach (var d in _levelData)
-                if (d.isNull != 0) return d.id;
+            {
+                if (_cups.TryGetValue(d.id, out var cup) && cup == null)
+                    return d.id;
+            }
+
             return null;
         }
 

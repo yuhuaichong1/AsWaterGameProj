@@ -21,20 +21,20 @@ namespace AsGame.Spine
         const float TimedEffectFadeOutDuration = 0.35f;
 
         public static bool TryPlay(Transform host, string folder, string animationName, bool loop, Action onComplete = null,
-            Color? tint = null, float? playDuration = null)
+            Color? tint = null, float? playDuration = null, string skinName = null)
         {
             if (host == null || !SupportedFolders.Contains(folder)) return false;
 
             var skeletonData = GetSkeletonData(folder);
-            if (skeletonData == null) return false;
+            if (!IsSkeletonAssetUsable(skeletonData)) return false;
 
             SpineRunner.Instance.StartCoroutine(PlayGraphic(host, skeletonData, folder, animationName, loop, onComplete, tint,
-                playDuration));
+                playDuration, skinName));
             return true;
         }
 
         static IEnumerator PlayGraphic(Transform host, SkeletonDataAsset skeletonData, string folder, string animationName,
-            bool loop, Action onComplete, Color? tint, float? playDuration)
+            bool loop, Action onComplete, Color? tint, float? playDuration, string skinName)
         {
             if (host == null)
             {
@@ -64,10 +64,10 @@ namespace AsGame.Spine
                 yield break;
             }
 
-            TrySetDefaultSkin(graphic, folder);
+            TrySetSkin(graphic, folder, skinName);
             if (tint.HasValue)
                 graphic.color = tint.Value;
-            graphic.MatchRectTransformWithBounds();
+            ApplyGraphicLayout(graphic, rt, folder);
 
             var state = graphic.AnimationState;
             var resolvedAnim = ResolveAnimationName(folder, animationName);
@@ -142,14 +142,18 @@ namespace AsGame.Spine
             });
         }
 
-        static void TrySetDefaultSkin(SkeletonGraphic graphic, string folder)
+        static void TrySetSkin(SkeletonGraphic graphic, string folder, string skinName)
         {
             if (graphic?.Skeleton == null) return;
-            var skinName = folder switch
+            if (string.IsNullOrEmpty(skinName))
             {
-                "shui" => "shang",
-                _ => null
-            };
+                skinName = folder switch
+                {
+                    "shui" => "shang",
+                    _ => null
+                };
+            }
+
             if (string.IsNullOrEmpty(skinName)) return;
             var skin = graphic.Skeleton.Data.FindSkin(skinName);
             if (skin == null) return;
@@ -157,33 +161,64 @@ namespace AsGame.Spine
             graphic.Skeleton.SetSlotsToSetupPose();
         }
 
+        static bool IsSkeletonAssetUsable(SkeletonDataAsset asset)
+        {
+            if (asset == null) return false;
+            try
+            {
+                return asset.GetSkeletonData(false) != null;
+            }
+            catch
+            {
+                asset.Clear();
+                return false;
+            }
+        }
+
+        static bool IsAtlasAssetReady(AtlasAssetBase atlasAsset)
+        {
+            if (atlasAsset == null) return false;
+            if (atlasAsset is SpineAtlasAsset spineAtlas)
+                return spineAtlas.atlasFile != null;
+            return true;
+        }
+
         static SkeletonDataAsset GetSkeletonData(string folder)
         {
-            if (SkeletonCache.TryGetValue(folder, out var cached) && cached != null)
-                return cached;
+            if (SkeletonCache.TryGetValue(folder, out var cached))
+            {
+                if (IsSkeletonAssetUsable(cached))
+                    return cached;
+                SkeletonCache.Remove(folder);
+            }
 
             var assetName = GetSkeletonAssetName(folder);
             var imported = Resources.Load<SkeletonDataAsset>($"Spine/{folder}/{assetName}_SkeletonData");
-            if (imported != null)
+            if (imported != null && HasReadyAtlasAssets(imported) && IsSkeletonAssetUsable(imported))
             {
-                try
-                {
-                    if (imported.GetSkeletonData(true) != null)
-                    {
-                        SkeletonCache[folder] = imported;
-                        return imported;
-                    }
-                }
-                catch
-                {
-                    imported.Clear();
-                }
+                SkeletonCache[folder] = imported;
+                return imported;
             }
 
+            if (imported != null)
+                imported.Clear();
+
             var runtime = CreateRuntimeSkeletonData(folder);
-            if (runtime != null)
+            if (runtime != null && IsSkeletonAssetUsable(runtime))
                 SkeletonCache[folder] = runtime;
             return runtime;
+        }
+
+        static bool HasReadyAtlasAssets(SkeletonDataAsset asset)
+        {
+            if (asset?.atlasAssets == null || asset.atlasAssets.Length == 0) return false;
+            foreach (var atlas in asset.atlasAssets)
+            {
+                if (!IsAtlasAssetReady(atlas))
+                    return false;
+            }
+
+            return true;
         }
 
         static SkeletonDataAsset CreateRuntimeSkeletonData(string folder)
@@ -194,11 +229,11 @@ namespace AsGame.Spine
                 return null;
 
             var importedAtlas = Resources.Load<SpineAtlasAsset>($"Spine/{folder}/{jsonName}_Atlas");
-            if (importedAtlas != null)
+            if (IsAtlasAssetReady(importedAtlas))
                 return SkeletonDataAsset.CreateRuntimeInstance(json, importedAtlas, true, 0.01f);
 
-            var atlasText = LoadTextAsset($"Spine/{folder}", jsonName + ".atlas")
-                            ?? LoadTextAsset($"Spine/{folder}", jsonName + ".atlas.txt");
+            var atlasText = LoadTextAsset($"Spine/{folder}", jsonName + ".atlas.txt")
+                            ?? LoadTextAsset($"Spine/{folder}", jsonName + ".atlas");
             var tex = Resources.Load<Texture2D>($"Spine/{folder}/{jsonName}");
             if (tex == null)
             {
@@ -249,29 +284,79 @@ namespace AsGame.Spine
                 "bao_xing" => "bao",
                 "xuan_zhong" => "idle",
                 "he_cheng_1" => "zhuang",
+                "he_cheng_2" => "guang",
                 "shui" => "huang",
                 "wht" => "animation2",
                 "dai_zi" => "zhuang",
                 _ => "animation"
             };
 
+        static void ApplyGraphicLayout(SkeletonGraphic graphic, RectTransform rt, string folder)
+        {
+            if (graphic == null || rt == null) return;
+            try
+            {
+                graphic.MatchRectTransformWithBounds();
+            }
+            catch
+            {
+                rt.sizeDelta = folder switch
+                {
+                    "xuan_zhong" => new Vector2(160f, 80f),
+                    "bao_xing" => new Vector2(280f, 360f),
+                    "dai_zi" => new Vector2(140f, 260f),
+                    _ => new Vector2(120f, 120f)
+                };
+            }
+        }
+
         static Material GetGraphicMaterial(string folder)
         {
-            var mat = Resources.Load<Material>($"Spine/{folder}/{GetSkeletonAssetName(folder)}_Material");
-            if (mat != null && IsValidSpineShader(mat.shader))
+            var jsonName = GetSkeletonAssetName(folder);
+            var mat = Resources.Load<Material>($"Spine/{folder}/{jsonName}_Material");
+            if (mat != null && IsValidGraphicMaterial(mat))
             {
                 EnsureStraightAlpha(mat);
+                BindMaterialTexture(mat, folder, jsonName);
                 return mat;
             }
 
             var shader = Shader.Find("Spine/SkeletonGraphic") ?? Shader.Find("UI/Default");
             mat = new Material(shader);
+            BindMaterialTexture(mat, folder, jsonName);
             EnsureStraightAlpha(mat);
             return mat;
         }
 
-        static bool IsValidSpineShader(Shader shader) =>
-            shader != null && shader.name != "Hidden/InternalErrorShader";
+        static void BindMaterialTexture(Material mat, string folder, string jsonName)
+        {
+            if (mat == null || !mat.HasProperty("_MainTex")) return;
+            var tex = Resources.Load<Texture2D>($"Spine/{folder}/{jsonName}");
+            if (tex == null)
+            {
+                var sp = GameResourceLoader.LoadSprite($"Spine/{folder}/{jsonName}");
+                tex = sp != null ? sp.texture : null;
+            }
+
+            if (tex != null)
+                mat.mainTexture = tex;
+        }
+
+        static bool IsValidGraphicMaterial(Material mat)
+        {
+            if (mat == null || mat.shader == null) return false;
+            var name = mat.shader.name;
+            return name != "Hidden/InternalErrorShader"
+                   && !name.Contains("HiddenPass", StringComparison.OrdinalIgnoreCase);
+        }
+
+        static bool IsValidSpineShader(Shader shader)
+        {
+            if (shader == null) return false;
+            var name = shader.name;
+            return name != "Hidden/InternalErrorShader"
+                   && !name.Contains("HiddenPass", StringComparison.OrdinalIgnoreCase);
+        }
 
         static void EnsureStraightAlpha(Material mat)
         {

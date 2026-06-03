@@ -9,7 +9,7 @@ namespace AsGame.Spine
     public class SpinePlayerStub : ISpinePlayer
     {
         public void Play(Transform host, string skeletonResourcePath, string animationName, bool loop, Action onComplete = null,
-            Color? tint = null, float? duration = null)
+            Color? tint = null, float? duration = null, string skinName = null)
         {
             if (host == null) return;
             SpineRunner.Instance.StartCoroutine(Pulse(host, onComplete));
@@ -70,7 +70,7 @@ namespace AsGame.Spine
         public static void SetPlayer(ISpinePlayer player) => _player = player;
 
         public static void PlayEffect(Transform parent, Vector3 localPos, string folder, string anim, bool loop = false,
-            Action onComplete = null, Color? tint = null, float? duration = null)
+            Action onComplete = null, Color? tint = null, float? duration = null, string skinName = null)
         {
             var fx = new GameObject("SpineFx_" + folder, typeof(RectTransform));
             fx.transform.SetParent(parent, false);
@@ -80,7 +80,7 @@ namespace AsGame.Spine
             {
                 onComplete?.Invoke();
                 if (destroyAfterPlay && fx != null) UnityEngine.Object.Destroy(fx);
-            }, tint, duration);
+            }, tint, duration, skinName);
         }
 
         public static void ClearEffects(Transform parent)

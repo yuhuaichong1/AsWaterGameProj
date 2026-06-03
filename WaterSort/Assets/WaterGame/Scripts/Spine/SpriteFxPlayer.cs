@@ -24,7 +24,7 @@ namespace AsGame.Spine
         readonly SpinePlayerStub _fallback = new();
 
         public void Play(Transform host, string skeletonResourcePath, string animationName, bool loop,
-            Action onComplete = null, Color? tint = null, float? duration = null)
+            Action onComplete = null, Color? tint = null, float? duration = null, string skinName = null)
         {
             if (host == null)
             {
@@ -36,7 +36,7 @@ namespace AsGame.Spine
             if (folder.StartsWith("Spine/"))
                 folder = folder.Substring("Spine/".Length);
 
-            if (SpineGraphicFxPlayer.TryPlay(host, folder, animationName, loop, onComplete, tint, duration))
+            if (SpineGraphicFxPlayer.TryPlay(host, folder, animationName, loop, onComplete, tint, duration, skinName))
                 return;
 
             if (SpineAtlasPlayer.TryPlay(host, folder, animationName, loop, onComplete, tint, duration))

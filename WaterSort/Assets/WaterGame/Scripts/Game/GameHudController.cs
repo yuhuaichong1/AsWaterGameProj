@@ -20,16 +20,18 @@ namespace AsGame.Water
 
         System.Action<object> _onUpdateProp;
         System.Action<object> _onUpdateHeart;
+        bool _shuffleTipUiReady;
 
         void Awake() => BindTopHud();
 
         void Start()
         {
             BindTopHud();
+            EnsureShuffleTipUi();
+            WireShuffleTipClose();
 
             btnSetting?.onClick.AddListener(() =>
                 PopupManager.Instance.ShowAtOnce(new PopupContext { Type = PopupType.Setting }));
-            btnShuffleTipDone?.onClick.AddListener(HideShuffleTip);
 
             _onUpdateProp = _ => RefreshProps();
             _onUpdateHeart = _ => RefreshHeart();
@@ -45,6 +47,7 @@ namespace AsGame.Water
             ResolveReferences();
             BindLevelBanner();
             BindSettingsButton();
+            EnsureShuffleTipUi();
         }
 
         void ResolveReferences()
@@ -54,6 +57,95 @@ namespace AsGame.Water
 
             if (btnSetting == null)
                 btnSetting = transform.Find("Btn_Settings")?.GetComponent<Button>();
+
+            if (shuffleTip == null)
+                shuffleTip = transform.Find("ShuffleTip")?.gameObject;
+        }
+
+        /// <summary>对齐 Cocos ShuffleTip：橙色气泡 + 文案 + 右上角 btnClose。</summary>
+        void EnsureShuffleTipUi()
+        {
+            if (_shuffleTipUiReady || shuffleTip == null) return;
+            _shuffleTipUiReady = true;
+
+            var tipRt = shuffleTip.GetComponent<RectTransform>();
+            if (tipRt != null)
+            {
+                tipRt.sizeDelta = new Vector2(500f, 130f);
+                tipRt.anchoredPosition = new Vector2(0f, -402f);
+            }
+
+            var bg = shuffleTip.GetComponent<Image>();
+            if (bg != null)
+            {
+                var frameSp = GameResourceLoader.LoadSprite("Sprites/UI/frame_1")
+                              ?? GameResourceLoader.LoadSprite("Sprites/UI/frame_prop")
+                              ?? GameResourceLoader.LoadSprite("Sprites/UI/img_01");
+                if (frameSp != null)
+                {
+                    bg.sprite = frameSp;
+                    var sliced = frameSp.border.sqrMagnitude > 0f;
+                    bg.type = sliced ? Image.Type.Sliced : Image.Type.Simple;
+                    bg.preserveAspect = !sliced;
+                    bg.color = Color.white;
+                    bg.raycastTarget = false;
+                }
+            }
+
+            var label = shuffleTip.transform.Find("TipLabel")?.GetComponent<Text>();
+            if (label != null)
+            {
+                label.text = "选择一个瓶子进行打乱";
+                label.fontSize = 35;
+                label.fontStyle = FontStyle.Bold;
+                label.alignment = TextAnchor.MiddleCenter;
+                ApplyLevelLabelStyle(label);
+                var labelRt = label.rectTransform;
+                labelRt.anchorMin = Vector2.zero;
+                labelRt.anchorMax = Vector2.one;
+                labelRt.offsetMin = new Vector2(20f, 0f);
+                labelRt.offsetMax = new Vector2(-80f, 0f);
+            }
+
+            var doneTf = shuffleTip.transform.Find("Btn_Done");
+            if (doneTf != null)
+                doneTf.gameObject.SetActive(false);
+
+            var closeTf = shuffleTip.transform.Find("btnClose");
+            if (closeTf == null)
+                closeTf = CreateShuffleTipCloseButton(shuffleTip.transform).transform;
+
+            btnShuffleTipDone = closeTf.GetComponent<Button>();
+            var closeImg = closeTf.GetComponent<Image>();
+            if (closeImg != null)
+            {
+                var closeSp = GameResourceLoader.LoadSprite("Sprites/UI/btn_4")
+                              ?? GameResourceLoader.LoadSprite("Sprites/UI/btn_icon");
+                if (closeSp != null)
+                {
+                    closeImg.sprite = closeSp;
+                    closeImg.color = Color.white;
+                    closeImg.SetNativeSize();
+                }
+            }
+        }
+
+        static GameObject CreateShuffleTipCloseButton(Transform parent)
+        {
+            var go = new GameObject("btnClose", typeof(RectTransform), typeof(Image), typeof(Button));
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = new Vector2(241f, 49f);
+            rt.sizeDelta = new Vector2(61f, 63f);
+            return go;
+        }
+
+        void WireShuffleTipClose()
+        {
+            if (btnShuffleTipDone == null) return;
+            btnShuffleTipDone.onClick.RemoveListener(OnShuffleTipClose);
+            btnShuffleTipDone.onClick.AddListener(OnShuffleTipClose);
         }
 
         void BindLevelBanner()
@@ -167,7 +259,20 @@ namespace AsGame.Water
         public void SetUndoGray(bool gray) => undo?.SetGray(gray);
         public void SetAddBottleGray(bool gray) => addBottle?.SetGray(gray);
         public void SetShuffleGray(bool gray) => shuffle?.SetGray(gray);
-        public void ShowShuffleTip() => shuffleTip?.SetActive(true);
+
+        public void ShowShuffleTip()
+        {
+            EnsureShuffleTipUi();
+            WireShuffleTipClose();
+            shuffleTip?.SetActive(true);
+        }
+
         public void HideShuffleTip() => shuffleTip?.SetActive(false);
+
+        void OnShuffleTipClose()
+        {
+            HideShuffleTip();
+            EventBus.Publish(GameEvents.ShuffleEnd, false);
+        }
     }
 }

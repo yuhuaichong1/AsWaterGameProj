@@ -9,7 +9,7 @@ namespace AsGame.Spine
     public interface ISpinePlayer
     {
         void Play(Transform host, string skeletonResourcePath, string animationName, bool loop, Action onComplete = null,
-            Color? tint = null, float? duration = null);
+            Color? tint = null, float? duration = null, string skinName = null);
         void SetSkin(Transform host, string skinName);
         void Clear(Transform host);
     }
