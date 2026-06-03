@@ -264,7 +264,7 @@ namespace XrCode
             {
                 var from = _selected;
                 _selected = null;
-                //StartCoroutine(PourRoutine(from, cup));
+                PourRoutine(from, cup);
             }
             else
             {
