@@ -270,7 +270,7 @@ namespace AsGame.Editor
             var temp = new GameObject("ShadowPrefabTemp");
             var sprite = GameResourceLoader.LoadSprite("Sprites/Bottle/img_9")
                          ?? GameResourceLoader.LoadSprite("Sprites/Bottle/sgsg");
-            var shadow = Bottle.CreateShadowLegacy(temp.transform, sprite);
+            var shadow = Bottle.CreateShadowLegacy(temp.transform);
             if (shadow != null)
                 SaveAndMirror(shadow.gameObject, PrefabsRoot + "/Game/BottleShadow.prefab");
             Object.DestroyImmediate(temp);

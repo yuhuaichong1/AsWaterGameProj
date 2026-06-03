@@ -5,14 +5,15 @@ using UnityEngine.UI;
 using AsGame.Core;
 using AsGame.Spine;
 using AsGame.UI;
+using XrCode;
 
 namespace AsGame.Water
 {
     public class Pocket : MonoBehaviour
     {
-        [SerializeField] Image pocketImage;
-        [SerializeField] GameObject lockOverlay;
-        GameObject _unlockButton;
+        [SerializeField] private Image pocketImage;
+        [SerializeField] private GameObject lockOverlay;
+        [SerializeField] private Button _unlockButton;
 
         int _colorId;
         bool _locked;
@@ -29,8 +30,13 @@ namespace AsGame.Water
             _colorId = colorId;
             _onUnlock = onUnlock;
             if (lockOverlay != null) lockOverlay.SetActive(locked);
-            if (_unlockButton != null) _unlockButton.SetActive(locked);
-            SetColor(colorId);
+            if (_unlockButton != null)
+            {
+                _unlockButton.gameObject.SetActive(locked);
+                _unlockButton.onClick.RemoveAllListeners();
+                _unlockButton.onClick.AddListener(() => { _onUnlock?.Invoke(this); });
+            }
+                SetColor(colorId);
             if (pocketImage != null)
                 StartCoroutine(FadeInPocket());
         }
@@ -55,9 +61,11 @@ namespace AsGame.Water
             RestorePocketView();
             if (pocketImage == null) return;
 
+            _unlockButton.gameObject.SetActive(_locked);
+
             if (_locked)
             {
-                ApplyPocketSprite("Sprites/Pocket/kong");
+                ApplyPocketSprite("UI/Pocket/kong.png");
                 return;
             }
 
@@ -68,19 +76,23 @@ namespace AsGame.Water
                 return;
             }
 
-            var sprite = GameResourceLoader.LoadSprite("Sprites/Pocket/" + colorId + "_1");
-            if (sprite != null)
-                ApplyPocketSprite("Sprites/Pocket/" + colorId + "_1");
-            else if (GameConstants.GameColorData.TryGetValue(colorId, out var pair))
-            {
-                pocketImage.sprite = null;
-                pocketImage.color = pair.Base;
-            }
+            Sprite sprite = ResourceMod.Instance.SyncLoad<Sprite>($"UI/Pocket/{colorId}_1.png");
+            ApplyPocketSprite($"UI/Pocket/{colorId}_1.png");
+
+            //var sprite = GameResourceLoader.LoadSprite("Sprites/Pocket/" + colorId + "_1");
+            //if (sprite != null)
+            //    ApplyPocketSprite($"UI/Pocket/{colorId}_1.png");
+            //else if (GameConstants.GameColorData.TryGetValue(colorId, out var pair))
+            //{
+            //    pocketImage.sprite = null;
+            //    pocketImage.color = pair.Base;
+            //}
         }
 
         void ApplyPocketSprite(string path)
         {
-            var sprite = GameResourceLoader.LoadSprite(path);
+            //var sprite = GameResourceLoader.LoadSprite(path);
+            Sprite sprite = ResourceMod.Instance.SyncLoad<Sprite>(path);
             if (sprite == null) return;
             pocketImage.sprite = sprite;
             pocketImage.color = Color.white;
@@ -165,19 +177,21 @@ namespace AsGame.Water
             _locked = locked;
             _onUnlock = onUnlock;
             if (lockOverlay != null) lockOverlay.SetActive(locked);
-            if (_unlockButton != null) _unlockButton.SetActive(locked);
+            if (_unlockButton != null) _unlockButton.gameObject.SetActive(locked);
         }
 
         public static Pocket Create(Transform parent, bool locked, Action<Pocket> onUnlock = null)
         {
-            var prefab = Resources.Load<GameObject>(PrefabPaths.Pocket);
+            //var prefab = Resources.Load<GameObject>(PrefabPaths.Pocket);
+            GameObject prefab = ResourceMod.Instance.SyncLoad<GameObject>(GameDefines.PocketPath);
+
             if (prefab != null)
             {
                 var go = UnityEngine.Object.Instantiate(prefab, parent);
                 go.name = "Pocket";
                 var ctrl = go.GetComponent<Pocket>();
                 ctrl.ConfigureLockedState(locked, onUnlock);
-                ctrl.Init(locked, 0, onUnlock);
+                //ctrl.Init(locked, 0, onUnlock);
                 return ctrl;
             }
 
@@ -227,7 +241,7 @@ namespace AsGame.Water
                 var unlockBtn = UIFactory.CreateButton(go.transform, "Unlock", new Vector2(0f, 30f), new Vector2(100f, 40f),
                     "Btn_Unlock");
                 unlockBtn.onClick.AddListener(() => ctrl.RequestUnlock());
-                ctrl._unlockButton = unlockBtn.gameObject;
+                ctrl._unlockButton = unlockBtn;
             }
 
             ctrl.Init(locked, 0, onUnlock);

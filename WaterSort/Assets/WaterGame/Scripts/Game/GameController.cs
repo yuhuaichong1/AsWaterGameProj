@@ -191,7 +191,7 @@ namespace AsGame.Water
 
                 bottle.transform.localPosition = pos;
                 bottle.Init(data, OnCupClick);
-                var shadow = Bottle.CreateShadow(shadowRoot, _shadowSprite);
+                var shadow = Bottle.CreateShadow(shadowRoot);
                 if (shadow == null)
                 {
                     Debug.LogError($"[GameController] 创建阴影失败 id={data.id}");
@@ -426,6 +426,8 @@ namespace AsGame.Water
 
         List<PackPair> BatchCheckPack()
         {
+            Debug.LogError(_cups.Count);
+
             var result = new List<PackPair>();
             foreach (Transform child in pocketRoot)
             {
@@ -724,7 +726,7 @@ namespace AsGame.Water
             if (bottle == null) return false;
             bottle.transform.localPosition = pos;
             bottle.Init(slot, OnCupClick);
-            var shadow = Bottle.CreateShadow(shadowRoot, _shadowSprite);
+            var shadow = Bottle.CreateShadow(shadowRoot);
             if (shadow == null)
             {
                 Destroy(bottle.gameObject);

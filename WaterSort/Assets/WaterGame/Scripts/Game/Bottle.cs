@@ -1354,40 +1354,34 @@ namespace AsGame.Water
             rt.offsetMin = rt.offsetMax = Vector2.zero;
         }
 
-        public static Bottle CreateShadow(Transform parent, Sprite shadowSprite)
+        public static Bottle CreateShadow(Transform parent)
         {
-            var prefab = Resources.Load<GameObject>(PrefabPaths.BottleShadow);
+            //var prefab = Resources.Load<GameObject>(PrefabPaths.BottleShadow);
+            GameObject prefab = ResourceMod.Instance.SyncLoad<GameObject>(GameDefines.BottleShadowPath);
             if (prefab != null)
             {
                 var go = UnityEngine.Object.Instantiate(prefab, parent);
                 go.name = "Shadow";
                 var ctrl = go.GetComponent<Bottle>();
-                ctrl.ApplyShadowSprite(shadowSprite);
+                ctrl.ApplyShadowSprite();
                 return ctrl;
             }
 
-            return CreateShadowLegacy(parent, shadowSprite);
+            return CreateShadowLegacy(parent);
         }
 
-        public void ApplyShadowSprite(Sprite shadowSprite)
+        public void ApplyShadowSprite()
         {
             var img = transform.Find("img")?.GetComponent<Image>();
             if (img == null) return;
-            if (shadowSprite != null)
-            {
-                img.sprite = shadowSprite;
-                img.type = Image.Type.Simple;
-                img.preserveAspect = false;
-                img.color = Color.white;
-            }
-            else
-                img.color = new Color(0f, 0f, 0f, 0.25f);
+            //img.color = new Color(0f, 0f, 0f, 0.25f);
+            img.color = Color.white;
 
             shadowGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
             shadowGroup.alpha = 1f;
         }
 
-        public static Bottle CreateShadowLegacy(Transform parent, Sprite shadowSprite)
+        public static Bottle CreateShadowLegacy(Transform parent)
         {
             // 对齐 Cocos Shadow.prefab：197×135，anchor (0.24, 0.9)，img_9 原色显示。
             const float shadowWidth = 197f;
@@ -1406,15 +1400,9 @@ namespace AsGame.Water
             StretchRect(imgGo.GetComponent<RectTransform>());
             var img = imgGo.GetComponent<Image>();
             img.raycastTarget = false;
-            if (shadowSprite != null)
-            {
-                img.sprite = shadowSprite;
-                img.type = Image.Type.Simple;
-                img.preserveAspect = false;
-                img.color = Color.white;
-            }
-            else
-                img.color = new Color(0f, 0f, 0f, 0.25f);
+            img.preserveAspect = false;
+            img.color = Color.white;
+            //img.color = new Color(0f, 0f, 0f, 0.25f);
 
             var ctrl = go.GetComponent<Bottle>();
             ctrl.shadowGroup = go.GetComponent<CanvasGroup>();

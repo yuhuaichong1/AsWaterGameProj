@@ -5,6 +5,7 @@ using AsGame.Events;
 using AsGame.Spine;
 using AsGame.Water;
 using Newtonsoft.Json.Linq;
+using Spine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -30,13 +31,19 @@ namespace XrCode
         private List<int> _pocketColors;
 
         private int func1timer;
+        private float[] pocketXPos;
+
         protected override void OnLoad()
         {
             curLevelData = new List<CupData>();
             allLevelData = new Dictionary<string, List<CupData>>();
             cups = new Dictionary<int, Bottle>();
             shadows = new Dictionary<int, Bottle>();
+            _pendingFullCupsByColor = new Dictionary<int, Queue<int>>();
             _pocketColors = new List<int>();
+
+            float PInterval = Screen.width / 4;
+            pocketXPos = new float[4] { PInterval * -1.5f, PInterval * -0.5f, PInterval * 0.5f, PInterval * 1.5f };
 
             func1timer = 0;
 
@@ -111,6 +118,7 @@ namespace XrCode
             curLevelIndex = FacadePlayer.GetLevel();
             GetLevelData(curLevelIndex);
             GenerateCups();
+            BuildPocketColors();
             GeneratePockets();
             foreach (var kv in cups)
                 if (kv.Value != null && kv.Value.IsCollect())
@@ -212,7 +220,46 @@ namespace XrCode
                 Bottle bottle = Bottle.Create(FacadeGamePlay.GetCupPart());
                 bottle.transform.localPosition = pos;
                 bottle.Init(data, OnCupClick);
+
+                var shadow = Bottle.CreateShadow(FacadeGamePlay.GetCupPartShadow());
+                shadow.transform.localPosition = pos + new Vector3(
+                GameConstants.BottleShadowDiffX,
+                -GameConstants.BottleHeight + GameConstants.BottleShadowDiffY, 0);
+                bottle.BindShadow(shadow);
+
+                cups[data.id] = bottle;
+                shadows[data.id] = shadow;
+
+                //RefreshAddBottleButton();
             }
+        }
+
+        private void BuildPocketColors()
+        {
+            _pocketColors.Clear();
+            _needCollect = 0;
+            _collected = 0;
+            var colorCount = new Dictionary<int, int>();
+            foreach (var cup in curLevelData)
+            {
+                if (cup.isNull != 0) continue;
+                foreach (var c in cup.colors)
+                {
+                    if (!colorCount.ContainsKey(c)) colorCount[c] = 0;
+                    colorCount[c]++;
+                    if (colorCount[c] % 4 == 0)
+                    {
+                        _pocketColors.Add(c);
+                        colorCount[c] = 0;
+                    }
+                }
+
+                _needCollect += cup.colors.Count;
+            }
+
+            _needCollect /= 4;
+            if (curLevelIndex != 1)
+                _pocketColors.Shuffle();
         }
 
         /// <summary>
@@ -220,10 +267,24 @@ namespace XrCode
         /// </summary>
         private void GeneratePockets()
         {
-
+            for (var i = 0; i < 4; i++)
+            {
+                bool locked = i > 1;
+                int color = locked ? 0 : (_pocketColors.Count > 0 ? _pocketColors[0] : 0);
+                if (!locked && _pocketColors.Count > 0) _pocketColors.RemoveAt(0);
+                Pocket pocket = Pocket.Create(FacadeGamePlay.GetPockets(), locked);
+                RectTransform rt = (RectTransform)pocket.transform;
+                Debug.LogError(pocketXPos[i]);
+                rt.anchoredPosition = new Vector2(pocketXPos[i], 0);
+                pocket.Init(locked, color, OnUnlockPocket);
+            }
         }
 
-        void OnCupClick(Bottle cup)
+        /// <summary>
+        /// 当水瓶被点击
+        /// </summary>
+        /// <param name="cup">被点击的水瓶</param>
+        private void OnCupClick(Bottle cup)
         {
             if (cup.IsVideo())
             {
@@ -238,6 +299,13 @@ namespace XrCode
 
             if (status == GameStatus.UsingProp && _shuffleMode)
             {
+                //if (_shuffleAnimating) return;
+                if (cup.IsUnShuffle())
+                {
+                    ToastService.Show(FacadeLanguage.GetText("10096"));
+                    return;
+                }
+
                 Func_Prop1_Func(cup);
                 return;
             }
@@ -271,11 +339,33 @@ namespace XrCode
             }
             else
             {
-                ToastService.Show(cup.IsFull() ? "瓶子已满啦!" : "最上面一层颜色相同才可以倒入");
+                ToastService.Show(cup.IsFull() ? FacadeLanguage.GetText("10091") : FacadeLanguage.GetText("10092"));
                 _selected.DoUnSelect();
                 _selected = cup;
                 cup.DoSelect();
             }
+        }
+
+        private void OnUnlockPocket(Pocket pocket)
+        {
+            FacadeAd.PlayRewardAd(EAdSource.UnlockPocket, (count) => 
+            {
+                pocket.Init(false, _pocketColors.Count > 0 ? _pocketColors[0] : 0);
+                if (_pocketColors.Count > 0) _pocketColors.RemoveAt(0);
+                //OnUnlockPocket2(pocket);
+            }, (errMsg) =>
+            {
+                
+            },() =>
+            {
+                //OnUnlockPocket2(pocket);
+            });
+        }
+
+        private void OnUnlockPocket2(Pocket pocket)
+        {
+            pocket.Init(false, _pocketColors.Count > 0 ? _pocketColors[0] : 0);
+            if (_pocketColors.Count > 0) _pocketColors.RemoveAt(0);
         }
 
         /// <summary>
@@ -443,7 +533,7 @@ namespace XrCode
             var target = pocket.transform.localPosition + Vector3.up * 100f;
             yield return TweenHelper.MoveLocal(cup.transform, target, 0.2f);
             yield return pocket.OnPocketAction();
-            SpineService.PlayEffect(pocket.transform, Vector3.zero, "he_cheng_1", "zhuang");
+            //SpineService.PlayEffect(pocket.transform, Vector3.zero, "he_cheng_1", "zhuang");
 
             var id = cup.GetId();
             var packedColor = cup.GetTopColorId();
@@ -466,7 +556,7 @@ namespace XrCode
                     yield return kv.Value.DisappearEmpty();
 
             yield return new WaitForSeconds(0.4f);
-            UIManager.Instance.OpenSync<UILevelCompleted>(EUIType.EUILevelCompleted);
+            UIManager.Instance.OpenSync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, curLevelIndex);
         }
 
         private void CheckUnlockCup(int packedColor)

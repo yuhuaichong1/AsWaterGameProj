@@ -266,6 +266,8 @@ public enum EAdSource
     LevelCompleted,//关卡结算
     LevelFailureTryAgain,//关卡失败重来
     LuckyReward,//幸运一刻
+    UnlockPocket,//解锁饮料位
+    UnlockBottle,//解锁瓶子位
 }
 
 /// <summary>
