@@ -244,7 +244,7 @@ namespace AsGame.Editor
             var temp = new GameObject("BottlePrefabTemp");
             var sprite = GameResourceLoader.LoadSprite("Sprites/Bottle/img_8")
                          ?? GameResourceLoader.LoadSprite("Sprites/Bottle/img_2");
-            var bottle = Bottle.CreateLegacy(temp.transform, sprite);
+            var bottle = Bottle.CreateLegacy(temp.transform);
             if (bottle != null)
                 SaveAndMirror(bottle.gameObject, PrefabsRoot + "/Game/Bottle.prefab");
             Object.DestroyImmediate(temp);
@@ -264,7 +264,7 @@ namespace AsGame.Editor
         static void BuildPocketPrefab()
         {
             var temp = new GameObject("PocketPrefabTemp");
-            var pocket = PocketController.CreateLegacy(temp.transform, true);
+            var pocket = Pocket.CreateLegacy(temp.transform, true);
             if (pocket != null)
                 SaveAndMirror(pocket.gameObject, PrefabsRoot + "/Game/Pocket.prefab");
             Object.DestroyImmediate(temp);

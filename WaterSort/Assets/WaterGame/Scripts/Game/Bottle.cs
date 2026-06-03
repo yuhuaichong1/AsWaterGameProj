@@ -1058,13 +1058,13 @@ namespace AsGame.Water
                 _shadow.gameObject.SetActive(false);
         }
 
-        public void ApplyBottleSprite(Sprite bottleSprite)
+        public void ApplyBottleSprite()
         {
-            if (bottleBg != null && bottleSprite != null)
-            {
-                bottleBg.sprite = bottleSprite;
-                bottleBg.SetNativeSize();
-            }
+            //if (bottleBg != null && bottleSprite != null)
+            //{
+            //    bottleBg.sprite = bottleSprite;
+            //    bottleBg.SetNativeSize();
+            //}
 
             var btn = GetComponent<Button>();
             if (btn != null)
@@ -1074,13 +1074,13 @@ namespace AsGame.Water
             }
         }
 
-        public static Bottle Create(Transform parent, Sprite bottleSprite)
+        public static Bottle Create(Transform parent)
         {
             var prefab = Resources.Load<GameObject>(PrefabPaths.Bottle);
             if (prefab == null)
             {
                 Debug.LogWarning("[BottleController] Missing Resources/" + PrefabPaths.Bottle + ", using legacy build.");
-                return CreateLegacy(parent, bottleSprite);
+                return CreateLegacy(parent);
             }
 
             var go = UnityEngine.Object.Instantiate(prefab, parent);
@@ -1095,7 +1095,7 @@ namespace AsGame.Water
             var ctrl = go.GetComponent<Bottle>();
             ctrl.EnsureHierarchyRefs();
             ctrl.EnsureWaterVisual();
-            ctrl.ApplyBottleSprite(bottleSprite);
+            ctrl.ApplyBottleSprite();
             return ctrl;
         }
 
@@ -1124,7 +1124,7 @@ namespace AsGame.Water
             waterVisual?.EnsureInitialized();
         }
 
-        public static Bottle CreateLegacy(Transform parent, Sprite bottleSprite)
+        public static Bottle CreateLegacy(Transform parent)
         {
             var root = new GameObject("Bottle", typeof(RectTransform), typeof(CanvasGroup), typeof(Bottle));
             root.transform.SetParent(parent, false);
@@ -1175,9 +1175,9 @@ namespace AsGame.Water
             bgRt.anchorMin = bgRt.anchorMax = new Vector2(0.5f, 1f);
             bgRt.pivot = new Vector2(0.5f, 1f);
             var bgImg = bgGo.GetComponent<Image>();
-            bgImg.sprite = bottleSprite;
+            //bgImg.sprite = bottleSprite;
             bgImg.raycastTarget = false;
-            if (bottleSprite != null) bgImg.SetNativeSize();
+            //if (bottleSprite != null) bgImg.SetNativeSize();
             ctrl.bottleBg = bgImg;
 
             var streamGo = new GameObject("shuiZhu", typeof(RectTransform));

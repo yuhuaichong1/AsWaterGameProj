@@ -30,6 +30,9 @@ public abstract class GameDefines
     public static int miniLevel_Start = 8;                                                                  //迷你关开始关号
     public static int miniLevel_End = 17;                                                                   //迷你关结束关号
 
+    public static float RefreshATime = 0.05f;                                                               //刷新功能特效间隔时间
+    public static int RefreshLCount = 8;                                                                    //刷新功能特效重复次数
+
     #endregion
 
     #region 特效相关
@@ -354,6 +357,22 @@ public enum WithdrawTarget : int
     PassLevel,//通过第X关
     AmountOfMoney,//目标金额
     CheckIn,//签到
+}
+
+/// <summary>
+/// 游戏内状态
+/// </summary>
+public enum GameStatus
+{
+    None = 0,
+    Ready = 1,
+    Gaming = 2,
+    Moving = 3,
+    UsingProp = 4,
+    Lose = 5,
+    Win = 6,
+    Pause = 7,
+    Over = 8
 }
 
 #endregion

@@ -177,7 +177,7 @@ namespace AsGame.Water
                 }
 
                 var pos = new Vector3(data.position.x, data.position.y + GameConstants.HalfBottleHeight, 0);
-                var bottle = Bottle.Create(cupRoot, _bottleSprite);
+                var bottle = Bottle.Create(cupRoot);
                 if (bottle == null)
                 {
                     Debug.LogError($"[GameController] 创建瓶子失败 id={data.id} pos={data.position}");
@@ -219,7 +219,7 @@ namespace AsGame.Water
                 var locked = i > 1;
                 var color = locked ? 0 : (_pocketColors.Count > 0 ? _pocketColors[0] : 0);
                 if (!locked && _pocketColors.Count > 0) _pocketColors.RemoveAt(0);
-                var pocket = PocketController.Create(pocketRoot, locked, OnUnlockPocket);
+                var pocket = Pocket.Create(pocketRoot, locked, OnUnlockPocket);
                 var rt = (RectTransform)pocket.transform;
                 rt.anchoredPosition = new Vector2(new[] { -262.5f, -87.5f, 87.5f, 262.5f }[i], -100f);
                 pocket.Init(locked, color, OnUnlockPocket);
@@ -228,7 +228,7 @@ namespace AsGame.Water
             yield return null;
         }
 
-        void OnUnlockPocket(PocketController pocket)
+        void OnUnlockPocket(Pocket pocket)
         {
             AdsService.ShowRewarded(RewardAdPlacement.UnlockBag, ok =>
             {
@@ -408,7 +408,7 @@ namespace AsGame.Water
         struct PackPair
         {
             public Bottle cup;
-            public PocketController pocket;
+            public Pocket pocket;
         }
 
         List<PackPair> BatchCheckPack()
@@ -416,7 +416,7 @@ namespace AsGame.Water
             var result = new List<PackPair>();
             foreach (Transform child in pocketRoot)
             {
-                var pocket = child.GetComponent<PocketController>();
+                var pocket = child.GetComponent<Pocket>();
                 if (pocket == null || pocket.IsLocked || pocket.PackColorId <= 0) continue;
                 if (!_pendingFullCupsByColor.TryGetValue(pocket.PackColorId, out var queue) || queue.Count == 0)
                     continue;
@@ -438,7 +438,7 @@ namespace AsGame.Water
             return result;
         }
 
-        IEnumerator HandlePack(Bottle cup, PocketController pocket, float delay)
+        IEnumerator HandlePack(Bottle cup, Pocket pocket, float delay)
         {
             if (cup == null || pocket == null) yield break;
             if (delay > 0f)
@@ -474,7 +474,7 @@ namespace AsGame.Water
             }
         }
 
-        void RefillPocket(PocketController pocket)
+        void RefillPocket(Pocket pocket)
         {
             var next = _pocketColors.Count > 0 ? _pocketColors[0] : 0;
             if (_pocketColors.Count > 0) _pocketColors.RemoveAt(0);
@@ -561,7 +561,7 @@ namespace AsGame.Water
 
             slot.isNull = 0;
             var pos = new Vector3(slot.position.x, slot.position.y + GameConstants.HalfBottleHeight, 0);
-            var bottle = Bottle.Create(cupRoot, _bottleSprite);
+            var bottle = Bottle.Create(cupRoot);
             if (bottle == null) return false;
             bottle.transform.localPosition = pos;
             bottle.Init(slot, OnCupClick);

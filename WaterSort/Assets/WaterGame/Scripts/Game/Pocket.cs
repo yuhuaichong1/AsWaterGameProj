@@ -8,7 +8,7 @@ using AsGame.UI;
 
 namespace AsGame.Water
 {
-    public class PocketController : MonoBehaviour
+    public class Pocket : MonoBehaviour
     {
         [SerializeField] Image pocketImage;
         [SerializeField] GameObject lockOverlay;
@@ -16,12 +16,12 @@ namespace AsGame.Water
 
         int _colorId;
         bool _locked;
-        Action<PocketController> _onUnlock;
+        Action<Pocket> _onUnlock;
 
         public int PackColorId => _colorId;
         public bool IsLocked => _locked;
 
-        public void Init(bool locked, int colorId, Action<PocketController> onUnlock = null)
+        public void Init(bool locked, int colorId, Action<Pocket> onUnlock = null)
         {
             _locked = locked;
             _colorId = colorId;
@@ -98,7 +98,7 @@ namespace AsGame.Water
             rt.localScale = start;
         }
 
-        public void ConfigureLockedState(bool locked, Action<PocketController> onUnlock)
+        public void ConfigureLockedState(bool locked, Action<Pocket> onUnlock)
         {
             _locked = locked;
             _onUnlock = onUnlock;
@@ -106,14 +106,14 @@ namespace AsGame.Water
             if (_unlockButton != null) _unlockButton.SetActive(locked);
         }
 
-        public static PocketController Create(Transform parent, bool locked, Action<PocketController> onUnlock = null)
+        public static Pocket Create(Transform parent, bool locked, Action<Pocket> onUnlock = null)
         {
             var prefab = Resources.Load<GameObject>(PrefabPaths.Pocket);
             if (prefab != null)
             {
                 var go = UnityEngine.Object.Instantiate(prefab, parent);
                 go.name = "Pocket";
-                var ctrl = go.GetComponent<PocketController>();
+                var ctrl = go.GetComponent<Pocket>();
                 ctrl.ConfigureLockedState(locked, onUnlock);
                 ctrl.Init(locked, 0, onUnlock);
                 return ctrl;
@@ -122,9 +122,9 @@ namespace AsGame.Water
             return CreateLegacy(parent, locked, onUnlock);
         }
 
-        public static PocketController CreateLegacy(Transform parent, bool locked, Action<PocketController> onUnlock = null)
+        public static Pocket CreateLegacy(Transform parent, bool locked, Action<Pocket> onUnlock = null)
         {
-            var go = new GameObject("Pocket", typeof(RectTransform), typeof(PocketController));
+            var go = new GameObject("Pocket", typeof(RectTransform), typeof(Pocket));
             go.transform.SetParent(parent, false);
             var rt = go.GetComponent<RectTransform>();
             // 对齐 Cocos Pocket.prefab：锚点底部居中，105×188。
@@ -139,7 +139,7 @@ namespace AsGame.Water
             imgRt.pivot = new Vector2(0.5f, 0f);
             imgRt.anchoredPosition = Vector2.zero;
             var img = imgGo.GetComponent<Image>();
-            var ctrl = go.GetComponent<PocketController>();
+            var ctrl = go.GetComponent<Pocket>();
             ctrl.pocketImage = img;
 
             if (locked)

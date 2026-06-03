@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AsGame.Core;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -33,6 +34,8 @@ namespace XrCode
         public static Func<Transform> GetCupPart;                                       //获取瓶子父物体
         public static Func<Transform> GetCupPartShadow;                                 //获取瓶子阴影父物体
         public static Func<Transform> GetPockets;                                       //获取包装袋父物体
+
+        public static Func<GameStatus> GetStatus;                                       //获取当前关卡状态
 
         #endregion
     }
