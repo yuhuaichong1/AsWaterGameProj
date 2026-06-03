@@ -8,6 +8,7 @@ using AsGame.Data;
 using AsGame.Spine;
 using AsGame.UI;
 using Spine.Unity;
+using XrCode;
 
 namespace AsGame.Water
 {
@@ -836,7 +837,7 @@ namespace AsGame.Water
             {
                 var rt = streamBody.rectTransform;
                 rt.sizeDelta = new Vector2(rt.sizeDelta.x, 0);
-                var targetHeight = CalculateStreamHeight();
+                float targetHeight = CalculateStreamHeight();
                 StartCoroutine(TweenHelper.ToFloat(0f, targetHeight, 0.1f, h =>
                 {
                     if (streamBody == null) return;
@@ -868,9 +869,9 @@ namespace AsGame.Water
         float CalculateStreamHeight()
         {
             if (streamNode == null || transform.parent == null) return 180f;
-            var parent = transform.parent;
-            var origin = parent.InverseTransformPoint(streamNode.transform.position);
-            return Mathf.Clamp(origin.y - _streamEndRootY + 8f, 40f, 260f);
+            Transform parent = transform.parent;
+            Vector3 origin = parent.InverseTransformPoint(streamNode.transform.position);
+            return Mathf.Clamp(origin.y - _streamEndRootY + 8f, 40f, 320f);
         }
 
         void SetPourWaterMask(bool enabled)
@@ -1138,14 +1139,14 @@ namespace AsGame.Water
 
         public static Bottle Create(Transform parent)
         {
-            var prefab = Resources.Load<GameObject>(PrefabPaths.Bottle);
+            //GameObject prefab = Resources.Load<GameObject>(PrefabPaths.Bottle);
+            GameObject prefab = ResourceMod.Instance.SyncLoad<GameObject>(GameDefines.BottlePath);
             if (prefab == null)
             {
-                Debug.LogWarning("[BottleController] Missing Resources/" + PrefabPaths.Bottle + ", using legacy build.");
                 return CreateLegacy(parent);
             }
 
-            var go = UnityEngine.Object.Instantiate(prefab, parent);
+            GameObject go = UnityEngine.Object.Instantiate(prefab, parent);
             go.name = "Bottle";
             var rt = go.GetComponent<RectTransform>();
             if (rt != null)

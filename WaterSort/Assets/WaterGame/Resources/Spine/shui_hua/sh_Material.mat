@@ -12,6 +12,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - UNITY_UI_ALPHACLIP
   - _STRAIGHT_ALPHA_INPUT
   m_InvalidKeywords:
   - _USE8NEIGHBOURHOOD_ON
@@ -48,7 +49,7 @@ Material:
     - _ThresholdEnd: 0.25
     - _Use8Neighbourhood: 1
     - _UseScreenSpaceOutlineWidth: 0
-    - _UseUIAlphaClip: 0
+    - _UseUIAlphaClip: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _OutlineColor: {r: 1, g: 1, b: 0, a: 1}
