@@ -78,7 +78,7 @@ namespace XrCode
             mCMBtn.gameObject.SetActive(!GameDefines.ifIAA);
             mCMDialog.gameObject.SetActive(!GameDefines.ifIAA);
 
-            mCurLevel.text = $"{FacadeLanguage.GetText?.Invoke("10016")} {FacadePlayer.GetLevel()}";
+            mCurLevelText.text = string.Format(FacadeLanguage.GetText?.Invoke("10016"), FacadePlayer.GetLevel());
 
             SetCurMoneyShow();
             SetProp1CountShow();
@@ -155,7 +155,7 @@ namespace XrCode
         private void SetCurLevelText()
         {
             int curLevel = FacadePlayer.GetLevel();
-            mCurLevel.text = string.Format(FacadeLanguage.GetText("10016"), curLevel);
+            mCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), curLevel);
         }
 
         /// <summary>
