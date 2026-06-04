@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using AsGame.Core;
@@ -12,14 +13,156 @@ namespace AsGame.Data
 {
     public static class LevelConfigLoader
     {
-        const string ResourcePath = "Levels/ConfTotal";
+        const string LegacyResourcePath = "Levels/ConfTotal";
 
         static TextAsset _cachedAsset;
         static Dictionary<string, List<List<object>>> _rawLevels;
+        static HashSet<int> _splitLevelIndices;
+        static readonly Dictionary<int, List<CupData>> _splitCache = new();
+        static bool _splitIndexBuilt;
+
+        public static bool UsesSplitLevels
+        {
+            get
+            {
+                EnsureSplitIndex();
+                return _splitLevelIndices != null && _splitLevelIndices.Count > 0;
+            }
+        }
+
+        public static IReadOnlyCollection<int> GetSplitLevelIndices()
+        {
+            EnsureSplitIndex();
+            return _splitLevelIndices ?? (IReadOnlyCollection<int>)Array.Empty<int>();
+        }
 
         public static List<CupData> LoadLevel(int levelIndex)
         {
-            EnsureLoaded();
+            EnsureSplitIndex();
+            if (UsesSplitLevels)
+                return LoadSplitLevel(levelIndex);
+
+            return LoadFromConfTotal(levelIndex);
+        }
+
+        public static int GetLevelCount()
+        {
+            EnsureSplitIndex();
+            if (UsesSplitLevels)
+                return _splitLevelIndices.Count;
+
+            EnsureConfTotalLoaded();
+            return _rawLevels?.Count ?? 0;
+        }
+
+        public static int GetMaxSplitLevelIndex()
+        {
+            EnsureSplitIndex();
+            if (_splitLevelIndices == null || _splitLevelIndices.Count == 0)
+                return 0;
+            return _splitLevelIndices.Max();
+        }
+
+        public static void InvalidateCache()
+        {
+            _cachedAsset = null;
+            _rawLevels = null;
+            _splitLevelIndices = null;
+            _splitIndexBuilt = false;
+            _splitCache.Clear();
+        }
+
+#if UNITY_EDITOR
+        /// <summary>编辑器：保存单关 JSON 到 Split 目录。</summary>
+        public static bool SaveSplitLevel(int levelIndex, IReadOnlyList<CupData> cups)
+        {
+            try
+            {
+                Directory.CreateDirectory(ProjectPaths.LevelsSplitAbsolute);
+                var path = ProjectPaths.GetSplitLevelAbsolute(levelIndex);
+                var json = LevelJsonCodec.ToJson(levelIndex, cups, prettyPrint: true);
+                File.WriteAllText(path, json);
+                AssetDatabase.Refresh();
+                InvalidateCache();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[LevelConfigLoader] 保存关卡失败: " + ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>编辑器：从 Split 文件读取（不走缓存）。</summary>
+        public static List<CupData> LoadSplitLevelFromDisk(int levelIndex)
+        {
+            var path = ProjectPaths.GetSplitLevelAbsolute(levelIndex);
+            if (!File.Exists(path))
+                return new List<CupData>();
+            return LevelJsonCodec.FromJson(File.ReadAllText(path));
+        }
+
+        /// <summary>编辑器：将 ConfTotal 拆分为单关 JSON。</summary>
+        public static int ExportConfTotalToSplit(string confTotalJson = null)
+        {
+            confTotalJson ??= LoadLegacyJsonText();
+            if (string.IsNullOrEmpty(confTotalJson))
+            {
+                Debug.LogError("[LevelConfigLoader] 未找到 ConfTotal，无法拆分。");
+                return 0;
+            }
+
+            var parsed = ParseConfTotal(confTotalJson);
+            Directory.CreateDirectory(ProjectPaths.LevelsSplitAbsolute);
+            var count = 0;
+            foreach (var kv in parsed.OrderBy(k => ParseLevelNumber(k.Key)))
+            {
+                var levelNum = ParseLevelNumber(kv.Key);
+                if (levelNum <= 0) continue;
+                var cups = MapCupData(kv.Value);
+                var path = ProjectPaths.GetSplitLevelAbsolute(levelNum);
+                File.WriteAllText(path, LevelJsonCodec.ToJson(levelNum, cups, prettyPrint: true));
+                count++;
+            }
+
+            AssetDatabase.Refresh();
+            InvalidateCache();
+            Debug.Log($"[LevelConfigLoader] 已拆分 {count} 关 → {ProjectPaths.LevelsSplitAssetPath}");
+            return count;
+        }
+#endif
+
+        static List<CupData> LoadSplitLevel(int levelIndex)
+        {
+            if (_splitCache.TryGetValue(levelIndex, out var cached))
+                return CloneCupList(cached);
+
+            var json = LoadSplitLevelJsonText(levelIndex);
+            if (!string.IsNullOrEmpty(json))
+            {
+                var cups = LevelJsonCodec.FromJson(json);
+                _splitCache[levelIndex] = cups;
+                return CloneCupList(cups);
+            }
+
+            var max = GetMaxSplitLevelIndex();
+            if (max <= 0)
+                return new List<CupData>();
+
+            if (levelIndex > max)
+            {
+                var loopStart = 15;
+                var loopCount = Math.Max(1, max - loopStart + 1);
+                var loopIndex = loopStart + (levelIndex - max - 1) % loopCount;
+                return LoadSplitLevel(loopIndex);
+            }
+
+            return LoadSplitLevel(Math.Min(levelIndex, max));
+        }
+
+        static List<CupData> LoadFromConfTotal(int levelIndex)
+        {
+            EnsureConfTotalLoaded();
             var key = "level_" + levelIndex;
             if (!_rawLevels.TryGetValue(key, out var raw) || raw == null)
             {
@@ -35,41 +178,123 @@ namespace AsGame.Data
             return MapCupData(raw);
         }
 
-        public static int GetLevelCount()
+        static void EnsureSplitIndex()
         {
-            EnsureLoaded();
-            return _rawLevels?.Count ?? 0;
+            if (_splitIndexBuilt) return;
+            _splitIndexBuilt = true;
+            _splitLevelIndices = new HashSet<int>();
+
+            foreach (var path in EnumerateSplitFilesOnDisk())
+                TryAddSplitIndex(path);
+
+#if UNITY_EDITOR
+            if (_splitLevelIndices.Count == 0)
+            {
+                var assetDir = ProjectPaths.LevelsSplitAssetPath;
+                if (AssetDatabase.IsValidFolder(assetDir.Replace('\\', '/').TrimEnd('/')))
+                {
+                    foreach (var guid in AssetDatabase.FindAssets("level_ t:TextAsset", new[] { ProjectPaths.LevelsSplitAssetPath }))
+                    {
+                        var path = AssetDatabase.GUIDToAssetPath(guid);
+                        TryAddSplitIndex(path);
+                    }
+                }
+            }
+#endif
+
+            if (_splitLevelIndices.Count == 0)
+            {
+                var all = Resources.LoadAll<TextAsset>(ProjectPaths.LevelsSplitResourceFolder);
+                if (all != null)
+                {
+                    foreach (var asset in all)
+                    {
+                        if (asset == null) continue;
+                        var m = Regex.Match(asset.name, @"^level_(\d+)$");
+                        if (m.Success)
+                            _splitLevelIndices.Add(int.Parse(m.Groups[1].Value));
+                    }
+                }
+            }
+
+            if (_splitLevelIndices.Count > 0)
+                Debug.Log($"[LevelConfigLoader] 拆关模式：{_splitLevelIndices.Count} 关 ({ProjectPaths.LevelsSplitResourceFolder})");
         }
 
-        static void EnsureLoaded()
+        static void TryAddSplitIndex(string path)
+        {
+            var name = Path.GetFileNameWithoutExtension(path);
+            var m = Regex.Match(name, @"^level_(\d+)$");
+            if (m.Success)
+                _splitLevelIndices.Add(int.Parse(m.Groups[1].Value));
+        }
+
+        static IEnumerable<string> EnumerateSplitFilesOnDisk()
+        {
+            var dir = ProjectPaths.LevelsSplitAbsolute;
+            if (!Directory.Exists(dir))
+                yield break;
+            foreach (var file in Directory.GetFiles(dir, "level_*.json"))
+                yield return file;
+        }
+
+        static string LoadSplitLevelJsonText(int levelIndex)
+        {
+            var resourcePath = ProjectPaths.GetSplitLevelResourcePath(levelIndex);
+            var asset = Resources.Load<TextAsset>(resourcePath);
+            if (asset != null && !string.IsNullOrEmpty(asset.text))
+                return asset.text;
+
+#if UNITY_EDITOR
+            var editorPath = ProjectPaths.GetSplitLevelAssetPath(levelIndex);
+            var editorAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(editorPath);
+            if (editorAsset != null && !string.IsNullOrEmpty(editorAsset.text))
+                return editorAsset.text;
+#endif
+
+            var diskPath = ProjectPaths.GetSplitLevelAbsolute(levelIndex);
+            if (File.Exists(diskPath))
+            {
+                try
+                {
+                    return File.ReadAllText(diskPath);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning("[LevelConfigLoader] 读取拆关文件失败 " + diskPath + ": " + ex.Message);
+                }
+            }
+
+            return null;
+        }
+
+        static void EnsureConfTotalLoaded()
         {
             if (_rawLevels != null) return;
 
-            var json = LoadJsonText();
+            var json = LoadLegacyJsonText();
             if (string.IsNullOrEmpty(json))
             {
-                Debug.LogError(
-                    "[LevelConfigLoader] 未找到关卡配置。请确认存在：\n" +
-                    ProjectPaths.ToEditorAssetPath("Levels/ConfTotal.json") + "\n" +
-                    "且 .meta 为 TextScriptImporter（勿使用 Cocos 的 json meta）。");
+                Debug.LogWarning(
+                    "[LevelConfigLoader] 未找到 ConfTotal；请使用拆关目录或放置 " +
+                    ProjectPaths.ToEditorAssetPath("Levels/ConfTotal.json"));
                 _rawLevels = new Dictionary<string, List<List<object>>>();
                 return;
             }
 
             _rawLevels = ParseConfTotal(json);
             if (_rawLevels.Count == 0)
-                Debug.LogWarning("[LevelConfigLoader] ConfTotal 解析到 0 关，请检查 JSON 格式。");
-            else
-                Debug.Log($"[LevelConfigLoader] 已加载 {_rawLevels.Count} 关");
+                Debug.LogWarning("[LevelConfigLoader] ConfTotal 解析到 0 关。");
+            else if (!UsesSplitLevels)
+                Debug.Log($"[LevelConfigLoader] ConfTotal 模式：{_rawLevels.Count} 关");
         }
 
-        static string LoadJsonText()
+        static string LoadLegacyJsonText()
         {
-            _cachedAsset = Resources.Load<TextAsset>(ResourcePath);
+            _cachedAsset = Resources.Load<TextAsset>(LegacyResourcePath);
             if (_cachedAsset != null && !string.IsNullOrEmpty(_cachedAsset.text))
                 return _cachedAsset.text;
 
-            // 部分工程首次导入前 Resources 索引未就绪，尝试扫描 Levels 目录
             var all = Resources.LoadAll<TextAsset>("Levels");
             if (all != null)
             {
@@ -85,20 +310,16 @@ namespace AsGame.Data
             }
 
 #if UNITY_EDITOR
-            var editorJson = TryLoadJsonFromAssetDatabase();
+            var editorJson = TryLoadConfTotalFromAssetDatabase();
             if (!string.IsNullOrEmpty(editorJson))
                 return editorJson;
 #endif
 
-            foreach (var path in GetDiskCandidates())
+            foreach (var path in GetConfTotalDiskCandidates())
             {
                 if (!File.Exists(path)) continue;
                 try
                 {
-                    if (Application.isEditor)
-                        Debug.Log(
-                            "[LevelConfigLoader] 使用磁盘关卡配置（编辑器；发布包依赖 Resources.Load）: " +
-                            path);
                     return File.ReadAllText(path);
                 }
                 catch (Exception ex)
@@ -111,7 +332,7 @@ namespace AsGame.Data
         }
 
 #if UNITY_EDITOR
-        static string TryLoadJsonFromAssetDatabase()
+        static string TryLoadConfTotalFromAssetDatabase()
         {
             var direct = ProjectPaths.ToEditorAssetPath("Levels/ConfTotal.json");
             var asset = AssetDatabase.LoadAssetAtPath<TextAsset>(direct);
@@ -136,7 +357,7 @@ namespace AsGame.Data
         }
 #endif
 
-        static IEnumerable<string> GetDiskCandidates()
+        static IEnumerable<string> GetConfTotalDiskCandidates()
         {
             foreach (var resourcesRoot in ProjectPaths.EnumerateResourcesRootsOnDisk())
                 yield return Path.Combine(resourcesRoot, "Levels", "ConfTotal.json");
@@ -145,8 +366,23 @@ namespace AsGame.Data
             yield return Path.Combine(Application.streamingAssetsPath, "Levels", "ConfTotal.json");
         }
 
+        static int ParseLevelNumber(string key)
+        {
+            var m = Regex.Match(key ?? "", @"level_(\d+)");
+            return m.Success ? int.Parse(m.Groups[1].Value) : 0;
+        }
+
+        static List<CupData> CloneCupList(List<CupData> source)
+        {
+            if (source == null) return new List<CupData>();
+            var list = new List<CupData>(source.Count);
+            for (var i = 0; i < source.Count; i++)
+                list.Add(source[i].Clone());
+            return list;
+        }
+
         /// <summary>
-        /// 解析 Cocos ConfTotal.json：level_N -> [[pos, colors, wh, video, lock, lockColor, lockNums], ...]
+        /// 解析 ConfTotal.json：level_N -> [[pos, colors, wh, video, lock, lockColor, lockNums], ...]
         /// </summary>
         public static Dictionary<string, List<List<object>>> ParseConfTotal(string json)
         {

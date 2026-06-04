@@ -29,6 +29,27 @@ namespace AsGame.Core
         public static string LevelsConfTotalAbsolute =>
             Path.Combine(ResourcesRootAbsolute, "Levels", "ConfTotal.json");
 
+        /// <summary>拆关目录：Assets/WaterGame/Resources/Levels/Split/level_N.json</summary>
+        public const string LevelsSplitResourceFolder = "Levels/Split";
+
+        public static string LevelsSplitAbsolute =>
+            Path.Combine(ResourcesRootAbsolute, "Levels", "Split");
+
+        public static string LevelsSplitAssetPath =>
+            $"{ResourcesRootAssetPath}/Levels/Split";
+
+        public static string GetSplitLevelFileName(int levelIndex) =>
+            $"level_{levelIndex}.json";
+
+        public static string GetSplitLevelAbsolute(int levelIndex) =>
+            Path.Combine(LevelsSplitAbsolute, GetSplitLevelFileName(levelIndex));
+
+        public static string GetSplitLevelAssetPath(int levelIndex) =>
+            $"{LevelsSplitAssetPath}/{GetSplitLevelFileName(levelIndex)}";
+
+        public static string GetSplitLevelResourcePath(int levelIndex) =>
+            $"{LevelsSplitResourceFolder}/level_{levelIndex}";
+
         public static string ToEditorAssetPath(string pathUnderResources) =>
             $"{ResourcesRootAssetPath}/{pathUnderResources.TrimStart('/', '\\')}";
 
