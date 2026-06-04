@@ -397,6 +397,11 @@ namespace XrCode
 
         private void OnUnlockPocket(Pocket pocket)
         {
+            if (_pocketColors.Count <= 0)
+            {
+                UIManager.Instance.OpenNotice(FacadeLanguage.GetText("10097"));
+                return;
+            }    
             FacadeAd.PlayRewardAd(EAdSource.UnlockPocket, (count) => 
             {
                 pocket.Init(false, _pocketColors.Count > 0 ? _pocketColors[0] : 0);
@@ -634,8 +639,9 @@ namespace XrCode
                     yield return kv.Value.DisappearEmpty();
 
             yield return new WaitForSeconds(0.4f);
-            
-            UIManager.Instance.OpenSync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, curLevelIndex);
+
+            Debug.LogError("1");
+            UIManager.Instance.OpenAsync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, curLevelIndex);
             FacadePlayer.AddLevel(1);
         }
 

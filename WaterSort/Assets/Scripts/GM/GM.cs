@@ -110,7 +110,7 @@ public class GM : MonoBehaviour
 
         };
 
-        UIManager.Instance.OpenSync<UIWithdrawProgress>(EUIType.EUIWithdrawalAmount, UIOpenType.None, null, wItem);
+        UIManager.Instance.OpenAsync<UIWithdrawProgress>(EUIType.EUIWithdrawalAmount, UIOpenType.None, null, wItem);
     }
 
 }

@@ -75,7 +75,7 @@ namespace AsGame.Water
             if (colorId <= 0)
             {
                 pocketImage.sprite = null;
-                pocketImage.color = new Color(1f, 1f, 1f, 0.25f);
+                pocketImage.color = new Color(1f, 1f, 1f, 0f);
                 return;
             }
 

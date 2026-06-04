@@ -6,18 +6,14 @@ using UnityEngine.UI;
 
 namespace XrCode
 {
-
     public partial class UILevelCompleted : BaseUI
     {
         private int curCompletedLevel;//当前完成的关卡
         private float curCompletedMoney;//当前完成的关卡的通关奖励
         private float curOnlyMoney;//通关奖励÷10
-        private TBLevel TBLevel;//关卡表
 
         protected override void OnAwake()
         {
-            TBLevel = ConfigModule.Instance.Tables.TBLevel;
-
             mMoneyIcon.gameObject.SetActive(!GameDefines.ifIAA);
             mIAAMoneyIcon.gameObject.SetActive(GameDefines.ifIAA);
         }
@@ -109,7 +105,7 @@ namespace XrCode
         }
         protected override void OnDispose()
         {
-            TBLevel = null;
+            
         }
     }
 }
