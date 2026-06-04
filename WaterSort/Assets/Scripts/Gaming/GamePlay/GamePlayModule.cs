@@ -124,6 +124,7 @@ namespace XrCode
             FacadeGamePlay.AbleProp1Btn(true);
             FacadeGamePlay.AbleProp2Btn(false);
             FacadeGamePlay.AbleProp3Btn(false);
+            FacadeGamePlay.SetShuffleTipShow(false);
 
             ClearBoard();
             pourAction = null;
@@ -191,7 +192,13 @@ namespace XrCode
 
             if (allLevelData.TryGetValue($"level_{levelIndex}", out List<CupData> levelData))
             {
-                curLevelData = levelData;
+                var newList = new List<CupData>();
+                foreach (var cup in levelData)
+                {
+                    newList.Add(cup.Clone());
+                }
+
+                curLevelData = newList;
             }
             else
             {
@@ -288,11 +295,11 @@ namespace XrCode
             _pocketColors.Clear();
             _needCollect = 0;
             _collected = 0;
-            var colorCount = new Dictionary<int, int>();
-            foreach (var cup in curLevelData)
+            Dictionary<int, int> colorCount = new Dictionary<int, int>();
+            foreach (CupData cup in curLevelData)
             {
                 if (cup.isNull != 0) continue;
-                foreach (var c in cup.colors)
+                foreach (int c in cup.colors)
                 {
                     if (!colorCount.ContainsKey(c)) colorCount[c] = 0;
                     colorCount[c]++;
@@ -640,7 +647,6 @@ namespace XrCode
 
             yield return new WaitForSeconds(0.4f);
 
-            Debug.LogError("1");
             UIManager.Instance.OpenAsync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, curLevelIndex);
             FacadePlayer.AddLevel(1);
         }
@@ -672,7 +678,7 @@ namespace XrCode
         /// </summary>
         private void RePlay()
         {
-
+            CreateLevel();
         }
 
         /// <summary>

@@ -26,7 +26,7 @@ namespace XrCode
             HideAnim(mPlane, () =>
             {
                 UIManager.Instance.CloseUI(EUIType.EUIReStart);
-                FacadeGamePlay.RePlay?.Invoke();
+                FacadeGamePlay.RePlay();
             });
         }
         protected override void OnDisable() { }
