@@ -3,6 +3,7 @@ using AsGame.Core;
 using AsGame.Data;
 using AsGame.Events;
 using AsGame.Spine;
+using AsGame.UI;
 using AsGame.Water;
 using Newtonsoft.Json.Linq;
 using Spine;
@@ -124,6 +125,12 @@ namespace XrCode
             FacadeGamePlay.AbleProp2Btn(false);
             FacadeGamePlay.AbleProp3Btn(false);
 
+            ClearBoard();
+            pourAction = null;
+            _selected = null;
+            _shuffleMode = false;
+            CheckNewPlayUnlock();
+
             curLevelIndex = FacadePlayer.GetLevel();
             GetLevelData(curLevelIndex);
             GenerateCups();
@@ -135,6 +142,39 @@ namespace XrCode
             CheckPack();
 
             status = GameStatus.Gaming;
+        }
+
+        /// <summary>
+        /// 清理场景中的物体
+        /// </summary>
+        void ClearBoard()
+        {
+            _pendingFullCupsByColor.Clear();
+            _isCheckingPack = false;
+            foreach (var kv in cups)
+                if (kv.Value != null) GameObject.Destroy(kv.Value.gameObject);
+            cups.Clear();
+            shadows.Clear();
+            foreach (Transform c in FacadeGamePlay.GetCupPart()) GameObject.Destroy(c.gameObject);
+            foreach (Transform c in FacadeGamePlay.GetCupPartShadow()) GameObject.Destroy(c.gameObject);
+            foreach (Transform c in FacadeGamePlay.GetPockets()) GameObject.Destroy(c.gameObject);
+        }
+
+        void CheckNewPlayUnlock()
+        {
+            for (var i = 0; i < GameConstants.NewPlayUnlockLevels.Length; i++)
+            {
+                var lv = GameConstants.NewPlayUnlockLevels[i];
+                if (curLevelIndex == lv && !GameSaveData.IsNewPlayUnlocked(i + 1))
+                {
+                    GameSaveData.SetNewPlayUnlocked(i + 1);
+                    PopupManager.Instance.ShowAtOnce(new PopupContext
+                    {
+                        Type = PopupType.NewPlay,
+                        Payload = i + 1
+                    });
+                }
+            }
         }
 
         /// <summary>
