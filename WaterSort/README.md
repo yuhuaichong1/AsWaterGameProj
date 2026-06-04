@@ -7,13 +7,21 @@
 | 模块 | 状态 |
 |------|------|
 | 核心倒水玩法 + 补间动画 | ✅ |
-| 关卡 ConfTotal 全量 | ✅ |
+| 关卡数据（拆关 JSON + 关卡编辑器） | ✅ |
+| 关卡 ConfTotal 全量（无拆关时回退） | ✅ |
 | 场景 Loading → Home → Game | ✅ |
 | 弹窗：设置/胜利/排行/图鉴/获收藏/体力/每日/新玩法/反馈 | ✅ |
 | 道具 UI：打乱、撤回、加瓶 + 激励视频接口 | ✅ |
 | 广告抽象 `IAdsService`（MAX 占位 + Editor 模拟） | ✅ |
 | Spine 资源已复制 + `ISpinePlayer` 占位 | ⚠️ 需接 spine-unity |
 | 微信/分享/渠道 Collection 弹窗 | ❌ 已排除 |
+
+## 关卡编辑器
+
+- 数据：`Assets/WaterGame/Resources/Levels/Split/level_N.json`（每关单独 JSON）
+- 菜单：**WaterGame → 关卡编辑器**（局内区域预览、撤销重做、拖拽摆瓶、试玩）
+- 全量迁移：**WaterGame → 关卡 → 从 ConfTotal 拆分为单关 JSON**
+- 运行时 `GamePlayModule` / `GameController` 经 `LevelConfigLoader` 加载，**优先 Split**，否则回退 `ConfTotal.json`
 
 ## 快速开始（游戏入口）
 

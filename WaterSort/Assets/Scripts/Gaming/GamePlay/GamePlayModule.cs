@@ -5,7 +5,6 @@ using AsGame.Events;
 using AsGame.Spine;
 using AsGame.UI;
 using AsGame.Water;
-using Newtonsoft.Json.Linq;
 using Spine;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,7 +17,6 @@ namespace XrCode
     {
         private int curLevelIndex;
         private List<CupData> curLevelData;
-        private Dictionary<string, List<CupData>> allLevelData;
         private Dictionary<int, Bottle> cups;
         private Dictionary<int, Bottle> shadows;
         private GameStatus status;
@@ -40,7 +38,6 @@ namespace XrCode
         protected override void OnLoad()
         {
             curLevelData = new List<CupData>();
-            allLevelData = new Dictionary<string, List<CupData>>();
             cups = new Dictionary<int, Bottle>();
             shadows = new Dictionary<int, Bottle>();
             _pendingFullCupsByColor = new Dictionary<int, Queue<int>>();
@@ -179,82 +176,14 @@ namespace XrCode
         }
 
         /// <summary>
-        /// 获取当前关卡数据
+        /// 获取当前关卡数据（优先拆关 JSON：Resources/Levels/Split/level_N.json）
         /// </summary>
-        /// <param name="levelIndex">关卡id</param>
+        /// <param name="levelIndex">关卡 id</param>
         private void GetLevelData(int levelIndex)
         {
-            
-            if (allLevelData.Count == 0)
-            {
-                GetAllLevelData();
-            }
-
-            if (allLevelData.TryGetValue($"level_{levelIndex}", out List<CupData> levelData))
-            {
-                var newList = new List<CupData>();
-                foreach (var cup in levelData)
-                {
-                    newList.Add(cup.Clone());
-                }
-
-                curLevelData = newList;
-            }
-            else
-            {
-                D.Error($"level_{levelIndex} is not exist");
-            }
-        }
-
-        /// <summary>
-        /// 获取所有关卡数据
-        /// </summary>
-        private void GetAllLevelData()
-        {
-            TextAsset ta = ResourceMod.Instance.SyncLoad<TextAsset>(GameDefines.LevelsDataPath);
-            string jsonContent = ta.text;
-            JObject root = JObject.Parse(jsonContent);
-
-            foreach (var property in root.Properties())
-            {
-                string levelName = property.Name;  // "level_1", "level_2", ...
-                JArray levelArray = (JArray)property.Value;
-
-                var cupList = new List<CupData>();
-                int id = 0;
-
-                foreach (var item in levelArray)
-                {
-                    var cupData = new CupData();
-                    cupData.id = id++;
-
-                    // 解析位置 { "x": -120, "y": -194 }
-                    JObject positionObj = (JObject)item[0];
-                    float x = positionObj.Value<float>("x");
-                    float y = positionObj.Value<float>("y");
-                    cupData.position = new Vector2(x, y);
-
-                    // 解析颜色数组
-                    JArray colorsArray = (JArray)item[1];
-                    cupData.colors = new List<int>();
-                    foreach (var color in colorsArray)
-                    {
-                        cupData.colors.Add(color.Value<int>());
-                    }
-
-                    // 解析后续字段
-                    cupData.whNums = item[2].Value<int>();
-                    cupData.isVideo = item[3].Value<int>();
-                    cupData.isLock = item[4].Value<int>();
-                    cupData.lockColor = item[5].Value<int>();
-                    cupData.lockNums = item[6].Value<int>();
-                    cupData.isNull = 0;
-
-                    cupList.Add(cupData);
-                }
-
-                allLevelData.Add(levelName, cupList);
-            }
+            curLevelData = LevelConfigLoader.LoadLevel(levelIndex);
+            if (curLevelData == null || curLevelData.Count == 0)
+                D.Error($"level_{levelIndex} is not exist or empty");
         }
 
         /// <summary>
