@@ -20,7 +20,7 @@ namespace XrCode
         {
             if(string.IsNullOrEmpty(mAddressOrPhoneInput.text))
             {
-                UIManager.Instance.OpenNotice(FacadeLanguage.GetText("10059"));
+                UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10059"));
             }
             else
             {
@@ -40,7 +40,7 @@ namespace XrCode
                 }
                 else
                 {
-                    UIManager.Instance.OpenNotice(FacadeLanguage.GetText("10062"));
+                    UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10062"));
                 }
             }
         }

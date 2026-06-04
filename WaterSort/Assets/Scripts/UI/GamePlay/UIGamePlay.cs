@@ -31,7 +31,6 @@ namespace XrCode
             FacadeGamePlay.SetCurLevelText += SetCurLevelText;
             FacadeGamePlay.SetWithdrawalTip += SetWithdrawalTip;
             FacadeGamePlay.SetShuffleTipShow += SetShuffleTipShow;
-            FacadeGamePlay.SetShuffleTip2Show += SetShuffleTip2Show;
 
             FacadeGamePlay.GetCMDialogTextPos += GetCMDialogTextPos;
             FacadeGamePlay.GetFlyObjGoalPos += GetFlyObjGoalPos;
@@ -57,7 +56,6 @@ namespace XrCode
             FacadeGamePlay.SetCurLevelText -= SetCurLevelText;
             FacadeGamePlay.SetWithdrawalTip -= SetWithdrawalTip;
             FacadeGamePlay.SetShuffleTipShow -= SetShuffleTipShow;
-            FacadeGamePlay.SetShuffleTip2Show -= SetShuffleTip2Show;
 
             FacadeGamePlay.GetCMDialogTextPos -= GetCMDialogTextPos;
             FacadeGamePlay.GetFlyObjGoalPos -= GetFlyObjGoalPos;
@@ -91,7 +89,6 @@ namespace XrCode
         protected override void OnEnable()
         {
             SetShuffleTipShow(false);
-            SetShuffleTip2Show(false);
 
             FacadeGamePlay.CreateLevel();
         }
@@ -178,25 +175,6 @@ namespace XrCode
             mShuffleTip.gameObject.SetActive(b);
         }
 
-        /// <summary>
-        /// 设置刷新功能的提示的显影
-        /// </summary>
-        /// <param name="b">显影</param>
-        private void SetShuffleTip2Show(bool b)
-        {
-            mShuffleTip2.gameObject.SetActive(b);
-            mShuffleTip2.DOKill();
-            if (b)
-            {
-                mShuffleTip2.localScale = Vector3.zero; 
-                Sequence sequence = DOTween.Sequence();
-                sequence.Append(mShuffleTip2.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack));
-                sequence.AppendInterval(1);
-                sequence.Append(mShuffleTip2.DOScale(Vector3.zero, 0.5f).SetEase(Ease.Linear));
-                sequence.Play();
-            }
-        }
-
         #endregion
 
         #region 获取部分UI
@@ -263,7 +241,7 @@ namespace XrCode
 
             if(FacadePlayer.GetProp1Num() > 0)
             {
-                FacadePlayer.AddProp1Num(-1);
+                //FacadePlayer.AddProp1Num(-1);
                 FacadeGamePlay.Func_Porp1();
                 SetProp1CountShow();
             }
@@ -311,6 +289,7 @@ namespace XrCode
 
         private void OnTipExitBtnClickHandle()
         {
+            FacadeGamePlay.EndPorp1();
             SetShuffleTipShow(false);
         }
 

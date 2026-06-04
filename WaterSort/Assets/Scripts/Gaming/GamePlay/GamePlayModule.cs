@@ -34,7 +34,7 @@ namespace XrCode
         private List<GameObject> _shuffleFxObjects;
         private Dictionary<int, GameObject> _shuffleFxByCupId;
 
-        private int func1timer;
+        private bool canReduceProp1Count;
         private float[] pocketXPos;
 
         protected override void OnLoad()
@@ -50,8 +50,6 @@ namespace XrCode
 
             float PInterval = Screen.width / 4;
             pocketXPos = new float[4] { PInterval * -1.5f, PInterval * -0.5f, PInterval * 0.5f, PInterval * 1.5f };
-
-            func1timer = 0;
 
             FacadeAdd();
 
@@ -73,6 +71,7 @@ namespace XrCode
             FacadeGamePlay.RePlay += RePlay;
             FacadeGamePlay.GetCurLevelProgress += GetCurLevelProgress;
             FacadeGamePlay.GetStatus += GetStatus;
+            FacadeGamePlay.EndPorp1 += EndShuffleMode;
         }
 
         /// <summary>
@@ -80,13 +79,14 @@ namespace XrCode
         /// </summary>
         private void FacadeRemove()
         {
-            FacadeGamePlay.CreateLevel += CreateLevel;
-            FacadeGamePlay.Func_Porp1 += Func_Porp1;
-            FacadeGamePlay.Func_Porp2 += Func_Porp2;
-            FacadeGamePlay.Func_Porp3 += Func_Porp3;
-            FacadeGamePlay.RePlay += RePlay;
+            FacadeGamePlay.CreateLevel -= CreateLevel;
+            FacadeGamePlay.Func_Porp1 -= Func_Porp1;
+            FacadeGamePlay.Func_Porp2 -= Func_Porp2;
+            FacadeGamePlay.Func_Porp3 -= Func_Porp3;
+            FacadeGamePlay.RePlay -= RePlay;
             FacadeGamePlay.GetCurLevelProgress -= GetCurLevelProgress;
-            FacadeGamePlay.GetStatus += GetStatus;
+            FacadeGamePlay.GetStatus -= GetStatus;
+            FacadeGamePlay.EndPorp1 -= EndShuffleMode;
         }
 
         #endregion
@@ -351,7 +351,7 @@ namespace XrCode
                 //if (_shuffleAnimating) return;
                 if (cup.IsUnShuffle())
                 {
-                    ToastService.Show(FacadeLanguage.GetText("10096"));
+                    UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10096"));
                     return;
                 }
 
@@ -388,7 +388,7 @@ namespace XrCode
             }
             else
             {
-                ToastService.Show(cup.IsFull() ? FacadeLanguage.GetText("10091") : FacadeLanguage.GetText("10092"));
+                UIManager.Instance.OpenNotice2(cup.IsFull() ? FacadeLanguage.GetText("10091") : FacadeLanguage.GetText("10092"));
                 _selected.DoUnSelect();
                 _selected = cup;
                 cup.DoSelect();
@@ -399,7 +399,7 @@ namespace XrCode
         {
             if (_pocketColors.Count <= 0)
             {
-                UIManager.Instance.OpenNotice(FacadeLanguage.GetText("10097"));
+                UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10097"));
                 return;
             }    
             FacadeAd.PlayRewardAd(EAdSource.UnlockPocket, (count) => 
@@ -797,6 +797,7 @@ namespace XrCode
             cup.RefreshVisual();
             _shuffleAnimating = false;
 
+            canReduceProp1Count = true;
             EndShuffleMode();
         }
 
@@ -824,7 +825,13 @@ namespace XrCode
 
             _shuffleMode = false;
             status = GameStatus.Gaming;
-            FacadeGamePlay.SetShuffleTip2Show(true);
+
+            if(canReduceProp1Count)
+            {
+                canReduceProp1Count = false;
+                FacadePlayer.AddProp1Num(-1);
+                UIManager.Instance.OpenNotice(FacadeLanguage.GetText("10094"));
+            }
         }
 
         void ClearShuffleEffects()

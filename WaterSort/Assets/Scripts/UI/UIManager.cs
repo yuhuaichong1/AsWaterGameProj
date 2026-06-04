@@ -418,12 +418,12 @@ namespace XrCode
             }
         }
 
-        public GameObject OpenNotice(string msg, float time = 2)
+        public GameObject OpenNotice(string msg)
         {
             GameObject obj = null;
             if(uiNotice != null)
             {
-                obj = uiNotice.ShowInfo(msg, time);
+                obj = uiNotice.ShowInfo(msg);
             }
             else
             {
@@ -436,10 +436,37 @@ namespace XrCode
                         {
                             GameObject uiObj = InitUITransform(obj, conf.UiLevel);
                             uiNotice = LoadUI<UINotice>(EUIType.EUINotice, uiObj, conf, null);
-                            obj = uiNotice.ShowInfo(msg, time);
+                            obj = uiNotice.ShowInfo(msg);
                         });
                 }
                 
+            }
+
+            return obj;
+        }
+
+        public GameObject OpenNotice2(string msg)
+        {
+            GameObject obj = null;
+            if (uiNotice != null)
+            {
+                obj = uiNotice.ShowInfo2(msg);
+            }
+            else
+            {
+                ConfUIRes conf = ConfigModule.Instance.Tables.TbUIRes.GetOrDefault((int)EUIType.EUINotice);
+                if (conf != null)
+                {
+                    Debug.Log($"[ConfUI]: 加载ui {conf.Sn} ___ {conf.UiPath}");
+                    ResourceMod.Instance.AsyncLoad<UnityEngine.Object>(conf.UiPath,
+                        (obj) =>
+                        {
+                            GameObject uiObj = InitUITransform(obj, conf.UiLevel);
+                            uiNotice = LoadUI<UINotice>(EUIType.EUINotice, uiObj, conf, null);
+                            obj = uiNotice.ShowInfo2(msg);
+                        });
+                }
+
             }
 
             return obj;

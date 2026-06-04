@@ -36,7 +36,7 @@ public class OrderItem : MonoBehaviour
     {
         if(item.WRState == EWithRecordState.UnderReview)
         {
-            UIManager.Instance.OpenNotice(FacadeLanguage.GetText("10089"));
+            UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10089"));
         }
         else//state == EWithRecordState.GoWithdrawal
         {

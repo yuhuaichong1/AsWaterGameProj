@@ -97,7 +97,7 @@ namespace XrCode
 
             if (string.IsNullOrEmpty(inputName)) 
             {
-                UIManager.Instance.OpenNotice(FacadeLanguage.GetText("10027"));
+                UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10027"));
                 return;
             }
 
@@ -194,13 +194,13 @@ namespace XrCode
             switch (infoType)
             {
                 case EPOEType.Email:
-                    UIManager.Instance.OpenNotice(FacadeLanguage.GetText("10058"));
+                    UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10058"));
                     break;
                 case EPOEType.Phone:
-                    UIManager.Instance.OpenNotice(FacadeLanguage.GetText("10057"));
+                    UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10057"));
                     break;
                 case EPOEType.POE:
-                    UIManager.Instance.OpenNotice(FacadeLanguage.GetText("10059"));
+                    UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10059"));
                     break;
             }
         }
@@ -230,7 +230,7 @@ namespace XrCode
             }
 
             if (!b)
-                UIManager.Instance.OpenNotice(FacadeLanguage.GetText(lauguageId));
+                UIManager.Instance.OpenNotice2(FacadeLanguage.GetText(lauguageId));
 
             return b;
         }

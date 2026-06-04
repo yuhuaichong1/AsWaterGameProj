@@ -184,7 +184,7 @@ namespace XrCode
                 else
                 {
                     failAction?.Invoke(AdFailMsg);
-                    UIManager.Instance.OpenNotice(AdFailMsg);
+                    UIManager.Instance.OpenNotice2(AdFailMsg);
                 }
             }
         }
@@ -220,7 +220,7 @@ namespace XrCode
                 else
                 {
                     failAction?.Invoke(AdFailMsg);
-                    UIManager.Instance.OpenNotice(AdFailMsg);
+                    UIManager.Instance.OpenNotice2(AdFailMsg);
                 }
 
             }
@@ -252,7 +252,7 @@ namespace XrCode
                 else
                 {
                     failAction?.Invoke(AdFailMsg);
-                    UIManager.Instance.OpenNotice(AdFailMsg);
+                    UIManager.Instance.OpenNotice2(AdFailMsg);
                 }
             }
         }
@@ -304,7 +304,7 @@ namespace XrCode
                 else
                 {
                     failAction?.Invoke(AdFailMsg);
-                    UIManager.Instance.OpenNotice(AdFailMsg);
+                    UIManager.Instance.OpenNotice2(AdFailMsg);
                 }
             }
         }
@@ -613,7 +613,7 @@ namespace XrCode
         /// <param name="eAdType"></param>
         private void OnAdFailed(EAdType eAdType, EAdSource eAdSource, string errMsg)
         {
-            UIManager.Instance.OpenNotice(AdFailMsg);
+            UIManager.Instance.OpenNotice2(AdFailMsg);
 
             switch (eAdType)
             {

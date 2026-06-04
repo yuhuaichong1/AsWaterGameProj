@@ -18,6 +18,7 @@ namespace XrCode
         public static Action RePlay;                                                    //重新开始游戏
         public static Func<float> GetCurLevelProgress;                                  //获得当前关卡进度
         public static Func<GameStatus> GetStatus;                                       //获取当前关卡状态
+        public static Action EndPorp1;                                                  //结束Prop1功能
 
         #endregion
 
@@ -32,7 +33,6 @@ namespace XrCode
         public static Action SetCurLevelText;                                           //设置当前关卡的显示
         public static Action SetWithdrawalTip;                                          //设置当前兑现通知
         public static Action<bool> SetShuffleTipShow;                                   //设置刷新功能的提示的显影
-        public static Action<bool> SetShuffleTip2Show;                                  //设置刷新功能的提示2的显影
 
         public static Func<Transform> GetCupPart;                                       //获取瓶子父物体
         public static Func<Transform> GetCupPartShadow;                                 //获取瓶子阴影父物体
