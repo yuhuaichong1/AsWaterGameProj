@@ -28,6 +28,7 @@ namespace XrCode
             FacadePayType.GetNANP += GetNANP;
             FacadePayType.GetCountryCode += GetCountryCode;
             FacadePayType.GetLanguage += GetLanguage;
+            FacadePayType.GetExchangeRate += GetExchangeRate;
 
             CountryCodeToInfo();
         }
@@ -150,6 +151,14 @@ namespace XrCode
             return Language;
         }
 
+        /// <summary>
+        /// 获取汇率
+        /// </summary>
+        /// <returns>汇率</returns>
+        private float GetExchangeRate()
+        {
+            return exchangeRate;
+        }
 
         protected override void OnDispose()
         {
@@ -160,6 +169,7 @@ namespace XrCode
             FacadePayType.GetNANP -= GetNANP;
             FacadePayType.GetCountryCode -= GetCountryCode;
             FacadePayType.GetLanguage -= GetLanguage;
+            FacadePayType.GetExchangeRate -= GetExchangeRate;
 
             //GetDefinePayType();
         }

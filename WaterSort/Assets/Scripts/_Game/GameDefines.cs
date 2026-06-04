@@ -28,7 +28,7 @@ public abstract class GameDefines
     public static float Elimination_Money = 0.02f;                                                          //单次消除金额
     public static float IAA_Elimination_Money = 1f;                                                         //单次消除金额（IAA）
 
-    public static int miniLevel_Start = 8;                                                                  //迷你关开始关号
+    public static int miniLevel_Start = 9;                                                                  //迷你关开始关号
     public static int miniLevel_End = 17;                                                                   //迷你关结束关号
 
     public static float RefreshATime = 0.05f;                                                               //刷新功能特效间隔时间

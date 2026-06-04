@@ -6,13 +6,13 @@ using UnityEngine.UI;
 namespace XrCode
 {
 
-    public partial class UILuckySpin : BaseUI
+    public partial class UIWithdrawGoal : BaseUI
     {
         protected override void OnAwake() { }
         protected override void OnEnable() { }
-        	    private void OnLotteryBtnClickHandle()        {                }	    private void OnExitBtnClickHandle()
+        	    private void OnExitBtnClickHandle()        {            UIManager.Instance.CloseUI(EUIType.EUIWithdrawGoal);        }	    private void OnWithdrawBtnClickHandle()
         {
-            UIManager.Instance.CloseUI(EUIType.EUILuckySpin);
+        
         }
 
         protected override void OnDisable() { }

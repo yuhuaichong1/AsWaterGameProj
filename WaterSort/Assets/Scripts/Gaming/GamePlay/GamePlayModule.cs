@@ -130,6 +130,7 @@ namespace XrCode
             CheckNewPlayUnlock();
 
             curLevelIndex = FacadePlayer.GetLevel();
+            FacadeGamePlay.SetLevelShow();
             GetLevelData(curLevelIndex);
             GenerateCups();
             BuildPocketColors();

@@ -10,4 +10,5 @@ public static class FacadePayType
     public static Func<int> GetNANP;                                //获取国际长途电话区号
     public static Func<string> GetCountryCode;                      //获取国家码
     public static Func<string> GetLanguage;                         //获取语言
+    public static Func<float> GetExchangeRate;                      //获取汇率
 }

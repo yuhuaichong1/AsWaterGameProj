@@ -101,16 +101,16 @@ public class GM : MonoBehaviour
 
     private void OnTestFunctionBtnClick()
     {
-        WithdrawalRecordItem wItem = new WithdrawalRecordItem()
-        {
-            LevelId = 0,
-            CreatedDate = "2026/5/28",
-            WRState = EWithRecordState.UnderReview,
-            WRMoney = 1000.12f,
+        //WithdrawalRecordItem wItem = new WithdrawalRecordItem()
+        //{
+        //    LevelId = 0,
+        //    CreatedDate = "2026/5/28",
+        //    WRState = EWithRecordState.UnderReview,
+        //    WRMoney = 1000.12f,
+        //};
+        //UIManager.Instance.OpenAsync<UIWithdrawProgress>(EUIType.EUIWithdrawalProgress, UIOpenType.None, null, wItem);
 
-        };
-
-        UIManager.Instance.OpenAsync<UIWithdrawProgress>(EUIType.EUIWithdrawalProgress, UIOpenType.None, null, wItem);
+        UIManager.Instance.OpenAsync<UILuckySpin>(EUIType.EUILuckySpin);
     }
 
 }
