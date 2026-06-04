@@ -39,6 +39,10 @@ namespace XrCode
             FacadeGamePlay.GetCupPart += GetCupPart;
             FacadeGamePlay.GetCupPartShadow += GetCupPartShadow;
             FacadeGamePlay.GetPockets += GetPockets;
+
+            FacadeGamePlay.AbleProp1Btn += AbleProp1Btn;
+            FacadeGamePlay.AbleProp2Btn += AbleProp2Btn;
+            FacadeGamePlay.AbleProp3Btn += AbleProp3Btn;
         }
 
         /// <summary>
@@ -61,6 +65,10 @@ namespace XrCode
             FacadeGamePlay.GetCupPart -= GetCupPart;
             FacadeGamePlay.GetCupPartShadow -= GetCupPartShadow;
             FacadeGamePlay.GetPockets -= GetPockets;
+
+            FacadeGamePlay.AbleProp1Btn -= AbleProp1Btn;
+            FacadeGamePlay.AbleProp2Btn -= AbleProp2Btn;
+            FacadeGamePlay.AbleProp3Btn -= AbleProp3Btn;
         }
 
         #endregion
@@ -307,6 +315,33 @@ namespace XrCode
         }
 
         #endregion
+
+        /// <summary>
+        /// 设置功能1按钮是否可点击
+        /// </summary>
+        /// <param name="b">是否可点击</param>
+        private void AbleProp1Btn(bool b)
+        {
+            mBtn_Prop1.interactable = b;
+        }
+
+        /// <summary>
+        /// 设置功能2按钮是否可点击
+        /// </summary>
+        /// <param name="b">是否可点击</param>
+        private void AbleProp2Btn(bool b)
+        {
+            mBtn_Prop2.interactable = b;
+        }
+
+        /// <summary>
+        /// 设置功能3按钮是否可点击
+        /// </summary>
+        /// <param name="b">是否可点击</param>
+        private void AbleProp3Btn(bool b)
+        {
+            mBtn_Prop3.interactable = b;
+        }
 
         protected override void OnDisable()
         {

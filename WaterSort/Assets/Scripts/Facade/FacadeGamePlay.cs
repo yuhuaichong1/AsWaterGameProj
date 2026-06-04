@@ -38,7 +38,9 @@ namespace XrCode
         public static Func<Transform> GetCupPartShadow;                                 //获取瓶子阴影父物体
         public static Func<Transform> GetPockets;                                       //获取包装袋父物体
 
-       
+        public static Action<bool> AbleProp1Btn;                                        //是否启用功能1的按钮
+        public static Action<bool> AbleProp2Btn;                                        //是否启用功能2的按钮
+        public static Action<bool> AbleProp3Btn;                                        //是否启用功能3的按钮
 
         #endregion
     }

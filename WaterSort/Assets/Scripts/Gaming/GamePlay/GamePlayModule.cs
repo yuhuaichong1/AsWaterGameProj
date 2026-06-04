@@ -120,6 +120,10 @@ namespace XrCode
         /// </summary>
         private void CreateLevel()
         {
+            FacadeGamePlay.AbleProp1Btn(true);
+            FacadeGamePlay.AbleProp2Btn(false);
+            FacadeGamePlay.AbleProp3Btn(false);
+
             curLevelIndex = FacadePlayer.GetLevel();
             GetLevelData(curLevelIndex);
             GenerateCups();
@@ -421,6 +425,7 @@ namespace XrCode
                     num = pourNum
                 };
                 //hud?.SetUndoGray(false);
+                FacadeGamePlay.AbleProp2Btn(true);
 
                 var dir = from.transform.localPosition.x > to.transform.localPosition.x ? 1 : -1;
                 var pourPos = to.transform.localPosition + new Vector3(dir < 0 ? 20 : -20, 0, 0);
@@ -440,6 +445,7 @@ namespace XrCode
                 {
                     pourAction = null;
                     //hud?.SetUndoGray(true);
+                    FacadeGamePlay.AbleProp2Btn(false);
                     yield return to.DoCollected();
                     RegisterFullCup(to);
                     yield return CheckPack();
@@ -562,7 +568,7 @@ namespace XrCode
             }
 
             yield return pocket.OnPocketAction(packedColor);
-            //RefreshAddBottleButton();
+            FacadeGamePlay.AbleProp3Btn(GetEmptySlotId() != null);
             _collected++;
             CheckUnlockCup(packedColor);
             RefillPocket(pocket);
@@ -810,6 +816,7 @@ namespace XrCode
                 pourAction = null;
             });
             //hud?.SetUndoGray(true);
+            FacadeGamePlay.AbleProp2Btn(false);
         }
 
         /// <summary>
@@ -817,7 +824,51 @@ namespace XrCode
         /// </summary>
         private void Func_Porp3()
         {
-            EventBus.Publish(GameEvents.UpdateProp);
+            var id = GetEmptySlotId();
+            if (id == null) return;
+            var slot = curLevelData[id.Value];
+            ResetSlotAsEmptyCup(slot);
+            var pos = new Vector3(slot.position.x, slot.position.y + GameConstants.HalfBottleHeight, 0);
+            var bottle = Bottle.Create(FacadeGamePlay.GetCupPart());
+            if (bottle == null) return;
+            bottle.transform.localPosition = pos;
+            bottle.Init(slot, OnCupClick);
+            var shadow = Bottle.CreateShadow(FacadeGamePlay.GetCupPartShadow());
+            if (shadow == null)
+            {
+                GameObject.Destroy(bottle.gameObject);
+            }
+            shadow.transform.localPosition = pos + new Vector3(
+                GameConstants.BottleShadowDiffX,
+                -GameConstants.BottleHeight + GameConstants.BottleShadowDiffY, 0);
+            bottle.BindShadow(shadow);
+            cups[slot.id] = bottle;
+            shadows[slot.id] = shadow;
+            SpineService.PlayEffect(bottle.transform, Vector3.zero, "bao_xing", "bao");
+            FacadeGamePlay.AbleProp3Btn(GetEmptySlotId() != null);
+        }
+
+        private int? GetEmptySlotId()
+        {
+            foreach (var d in curLevelData)
+            {
+                if (cups.TryGetValue(d.id, out var cup) && cup == null)
+                    return d.id;
+            }
+
+            return null;
+        }
+
+        private void ResetSlotAsEmptyCup(CupData slot)
+        {
+            if (slot == null) return;
+            slot.colors.Clear();
+            slot.whNums = 0;
+            slot.isVideo = 0;
+            slot.isLock = 0;
+            slot.lockColor = 0;
+            slot.lockNums = 0;
+            slot.isNull = 0;
         }
 
         #endregion
