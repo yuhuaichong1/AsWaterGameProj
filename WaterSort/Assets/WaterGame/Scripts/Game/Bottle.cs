@@ -132,13 +132,6 @@ namespace AsGame.Water
                 waterVisual = content.GetComponentInChildren<BottleWaterVisual>(true);
         }
 
-        static Sprite GetAdIconSprite()
-        {
-            if (_cachedAdIconSprite == null)
-                _cachedAdIconSprite = GameResourceLoader.LoadSprite("Sprites/Bottle/icon_6");
-            return _cachedAdIconSprite;
-        }
-
         /// <summary>对齐 Cocos Cup.ad/icon：广告图标挂在 ad/icon 上。</summary>
         void SetupVideoAdVisual()
         {
@@ -146,35 +139,6 @@ namespace AsGame.Water
 
             adNode.SetActive(true);
             adNode.transform.SetAsLastSibling();
-
-            // 父节点 Image 无 sprite 时会画白块，禁用后只用子节点 icon 显示
-            var parentImg = adNode.GetComponent<Image>();
-            if (parentImg != null)
-                parentImg.enabled = false;
-
-            var iconTr = adNode.transform.Find("icon");
-            if (iconTr == null)
-            {
-                var iconGo = new GameObject("icon", typeof(RectTransform), typeof(Image));
-                iconGo.transform.SetParent(adNode.transform, false);
-                iconTr = iconGo.transform;
-                var rt = iconTr as RectTransform;
-                rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
-                rt.pivot = new Vector2(0.5f, 0.5f);
-                rt.anchoredPosition = Vector2.zero;
-            }
-
-            var iconImg = iconTr.GetComponent<Image>() ?? iconTr.gameObject.AddComponent<Image>();
-            iconImg.raycastTarget = false;
-            var adSp = GetAdIconSprite();
-            if (adSp != null)
-            {
-                iconImg.sprite = adSp;
-                iconImg.SetNativeSize();
-                iconImg.color = Color.white;
-            }
-            else
-                Debug.LogWarning("[BottleController] 未加载到 Sprites/Bottle/icon_6，广告瓶图标为空。");
         }
 
         public int GetId() => _data?.id ?? -1;

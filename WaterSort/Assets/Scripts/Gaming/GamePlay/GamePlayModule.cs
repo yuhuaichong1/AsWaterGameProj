@@ -292,11 +292,12 @@ namespace XrCode
         {
             if (cup.IsVideo())
             {
-                AdsService.ShowRewarded(RewardAdPlacement.UnlockBottle, ok =>
+                FacadeAd.PlayRewardAd(EAdSource.UnlockBottle, (count) =>
                 {
-                    if (!ok) return;
                     cup.UnlockVideo();
-                    FacadeEffect.PlayDrinkFinish();
+                }, null, () =>
+                {
+                    cup.UnlockVideo();
                 });
                 return;
             }
@@ -313,8 +314,6 @@ namespace XrCode
                 Game.Instance.StartCoroutine(Func_Prop1_Func(cup));
                 return;
             }
-
-            Debug.LogError("?");
 
             if (status != GameStatus.Gaming) return;
             if (cup.IsLock() || cup.Pouring) return;
@@ -589,7 +588,9 @@ namespace XrCode
                     yield return kv.Value.DisappearEmpty();
 
             yield return new WaitForSeconds(0.4f);
+            
             UIManager.Instance.OpenSync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, curLevelIndex);
+            FacadePlayer.AddLevel(1);
         }
 
         private void CheckUnlockCup(int packedColor)

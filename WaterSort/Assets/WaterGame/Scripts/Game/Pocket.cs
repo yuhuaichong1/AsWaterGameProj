@@ -105,8 +105,6 @@ namespace AsGame.Water
         /// <summary>对齐 Cocos PocketComp.onPocketAction：星星爆开 → 装袋 → 口袋上飞。</summary>
         public IEnumerator OnPocketAction(int packColorId = 0)
         {
-            Debug.LogError("/");
-
             if (packColorId <= 0)
                 yield break;
 
