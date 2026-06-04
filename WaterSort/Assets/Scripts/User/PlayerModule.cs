@@ -82,6 +82,8 @@ namespace XrCode
 
             FacadePlayer.GetPlayerExp += GetUserExp;
             FacadePlayer.AddPlayerExp += AddUserExp;
+
+            FacadePlayer.GetRandomName += GetRandomName;
         }
 
         private void FacadeRemove() 
@@ -121,6 +123,8 @@ namespace XrCode
 
             FacadePlayer.GetPlayerExp -= GetUserExp;
             FacadePlayer.AddPlayerExp -= AddUserExp;
+
+            FacadePlayer.GetRandomName -= GetRandomName;
         }
 
         #endregion

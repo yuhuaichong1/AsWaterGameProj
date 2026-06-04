@@ -29,7 +29,7 @@ namespace XrCode
                     HideAnim(mPlane, () =>
                     {
                         UIManager.Instance.CloseUI(EUIType.EUIFeedback);
-                        UIManager.Instance.CloseUI(EUIType.EUIEnterInfomation);
+                        UIManager.Instance.CloseUI(EUIType.EUIEnterInfo);
 
                         FacadeWithdraw.SetWName("");
                         FacadeWithdraw.SetWPhoneOrEmail(mAddressOrPhoneInput.text);

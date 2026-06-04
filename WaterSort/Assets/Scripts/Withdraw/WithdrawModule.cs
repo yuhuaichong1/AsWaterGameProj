@@ -343,7 +343,7 @@ namespace XrCode
         {
             if (string.IsNullOrEmpty(wPhoneOrEmail))
             {
-                UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIEnterInfomation);
+                UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIEnterInfo);
             }
             else
             {

@@ -44,7 +44,7 @@ namespace XrCode
             HideAnim(mPlane, () =>
             {
                 UIManager.Instance.CloseUI(EUIType.EUIConfirm);
-                UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIEnterInfomation);
+                UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIEnterInfo);
             });
         }
 

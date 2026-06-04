@@ -284,7 +284,7 @@ namespace XrCode
             if (!string.IsNullOrEmpty(FacadeWithdraw.GetWName?.Invoke()) && !string.IsNullOrEmpty(FacadeWithdraw.GetWPhoneOrEmail?.Invoke()))
                 UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIConfirm);
             else
-                UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIEnterInfomation);
+                UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIEnterInfo);
         }
 
         private void OnTipExitBtnClickHandle()
