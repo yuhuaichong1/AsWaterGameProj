@@ -30,15 +30,15 @@ public class EffectRewardItem : MonoBehaviour
                 Desc.text = FacadePayType.RegionalChange(Count);
                 break;
             case ERewardType.Prop1:
-                Icon.sprite = ResourceMod.Instance.SyncLoad<Sprite>(GameDefines.ERAddSpaceIconPath);
+                Icon.sprite = ResourceMod.Instance.SyncLoad<Sprite>(GameDefines.ERProp1IconPath);
                 Desc.text = Count.ToString();
                 break;
             case ERewardType.Prop2:
-                Icon.sprite = ResourceMod.Instance.SyncLoad<Sprite>(GameDefines.ERClearIconPath);
+                Icon.sprite = ResourceMod.Instance.SyncLoad<Sprite>(GameDefines.ERProp2IconPath);
                 Desc.text = Count.ToString();
                 break;
             case ERewardType.Prop3:
-                Icon.sprite = ResourceMod.Instance.SyncLoad<Sprite>(GameDefines.ERHammerIconPath);
+                Icon.sprite = ResourceMod.Instance.SyncLoad<Sprite>(GameDefines.ERProp3IconPath);
                 Desc.text = Count.ToString();
                 break;
         }

@@ -126,9 +126,9 @@ public abstract class GameDefines
     #region 奖励特效小图标路径
     public static string ERMoneyIconPath = "UI/RewardEffect/icon_qianbidui.png";                            //三叠钱
     public static string ERIAAMoneyIconPath = "UI/LuckySpinIcons/icon_qianbi_IAA.png";                      //一叠硬币
-    public static string ERAddSpaceIconPath = "UI/FuncIcon/SFuncIcon_Prop1.png";                            //添加空间道具
-    public static string ERClearIconPath = "UI/FuncIcon/SFuncIcon_Prop2.png";                               //清除道具
-    public static string ERHammerIconPath = "UI/FuncIcon/SFuncIcon_Prop3.png";                              //锤子道具
+    public static string ERProp1IconPath = "UI/FuncIcon/SFuncIcon_Prop1.png";                               //刷新道具
+    public static string ERProp2IconPath = "UI/FuncIcon/SFuncIcon_Prop2.png";                               //回退道具
+    public static string ERProp3IconPath = "UI/FuncIcon/SFuncIcon_Prop3.png";                               //添加瓶子道具
     #endregion
 
     #endregion
@@ -151,6 +151,16 @@ public abstract class GameDefines
 
     public static int LuckyReward_CheckCount = 8;                                                           //每完成X次条件，弹一次弹窗
     public static Vector2 LuckyReward_RandomRange = new Vector2(30f, 50f);                                  //奖励区间
+
+    #endregion
+
+    #region 幸运转盘相关
+
+    public static int LS_CheckCount = 30;                                                                   //每完成X次线轴，弹一次弹窗
+    public static List<float> LS_Angles = new List<float>() { 33, 95, 153, 210, 266, 327 };                 //转盘对应角度
+    public static int LS_rotateCount = 6;                                                                   //旋转圈数
+    public static float LS_rotateTime = 2f;                                                                 //转完所需时间
+    public static float lowSpinReward = 0.015f;                                                             //15关后的转盘奖励系数
 
     #endregion
 
@@ -391,6 +401,17 @@ public enum GameStatus
     Win = 6,
     Pause = 7,
     Over = 8
+}
+
+/// <summary>
+/// 转盘奖励类型（参考表LuckySpin.xlsx）
+/// </summary>
+public enum ELuckySpinRewardType : int
+{
+    Money = 0,
+    Refresh = 1,
+    Undo = 2,
+    AddBottle = 3,
 }
 
 #endregion

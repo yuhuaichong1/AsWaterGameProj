@@ -1,6 +1,8 @@
-﻿using System;
+﻿using cfg;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 using static UnityEngine.GraphicsBuffer;
 
 namespace XrCode
@@ -19,10 +21,11 @@ namespace XrCode
         private int curCheckInLevel;//当前累计兑现签到关卡
         private bool canWithdraw;//是否能够兑现
 
+        private Dictionary<int, ConfMoneyInterval> MIData;
+        private List<float> TargetInterval;
+
         protected override void OnLoad()
         {
-            withdrawalRecordItems = new Dictionary<int, WithdrawalRecordItem>();
-
             FacadeAdd();
 
             LoadData();
@@ -58,6 +61,7 @@ namespace XrCode
             FacadeWithdraw.GetRemainTarget += GetRemainTarget;
             FacadeWithdraw.GetCanWithdraw += GetCanWithdraw;
             FacadeWithdraw.SetCanWithdraw += SetCanWithdraw;
+            FacadeWithdraw.GetLuckySpinReward += GetLuckySpinReward;
         }
 
         private void FacadeRemove()
@@ -88,6 +92,7 @@ namespace XrCode
             FacadeWithdraw.GetRemainTarget -= GetRemainTarget;
             FacadeWithdraw.GetCanWithdraw -= GetCanWithdraw;
             FacadeWithdraw.SetCanWithdraw -= SetCanWithdraw;
+            FacadeWithdraw.GetLuckySpinReward -= GetLuckySpinReward;
         }
 
         #endregion
@@ -283,6 +288,22 @@ namespace XrCode
         /// </summary>
         private void LoadData()
         {
+            withdrawalRecordItems = new Dictionary<int, WithdrawalRecordItem>();
+
+            wTarget = SPlayerPrefs.GetFloat(PlayerPrefDefines.wTarget, 0);
+
+            MIData = ConfigModule.Instance.Tables.TBMoneyInterval.DataMap;
+            TargetInterval = new List<float>();
+            foreach (ConfMoneyInterval item in MIData.Values)
+            {
+                if (item.Sn != 0 && item.Sn != MIData.Count - 1)
+                {
+                    TargetInterval.Add(item.MoneyMax);
+                }
+            }
+            TargetInterval.Add(0);
+            TargetInterval.Sort();
+
             wName = SPlayerPrefs.GetString(PlayerPrefDefines.wName, "");
             wPhoneOrEmail = SPlayerPrefs.GetString(PlayerPrefDefines.wPhoneOrEmail, "");
             poeType = (EPayType)SPlayerPrefs.GetInt(PlayerPrefDefines.poeType, (int)EPayType.Other);
@@ -302,7 +323,6 @@ namespace XrCode
                 };
                 withdrawalRecordItems.Add(item.OrderId, item);
             }
-
         }
 
         /// <summary>
@@ -406,6 +426,29 @@ namespace XrCode
             if (remain < 0)
                 remain = 0;
             return remain;
+        }
+
+        /// <summary>
+        /// 获得幸运转盘金额奖励的奖励值
+        /// </summary>
+        /// <returns>幸运转盘金额奖励的奖励值</returns>
+        private float GetLuckySpinReward()
+        {
+            float reward = 1;
+
+            ActionByCurWTarget((v) =>
+            {
+                reward = MIData[0].LSReward;
+            }, (v) =>
+            {
+                int id = TargetInterval.Count - TargetInterval.GetRangeIndex(GetRemainTarget()) - 1;
+                reward = MIData[id].LSReward;
+            }, (v) =>
+            {
+                reward = MIData[MIData.Count - 1].LSReward;
+            });
+
+            return reward;
         }
 
         protected override void OnDispose()

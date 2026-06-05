@@ -368,17 +368,17 @@ namespace XrCode
         /// <param name="rewardType">奖励类型</param>
         private void PlayFlyProp(Transform startPoint, ERewardType rewardType, Action successAction)
         {
-            string flyIconPath = GameDefines.ERHammerIconPath;
+            string flyIconPath = GameDefines.ERProp3IconPath;
             switch (rewardType) 
             {
                 case ERewardType.Prop1:
-                    flyIconPath = GameDefines.ERAddSpaceIconPath;
+                    flyIconPath = GameDefines.ERProp1IconPath;
                     break;
                 case ERewardType.Prop2:
-                    flyIconPath = GameDefines.ERClearIconPath;
+                    flyIconPath = GameDefines.ERProp2IconPath;
                     break;
                 case ERewardType.Prop3:
-                    flyIconPath = GameDefines.ERHammerIconPath;
+                    flyIconPath = GameDefines.ERProp3IconPath;
                     break;
             }
 

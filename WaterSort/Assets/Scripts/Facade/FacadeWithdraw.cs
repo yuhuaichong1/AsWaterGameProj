@@ -31,4 +31,6 @@ public static class FacadeWithdraw
     public static Func<bool> GetCanWithdraw;                                            //设置当前兑现按钮是否可点击（仅WithdrawTarget == PassLevel）
     public static Action<bool> SetCanWithdraw;                                          //设置当前兑现按钮是否可点击（仅WithdrawTarget == PassLevel）
 
+    public static Func<float> GetLuckySpinReward;                                       //获取幸运转盘金额奖励值
+
 }
