@@ -197,7 +197,7 @@ namespace XrCode
             {
                 FacadeWithdraw.SetCanWithdraw(false);
 
-                FacadeWithdraw.CreateOrder(FacadePlayer.GetLevel() - 1, (float)FacadePlayer.GetMoney());
+                WithdrawalRecordItem UIProgressTarget = FacadeWithdraw.CreateOrder(FacadePlayer.GetLevel() - 1, (float)FacadePlayer.GetMoney());
 
                 FacadeWithdraw.ActionByCurWTarget((level) =>
                 {
@@ -215,19 +215,19 @@ namespace XrCode
                 {
                     if (FacadeWithdraw.GetPayType() == EPayType.None)
                     {
-                        UIManager.Instance.OpenSync<UIWithdrawEnterInfo>(EUIType.EUIWithdrawEnterInfo);
+                        UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIWithdrawEnterInfo, UIOpenType.None, null, UIProgressTarget);
                     }
                     else
                     {
                         FacadeWithdraw.ActionByCurWTarget((level) =>
                         {
-                            UIManager.Instance.OpenSync<UIWithdrawConfirm>(EUIType.EUIWithdrawRecords);
+                            UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIWithdrawConfirm, UIOpenType.None, null, UIProgressTarget);
                         }, (money) =>
                         {
-                            UIManager.Instance.OpenSync<UIWithdrawProgress>(EUIType.EUIWithdrawProgress);
+                            UIManager.Instance.OpenAsync<UIWithdrawProgress>(EUIType.EUIWithdrawProgress, UIOpenType.None, null, UIProgressTarget);
                         }, (day) =>
                         {
-                            UIManager.Instance.OpenSync<UIWithdrawProgress>(EUIType.EUIWithdrawProgress);
+                            UIManager.Instance.OpenAsync<UIWithdrawProgress>(EUIType.EUIWithdrawProgress, UIOpenType.None, null, UIProgressTarget);
                         });
                     }
 

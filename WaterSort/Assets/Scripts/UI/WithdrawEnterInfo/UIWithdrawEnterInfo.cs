@@ -18,6 +18,13 @@ namespace XrCode
         private string inputName;
         private string inputMsg;
 
+        private WithdrawalRecordItem UIProgressTarget;
+
+        protected override void OnSetParam(params object[] args)
+        {
+            UIProgressTarget  = (WithdrawalRecordItem)args[0];
+        }
+
         protected override void OnAwake()
         {
             payTypes = FacadePayType.GetPayItems();
@@ -118,7 +125,7 @@ namespace XrCode
                     HideAnim(mPlane, () =>
                     {
                         UIManager.Instance.CloseUI(EUIType.EUIWithdrawEnterInfo);
-                        UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIWithdrawConfirm);
+                        UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIWithdrawConfirm, UIOpenType.None, null, UIProgressTarget);
                     });
                 }
             }

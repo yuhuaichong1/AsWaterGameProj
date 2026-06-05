@@ -19,7 +19,7 @@ public static class FacadeWithdraw
     public static Action<int> AddCurCheckInLevel;                                       //添加当前签到关卡
     public static Func<float> GetWTarget;                                               //获取兑现金钱目标
     public static Action SetWTarget;                                                    //设置兑现金钱目标
-    public static Action<int, float> CreateOrder;                                       //创建订单
+    public static Func<int, float, WithdrawalRecordItem> CreateOrder;                   //创建订单
     public static Action SaveCurWithdrawalRecordItems;                                  //保存单当前订单数据
     public static Func<float> GetTotalRecordMoney;                                      //获得总可兑现金额
     public static Func<List<WithdrawalRecordItem>> GetWithdrawalRecordItems;            //获取所有兑现记录数据

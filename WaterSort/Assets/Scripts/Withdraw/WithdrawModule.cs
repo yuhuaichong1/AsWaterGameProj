@@ -306,7 +306,7 @@ namespace XrCode
 
             wName = SPlayerPrefs.GetString(PlayerPrefDefines.wName, "");
             wPhoneOrEmail = SPlayerPrefs.GetString(PlayerPrefDefines.wPhoneOrEmail, "");
-            poeType = (EPayType)SPlayerPrefs.GetInt(PlayerPrefDefines.poeType, (int)EPayType.Other);
+            poeType = (EPayType)SPlayerPrefs.GetInt(PlayerPrefDefines.poeType, (int)EPayType.None);
             curWithdrawTarget = (WithdrawTarget)SPlayerPrefs.GetInt(PlayerPrefDefines.curWithdrawTarget, (int)WithdrawTarget.PassLevel);
             List<string> wrisTemp = SPlayerPrefs.GetList<string>(PlayerPrefDefines.wrisTemp, new List<string>());
             foreach (string wri in wrisTemp)
@@ -328,7 +328,7 @@ namespace XrCode
         /// <summary>
         /// 创建订单
         /// </summary>
-        private void CreateOrder(int level, float money)
+        private WithdrawalRecordItem CreateOrder(int level, float money)
         {
             WithdrawalRecordItem recordItem = new WithdrawalRecordItem()
             {
@@ -343,6 +343,8 @@ namespace XrCode
             withdrawalRecordItems.Add(recordItem.OrderId, recordItem);
 
             SaveCurWithdrawalRecordItems();
+
+            return recordItem;
         }
 
         /// <summary>
@@ -354,7 +356,7 @@ namespace XrCode
 
             foreach (WithdrawalRecordItem item in withdrawalRecordItems.Values)
             {
-                string str = $"{item.OrderId}_{item.LevelId}_{item.CreatedDate}_{(int)item.WRState}_{item.WRMoney}_{item.TargetType}";
+                string str = $"{item.OrderId}_{item.LevelId}_{item.CreatedDate}_{(int)item.WRState}_{item.WRMoney}_{(int)item.TargetType}";
                 wrisTemp.Add(str);
             }
 
