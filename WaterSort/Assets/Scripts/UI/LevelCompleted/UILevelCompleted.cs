@@ -16,6 +16,8 @@ namespace XrCode
         {
             mMoneyIcon.gameObject.SetActive(!GameDefines.ifIAA);
             mIAAMoneyIcon.gameObject.SetActive(GameDefines.ifIAA);
+            mMoneyRewardBigIcon.gameObject.SetActive(!GameDefines.ifIAA);
+            mIAAMoneyRewardBigIcon.gameObject.SetActive(GameDefines.ifIAA);
         }
 
         protected override void OnSetParam(params object[] args)
@@ -42,8 +44,6 @@ namespace XrCode
                 mWithdrawBtn.gameObject.SetActive(ifWLv);
                 if (ifWLv)
                     mMoneyText.text = FacadePayType.RegionalChange(FacadePlayer.GetMoney());
-
-                CheckGuide();
             }
         }
 
@@ -78,25 +78,12 @@ namespace XrCode
             int[] Wlevels = GameDefines.WithdrawalLevels;
             for (int i = 0; i < Wlevels.Length; i++) 
             { 
-                if (curCompletedLevel + 1 == Wlevels[i])
+                if (curCompletedLevel == Wlevels[i])
                 {
                     return true;
                 }
             }
             return false;
-        }
-
-        /// <summary>
-        /// 临时的引导判断
-        /// </summary>
-        private void CheckGuide()
-        {
-            int wtype = ConfigModule.Instance.Tables.TBLevel.Get(curCompletedLevel).LevelType;
-            
-            if(wtype == 1)
-            {
-                FacadeGuide.SetIfTutorial(true);
-            }
         }
 
         protected override void OnDisable() 

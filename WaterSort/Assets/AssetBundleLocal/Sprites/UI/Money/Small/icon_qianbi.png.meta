@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 966d88690648748468f7e7d89e421ea1
+guid: 9b81c4b3de7c152408700a05fb2bfcd5
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -121,7 +121,7 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
     buildTarget: Android
-    maxTextureSize: 1024
+    maxTextureSize: 128
     resizeAlgorithm: 0
     textureFormat: 51
     textureCompression: 1
@@ -162,5 +162,5 @@ TextureImporter:
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
-  assetBundleName: assets/assetbundlelocal/prefabs/ui/levelfailure/uilevelfailure.prefab.assetbundle
+  assetBundleName: assets/assetbundlelocal/sprites/ui/money/small/icon_qianbi.png.assetbundle
   assetBundleVariant: 

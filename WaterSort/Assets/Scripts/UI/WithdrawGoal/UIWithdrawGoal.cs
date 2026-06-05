@@ -177,12 +177,21 @@ namespace XrCode
             });
         }
 
-        private void OnExitBtnClickHandle()        {            HideAnim(mPlane, () =>            {
-                UIManager.Instance.CloseUI(EUIType.EUIWithdrawGoal);                if (ifFromLuckyUser)
+        private void OnExitBtnClickHandle()
+        {
+            HideAnim(mPlane, () =>
+            {
+                UIManager.Instance.CloseUI(EUIType.EUIWithdrawGoal);
+                if (ifFromLuckyUser)
                 {
                     ifFromLuckyUser = false;
                     FacadeGamePlay.CreateLevel();
-                }            });                    }	    private void OnWithdrawBtnClickHandle()
+                }
+            });
+            
+        }
+
+	    private void OnWithdrawBtnClickHandle()
         {
             if (FacadeWithdraw.GetCanWithdraw())
             {
@@ -227,7 +236,7 @@ namespace XrCode
             }
             else
             {
-                UIManager.Instance.OpenNotice(FacadeLanguage.GetText("10267"));
+                UIManager.Instance.OpenNotice(FacadeLanguage.GetText("10101"));
             }
         }
 

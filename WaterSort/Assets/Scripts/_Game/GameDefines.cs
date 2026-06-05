@@ -124,11 +124,13 @@ public abstract class GameDefines
     public static string PocketPath = "Prefabs/Game/Pocket.prefab";                                         //饮料预制体路径
 
     #region 奖励特效小图标路径
-    public static string ERMoneyIconPath = "UI/RewardEffect/icon_qianbidui.png";                            //三叠钱
-    public static string ERIAAMoneyIconPath = "UI/LuckySpinIcons/icon_qianbi_IAA.png";                      //一叠硬币
+
+    public static string ERMoneyIconPath = "Sprites/UI/Money/Middle/icon_qianbidui.png";                    //三叠钱
+    public static string ERIAAMoneyIconPath = "Sprites/UI/Money/Middle/IAAStars.png";                       //一叠硬币
     public static string ERProp1IconPath = "UI/FuncIcon/SFuncIcon_Prop1.png";                               //刷新道具
     public static string ERProp2IconPath = "UI/FuncIcon/SFuncIcon_Prop2.png";                               //回退道具
     public static string ERProp3IconPath = "UI/FuncIcon/SFuncIcon_Prop3.png";                               //添加瓶子道具
+
     #endregion
 
     #endregion

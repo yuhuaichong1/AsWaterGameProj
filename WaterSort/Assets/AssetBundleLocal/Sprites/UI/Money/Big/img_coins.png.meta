@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 966d88690648748468f7e7d89e421ea1
+guid: dfdc9e9f250187d439faa156c3c97c73
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -121,7 +121,7 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
     buildTarget: Android
-    maxTextureSize: 1024
+    maxTextureSize: 512
     resizeAlgorithm: 0
     textureFormat: 51
     textureCompression: 1
@@ -162,5 +162,5 @@ TextureImporter:
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
-  assetBundleName: assets/assetbundlelocal/prefabs/ui/levelfailure/uilevelfailure.prefab.assetbundle
+  assetBundleName: assets/assetbundlelocal/sprites/ui/money/big/img_coins.png.assetbundle
   assetBundleVariant: 

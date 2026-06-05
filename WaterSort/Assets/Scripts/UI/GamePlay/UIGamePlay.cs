@@ -169,6 +169,9 @@ namespace XrCode
             mShuffleTip.gameObject.SetActive(b);
         }
 
+        /// <summary>
+        /// 设置关卡显示
+        /// </summary>
         private void SetLevelShow()
         {
             int curLevel = FacadePlayer.GetLevel();
@@ -183,7 +186,7 @@ namespace XrCode
             mCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), levelText);
 
             bool after8_10 = curLevel > GameDefines.miniLevel_End;
-            mCurLevel.anchoredPosition = new Vector3(-22, after8_10 ? -24 : -212, 0);
+            mCurLevel.anchoredPosition = new Vector3(-22, after8_10 ? -24 : -140, 0);
 
 
             mWLProgress.gameObject.SetActive(!after8_10);
@@ -223,6 +226,7 @@ namespace XrCode
 
 
             }
+
             if (!GameDefines.ifIAA)
             {
                 mCMDialog.gameObject.SetActive(!after8_10);
