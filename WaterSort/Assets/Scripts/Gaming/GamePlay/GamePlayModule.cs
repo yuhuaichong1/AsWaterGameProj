@@ -70,6 +70,7 @@ namespace XrCode
             FacadeGamePlay.GetCurLevelProgress += GetCurLevelProgress;
             FacadeGamePlay.GetStatus += GetStatus;
             FacadeGamePlay.EndPorp1 += EndShuffleMode;
+            FacadeGamePlay.IfLevelGuide += IfLevelGuide;
         }
 
         /// <summary>
@@ -86,6 +87,7 @@ namespace XrCode
             FacadeGamePlay.GetCurLevelProgress -= GetCurLevelProgress;
             FacadeGamePlay.GetStatus -= GetStatus;
             FacadeGamePlay.EndPorp1 -= EndShuffleMode;
+            FacadeGamePlay.IfLevelGuide -= IfLevelGuide;
         }
 
         #endregion
@@ -175,6 +177,8 @@ namespace XrCode
 
         void CheckNewPlayUnlock()
         {
+            return;
+
             for (var i = 0; i < GameConstants.NewPlayUnlockLevels.Length; i++)
             {
                 var lv = GameConstants.NewPlayUnlockLevels[i];

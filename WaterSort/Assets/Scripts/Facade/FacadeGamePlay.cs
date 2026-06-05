@@ -21,6 +21,8 @@ namespace XrCode
         public static Func<GameStatus> GetStatus;                                       //获取当前关卡状态
         public static Action EndPorp1;                                                  //结束Prop1功能
 
+        public static Action IfLevelGuide;//为了适配GM而写，不需请删
+
         #endregion
 
         #region UIGamePlay
