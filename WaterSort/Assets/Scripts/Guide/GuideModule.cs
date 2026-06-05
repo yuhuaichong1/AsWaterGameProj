@@ -269,8 +269,8 @@ public class GuideModule : BaseModule
         {
             switch (kvp.Key)
             {
-                case "cord":
-
+                case "handC":
+                    FacadeGuide.SetHandCorrection(bool.Parse(kvp.Value) ? -50 : 0);
                     break;
             }
         }
@@ -289,26 +289,39 @@ public class GuideModule : BaseModule
             int curLevel = FacadePlayer.GetLevel();
             if(curLevel == 1)
             {
-                //curStep = 10001;
-                //SetCurGuideItems(curStep);
-                //FacadeGuide.PlayGuide();
+                FacadeGamePlay.CreateLevel();
+                STimerManager.Instance.CreateSDelay(1, () =>
+                {
+                    curStep = 10001;
+                    SetCurGuideItems(curStep);
+                    FacadeGuide.PlayGuide();
+                });
             }
             if (curLevel == 2)
             {
-                //curStep = 10002;
-                //SetCurGuideItems(curStep);
-                //FacadeGuide.PlayGuide();
+                UIManager.Instance.OpenSync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
+                {
+                    curStep = 10007;
+                    SetCurGuideItems(curStep);
+                    FacadeGuide.PlayGuide();
+                }, true, false);
             }
         }, (value) =>
         {
-            //curStep = 10003;
-            //SetCurGuideItems(curStep);
-            //FacadeGuide.PlayGuide();
+            UIManager.Instance.OpenSync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
+            {
+                curStep = 10008;
+                SetCurGuideItems(curStep);
+                FacadeGuide.PlayGuide();
+            }, true, false);
         }, (value) => 
         {
-            //curStep = 10004;
-            //SetCurGuideItems(curStep);
-            //FacadeGuide.PlayGuide();
+            UIManager.Instance.OpenSync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
+            {
+                curStep = 10009;
+                SetCurGuideItems(curStep);
+                FacadeGuide.PlayGuide();
+            }, true, false);
         });
     }
 

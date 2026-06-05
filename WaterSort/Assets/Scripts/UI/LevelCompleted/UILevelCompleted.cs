@@ -70,7 +70,7 @@ namespace XrCode
         private void GoNextLevel()
         {
             UIManager.Instance.CloseUI(EUIType.EUILevelCompleted);
-            FacadeGamePlay.CreateLevel();
+            FacadeGamePlay.StartLevel();
         }
 
         private bool ifWlevel()

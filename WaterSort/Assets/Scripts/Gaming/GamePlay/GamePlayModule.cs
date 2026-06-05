@@ -61,6 +61,7 @@ namespace XrCode
         /// </summary>
         private void FacadeAdd()
         {
+            FacadeGamePlay.StartLevel += StartLevel;
             FacadeGamePlay.CreateLevel += CreateLevel;
             FacadeGamePlay.Func_Porp1 += Func_Porp1;
             FacadeGamePlay.Func_Porp2 += Func_Porp2;
@@ -76,7 +77,8 @@ namespace XrCode
         /// </summary>
         private void FacadeRemove()
         {
-            FacadeGamePlay.CreateLevel -= CreateLevel;
+            FacadeGamePlay.StartLevel -= StartLevel;
+            FacadeGamePlay.CreateLevel += CreateLevel;
             FacadeGamePlay.Func_Porp1 -= Func_Porp1;
             FacadeGamePlay.Func_Porp2 -= Func_Porp2;
             FacadeGamePlay.Func_Porp3 -= Func_Porp3;
@@ -116,8 +118,20 @@ namespace XrCode
         /// <summary>
         /// 创建关卡
         /// </summary>
+        private void StartLevel()
+        {
+            if(FacadeGuide.GetIfTutorial())
+            {
+                FacadeGuide.PlayGuideByTargetType();
+            }
+            else
+            {
+                CreateLevel();
+            }
+        }
         private void CreateLevel()
         {
+
             FacadeGamePlay.AbleProp1Btn(true);
             FacadeGamePlay.AbleProp2Btn(false);
             FacadeGamePlay.AbleProp3Btn(false);
@@ -204,6 +218,7 @@ namespace XrCode
 
                 Vector3 pos = new Vector3(data.position.x, data.position.y + GameConstants.HalfBottleHeight, 0);
                 Bottle bottle = Bottle.Create(FacadeGamePlay.GetCupPart());
+                bottle.name = $"Bottle_{i}";
                 bottle.transform.localPosition = pos;
                 bottle.Init(data, OnCupClick);
 
@@ -608,7 +623,7 @@ namespace XrCode
         /// </summary>
         private void RePlay()
         {
-            CreateLevel();
+            StartLevel();
         }
 
         /// <summary>

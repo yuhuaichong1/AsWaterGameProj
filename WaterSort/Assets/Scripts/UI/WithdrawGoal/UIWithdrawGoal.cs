@@ -185,7 +185,7 @@ namespace XrCode
                 if (ifFromLuckyUser)
                 {
                     ifFromLuckyUser = false;
-                    FacadeGamePlay.CreateLevel();
+                    FacadeGamePlay.StartLevel();
                 }
             });
             
@@ -236,7 +236,7 @@ namespace XrCode
             }
             else
             {
-                UIManager.Instance.OpenNotice(FacadeLanguage.GetText("10102"));
+                UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10102"));
             }
         }
 

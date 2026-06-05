@@ -11,6 +11,7 @@ namespace XrCode
     {
         #region GamePlayModule
 
+        public static Action StartLevel;                                                //开始关卡
         public static Action CreateLevel;                                               //创建关卡
         public static Action Func_Porp1;                                                //功能1
         public static Action Func_Porp2;                                                //功能2

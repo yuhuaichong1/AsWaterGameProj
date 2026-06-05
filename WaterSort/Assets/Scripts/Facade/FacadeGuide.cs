@@ -15,4 +15,6 @@ public static class FacadeGuide
     public static Action RestorePreOnMaskObjs;                          //将临时放在遮罩上的物体的父子关系还原
 
     public static Action PlayGuideByTargetType;                         //根据当前的兑现目标类型执行对应的引导
+
+    public static Action<int> SetHandCorrection;                        //
 }

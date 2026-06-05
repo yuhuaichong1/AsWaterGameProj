@@ -93,7 +93,7 @@ namespace XrCode
         {
             SetShuffleTipShow(false);
 
-            FacadeGamePlay.CreateLevel();
+            FacadeGamePlay.StartLevel();
         }
 
         #region 设置部分UI的显示
