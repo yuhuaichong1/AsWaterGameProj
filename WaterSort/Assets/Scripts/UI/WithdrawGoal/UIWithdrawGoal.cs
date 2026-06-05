@@ -236,7 +236,7 @@ namespace XrCode
             }
             else
             {
-                UIManager.Instance.OpenNotice(FacadeLanguage.GetText("10101"));
+                UIManager.Instance.OpenNotice(FacadeLanguage.GetText("10102"));
             }
         }
 
