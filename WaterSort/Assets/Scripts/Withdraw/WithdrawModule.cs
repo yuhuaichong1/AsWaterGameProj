@@ -479,6 +479,7 @@ namespace XrCode
                     FacadeGamePlay.CreateLevel();
                 }, (money) =>
                 {
+                    UIManager.Instance.OpenAsync<UIWithdrawLuckyPlayer>(EUIType.EUIWithdrawLuckyPlayer);
                     FacadeGamePlay.CreateLevel();
                 }, (day) =>
                 {
