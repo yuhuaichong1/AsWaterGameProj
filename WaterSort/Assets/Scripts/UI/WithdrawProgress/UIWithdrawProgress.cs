@@ -45,7 +45,8 @@ namespace XrCode
                     mP2_4_ErrorContent.gameObject.SetActive(!b);
                     if (!b)
                         mP2_4_ErrorContent.text = string.Format(FacadeLanguage.GetText("10082"), FacadePayType.RegionalChange(value), FacadePayType.RegionalChange(targetMoney));
-                    mProgress2.PlayAnim(ShowBtn, b, 3);
+                    //mProgress2.PlayAnim(ShowBtn, b, 3);
+                    mProgress2.PlayAnim(ShowBtn);
                 }, (value) =>
                 {
                     mProgress3.gameObject.SetActive(true);
@@ -56,7 +57,8 @@ namespace XrCode
                     mP3_4_ErrorContent.gameObject.SetActive(!b);
                     if (!b)
                         mP3_4_ErrorContent.text = string.Format(FacadeLanguage.GetText("10083"), GameDefines.CheckInDay, GameDefines.CheckInDay - value);
-                    mProgress3.PlayAnim(ShowBtn, b, 3);
+                    //mProgress3.PlayAnim(ShowBtn, b, 3);
+                    mProgress3.PlayAnim(ShowBtn);
                 });
             });
         }
