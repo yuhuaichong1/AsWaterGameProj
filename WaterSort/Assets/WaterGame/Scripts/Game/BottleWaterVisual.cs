@@ -408,9 +408,9 @@ namespace AsGame.Water
                 if (_layers[i] == null || !_layers[i].gameObject.activeSelf) continue;
                 if (WhOverlays[i] != null)
                 {
-                    var whRt = WhOverlays[i].GetComponent<RectTransform>();
-                    whRt.anchoredPosition = new Vector2(0, y + _heights[i] * 0.5f);
-                    whRt.SetAsLastSibling();
+                    //var whRt = WhOverlays[i].GetComponent<RectTransform>();
+                    //whRt.anchoredPosition = new Vector2(0, y + _heights[i] * 0.5f);
+                    //whRt.SetAsLastSibling();
                 }
                 y += _heights[i];
             }
