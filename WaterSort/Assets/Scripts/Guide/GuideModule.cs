@@ -271,8 +271,10 @@ public class GuideModule : BaseModule
             switch (kvp.Key)
             {
                 case "handC":
-                    Debug.LogError(bool.Parse(kvp.Value));
                     FacadeGuide.SetHandCorrection(bool.Parse(kvp.Value) ? -50 : 0);
+                    break;
+                case "iac":
+                    FacadeWithdraw.SetIfAfterCreate(true);
                     break;
             }
         }

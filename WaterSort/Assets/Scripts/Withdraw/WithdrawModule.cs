@@ -24,6 +24,8 @@ namespace XrCode
         private Dictionary<int, ConfMoneyInterval> MIData;
         private List<float> TargetInterval;
 
+        private bool ifAfterCreate;
+
         protected override void OnLoad()
         {
             FacadeAdd();
@@ -62,6 +64,8 @@ namespace XrCode
             FacadeWithdraw.GetCanWithdraw += GetCanWithdraw;
             FacadeWithdraw.SetCanWithdraw += SetCanWithdraw;
             FacadeWithdraw.GetLuckySpinReward += GetLuckySpinReward;
+            FacadeWithdraw.AfterCloseWUI += AfterCloseWUI;
+            FacadeWithdraw.SetIfAfterCreate += SetIfAfterCreate;
         }
 
         private void FacadeRemove()
@@ -93,6 +97,8 @@ namespace XrCode
             FacadeWithdraw.GetCanWithdraw -= GetCanWithdraw;
             FacadeWithdraw.SetCanWithdraw -= SetCanWithdraw;
             FacadeWithdraw.GetLuckySpinReward -= GetLuckySpinReward;
+            FacadeWithdraw.AfterCloseWUI -= AfterCloseWUI;
+            FacadeWithdraw.SetIfAfterCreate += SetIfAfterCreate;
         }
 
         #endregion
@@ -281,6 +287,15 @@ namespace XrCode
 
         #endregion
 
+        #region ifAfterCreate
+
+        private void SetIfAfterCreate(bool b)
+        {
+            ifAfterCreate = b;
+        }
+
+        #endregion
+
         #endregion
 
         /// <summary>
@@ -451,6 +466,25 @@ namespace XrCode
             });
 
             return reward;
+        }
+
+        private void AfterCloseWUI()
+        {
+            if(ifAfterCreate)
+            {
+                ifAfterCreate = false;
+
+                ActionByCurWTarget((level) =>
+                {
+                    FacadeGamePlay.CreateLevel();
+                }, (money) =>
+                {
+                    FacadeGamePlay.CreateLevel();
+                }, (day) =>
+                {
+                    FacadeGamePlay.CreateLevel();
+                });
+            }       
         }
 
         protected override void OnDispose()

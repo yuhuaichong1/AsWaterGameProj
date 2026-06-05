@@ -87,7 +87,8 @@ namespace XrCode
         private void OnExitBtnClickHandle()
         {
             HideAnim(mPlane, () => 
-            { 
+            {
+                FacadeWithdraw.AfterCloseWUI();
                 UIManager.Instance.CloseUI(EUIType.EUIWithdrawEnterInfo);
             });
         }

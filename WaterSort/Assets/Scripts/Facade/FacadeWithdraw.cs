@@ -33,4 +33,7 @@ public static class FacadeWithdraw
 
     public static Func<float> GetLuckySpinReward;                                       //获取幸运转盘金额奖励值
 
+    public static Action AfterCloseWUI;                                                 //关闭部分UI来继续游戏进程
+
+    public static Action<bool> SetIfAfterCreate;                                        //设置关闭某个UI后是否开始创建关卡
 }
