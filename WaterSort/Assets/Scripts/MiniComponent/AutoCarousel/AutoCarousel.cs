@@ -103,6 +103,6 @@ public class AutoCarousel : MonoBehaviour
         float money = times * UnityEngine.Random.Range(8f, 12f);
         string moneyShow = FacadePayType.RegionalChange(money);
 
-        obj.transform.GetChild(1).GetComponent<Text>().text = string.Format(FacadeLanguage.GetText("10006"), name, moneyShow);
+        obj.transform.GetChild(1).GetComponent<Text>().text = string.Format(FacadeLanguage.GetText("10072"), name, moneyShow);
     }
 }

@@ -17,6 +17,7 @@ namespace XrCode
         private float wTarget;//目标兑现金额
         private int curCheckInDay;//当前累计兑现签到天数
         private int curCheckInLevel;//当前累计兑现签到关卡
+        private bool canWithdraw;//是否能够兑现
 
         protected override void OnLoad()
         {
@@ -55,6 +56,8 @@ namespace XrCode
             FacadeWithdraw.CheckOpenUI += CheckOpenUI;
             FacadeWithdraw.ActionByCurWTarget += ActionByCurWTarget;
             FacadeWithdraw.GetRemainTarget += GetRemainTarget;
+            FacadeWithdraw.GetCanWithdraw += GetCanWithdraw;
+            FacadeWithdraw.SetCanWithdraw += SetCanWithdraw;
         }
 
         private void FacadeRemove()
@@ -83,6 +86,8 @@ namespace XrCode
             FacadeWithdraw.CheckOpenUI -= CheckOpenUI;
             FacadeWithdraw.ActionByCurWTarget -= ActionByCurWTarget;
             FacadeWithdraw.GetRemainTarget -= GetRemainTarget;
+            FacadeWithdraw.GetCanWithdraw -= GetCanWithdraw;
+            FacadeWithdraw.SetCanWithdraw -= SetCanWithdraw;
         }
 
         #endregion
@@ -255,6 +260,22 @@ namespace XrCode
 
         #endregion
 
+        #region canWithdraw
+
+        private bool GetCanWithdraw()
+        {
+            return canWithdraw;
+        }
+
+        private void SetCanWithdraw(bool b)
+        {
+            canWithdraw = b;
+            SPlayerPrefs.SetBool(PlayerPrefDefines.canWithdraw, canWithdraw);
+            SPlayerPrefs.Save();
+        }
+
+        #endregion
+
         #endregion
 
         /// <summary>
@@ -287,7 +308,7 @@ namespace XrCode
         /// <summary>
         /// 创建订单
         /// </summary>
-        private void CreateOrder(int level)
+        private void CreateOrder(int level, float money)
         {
             WithdrawalRecordItem recordItem = new WithdrawalRecordItem()
             {
@@ -295,7 +316,7 @@ namespace XrCode
                 LevelId = level,
                 CreatedDate = DateTime.Now.ToString("yyyy-MM-dd"),
                 WRState = EWithRecordState.GoWithdrawal,
-                WRMoney = FacadePlayer.GetMoney(),
+                WRMoney = money,
                 TargetType = curWithdrawTarget,
             };
 
@@ -343,11 +364,11 @@ namespace XrCode
         {
             if (string.IsNullOrEmpty(wPhoneOrEmail))
             {
-                UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIEnterInfo);
+                UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIWithdrawEnterInfo);
             }
             else
             {
-                UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIConfirm, UIOpenType.None, null, b, item);
+                UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIWithdrawConfirm, UIOpenType.None, null, b, item);
             }
         }
 

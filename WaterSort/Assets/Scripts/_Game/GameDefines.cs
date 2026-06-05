@@ -198,13 +198,13 @@ public enum EUIType
     EUISetting = 12,
     EUITask = 13,
     EUIUserLevel = 14,
-    EUIConfirm = 15,
-    EUIEnterInfo = 16,
-    EUIFeedback = 17,
+    EUIWithdrawConfirm = 15,
+    EUIWithdrawEnterInfo = 16,
+    EUIWithdrawFeedback = 17,
     EUIWithdrawGoal = 18,
     EUIWithdrawLuckyPlayer = 19,
-    EUIWithdrawalProgress = 20,
-    EUIWithdrawalRecords = 21,
+    EUIWithdrawProgress = 20,
+    EUIWithdrawRecords = 21,
 }
 
 /// <summary>

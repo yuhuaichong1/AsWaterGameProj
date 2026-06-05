@@ -81,13 +81,13 @@ namespace XrCode
         {
             HideAnim(mPlane, () => 
             { 
-                UIManager.Instance.CloseUI(EUIType.EUIEnterInfo);
+                UIManager.Instance.CloseUI(EUIType.EUIWithdrawEnterInfo);
             });
         }
 
         private void OnHelpBtnClickHandle()
         {
-            UIManager.Instance.OpenAsync<UIWithdrawFeedback>(EUIType.EUIFeedback);
+            UIManager.Instance.OpenAsync<UIWithdrawFeedback>(EUIType.EUIWithdrawFeedback);
         }
 
         private void OnConfirmBtnClickHandle()
@@ -117,8 +117,8 @@ namespace XrCode
 
                     HideAnim(mPlane, () =>
                     {
-                        UIManager.Instance.CloseUI(EUIType.EUIEnterInfo);
-                        UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIConfirm);
+                        UIManager.Instance.CloseUI(EUIType.EUIWithdrawEnterInfo);
+                        UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIWithdrawConfirm);
                     });
                 }
             }

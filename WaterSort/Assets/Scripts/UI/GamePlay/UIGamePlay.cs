@@ -370,7 +370,7 @@ namespace XrCode
 
 	    private void OnCMBtnClickHandle()
         {
-            //UIManager.Instance.OpenSync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal);
+            UIManager.Instance.OpenSync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal);
         }
 
         private void OnTipExitBtnClickHandle()

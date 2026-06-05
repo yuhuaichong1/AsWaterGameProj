@@ -30,7 +30,7 @@ namespace XrCode
         {
             HideAnim(mPlane, () => 
             {
-                UIManager.Instance.CloseUI(EUIType.EUIWithdrawalRecords);
+                UIManager.Instance.CloseUI(EUIType.EUIWithdrawRecords);
             });
         }
 

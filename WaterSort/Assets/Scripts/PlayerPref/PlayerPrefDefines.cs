@@ -50,6 +50,7 @@ public abstract class PlayerPrefDefines
     public static string curCheckInDay => GetKey("■_curCheckInDay");            //WithdrawModule_当前签到天数
     public static string curCheckInLevel => GetKey("■_curCheckInLevel");        //WithdrawModule_当前签到关卡
     public static string wTarget => GetKey("■_wTarget");                        //WithdrawModule_当前兑现金额目标
+    public static string canWithdraw => GetKey("■_canWithdraw");                //WithdrawModule_当前是否可兑现
 
     #endregion
 
