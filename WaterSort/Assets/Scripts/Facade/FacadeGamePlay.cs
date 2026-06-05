@@ -11,6 +11,7 @@ namespace XrCode
     {
         #region GamePlayModule
 
+        public static Action StartLevel;                                                //开始关卡
         public static Action CreateLevel;                                               //创建关卡
         public static Action Func_Porp1;                                                //功能1
         public static Action Func_Porp2;                                                //功能2
@@ -19,6 +20,8 @@ namespace XrCode
         public static Func<float> GetCurLevelProgress;                                  //获得当前关卡进度
         public static Func<GameStatus> GetStatus;                                       //获取当前关卡状态
         public static Action EndPorp1;                                                  //结束Prop1功能
+
+        public static Action IfLevelGuide;//为了适配GM而写，不需请删
 
         #endregion
 
@@ -30,7 +33,6 @@ namespace XrCode
         public static Action SetProp2CountShow;                                         //设置道具2“清理”的显示
         public static Action SetProp3CountShow;                                         //设置道具3“锤子”的显示
         public static Func<Dictionary<ERewardType, Vector3>> GetFlyObjGoalPos;          //获取飞行物体特效的终点
-        public static Action SetCurLevelText;                                           //设置当前关卡的显示
         public static Action SetWithdrawalTip;                                          //设置当前兑现通知
         public static Action<bool> SetShuffleTipShow;                                   //设置刷新功能的提示的显影
 
@@ -41,6 +43,8 @@ namespace XrCode
         public static Action<bool> AbleProp1Btn;                                        //是否启用功能1的按钮
         public static Action<bool> AbleProp2Btn;                                        //是否启用功能2的按钮
         public static Action<bool> AbleProp3Btn;                                        //是否启用功能3的按钮
+
+        public static Action SetLevelShow;                                              //设置关卡目标
 
         #endregion
     }

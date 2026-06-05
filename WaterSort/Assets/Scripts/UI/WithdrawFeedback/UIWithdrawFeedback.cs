@@ -16,7 +16,7 @@ namespace XrCode
         {
             ShowAnim(mPlane);
         }
-        	    private void OnExitBtnClickHandle()        {            HideAnim(mPlane, () =>             {                 UIManager.Instance.CloseUI(EUIType.EUIFeedback);            });        }	    private void OnConfirmBtnClickHandle()
+        	    private void OnExitBtnClickHandle()        {            HideAnim(mPlane, () =>             {                 UIManager.Instance.CloseUI(EUIType.EUIWithdrawFeedback);            });        }	    private void OnConfirmBtnClickHandle()
         {
             if(string.IsNullOrEmpty(mAddressOrPhoneInput.text))
             {
@@ -28,14 +28,14 @@ namespace XrCode
                 {
                     HideAnim(mPlane, () =>
                     {
-                        UIManager.Instance.CloseUI(EUIType.EUIFeedback);
-                        UIManager.Instance.CloseUI(EUIType.EUIEnterInfomation);
+                        UIManager.Instance.CloseUI(EUIType.EUIWithdrawFeedback);
+                        UIManager.Instance.CloseUI(EUIType.EUIWithdrawEnterInfo);
 
                         FacadeWithdraw.SetWName("");
                         FacadeWithdraw.SetWPhoneOrEmail(mAddressOrPhoneInput.text);
                         FacadeWithdraw.SetPayType(EPayType.Other);
 
-                        UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIConfirm);
+                        UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIWithdrawConfirm);
                     });
                 }
                 else

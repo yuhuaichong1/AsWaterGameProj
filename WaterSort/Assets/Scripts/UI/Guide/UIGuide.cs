@@ -17,6 +17,8 @@ namespace XrCode
         private List<Transform> clicks;
         private Dictionary<Transform, (Transform, int)> preOnMaskObj;
 
+        private float handCorrection;
+
         protected override void OnAwake()
         {
             TDAnalyticsManager = ModuleMgr.Instance.TDAnalyticsManager;
@@ -31,6 +33,7 @@ namespace XrCode
             transparents = new List<Transform>();
             mHole.gameObject.SetActive(false);
             clicks = new List<Transform>();
+            preOnMaskObj = new Dictionary<Transform, (Transform, int)>();
         }
         protected override void OnEnable()
         {
@@ -44,6 +47,7 @@ namespace XrCode
             FacadeGuide.PlayGuide += PlayGuide;
             FacadeGuide.CloseGuide += CloseGuide;
             FacadeGuide.RestorePreOnMaskObjs += RestorePreOnMaskObjs;
+            FacadeGuide.SetHandCorrection += SetHandCorrection;
 
         }
 
@@ -52,6 +56,7 @@ namespace XrCode
             FacadeGuide.PlayGuide -= PlayGuide;
             FacadeGuide.CloseGuide -= CloseGuide;
             FacadeGuide.RestorePreOnMaskObjs -= RestorePreOnMaskObjs;
+            FacadeGuide.SetHandCorrection -= SetHandCorrection;
 
         }
 
@@ -64,6 +69,9 @@ namespace XrCode
         {
             GuideItem info = FacadeGuide.GetCurGuideItems();
             bool ifshow;
+
+            if (info.extraStart != null && info.extraStart.Count != 0)
+                SetExtraStart(info.extraStart);
 
             ifshow = info.diglogPos != null;
             mGuideTextFather.gameObject.SetActive(ifshow);
@@ -111,8 +119,7 @@ namespace XrCode
                 }
             }
 
-            if (info.extraStart != null && info.extraStart.Count != 0)
-                SetExtraStart(info.extraStart);
+
 
             ifshow = info.onMaskObjs != null;
             if (ifshow)
@@ -172,7 +179,7 @@ namespace XrCode
                     hands.Add(tempTran);
                 }
 
-                tempTran.position = newTarget[i].position;
+                tempTran.position = newTarget[i].position + new Vector3(0, handCorrection, 0);
                 tempTran.GetComponent<RectTransform>().sizeDelta = newTarget[i].GetComponent<RectTransform>().sizeDelta;
                 tempTran.GetChild(0).GetComponent<AutoHandSwing>().Reset();
             }
@@ -203,6 +210,8 @@ namespace XrCode
 
         private void RestorePreOnMaskObjs()
         {
+            if (preOnMaskObj == null) return;
+
             foreach (var kvp in preOnMaskObj.ToList())
             {
                 Transform objTrans = kvp.Key;
@@ -242,15 +251,17 @@ namespace XrCode
             {
                 switch (kvp.Key)
                 {
-                    case "falseT":
-
+                    case "handC":
+                        handCorrection = bool.Parse(kvp.Value) ? -0.5f : 0;
                         break;
-                    case "OnceW":
-
+                    case "canWithdraw":
+                        FacadeWithdraw.SetCanWithdraw(true);
                         break;
                 }
             }
         }
+
+
 
         private void PlayGuide()
         {
@@ -292,6 +303,11 @@ namespace XrCode
             }
 
             return trans;
+        }
+
+        private void SetHandCorrection(int value)
+        {
+            handCorrection = value;
         }
 
         protected override void OnDisable() { }

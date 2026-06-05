@@ -17,6 +17,11 @@ public class GM : MonoBehaviour
     public Button PropBtn;
     public Dropdown PropDropdown;
     [Space]
+    public Button SkipLevelBtn;
+    public InputField SkipLevelField;
+    [Space]
+    public Button PassLevelBtn;
+    [Space]
     public Button TestFunctionBtn;
 
     private bool GMbool;
@@ -44,6 +49,16 @@ public class GM : MonoBehaviour
         if (PropBtn != null && PropDropdown != null)
         {
             PropBtn.onClick.AddListener(OnPropBtnClick);
+        }
+
+        if(SkipLevelBtn != null && SkipLevelField != null)
+        {
+            SkipLevelBtn.onClick.AddListener(OnSkipLevelBtnClick);
+        }
+
+        if(PassLevelBtn != null)
+        {
+            PassLevelBtn.onClick.AddListener(OnPassLevelBtnClick);
         }
 
         if(TestFunctionBtn != null)
@@ -76,8 +91,6 @@ public class GM : MonoBehaviour
             FacadePlayer.AddEnergy(energy);
             //FacadeGamePlay.SetCurEnergyShow(EShowEnergyType.All);
         }
-        
-
     }
 
     private void OnPropBtnClick()
@@ -99,18 +112,32 @@ public class GM : MonoBehaviour
         }
     }
 
+    private void OnSkipLevelBtnClick()
+    {
+        FacadeGamePlay.IfLevelGuide();
+        UIManager.Instance.OpenAsync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, FacadePlayer.GetLevel());
+        FacadePlayer.SetLevel(int.Parse(SkipLevelField.text));
+    }
+
+    private void OnPassLevelBtnClick()
+    {
+        FacadeGamePlay.IfLevelGuide();
+        UIManager.Instance.OpenAsync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, FacadePlayer.GetLevel());
+        FacadePlayer.AddLevel(1);
+    }
+
     private void OnTestFunctionBtnClick()
     {
-        WithdrawalRecordItem wItem = new WithdrawalRecordItem()
-        {
-            LevelId = 0,
-            CreatedDate = "2026/5/28",
-            WRState = EWithRecordState.UnderReview,
-            WRMoney = 1000.12f,
+        //WithdrawalRecordItem wItem = new WithdrawalRecordItem()
+        //{
+        //    LevelId = 0,
+        //    CreatedDate = "2026/5/28",
+        //    WRState = EWithRecordState.UnderReview,
+        //    WRMoney = 1000.12f,
+        //};
+        //UIManager.Instance.OpenAsync<UIWithdrawProgress>(EUIType.EUIWithdrawalProgress, UIOpenType.None, null, wItem);
 
-        };
-
-        UIManager.Instance.OpenAsync<UIWithdrawProgress>(EUIType.EUIWithdrawalAmount, UIOpenType.None, null, wItem);
+        UIManager.Instance.OpenAsync<UILuckySpin>(EUIType.EUILuckySpin);
     }
 
 }

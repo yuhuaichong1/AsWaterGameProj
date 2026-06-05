@@ -255,6 +255,7 @@ public class GuideModule : BaseModule
             D.Error("Guide End");
             ifTutorial = false;
             SetIfTutorial(ifTutorial);
+            SetExtraEnd(curGuideItems.extraEnd);
         }
         return isEnd;
     }
@@ -269,8 +270,11 @@ public class GuideModule : BaseModule
         {
             switch (kvp.Key)
             {
-                case "cord":
-
+                case "handC":
+                    FacadeGuide.SetHandCorrection(bool.Parse(kvp.Value) ? -50 : 0);
+                    break;
+                case "iac":
+                    FacadeWithdraw.SetIfAfterCreate(true);
                     break;
             }
         }
@@ -286,30 +290,68 @@ public class GuideModule : BaseModule
     {
         FacadeWithdraw.ActionByCurWTarget((value) =>
         {
-            int curLevel = FacadePlayer.GetLevel();
-            if(curLevel == 1)
+            if(value == 1)
             {
-                //curStep = 10001;
-                //SetCurGuideItems(curStep);
-                //FacadeGuide.PlayGuide();
+                FacadeGamePlay.CreateLevel();
+                STimerManager.Instance.CreateSDelay(0.2f, () =>
+                {
+                    curStep = 10001;
+                    SetCurGuideItems(curStep);
+                    FacadeGuide.PlayGuide();
+                });
             }
-            if (curLevel == 2)
+            else if (value == 2)
             {
-                //curStep = 10002;
-                //SetCurGuideItems(curStep);
-                //FacadeGuide.PlayGuide();
+                UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
+                {
+                    curStep = 10006;
+                    PlayGuideByTargetType2();
+
+                }, true, false);
+            }
+            else if(value == 3)
+            {
+                UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
+                {
+                    curStep = 10007;
+                    PlayGuideByTargetType2();
+
+                }, true, false);
             }
         }, (value) =>
         {
-            //curStep = 10003;
-            //SetCurGuideItems(curStep);
-            //FacadeGuide.PlayGuide();
+            UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
+            {
+                curStep = 10008;
+                PlayGuideByTargetType2();
+            }, true, false);
         }, (value) => 
         {
-            //curStep = 10004;
-            //SetCurGuideItems(curStep);
-            //FacadeGuide.PlayGuide();
+            UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
+            {
+                curStep = 10009;
+                PlayGuideByTargetType2();
+            }, true, false);
         });
+    }
+
+    private void PlayGuideByTargetType2()
+    {
+        SetCurGuideItems(curStep);
+        if (FacadeGuide.PlayGuide == null)
+        {
+            STimerManager.Instance.CreateSDelay(0.2f, () =>
+            {
+                PlayGuideByTargetType2();
+            });
+        }
+        else
+        {
+            STimerManager.Instance.CreateSDelay(GameDefines.ShowAnimTime, () =>
+            {
+                FacadeGuide.PlayGuide();
+            });
+        }
     }
 
     #endregion

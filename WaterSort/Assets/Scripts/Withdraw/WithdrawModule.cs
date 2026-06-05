@@ -1,6 +1,8 @@
-﻿using System;
+﻿using cfg;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 using static UnityEngine.GraphicsBuffer;
 
 namespace XrCode
@@ -17,11 +19,15 @@ namespace XrCode
         private float wTarget;//目标兑现金额
         private int curCheckInDay;//当前累计兑现签到天数
         private int curCheckInLevel;//当前累计兑现签到关卡
+        private bool canWithdraw;//是否能够兑现
+
+        private Dictionary<int, ConfMoneyInterval> MIData;
+        private List<float> TargetInterval;
+
+        private bool ifAfterCreate;
 
         protected override void OnLoad()
         {
-            withdrawalRecordItems = new Dictionary<int, WithdrawalRecordItem>();
-
             FacadeAdd();
 
             LoadData();
@@ -55,6 +61,11 @@ namespace XrCode
             FacadeWithdraw.CheckOpenUI += CheckOpenUI;
             FacadeWithdraw.ActionByCurWTarget += ActionByCurWTarget;
             FacadeWithdraw.GetRemainTarget += GetRemainTarget;
+            FacadeWithdraw.GetCanWithdraw += GetCanWithdraw;
+            FacadeWithdraw.SetCanWithdraw += SetCanWithdraw;
+            FacadeWithdraw.GetLuckySpinReward += GetLuckySpinReward;
+            FacadeWithdraw.AfterCloseWUI += AfterCloseWUI;
+            FacadeWithdraw.SetIfAfterCreate += SetIfAfterCreate;
         }
 
         private void FacadeRemove()
@@ -83,6 +94,11 @@ namespace XrCode
             FacadeWithdraw.CheckOpenUI -= CheckOpenUI;
             FacadeWithdraw.ActionByCurWTarget -= ActionByCurWTarget;
             FacadeWithdraw.GetRemainTarget -= GetRemainTarget;
+            FacadeWithdraw.GetCanWithdraw -= GetCanWithdraw;
+            FacadeWithdraw.SetCanWithdraw -= SetCanWithdraw;
+            FacadeWithdraw.GetLuckySpinReward -= GetLuckySpinReward;
+            FacadeWithdraw.AfterCloseWUI -= AfterCloseWUI;
+            FacadeWithdraw.SetIfAfterCreate += SetIfAfterCreate;
         }
 
         #endregion
@@ -255,6 +271,31 @@ namespace XrCode
 
         #endregion
 
+        #region canWithdraw
+
+        private bool GetCanWithdraw()
+        {
+            return canWithdraw;
+        }
+
+        private void SetCanWithdraw(bool b)
+        {
+            canWithdraw = b;
+            SPlayerPrefs.SetBool(PlayerPrefDefines.canWithdraw, canWithdraw);
+            SPlayerPrefs.Save();
+        }
+
+        #endregion
+
+        #region ifAfterCreate
+
+        private void SetIfAfterCreate(bool b)
+        {
+            ifAfterCreate = b;
+        }
+
+        #endregion
+
         #endregion
 
         /// <summary>
@@ -262,9 +303,25 @@ namespace XrCode
         /// </summary>
         private void LoadData()
         {
+            withdrawalRecordItems = new Dictionary<int, WithdrawalRecordItem>();
+
+            wTarget = SPlayerPrefs.GetFloat(PlayerPrefDefines.wTarget, 0);
+
+            MIData = ConfigModule.Instance.Tables.TBMoneyInterval.DataMap;
+            TargetInterval = new List<float>();
+            foreach (ConfMoneyInterval item in MIData.Values)
+            {
+                if (item.Sn != 0 && item.Sn != MIData.Count - 1)
+                {
+                    TargetInterval.Add(item.MoneyMax);
+                }
+            }
+            TargetInterval.Add(0);
+            TargetInterval.Sort();
+
             wName = SPlayerPrefs.GetString(PlayerPrefDefines.wName, "");
             wPhoneOrEmail = SPlayerPrefs.GetString(PlayerPrefDefines.wPhoneOrEmail, "");
-            poeType = (EPayType)SPlayerPrefs.GetInt(PlayerPrefDefines.poeType, (int)EPayType.Other);
+            poeType = (EPayType)SPlayerPrefs.GetInt(PlayerPrefDefines.poeType, (int)EPayType.None);
             curWithdrawTarget = (WithdrawTarget)SPlayerPrefs.GetInt(PlayerPrefDefines.curWithdrawTarget, (int)WithdrawTarget.PassLevel);
             List<string> wrisTemp = SPlayerPrefs.GetList<string>(PlayerPrefDefines.wrisTemp, new List<string>());
             foreach (string wri in wrisTemp)
@@ -281,13 +338,12 @@ namespace XrCode
                 };
                 withdrawalRecordItems.Add(item.OrderId, item);
             }
-
         }
 
         /// <summary>
         /// 创建订单
         /// </summary>
-        private void CreateOrder(int level)
+        private WithdrawalRecordItem CreateOrder(int level, float money)
         {
             WithdrawalRecordItem recordItem = new WithdrawalRecordItem()
             {
@@ -295,13 +351,15 @@ namespace XrCode
                 LevelId = level,
                 CreatedDate = DateTime.Now.ToString("yyyy-MM-dd"),
                 WRState = EWithRecordState.GoWithdrawal,
-                WRMoney = FacadePlayer.GetMoney(),
+                WRMoney = money,
                 TargetType = curWithdrawTarget,
             };
 
             withdrawalRecordItems.Add(recordItem.OrderId, recordItem);
 
             SaveCurWithdrawalRecordItems();
+
+            return recordItem;
         }
 
         /// <summary>
@@ -313,7 +371,7 @@ namespace XrCode
 
             foreach (WithdrawalRecordItem item in withdrawalRecordItems.Values)
             {
-                string str = $"{item.OrderId}_{item.LevelId}_{item.CreatedDate}_{(int)item.WRState}_{item.WRMoney}_{item.TargetType}";
+                string str = $"{item.OrderId}_{item.LevelId}_{item.CreatedDate}_{(int)item.WRState}_{item.WRMoney}_{(int)item.TargetType}";
                 wrisTemp.Add(str);
             }
 
@@ -343,11 +401,11 @@ namespace XrCode
         {
             if (string.IsNullOrEmpty(wPhoneOrEmail))
             {
-                UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIEnterInfomation);
+                UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIWithdrawEnterInfo);
             }
             else
             {
-                UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIConfirm, UIOpenType.None, null, b, item);
+                UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIWithdrawConfirm, UIOpenType.None, null, b, item);
             }
         }
 
@@ -385,6 +443,49 @@ namespace XrCode
             if (remain < 0)
                 remain = 0;
             return remain;
+        }
+
+        /// <summary>
+        /// 获得幸运转盘金额奖励的奖励值
+        /// </summary>
+        /// <returns>幸运转盘金额奖励的奖励值</returns>
+        private float GetLuckySpinReward()
+        {
+            float reward = 1;
+
+            ActionByCurWTarget((v) =>
+            {
+                reward = MIData[0].LSReward;
+            }, (v) =>
+            {
+                int id = TargetInterval.Count - TargetInterval.GetRangeIndex(GetRemainTarget()) - 1;
+                reward = MIData[id].LSReward;
+            }, (v) =>
+            {
+                reward = MIData[MIData.Count - 1].LSReward;
+            });
+
+            return reward;
+        }
+
+        private void AfterCloseWUI()
+        {
+            if(ifAfterCreate)
+            {
+                ifAfterCreate = false;
+
+                ActionByCurWTarget((level) =>
+                {
+                    FacadeGamePlay.CreateLevel();
+                }, (money) =>
+                {
+                    UIManager.Instance.OpenAsync<UIWithdrawLuckyPlayer>(EUIType.EUIWithdrawLuckyPlayer);
+                    FacadeGamePlay.CreateLevel();
+                }, (day) =>
+                {
+                    FacadeGamePlay.CreateLevel();
+                });
+            }       
         }
 
         protected override void OnDispose()

@@ -34,6 +34,8 @@ namespace XrCode
                         Count = luckyMoney,
                     }
                 }, null);
+
+                FacadeGamePlay.CreateLevel();
             });
         }
 
@@ -50,6 +52,8 @@ namespace XrCode
                         Count = luckyMoney,
                     }
                 }, null);
+
+                FacadeGamePlay.CreateLevel();
             });
         }
 

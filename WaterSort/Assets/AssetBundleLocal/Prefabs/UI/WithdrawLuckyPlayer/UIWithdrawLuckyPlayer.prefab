@@ -229,6 +229,7 @@ GameObject:
   m_Component:
   - component: {fileID: 679516990168854340}
   - component: {fileID: 6642902031097098445}
+  - component: {fileID: 4456833038041588246}
   m_Layer: 5
   m_Name: UIWithdrawLuckyPlayer
   m_TagString: Untagged
@@ -285,6 +286,18 @@ MonoBehaviour:
   - m_Target: {fileID: 5301766814928252719}
     m_ComponentList:
     - {fileID: 7544176715888564176}
+--- !u!225 &4456833038041588246
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2709201014505892313}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &2851086898199441887
 GameObject:
   m_ObjectHideFlags: 0

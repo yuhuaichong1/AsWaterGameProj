@@ -28,7 +28,7 @@ public abstract class GameDefines
     public static float Elimination_Money = 0.02f;                                                          //单次消除金额
     public static float IAA_Elimination_Money = 1f;                                                         //单次消除金额（IAA）
 
-    public static int miniLevel_Start = 8;                                                                  //迷你关开始关号
+    public static int miniLevel_Start = 9;                                                                  //迷你关开始关号
     public static int miniLevel_End = 17;                                                                   //迷你关结束关号
 
     public static float RefreshATime = 0.05f;                                                               //刷新功能特效间隔时间
@@ -124,11 +124,13 @@ public abstract class GameDefines
     public static string PocketPath = "Prefabs/Game/Pocket.prefab";                                         //饮料预制体路径
 
     #region 奖励特效小图标路径
-    public static string ERMoneyIconPath = "UI/RewardEffect/icon_qianbidui.png";                            //三叠钱
-    public static string ERIAAMoneyIconPath = "UI/LuckySpinIcons/icon_qianbi_IAA.png";                      //一叠硬币
-    public static string ERAddSpaceIconPath = "UI/FuncIcon/SFuncIcon_Prop1.png";                            //添加空间道具
-    public static string ERClearIconPath = "UI/FuncIcon/SFuncIcon_Prop2.png";                               //清除道具
-    public static string ERHammerIconPath = "UI/FuncIcon/SFuncIcon_Prop3.png";                              //锤子道具
+
+    public static string ERMoneyIconPath = "Sprites/UI/Money/Middle/icon_qianbidui.png";                    //三叠钱
+    public static string ERIAAMoneyIconPath = "Sprites/UI/Money/Middle/IAAStars.png";                       //一叠硬币
+    public static string ERProp1IconPath = "UI/FuncIcon/SFuncIcon_Prop1.png";                               //刷新道具
+    public static string ERProp2IconPath = "UI/FuncIcon/SFuncIcon_Prop2.png";                               //回退道具
+    public static string ERProp3IconPath = "UI/FuncIcon/SFuncIcon_Prop3.png";                               //添加瓶子道具
+
     #endregion
 
     #endregion
@@ -151,6 +153,16 @@ public abstract class GameDefines
 
     public static int LuckyReward_CheckCount = 8;                                                           //每完成X次条件，弹一次弹窗
     public static Vector2 LuckyReward_RandomRange = new Vector2(30f, 50f);                                  //奖励区间
+
+    #endregion
+
+    #region 幸运转盘相关
+
+    public static int LS_CheckCount = 30;                                                                   //每完成X次线轴，弹一次弹窗
+    public static List<float> LS_Angles = new List<float>() { 33, 95, 153, 210, 266, 327 };                 //转盘对应角度
+    public static int LS_rotateCount = 6;                                                                   //旋转圈数
+    public static float LS_rotateTime = 2f;                                                                 //转完所需时间
+    public static float lowSpinReward = 0.015f;                                                             //15关后的转盘奖励系数
 
     #endregion
 
@@ -184,28 +196,27 @@ public enum EGameState
 public enum EUIType
 {
     ENone = 0,
-    EUIGamePlay = 1,
-    EUILoading = 2,
-    EUINotice = 3,
-    EUIGuide = 4,
-    EUIEffect = 5,
-    EUISetting = 6,
-    EUIUserLevel = 7,
-    EUIReStart = 8,
-    EUILevelCompleted = 9,
-    EUILevelFailure = 10,
-    EUIProp = 11,
-    EUIEnterInfomation = 12,
-    EUIFeedback = 13,
-    EUIConfirm = 14,
-    EUIWithdrawalRecords = 15,
-    EUIWithdrawalAmount = 16,
-    EUILuckyReward = 17,
-    EUIWithdrawLuckyPlayer = 18,
-    EUIChild1 = 19,
-    EUIChild2 = 20,
-    EUIChild3 = 21,
-    EUIChild4 = 22,
+    EUIEffect = 1,
+    EUIGamePlay = 2,
+    EUIGuide = 3,
+    EUILevelCompleted = 4,
+    EUILevelFailure = 5,
+    EUILoading = 6,
+    EUILuckyReward = 7,
+    EUILuckySpin = 8,
+    EUINotice = 9,
+    EUIProp = 10,
+    EUIReStart = 11,
+    EUISetting = 12,
+    EUITask = 13,
+    EUIUserLevel = 14,
+    EUIWithdrawConfirm = 15,
+    EUIWithdrawEnterInfo = 16,
+    EUIWithdrawFeedback = 17,
+    EUIWithdrawGoal = 18,
+    EUIWithdrawLuckyPlayer = 19,
+    EUIWithdrawProgress = 20,
+    EUIWithdrawRecords = 21,
 }
 
 /// <summary>
@@ -392,6 +403,17 @@ public enum GameStatus
     Win = 6,
     Pause = 7,
     Over = 8
+}
+
+/// <summary>
+/// 转盘奖励类型（参考表LuckySpin.xlsx）
+/// </summary>
+public enum ELuckySpinRewardType : int
+{
+    Money = 0,
+    Refresh = 1,
+    Undo = 2,
+    AddBottle = 3,
 }
 
 #endregion

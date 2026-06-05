@@ -2,6 +2,7 @@
 using DG.Tweening;
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,7 +29,6 @@ namespace XrCode
             FacadeGamePlay.SetProp1CountShow += SetProp1CountShow;
             FacadeGamePlay.SetProp2CountShow += SetProp2CountShow;
             FacadeGamePlay.SetProp3CountShow += SetProp3CountShow;
-            FacadeGamePlay.SetCurLevelText += SetCurLevelText;
             FacadeGamePlay.SetWithdrawalTip += SetWithdrawalTip;
             FacadeGamePlay.SetShuffleTipShow += SetShuffleTipShow;
 
@@ -42,6 +42,8 @@ namespace XrCode
             FacadeGamePlay.AbleProp1Btn += AbleProp1Btn;
             FacadeGamePlay.AbleProp2Btn += AbleProp2Btn;
             FacadeGamePlay.AbleProp3Btn += AbleProp3Btn;
+
+            FacadeGamePlay.SetLevelShow += SetLevelShow;
         }
 
         /// <summary>
@@ -53,7 +55,6 @@ namespace XrCode
             FacadeGamePlay.SetProp1CountShow -= SetProp1CountShow;
             FacadeGamePlay.SetProp2CountShow -= SetProp2CountShow;
             FacadeGamePlay.SetProp3CountShow -= SetProp3CountShow;
-            FacadeGamePlay.SetCurLevelText -= SetCurLevelText;
             FacadeGamePlay.SetWithdrawalTip -= SetWithdrawalTip;
             FacadeGamePlay.SetShuffleTipShow -= SetShuffleTipShow;
 
@@ -67,6 +68,8 @@ namespace XrCode
             FacadeGamePlay.AbleProp1Btn -= AbleProp1Btn;
             FacadeGamePlay.AbleProp2Btn -= AbleProp2Btn;
             FacadeGamePlay.AbleProp3Btn -= AbleProp3Btn;
+
+            FacadeGamePlay.SetLevelShow -= SetLevelShow;
         }
 
         #endregion
@@ -90,7 +93,7 @@ namespace XrCode
         {
             SetShuffleTipShow(false);
 
-            FacadeGamePlay.CreateLevel();
+            FacadeGamePlay.StartLevel();
         }
 
         #region 设置部分UI的显示
@@ -150,15 +153,6 @@ namespace XrCode
         }
 
         /// <summary>
-        /// 设置当前关卡的显示
-        /// </summary>
-        private void SetCurLevelText()
-        {
-            int curLevel = FacadePlayer.GetLevel();
-            mCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), curLevel);
-        }
-
-        /// <summary>
         /// 设置提现目标显示
         /// </summary>
         private void SetWithdrawalTip()
@@ -173,6 +167,105 @@ namespace XrCode
         private void SetShuffleTipShow(bool b)
         {
             mShuffleTip.gameObject.SetActive(b);
+        }
+
+        /// <summary>
+        /// 设置关卡显示
+        /// </summary>
+        private void SetLevelShow()
+        {
+            int curLevel = FacadePlayer.GetLevel();
+
+            string levelText;
+            if (curLevel < GameDefines.miniLevel_Start)
+                levelText = $"{curLevel}";
+            else if (curLevel >= GameDefines.miniLevel_Start && curLevel <= GameDefines.miniLevel_Start)
+                levelText = $"{GameDefines.miniLevel_Start - 1}-{curLevel - GameDefines.miniLevel_Start + 2}";
+            else
+                levelText = $"{curLevel - GameDefines.miniLevel_Start}";
+            mCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), levelText);
+
+            bool after8_10 = curLevel > GameDefines.miniLevel_End;
+            mCurLevel.anchoredPosition = new Vector3(-22, after8_10 ? -24 : -140, 0);
+
+
+            mWLProgress.gameObject.SetActive(!after8_10);
+            if (!after8_10)
+            {
+                UIGP_LP_Item uIGP_LP_Item;
+                int startLevel;
+                if (curLevel <= 4)
+                {
+                    startLevel = 1;
+                }
+                else
+                {
+                    startLevel = 4;
+                }
+
+                for (int i = startLevel; i <= startLevel + 3; i++)
+                {
+                    uIGP_LP_Item = mWLProgress.Items[i - startLevel];
+                    uIGP_LP_Item.CurSign.SetActive(curLevel == i);
+                    uIGP_LP_Item.FinishSign.SetActive(curLevel > i);
+                    uIGP_LP_Item.levelText.text = i.ToString();
+                    if (!GameDefines.ifIAA)
+                        uIGP_LP_Item.WTip.gameObject.SetActive((i == 1 || i == 2) && curLevel <= i);
+                    if (uIGP_LP_Item.Arrow != null)
+                        uIGP_LP_Item.Arrow.gameObject.SetActive(curLevel == i);
+                }
+
+                uIGP_LP_Item = mWLProgress.Items[mWLProgress.Items.Count - 1];
+                uIGP_LP_Item.levelText.text = (GameDefines.miniLevel_Start - 1).ToString();
+                uIGP_LP_Item.CurSign.SetActive(curLevel >= (GameDefines.miniLevel_Start - 1));
+                uIGP_LP_Item.Arrow.gameObject.SetActive(curLevel >= (GameDefines.miniLevel_Start - 1));
+                bool showMiniText = curLevel >= GameDefines.miniLevel_Start;
+                mWLProgress.miniLevels.SetActive(showMiniText);
+                if (showMiniText)
+                    mWLProgress.miniLevelText.text = $"{curLevel - GameDefines.miniLevel_Start + 2}/{GameDefines.miniLevel_End - GameDefines.miniLevel_Start + 2}";
+
+
+            }
+
+            if (!GameDefines.ifIAA)
+            {
+                mCMDialog.gameObject.SetActive(!after8_10);
+                if (!after8_10)
+                {
+                    int targetlevel = 0;
+                    if (curLevel <= 2)
+                        targetlevel = curLevel;
+                    else
+                        targetlevel = GameDefines.miniLevel_Start - 1;
+
+                    mCMDialogText.text = string.Format(FacadeLanguage.GetText("10005"), targetlevel);
+                }
+
+                mWPrompt.gameObject.SetActive(after8_10);
+                if (after8_10)
+                {
+                    SetWPMsg();
+                }
+            }
+            else
+            {
+                mWPrompt.gameObject.SetActive(false);
+
+            }
+
+        }
+
+        /// <summary>
+        /// 设置目标金额/签到提示文本
+        /// </summary>
+        private void SetWPMsg()
+        {
+            float remainMoney = FacadeWithdraw.GetRemainTarget();
+            float wTargetMoney = FacadeWithdraw.GetWTarget();
+            mWPText.text = string.Format(FacadeLanguage.GetText("10005"), FacadePayType.RegionalChange(remainMoney), FacadePayType.RegionalChange(wTargetMoney));
+
+            mWPSText.text = $"{(int)(FacadePlayer.GetMoney())}/{(int)(wTargetMoney * FacadePayType.GetExchangeRate())}";
+            mWPSlider.value = (float)FacadePlayer.GetMoney() / wTargetMoney;
         }
 
         #endregion
@@ -281,10 +374,7 @@ namespace XrCode
 
 	    private void OnCMBtnClickHandle()
         {
-            if (!string.IsNullOrEmpty(FacadeWithdraw.GetWName?.Invoke()) && !string.IsNullOrEmpty(FacadeWithdraw.GetWPhoneOrEmail?.Invoke()))
-                UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIConfirm);
-            else
-                UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIEnterInfomation);
+            UIManager.Instance.OpenSync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal);
         }
 
         private void OnTipExitBtnClickHandle()

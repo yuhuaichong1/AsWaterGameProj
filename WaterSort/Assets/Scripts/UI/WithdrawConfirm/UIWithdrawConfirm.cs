@@ -11,6 +11,14 @@ namespace XrCode
     public partial class UIWithdrawConfirm : BaseUI
     {
         private TBPayChannel PayChannelTable;
+
+        private WithdrawalRecordItem UIProgressTarget;
+
+        protected override void OnSetParam(params object[] args)
+        {
+            UIProgressTarget = (WithdrawalRecordItem)args[0];
+        }
+
         protected override void OnAwake()
         {
             PayChannelTable = ConfigModule.Instance.Tables.TBPayChannel;
@@ -34,8 +42,9 @@ namespace XrCode
         private void OnExitBtnClickHandle()
         {
             HideAnim(mPlane, () => 
-            { 
-                UIManager.Instance.CloseUI(EUIType.EUIConfirm);
+            {
+                FacadeWithdraw.AfterCloseWUI();
+                UIManager.Instance.CloseUI(EUIType.EUIWithdrawConfirm);
             });
         }
 
@@ -43,8 +52,8 @@ namespace XrCode
         {
             HideAnim(mPlane, () =>
             {
-                UIManager.Instance.CloseUI(EUIType.EUIConfirm);
-                UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIEnterInfomation);
+                UIManager.Instance.CloseUI(EUIType.EUIWithdrawConfirm);
+                UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIWithdrawEnterInfo, UIOpenType.None, null, UIProgressTarget);
             });
         }
 
@@ -52,9 +61,9 @@ namespace XrCode
         {
             HideAnim(mPlane, () =>
             {
-                UIManager.Instance.CloseUI(EUIType.EUIConfirm);
+                UIManager.Instance.CloseUI(EUIType.EUIWithdrawConfirm);
 
-                //UIManager.Instance.OpenAsync<UIWithdrawalAmount>(EUIType.EUIWithdrawalAmount, null, target);
+                UIManager.Instance.OpenAsync<UIWithdrawProgress>(EUIType.EUIWithdrawProgress, UIOpenType.None, null, UIProgressTarget);
             });
         }
 

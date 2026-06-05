@@ -61,6 +61,7 @@ namespace XrCode
         /// </summary>
         private void FacadeAdd()
         {
+            FacadeGamePlay.StartLevel += StartLevel;
             FacadeGamePlay.CreateLevel += CreateLevel;
             FacadeGamePlay.Func_Porp1 += Func_Porp1;
             FacadeGamePlay.Func_Porp2 += Func_Porp2;
@@ -69,6 +70,7 @@ namespace XrCode
             FacadeGamePlay.GetCurLevelProgress += GetCurLevelProgress;
             FacadeGamePlay.GetStatus += GetStatus;
             FacadeGamePlay.EndPorp1 += EndShuffleMode;
+            FacadeGamePlay.IfLevelGuide += IfLevelGuide;
         }
 
         /// <summary>
@@ -76,7 +78,8 @@ namespace XrCode
         /// </summary>
         private void FacadeRemove()
         {
-            FacadeGamePlay.CreateLevel -= CreateLevel;
+            FacadeGamePlay.StartLevel -= StartLevel;
+            FacadeGamePlay.CreateLevel += CreateLevel;
             FacadeGamePlay.Func_Porp1 -= Func_Porp1;
             FacadeGamePlay.Func_Porp2 -= Func_Porp2;
             FacadeGamePlay.Func_Porp3 -= Func_Porp3;
@@ -84,6 +87,7 @@ namespace XrCode
             FacadeGamePlay.GetCurLevelProgress -= GetCurLevelProgress;
             FacadeGamePlay.GetStatus -= GetStatus;
             FacadeGamePlay.EndPorp1 -= EndShuffleMode;
+            FacadeGamePlay.IfLevelGuide -= IfLevelGuide;
         }
 
         #endregion
@@ -116,8 +120,20 @@ namespace XrCode
         /// <summary>
         /// 创建关卡
         /// </summary>
+        private void StartLevel()
+        {
+            if(FacadeGuide.GetIfTutorial())
+            {
+                FacadeGuide.PlayGuideByTargetType();
+            }
+            else
+            {
+                CreateLevel();
+            }
+        }
         private void CreateLevel()
         {
+
             FacadeGamePlay.AbleProp1Btn(true);
             FacadeGamePlay.AbleProp2Btn(false);
             FacadeGamePlay.AbleProp3Btn(false);
@@ -132,6 +148,8 @@ namespace XrCode
             curLevelIndex = FacadePlayer.GetLevel();
             if (LevelEditorPlaySession.TryGetPlayTestLevel(out var playTestLevel))
                 curLevelIndex = playTestLevel;
+
+            FacadeGamePlay.SetLevelShow();
             GetLevelData(curLevelIndex);
             GenerateCups();
             BuildPocketColors();
@@ -162,6 +180,8 @@ namespace XrCode
 
         void CheckNewPlayUnlock()
         {
+            return;
+
             for (var i = 0; i < GameConstants.NewPlayUnlockLevels.Length; i++)
             {
                 var lv = GameConstants.NewPlayUnlockLevels[i];
@@ -205,6 +225,7 @@ namespace XrCode
 
                 Vector3 pos = new Vector3(data.position.x, data.position.y + GameConstants.HalfBottleHeight, 0);
                 Bottle bottle = Bottle.Create(FacadeGamePlay.GetCupPart());
+                bottle.name = $"Bottle_{i}";
                 bottle.transform.localPosition = pos;
                 bottle.Init(data, OnCupClick);
 
@@ -578,8 +599,26 @@ namespace XrCode
 
             yield return new WaitForSeconds(0.4f);
 
+            IfLevelGuide();
+
             UIManager.Instance.OpenAsync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, curLevelIndex);
             FacadePlayer.AddLevel(1);
+        }
+
+        private void IfLevelGuide()
+        {
+            if(FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.PassLevel && !GameDefines.ifIAA)
+            {
+                if (curLevelIndex == 1 || curLevelIndex == 2 || curLevelIndex == GameDefines.miniLevel_End)
+                {
+                    FacadeGuide.SetIfTutorial(true);
+                    if (curLevelIndex == GameDefines.miniLevel_End)
+                    {
+                        FacadeWithdraw.SetCurWithdrawTarget(WithdrawTarget.AmountOfMoney);
+                        FacadeWithdraw.SetWTarget();
+                    }
+                }
+            }
         }
 
         private void CheckUnlockCup(int packedColor)
@@ -609,7 +648,7 @@ namespace XrCode
         /// </summary>
         private void RePlay()
         {
-            CreateLevel();
+            StartLevel();
         }
 
         /// <summary>

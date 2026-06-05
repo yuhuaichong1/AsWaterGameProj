@@ -215,6 +215,22 @@ namespace XrCode
                 newItem.gameObject.SetActive(true);
                 newItem.Show(item.Type, item.Count);
                 curERItem.Add(newItem);
+
+                switch(item.Type)
+                {
+                    case ERewardType.Money:
+                        FacadePlayer.AddMoney(item.Count);
+                        break;
+                    case ERewardType.Prop1:
+                        FacadePlayer.AddProp1Num((int)item.Count);
+                        break;
+                    case ERewardType.Prop2:
+                        FacadePlayer.AddProp2Num((int)item.Count);
+                        break;
+                    case ERewardType.Prop3:
+                        FacadePlayer.AddProp3Num((int)item.Count);
+                        break;
+                }
             }
 
             mGREMask.gameObject.SetActive(true);
@@ -237,18 +253,21 @@ namespace XrCode
                 case ERewardType.Prop1:
                     PlayFlyProp(ERItem.transform, ERewardType.Prop1, () => 
                     {
+                        FacadePlayer.AddProp1Num((int)ERItem.Count);
                         FacadeGamePlay.SetProp1CountShow();
                     });
                     break;
                 case ERewardType.Prop2:
                     PlayFlyProp(ERItem.transform, ERewardType.Prop2, () =>
                     {
+                        FacadePlayer.AddProp2Num((int)ERItem.Count);
                         FacadeGamePlay.SetProp2CountShow();
                     });
                     break;
                 case ERewardType.Prop3:
                     PlayFlyProp(ERItem.transform, ERewardType.Prop3, () =>
                     {
+                        FacadePlayer.AddProp3Num((int)ERItem.Count);
                         FacadeGamePlay.SetProp3CountShow();
                     });
                     break;
@@ -368,17 +387,17 @@ namespace XrCode
         /// <param name="rewardType">奖励类型</param>
         private void PlayFlyProp(Transform startPoint, ERewardType rewardType, Action successAction)
         {
-            string flyIconPath = GameDefines.ERHammerIconPath;
+            string flyIconPath = GameDefines.ERProp3IconPath;
             switch (rewardType) 
             {
                 case ERewardType.Prop1:
-                    flyIconPath = GameDefines.ERAddSpaceIconPath;
+                    flyIconPath = GameDefines.ERProp1IconPath;
                     break;
                 case ERewardType.Prop2:
-                    flyIconPath = GameDefines.ERClearIconPath;
+                    flyIconPath = GameDefines.ERProp2IconPath;
                     break;
                 case ERewardType.Prop3:
-                    flyIconPath = GameDefines.ERHammerIconPath;
+                    flyIconPath = GameDefines.ERProp3IconPath;
                     break;
             }
 
