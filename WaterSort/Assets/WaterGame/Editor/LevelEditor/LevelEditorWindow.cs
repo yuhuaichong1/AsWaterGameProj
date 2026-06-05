@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using AsGame.Core;
 using AsGame.Data;
 using UnityEditor;
@@ -9,32 +10,66 @@ namespace AsGame.Editor.LevelEditor
 {
     public class LevelEditorWindow : EditorWindow
     {
-        const float CupPreviewW = GameConstants.BottleWidth;
-        const float CupPreviewH = GameConstants.BottleHeight;
-        const float PreviewMinHeight = 360f;
+        static LevelEditorWindow s_FocusedInstance;
+
+        const float PreviewMinHeight = 320f;
+        const float LeftPanelMinWidth = 300f;
+        const float LeftPanelDefaultWidth = 420f;
+        const float RightPanelMinWidth = 300f;
+        const float SplitterWidth = 5f;
+        const float CupsSectionHeightMin = 120f;
+        const float CupsSectionHeightMax = 720f;
+        const float CupsSectionResizeGripHeight = 6f;
+        const float DefaultBottleWidth = 91f;
+        const float DefaultBottleHeight = 245f;
+        /// <summary>Scene 视图：1 关卡 UI 单位 = 1 世界单位（勿用 0.01，否则线框过小看不见）。</summary>
+        const float SceneWorldScale = 1f;
+        const float AlignDashLength = 8f;
+        const float AlignDashGap = 5f;
 
         int _levelIndex = 1;
         List<CupData> _cups = new();
         int _selectedCup = -1;
-        Vector2 _scroll;
-        bool _showLayoutSettings = true;
+        Vector2 _leftPanelScroll;
+        Vector2 _cupsSectionScroll;
+        float _cupsSectionHeight = 360f;
+        bool _showLayoutSettings;
         bool _scenePreview;
         string _status = "";
+        MessageType _statusLogType = MessageType.Info;
 
         [SerializeField] bool _snapGrid = true;
         [SerializeField] float _snapSize = 10f;
         [SerializeField] bool _clampToPlayArea = true;
+        /// <summary>显示 CupMgr 原始 750×1334 区域（灰虚线，仅对照 JSON 坐标系）。</summary>
+        [SerializeField] bool _showCupRawReference;
 
         readonly LevelEditorUndoStack _undo = new();
         GameplayScreenLayoutData _layout = new();
+        float _bottleWidth = DefaultBottleWidth;
+        float _bottleHeight = DefaultBottleHeight;
+        int _waterColorCount = 3;
+        int _waterTotalLayers = 12;
+        WaterRefreshDifficulty _waterDifficulty = WaterRefreshDifficulty.超简单;
+
+        float PreviewBottleWidth => Mathf.Max(1f, _bottleWidth);
+        float PreviewBottleHeight => Mathf.Max(1f, _bottleHeight);
+        float PreviewHalfBottleHeight => PreviewBottleHeight * 0.5f;
 
         int _dragCup = -1;
         bool _dragUndoRecorded;
+        bool _previewPointerDown;
+        float _leftPanelWidth = LeftPanelDefaultWidth;
+        int _splitterControlId;
+        bool _splitterDragging;
+        bool _resizingCupsSection;
+        float _cupsSectionResizeStartY;
+        float _cupsSectionResizeStartHeight;
 
         public static void ShowWindow()
         {
             var w = GetWindow<LevelEditorWindow>("水排序关卡");
-            w.minSize = new Vector2(480, 720);
+            w.minSize = new Vector2(1000, 640);
             w.Show();
         }
 
@@ -42,70 +77,288 @@ namespace AsGame.Editor.LevelEditor
         {
             var settings = LevelEditorLayoutSettings.Instance;
             _layout = settings.layout.Clone();
-            SceneView.duringSceneGui += OnSceneGUI;
+            _bottleWidth = settings.bottleWidth > 0f ? settings.bottleWidth : DefaultBottleWidth;
+            _bottleHeight = settings.bottleHeight > 0f ? settings.bottleHeight : DefaultBottleHeight;
+            _waterColorCount = Mathf.Max(1, settings.waterColorCount);
+            _waterTotalLayers = Mathf.Max(4, settings.waterTotalLayers);
+            _waterDifficulty = (WaterRefreshDifficulty)Mathf.Clamp(settings.waterDifficulty, 0, 4);
+            _leftPanelWidth = settings.leftPanelWidth > LeftPanelMinWidth
+                ? settings.leftPanelWidth
+                : LeftPanelDefaultWidth;
+            _cupsSectionHeight = NormalizeCupsSectionHeight(settings.sectionHeightCups);
+            SceneView.duringSceneGui -= OnSceneGuiGlobal;
+            SceneView.duringSceneGui += OnSceneGuiGlobal;
+            s_FocusedInstance = this;
         }
 
         void OnDisable()
         {
-            SceneView.duringSceneGui -= OnSceneGUI;
+            SceneView.duringSceneGui -= OnSceneGuiGlobal;
+            if (s_FocusedInstance == this)
+                s_FocusedInstance = null;
             SaveLayoutSettings();
+            SceneView.RepaintAll();
+        }
+
+        void OnFocus() => s_FocusedInstance = this;
+
+        static void OnSceneGuiGlobal(SceneView view)
+        {
+            if (s_FocusedInstance != null)
+                s_FocusedInstance.OnSceneGUI(view);
         }
 
         void SaveLayoutSettings()
         {
             var settings = LevelEditorLayoutSettings.Instance;
             settings.layout = _layout.Clone();
+            settings.bottleWidth = PreviewBottleWidth;
+            settings.bottleHeight = PreviewBottleHeight;
+            settings.waterColorCount = _waterColorCount;
+            settings.waterTotalLayers = _waterTotalLayers;
+            settings.waterDifficulty = (int)_waterDifficulty;
+            settings.leftPanelWidth = _leftPanelWidth;
+            settings.sectionHeightCups = _cupsSectionHeight;
             settings.Save();
         }
 
+        static float NormalizeCupsSectionHeight(float value) =>
+            Mathf.Clamp(value > 0f ? value : 360f, CupsSectionHeightMin, CupsSectionHeightMax);
+
         void OnGUI()
         {
-            DrawLayoutSettingsPanel();
-            EditorGUILayout.Space(4);
-            DrawToolbar();
-            EditorGUILayout.Space(4);
-            DrawPlayAreaPreview();
-            EditorGUILayout.Space(4);
-            DrawLevelMeta();
-            EditorGUILayout.Space(4);
-            DrawCupList();
-            if (!string.IsNullOrEmpty(_status))
-                EditorGUILayout.HelpBox(_status, MessageType.Info);
-
             HandleUndoRedoHotkeys();
+            ClampLeftPanelWidth();
+
+            EditorGUILayout.BeginHorizontal(GUILayout.ExpandHeight(true));
+            DrawLeftEditorPanel();
+            DrawPanelSplitter();
+            DrawRightPreviewPanel();
+            EditorGUILayout.EndHorizontal();
+        }
+
+        void ClampLeftPanelWidth()
+        {
+            var maxLeft = position.width - RightPanelMinWidth - SplitterWidth - 8f;
+            _leftPanelWidth = Mathf.Clamp(_leftPanelWidth, LeftPanelMinWidth, Mathf.Max(LeftPanelMinWidth, maxLeft));
+        }
+
+        void DrawLeftEditorPanel()
+        {
+            EditorGUILayout.BeginVertical(GUILayout.Width(_leftPanelWidth), GUILayout.ExpandHeight(true));
+            _leftPanelScroll = EditorGUILayout.BeginScrollView(_leftPanelScroll, GUILayout.ExpandHeight(true));
+
+            DrawLayoutSection();
+            DrawLeftFixedBox("关卡操作", DrawLevelOpsSection);
+            DrawLeftFixedBox("刷新水层", DrawWaterRefreshPanel);
+            DrawResizableCupsSection();
+            DrawLeftFixedBox("操作日志", DrawStatusLogSection);
+
+            EditorGUILayout.EndScrollView();
+            EditorGUILayout.EndVertical();
+        }
+
+        void DrawLeftFixedBox(string title, System.Action drawContent)
+        {
+            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
+            drawContent();
+            EditorGUILayout.EndVertical();
+            GUILayout.Space(3);
+        }
+
+        void DrawLayoutSection()
+        {
+            EditorGUILayout.BeginVertical("box");
+            _showLayoutSettings = EditorGUILayout.BeginFoldoutHeaderGroup(
+                _showLayoutSettings, "屏幕与局内区域（设计分辨率）");
+            if (_showLayoutSettings)
+            {
+                DrawLayoutSettingsPanel();
+                EditorGUILayout.Space(6);
+                DrawEditorOptions();
+            }
+
+            EditorGUILayout.EndFoldoutHeaderGroup();
+            EditorGUILayout.EndVertical();
+            GUILayout.Space(3);
+        }
+
+        void DrawResizableCupsSection()
+        {
+            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.LabelField("瓶子", EditorStyles.boldLabel);
+            _cupsSectionScroll = EditorGUILayout.BeginScrollView(
+                _cupsSectionScroll, GUILayout.Height(_cupsSectionHeight));
+            DrawCupList();
+            EditorGUILayout.EndScrollView();
+            EditorGUILayout.EndVertical();
+            DrawCupsSectionResizeGrip();
+            GUILayout.Space(3);
+        }
+
+        void DrawCupsSectionResizeGrip()
+        {
+            var gripRect = GUILayoutUtility.GetRect(0, CupsSectionResizeGripHeight, GUILayout.ExpandWidth(true));
+            EditorGUI.DrawRect(gripRect, new Color(0.32f, 0.32f, 0.32f, 0.85f));
+
+            var centerX = gripRect.center.x;
+            for (var i = -2; i <= 2; i++)
+            {
+                var dot = new Rect(centerX + i * 5f - 1.5f, gripRect.y + gripRect.height * 0.5f - 1.5f, 3f, 3f);
+                EditorGUI.DrawRect(dot, new Color(0.55f, 0.55f, 0.55f, 0.9f));
+            }
+
+            EditorGUIUtility.AddCursorRect(gripRect, MouseCursor.ResizeVertical);
+
+            const int controlIdHint = 0x4C454355; // "LECU"
+            var controlId = GUIUtility.GetControlID(controlIdHint, FocusType.Passive);
+            var e = Event.current;
+            switch (e.type)
+            {
+                case EventType.MouseDown when gripRect.Contains(e.mousePosition) && e.button == 0:
+                    GUIUtility.hotControl = controlId;
+                    _resizingCupsSection = true;
+                    _cupsSectionResizeStartY = e.mousePosition.y;
+                    _cupsSectionResizeStartHeight = _cupsSectionHeight;
+                    e.Use();
+                    break;
+                case EventType.MouseDrag when GUIUtility.hotControl == controlId && _resizingCupsSection:
+                    var delta = e.mousePosition.y - _cupsSectionResizeStartY;
+                    _cupsSectionHeight = Mathf.Clamp(
+                        _cupsSectionResizeStartHeight + delta, CupsSectionHeightMin, CupsSectionHeightMax);
+                    Repaint();
+                    e.Use();
+                    break;
+                case EventType.MouseUp when GUIUtility.hotControl == controlId && _resizingCupsSection:
+                    GUIUtility.hotControl = 0;
+                    _resizingCupsSection = false;
+                    SaveLayoutSettings();
+                    e.Use();
+                    break;
+            }
+        }
+
+        void DrawLevelOpsSection()
+        {
+            DrawToolbar();
+            EditorGUILayout.Space(6);
+            DrawLevelMeta();
+        }
+
+        void DrawStatusLogSection()
+        {
+            if (string.IsNullOrEmpty(_status))
+            {
+                EditorGUILayout.LabelField("（暂无日志）", EditorStyles.miniLabel);
+                return;
+            }
+
+            EditorGUILayout.HelpBox(_status, _statusLogType);
+        }
+
+        void SetStatusLog(string message, MessageType type = MessageType.Info)
+        {
+            _status = message ?? "";
+            _statusLogType = type;
+        }
+
+        void DrawRightPreviewPanel()
+        {
+            EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+            DrawPlayAreaPreview();
+            EditorGUILayout.EndVertical();
+        }
+
+        void DrawPanelSplitter()
+        {
+            var splitterRect = GUILayoutUtility.GetRect(
+                SplitterWidth, SplitterWidth, GUILayout.ExpandHeight(true), GUILayout.Width(SplitterWidth));
+            EditorGUI.DrawRect(splitterRect, new Color(0.18f, 0.18f, 0.18f, 1f));
+
+            EditorGUIUtility.AddCursorRect(splitterRect, MouseCursor.ResizeHorizontal);
+
+            var e = Event.current;
+            switch (e.type)
+            {
+                case EventType.MouseDown when splitterRect.Contains(e.mousePosition) && e.button == 0:
+                    _splitterControlId = GUIUtility.GetControlID(FocusType.Passive);
+                    GUIUtility.hotControl = _splitterControlId;
+                    _splitterDragging = true;
+                    e.Use();
+                    break;
+                case EventType.MouseDrag when _splitterDragging && GUIUtility.hotControl == _splitterControlId:
+                    _leftPanelWidth = Mathf.Clamp(e.mousePosition.x, LeftPanelMinWidth,
+                        position.width - RightPanelMinWidth - SplitterWidth);
+                    Repaint();
+                    e.Use();
+                    break;
+                case EventType.MouseUp when _splitterDragging && GUIUtility.hotControl == _splitterControlId:
+                    GUIUtility.hotControl = 0;
+                    _splitterDragging = false;
+                    SaveLayoutSettings();
+                    e.Use();
+                    break;
+            }
         }
 
         void DrawLayoutSettingsPanel()
         {
-            _showLayoutSettings = EditorGUILayout.BeginFoldoutHeaderGroup(_showLayoutSettings, "屏幕与局内区域（设计分辨率）");
-            if (_showLayoutSettings)
+            EditorGUILayout.LabelField("设计分辨率", EditorStyles.miniBoldLabel);
+            EditorGUI.BeginChangeCheck();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("设计宽", GUILayout.Width(44));
+            _layout.designWidth = Mathf.Max(100f, EditorGUILayout.FloatField(_layout.designWidth));
+            GUILayout.Space(8);
+            EditorGUILayout.LabelField("设计高", GUILayout.Width(44));
+            _layout.designHeight = Mathf.Max(100f, EditorGUILayout.FloatField(_layout.designHeight));
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.LabelField("局内区域边距（相对屏幕边缘，设计像素）", EditorStyles.miniLabel);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("距顶", GUILayout.Width(32));
+            _layout.insetTop = Mathf.Max(0f, EditorGUILayout.FloatField(_layout.insetTop));
+            EditorGUILayout.LabelField("距底", GUILayout.Width(32));
+            _layout.insetBottom = Mathf.Max(0f, EditorGUILayout.FloatField(_layout.insetBottom));
+            EditorGUILayout.LabelField("距左", GUILayout.Width(32));
+            _layout.insetLeft = Mathf.Max(0f, EditorGUILayout.FloatField(_layout.insetLeft));
+            EditorGUILayout.LabelField("距右", GUILayout.Width(32));
+            _layout.insetRight = Mathf.Max(0f, EditorGUILayout.FloatField(_layout.insetRight));
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.LabelField("水瓶尺寸（局内预览绘制，绿框内设计像素）", EditorStyles.miniLabel);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("宽", GUILayout.Width(32));
+            _bottleWidth = Mathf.Max(1f, EditorGUILayout.FloatField(_bottleWidth));
+            GUILayout.Space(8);
+            EditorGUILayout.LabelField("高", GUILayout.Width(32));
+            _bottleHeight = Mathf.Max(1f, EditorGUILayout.FloatField(_bottleHeight));
+            EditorGUILayout.EndHorizontal();
+
+            var layoutChanged = false;
+            if (GUILayout.Button("恢复默认 (1200×2132, 上800/下240, 瓶91×245)"))
             {
-                EditorGUI.BeginChangeCheck();
-                _layout.designWidth = Mathf.Max(100f, EditorGUILayout.FloatField("设计宽", _layout.designWidth));
-                _layout.designHeight = Mathf.Max(100f, EditorGUILayout.FloatField("设计高", _layout.designHeight));
-                EditorGUILayout.LabelField("局内区域边距（相对屏幕边缘，设计像素）", EditorStyles.miniLabel);
-                _layout.insetTop = Mathf.Max(0f, EditorGUILayout.FloatField("距顶", _layout.insetTop));
-                _layout.insetBottom = Mathf.Max(0f, EditorGUILayout.FloatField("距底", _layout.insetBottom));
-                _layout.insetLeft = Mathf.Max(0f, EditorGUILayout.FloatField("距左", _layout.insetLeft));
-                _layout.insetRight = Mathf.Max(0f, EditorGUILayout.FloatField("距右", _layout.insetRight));
-
-                if (GUILayout.Button("恢复默认 (1200×2132, 上800/下240/左右0)"))
-                {
-                    RecordUndo();
-                    _layout = GameplayScreenLayout.Default.Clone();
-                }
-
-                if (EditorGUI.EndChangeCheck())
-                    SaveLayoutSettings();
-
-                var play = GameplayScreenLayout.GetPlayAreaRect(_layout);
-                EditorGUILayout.HelpBox(
-                    $"局内区域（中心原点）: X [{play.xMin:F0}, {play.xMax:F0}]  Y [{play.yMin:F0}, {play.yMax:F0}]\n" +
-                    $"区域高 {play.height:F0}，上方为菜单/口袋，下方为道具栏",
-                    MessageType.None);
+                _layout = GameplayScreenLayout.Default.Clone();
+                _bottleWidth = DefaultBottleWidth;
+                _bottleHeight = DefaultBottleHeight;
+                layoutChanged = true;
             }
 
-            EditorGUILayout.EndFoldoutHeaderGroup();
+            if (EditorGUI.EndChangeCheck())
+                layoutChanged = true;
+
+            if (layoutChanged)
+            {
+                SaveLayoutSettings();
+                Repaint();
+            }
+
+            var play = GameplayScreenLayout.GetPlayAreaRect(_layout);
+            EditorGUILayout.HelpBox(
+                $"绿框 = 局内区域（由边距算出）Y [{play.yMin:F0}, {play.yMax:F0}]\n" +
+                $"JSON 坐标存于 CupMgr 750×1334，预览时自动映射进绿框以贴近 Game 画面",
+                MessageType.None);
         }
 
         void DrawToolbar()
@@ -118,6 +371,13 @@ namespace AsGame.Editor.LevelEditor
             if (GUILayout.Button("保存", GUILayout.Width(44))) SaveLevel();
             if (GUILayout.Button("新建", GUILayout.Width(44))) NewLevel();
             if (GUILayout.Button("试玩", GUILayout.Width(44))) PlayTestLevel();
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("检查", GUILayout.Width(44)))
+                CheckCurrentLevelWater();
+            if (GUILayout.Button("全部检查", GUILayout.Width(72)))
+                CheckAllLevelsWater();
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
@@ -145,30 +405,163 @@ namespace AsGame.Editor.LevelEditor
             EditorGUILayout.EndHorizontal();
         }
 
+        void CheckCurrentLevelWater()
+        {
+            if (_cups == null || _cups.Count == 0)
+            {
+                SetStatusLog("请先加载或创建关卡后再检查。", MessageType.Warning);
+                Repaint();
+                return;
+            }
+
+            var result = LevelWaterValidator.Validate(_cups, _levelIndex);
+            SetStatusLog(
+                LevelWaterValidator.FormatReport(result),
+                result.IsValid ? MessageType.Info : MessageType.Error);
+            Repaint();
+        }
+
+        void CheckAllLevelsWater()
+        {
+            var results = LevelWaterValidator.ValidateAllOnDisk();
+            if (results.Count == 0)
+            {
+                SetStatusLog("未找到任何拆关 JSON（Levels/Split/level_*.json）。", MessageType.Warning);
+                Repaint();
+                return;
+            }
+
+            var allValid = results.All(r => r.IsValid);
+            SetStatusLog(
+                LevelWaterValidator.FormatBatchReport(results),
+                allValid ? MessageType.Info : MessageType.Warning);
+            Repaint();
+        }
+
+        void SyncWaterRefreshFieldsFromCups()
+        {
+            var total = LevelWaterAnalyzer.SumParticipatingLayers(_cups);
+            if (total > 0)
+            {
+                _waterTotalLayers = total;
+                _waterColorCount = Mathf.Max(1, total / 4);
+            }
+        }
+
+        void DrawWaterRefreshPanel()
+        {
+            var participating = LevelWaterAnalyzer.CountParticipating(_cups);
+            var lockCount = LevelWaterAnalyzer.CountLockCups(_cups);
+
+            EditorGUILayout.LabelField(
+                $"参与刷新水层：{participating}（普通瓶+锁瓶；不含空槽/广告瓶/空瓶；锁瓶 {lockCount} 个固定满 4 层）",
+                EditorStyles.miniLabel);
+
+            EditorGUI.BeginChangeCheck();
+            EditorGUILayout.BeginHorizontal();
+            _waterColorCount = Mathf.Clamp(EditorGUILayout.IntField("颜色种类总数", _waterColorCount), 1, 8);
+            GUILayout.Space(8);
+            _waterTotalLayers = Mathf.Max(0, EditorGUILayout.IntField("水层总数", _waterTotalLayers));
+            EditorGUILayout.EndHorizontal();
+
+            if (_waterColorCount > 0 && _waterTotalLayers != _waterColorCount * 4)
+                EditorGUILayout.HelpBox(
+                    $"提示：水层总数宜为 颜色种类×4（当前 {_waterColorCount}×4={_waterColorCount * 4}）",
+                    MessageType.Warning);
+
+            var partSum = LevelWaterAnalyzer.SumParticipatingLayers(_cups);
+            if (partSum > 0 && partSum != _waterTotalLayers)
+                EditorGUILayout.HelpBox(
+                    $"参与瓶内现有水层合计 {partSum} 层，与「水层总数」{_waterTotalLayers} 不一致；" +
+                    "刷新将按右侧水层总数/颜色数重新分配到普通瓶与锁瓶（空瓶不参与）。",
+                    MessageType.Info);
+
+            _waterDifficulty = (WaterRefreshDifficulty)EditorGUILayout.EnumPopup("难度", _waterDifficulty);
+
+            var recommended = LevelWaterRandomizer.RecommendDifficulty(
+                participating, _waterColorCount, _waterTotalLayers, lockCount);
+            EditorGUILayout.HelpBox(
+                $"当前配置推荐难度：{LevelWaterRandomizer.GetDifficultyDisplayName(recommended)}",
+                MessageType.Info);
+
+            if (EditorGUI.EndChangeCheck())
+                SaveLayoutSettings();
+
+            if (GUILayout.Button("刷新水层（覆盖参与随机的瓶子）"))
+                RefreshWaterLayers();
+        }
+
+        void RefreshWaterLayers()
+        {
+            if (_cups == null || _cups.Count == 0)
+            {
+                _status = "请先加载关卡";
+                return;
+            }
+
+            RecordUndo();
+            if (!LevelWaterRandomizer.TryRefresh(
+                    _cups, _waterColorCount, _waterTotalLayers, _waterDifficulty, out var error))
+            {
+                _status = error ?? "刷新失败";
+                EditorUtility.DisplayDialog("刷新水层", _status, "确定");
+                return;
+            }
+
+            _status =
+                $"已按「{LevelWaterRandomizer.GetDifficultyDisplayName(_waterDifficulty)}」刷新水层" +
+                $"（{_waterColorCount} 色 × 4 = {_waterTotalLayers} 层，写入 {LevelWaterAnalyzer.CountParticipating(_cups)} 个瓶）";
+            SaveLayoutSettings();
+            Repaint();
+            RefreshScenePreview();
+        }
+
         void DrawPlayAreaPreview()
         {
-            EditorGUILayout.LabelField("局内预览（拖拽移动瓶子）", EditorStyles.boldLabel);
-            var rect = GUILayoutUtility.GetRect(10, PreviewMinHeight, GUILayout.ExpandWidth(true));
+            EditorGUILayout.LabelField("局内预览（竖屏）", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(
+                "绿框 = 局内可摆放区；拖动瓶子调整位置。左侧为关卡编辑，本栏占满剩余宽度。",
+                EditorStyles.miniLabel);
+            _showCupRawReference = EditorGUILayout.Toggle("显示 CupMgr 原始区（灰虚线对照）", _showCupRawReference);
+            var rect = GUILayoutUtility.GetRect(
+                GUIContent.none, GUIStyle.none, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+            if (rect.height < PreviewMinHeight)
+                rect.height = PreviewMinHeight;
             DrawScreenPreviewGui(rect);
+            DrawPreviewLegend(rect);
+            HandlePreviewPointerEvents(rect);
+        }
 
+        void HandlePreviewPointerEvents(Rect rect)
+        {
             var e = Event.current;
-            if (e.type == EventType.MouseDown && rect.Contains(e.mousePosition))
+            var inPreview = rect.Contains(e.mousePosition);
+
+            if (e.type == EventType.MouseDown && inPreview)
             {
+                _previewPointerDown = true;
+                GUIUtility.hotControl = GUIUtility.GetControlID(FocusType.Passive);
                 var ui = PreviewToUi(rect, e.mousePosition);
-                var hit = HitTestCup(ui);
+                var hit = HitTestCup(ui, rect);
                 if (hit >= 0)
                 {
                     _selectedCup = hit;
-                    _dragCup = hit;
+                    _dragCup = -1;
                     _dragUndoRecorded = false;
-                    e.Use();
-                    Repaint();
                 }
                 else
                     _selectedCup = -1;
+
+                e.Use();
+                Repaint();
+                return;
             }
-            else if (e.type == EventType.MouseDrag && _dragCup >= 0 && _dragCup < _cups.Count)
+
+            if (e.type == EventType.MouseDrag && _previewPointerDown && _selectedCup >= 0 && _selectedCup < _cups.Count)
             {
+                if (_dragCup < 0)
+                    _dragCup = _selectedCup;
+
                 if (!_dragUndoRecorded)
                 {
                     RecordUndo();
@@ -176,68 +569,192 @@ namespace AsGame.Editor.LevelEditor
                 }
 
                 var ui = PreviewToUi(rect, e.mousePosition);
-                ui.y -= GameConstants.HalfBottleHeight;
+                ui.y -= PreviewHalfBottleHeight;
                 if (_snapGrid) ui = Snap(ui);
                 if (_clampToPlayArea)
-                    ui = GameplayScreenLayout.ClampCupPosition(ui, _layout);
+                    ui = GameplayCupSpace.ClampCupPosition(ui, PreviewBottleWidth, PreviewBottleHeight);
                 _cups[_dragCup].position = ui;
                 e.Use();
                 Repaint();
+                return;
             }
-            else if (e.type == EventType.MouseUp)
+
+            if (e.type == EventType.MouseUp && _previewPointerDown)
             {
+                _previewPointerDown = false;
                 _dragCup = -1;
                 _dragUndoRecorded = false;
+                GUIUtility.hotControl = 0;
                 e.Use();
                 Repaint();
             }
+        }
+
+        struct PreviewLayout
+        {
+            public float ox, oy, scale;
+            public Rect playGui;
+        }
+
+        PreviewLayout GetPreviewLayout(Rect rect)
+        {
+            var scale = Mathf.Min(rect.width / _layout.designWidth, rect.height / _layout.designHeight);
+            var drawW = _layout.designWidth * scale;
+            var drawH = _layout.designHeight * scale;
+            var ox = rect.x + (rect.width - drawW) * 0.5f;
+            var oy = rect.y + (rect.height - drawH) * 0.5f;
+            var play = GameplayScreenLayout.GetPlayAreaRect(_layout);
+            var playGui = UiRectToGuiRect(play, ox, oy, scale);
+            return new PreviewLayout { ox = ox, oy = oy, scale = scale, playGui = playGui };
+        }
+
+        Vector2 CupPositionToGui(Vector2 cupPoint, in PreviewLayout layout) =>
+            UiToGui(GameplayLayoutMapping.CupToPlayArea(cupPoint, _layout), layout.ox, layout.oy, layout.scale);
+
+        Vector2 GuiToCupPosition(Vector2 gui, in PreviewLayout layout) =>
+            GameplayLayoutMapping.PlayAreaToCup(GuiToDesignUi(gui, layout), _layout);
+
+        /// <summary>配置的宽高为绿框（局内区域）内设计像素，仅乘预览缩放。</summary>
+        Vector2 GetPreviewCupGuiSize(in PreviewLayout layout) =>
+            new Vector2(PreviewBottleWidth * layout.scale, PreviewBottleHeight * layout.scale);
+
+        Vector2 GuiToDesignUi(Vector2 gui, in PreviewLayout layout)
+        {
+            var halfW = _layout.designWidth * 0.5f;
+            var halfH = _layout.designHeight * 0.5f;
+            return new Vector2(
+                (gui.x - layout.ox) / layout.scale - halfW,
+                halfH - (gui.y - layout.oy) / layout.scale);
         }
 
         void DrawScreenPreviewGui(Rect rect)
         {
             if (Event.current.type != EventType.Repaint) return;
 
+            var layout = GetPreviewLayout(rect);
             var screen = GameplayScreenLayout.GetFullScreenRect(_layout.designWidth, _layout.designHeight);
             var play = GameplayScreenLayout.GetPlayAreaRect(_layout);
-            var scale = Mathf.Min(rect.width / _layout.designWidth, rect.height / _layout.designHeight);
-            var drawW = _layout.designWidth * scale;
-            var drawH = _layout.designHeight * scale;
-            var ox = rect.x + (rect.width - drawW) * 0.5f;
-            var oy = rect.y + (rect.height - drawH) * 0.5f;
 
             EditorGUI.DrawRect(rect, new Color(0.12f, 0.12f, 0.14f, 1f));
-            var screenRect = UiRectToGuiRect(screen, ox, oy, scale);
+            var screenRect = UiRectToGuiRect(screen, layout.ox, layout.oy, layout.scale);
             EditorGUI.DrawRect(screenRect, new Color(0.22f, 0.24f, 0.28f, 1f));
 
             var topHud = UiRectToGuiRect(
-                Rect.MinMaxRect(screen.xMin, play.yMax, screen.xMax, screen.yMax), ox, oy, scale);
+                Rect.MinMaxRect(screen.xMin, play.yMax, screen.xMax, screen.yMax), layout.ox, layout.oy, layout.scale);
             var bottomBar = UiRectToGuiRect(
-                Rect.MinMaxRect(screen.xMin, screen.yMin, screen.xMax, play.yMin), ox, oy, scale);
+                Rect.MinMaxRect(screen.xMin, screen.yMin, screen.xMax, play.yMin), layout.ox, layout.oy, layout.scale);
             EditorGUI.DrawRect(topHud, new Color(0.28f, 0.32f, 0.38f, 0.55f));
             EditorGUI.DrawRect(bottomBar, new Color(0.28f, 0.30f, 0.36f, 0.55f));
 
-            var playGui = UiRectToGuiRect(play, ox, oy, scale);
             Handles.BeginGUI();
+            if (_showCupRawReference)
+            {
+                var cupGui = UiRectToGuiRect(GameplayCupSpace.CupAreaRect, layout.ox, layout.oy, layout.scale);
+                DrawDashedGuiRectOutline(cupGui, new Color(0.55f, 0.55f, 0.55f, 0.75f));
+            }
+
             Handles.color = new Color(0.2f, 0.85f, 0.45f, 0.95f);
-            Handles.DrawSolidRectangleWithOutline(playGui, new Color(0.2f, 0.85f, 0.45f, 0.08f), new Color(0.2f, 0.85f, 0.45f, 1f));
+            Handles.DrawSolidRectangleWithOutline(
+                layout.playGui, new Color(0.2f, 0.85f, 0.45f, 0.08f), new Color(0.2f, 0.85f, 0.45f, 1f));
             Handles.EndGUI();
 
             for (var i = 0; i < _cups.Count; i++)
             {
                 var cup = _cups[i];
-                if (cup.isNull != 0) continue;
-                DrawCupInPreview(cup, i == _selectedCup, ox, oy, scale);
+                if (!CupSlotKindUtility.ShowInLevelPreview(cup)) continue;
+                DrawCupInPreview(cup, i == _selectedCup, layout);
+            }
+
+            if (_selectedCup >= 0 && _selectedCup < _cups.Count &&
+                CupSlotKindUtility.ShowInLevelPreview(_cups[_selectedCup]))
+            {
+                var cupRect = GetCupGuiRect(_cups[_selectedCup], layout);
+                DrawSelectionAlignmentGuides(cupRect, layout.playGui);
             }
         }
 
-        void DrawCupInPreview(CupData cup, bool selected, float ox, float oy, float scale)
+        Rect GetCupGuiRect(CupData cup, in PreviewLayout layout)
         {
-            var bottom = cup.position;
-            var center = new Vector2(bottom.x, bottom.y + GameConstants.HalfBottleHeight);
-            var guiCenter = UiToGui(center, ox, oy, scale);
-            var w = CupPreviewW * scale;
-            var h = CupPreviewH * scale;
-            var r = new Rect(guiCenter.x - w * 0.5f, guiCenter.y - h * 0.5f, w, h);
+            var bottomPlay = GameplayLayoutMapping.CupToPlayArea(cup.position, _layout);
+            var bottomGui = UiToGui(bottomPlay, layout.ox, layout.oy, layout.scale);
+            var size = GetPreviewCupGuiSize(layout);
+            // IMGUI：Rect.y 为顶边；底边锚点对应 bottomGui，瓶身向上延伸
+            return new Rect(bottomGui.x - size.x * 0.5f, bottomGui.y - size.y, size.x, size.y);
+        }
+
+        /// <summary>沿选中瓶子矩形的四条边，向局内区域延伸对齐虚线（顶/底边为水平线，左/右边为垂直线）。</summary>
+        void DrawSelectionAlignmentGuides(Rect cupRect, Rect playGui)
+        {
+            var color = new Color(1f, 0.85f, 0.2f, 0.95f);
+            // 顶边 y（GUI 坐标 y 越小越靠上）
+            DrawDashedGuiLine(
+                new Vector2(playGui.xMin, cupRect.yMin),
+                new Vector2(playGui.xMax, cupRect.yMin),
+                color);
+            // 底边
+            DrawDashedGuiLine(
+                new Vector2(playGui.xMin, cupRect.yMax),
+                new Vector2(playGui.xMax, cupRect.yMax),
+                color);
+            // 左边 x
+            DrawDashedGuiLine(
+                new Vector2(cupRect.xMin, playGui.yMin),
+                new Vector2(cupRect.xMin, playGui.yMax),
+                color);
+            // 右边
+            DrawDashedGuiLine(
+                new Vector2(cupRect.xMax, playGui.yMin),
+                new Vector2(cupRect.xMax, playGui.yMax),
+                color);
+        }
+
+        static void DrawDashedGuiRectOutline(Rect r, Color color)
+        {
+            DrawDashedGuiLine(new Vector2(r.xMin, r.yMin), new Vector2(r.xMax, r.yMin), color);
+            DrawDashedGuiLine(new Vector2(r.xMax, r.yMin), new Vector2(r.xMax, r.yMax), color);
+            DrawDashedGuiLine(new Vector2(r.xMax, r.yMax), new Vector2(r.xMin, r.yMax), color);
+            DrawDashedGuiLine(new Vector2(r.xMin, r.yMax), new Vector2(r.xMin, r.yMin), color);
+        }
+
+        void DrawPreviewLegend(Rect previewRect)
+        {
+            if (Event.current.type != EventType.Repaint) return;
+            var style = new GUIStyle(EditorStyles.miniLabel)
+            {
+                normal = { textColor = new Color(0.92f, 0.92f, 0.92f, 1f) }
+            };
+            GUI.Label(new Rect(previewRect.x + 6, previewRect.y + 4, previewRect.width - 12, 18),
+                "绿框 · 局内区域（边距参数）", style);
+            if (_showCupRawReference)
+            {
+                GUI.Label(new Rect(previewRect.x + 6, previewRect.y + 20, previewRect.width - 12, 18),
+                    "灰虚线 · CupMgr JSON 坐标系", style);
+            }
+        }
+
+        static void DrawDashedGuiLine(Vector2 from, Vector2 to, Color color)
+        {
+            var delta = to - from;
+            var len = delta.magnitude;
+            if (len < 0.5f) return;
+
+            var dir = delta / len;
+            Handles.BeginGUI();
+            Handles.color = color;
+            var t = 0f;
+            while (t < len)
+            {
+                var segEnd = Mathf.Min(t + AlignDashLength, len);
+                Handles.DrawLine(from + dir * t, from + dir * segEnd);
+                t += AlignDashLength + AlignDashGap;
+            }
+
+            Handles.EndGUI();
+        }
+
+        void DrawCupInPreview(CupData cup, bool selected, in PreviewLayout layout)
+        {
+            var r = GetCupGuiRect(cup, layout);
 
             var fill = selected ? new Color(0.3f, 0.9f, 0.4f, 0.35f) : new Color(0.35f, 0.55f, 0.9f, 0.28f);
             EditorGUI.DrawRect(r, fill);
@@ -247,12 +764,13 @@ namespace AsGame.Editor.LevelEditor
             Handles.EndGUI();
 
             if (cup.colors == null || cup.colors.Count == 0) return;
-            var layerH = h / Mathf.Max(4, GameConstants.WaterMaxCount);
-            for (var l = 0; l < cup.colors.Count; l++)
+            var layerH = r.height / Mathf.Max(4, GameConstants.WaterMaxCount);
+            // colors[0]=底层(water1)，colors[^1]=顶层；IMGUI 的 Rect.y 为顶边，y 向下增大
+            for (var layer = 0; layer < cup.colors.Count; layer++)
             {
-                if (!GameConstants.GameColorData.TryGetValue(cup.colors[l], out var pair)) continue;
-                var ly = r.yMin + layerH * (l + 0.5f);
-                var lr = new Rect(r.xMin + w * 0.1f, ly - layerH * 0.35f, w * 0.8f, layerH * 0.7f);
+                if (!GameConstants.GameColorData.TryGetValue(cup.colors[layer], out var pair)) continue;
+                var ly = r.yMax - layerH * (layer + 0.5f);
+                var lr = new Rect(r.xMin + r.width * 0.1f, ly - layerH * 0.35f, r.width * 0.8f, layerH * 0.7f);
                 EditorGUI.DrawRect(lr, pair.Base);
             }
         }
@@ -268,10 +786,13 @@ namespace AsGame.Editor.LevelEditor
                 Mathf.Max(min.y, max.y));
         }
 
-        Vector2 UiToGui(Vector2 ui, float ox, float oy, float scale)
+        Vector2 UiToGui(Vector2 ui, float ox, float oy, float scale) =>
+            UiToGui(ui, ox, oy, scale, _layout.designWidth, _layout.designHeight);
+
+        static Vector2 UiToGui(Vector2 ui, float ox, float oy, float scale, float designWidth, float designHeight)
         {
-            var halfW = _layout.designWidth * 0.5f;
-            var halfH = _layout.designHeight * 0.5f;
+            var halfW = designWidth * 0.5f;
+            var halfH = designHeight * 0.5f;
             return new Vector2(
                 ox + (ui.x + halfW) * scale,
                 oy + (halfH - ui.y) * scale);
@@ -279,29 +800,26 @@ namespace AsGame.Editor.LevelEditor
 
         Vector2 PreviewToUi(Rect previewRect, Vector2 mousePos)
         {
-            var scale = Mathf.Min(previewRect.width / _layout.designWidth, previewRect.height / _layout.designHeight);
-            var drawW = _layout.designWidth * scale;
-            var drawH = _layout.designHeight * scale;
-            var ox = previewRect.x + (previewRect.width - drawW) * 0.5f;
-            var oy = previewRect.y + (previewRect.height - drawH) * 0.5f;
-            var halfW = _layout.designWidth * 0.5f;
-            var halfH = _layout.designHeight * 0.5f;
-            var uiX = (mousePos.x - ox) / scale - halfW;
-            var uiY = halfH - (mousePos.y - oy) / scale;
-            return new Vector2(uiX, uiY);
+            var layout = GetPreviewLayout(previewRect);
+            return GuiToCupPosition(mousePos, layout);
         }
 
-        int HitTestCup(Vector2 uiPos)
+        int HitTestCup(Vector2 uiPos, Rect previewRect)
         {
+            var layout = GetPreviewLayout(previewRect);
             var best = -1;
             var bestDist = float.MaxValue;
             for (var i = 0; i < _cups.Count; i++)
             {
                 var cup = _cups[i];
-                if (cup.isNull != 0) continue;
-                var center = new Vector2(cup.position.x, cup.position.y + GameConstants.HalfBottleHeight);
+                if (!CupSlotKindUtility.ShowInLevelPreview(cup)) continue;
+                var r = GetCupGuiRect(cup, layout);
+                var mouseGui = Event.current.mousePosition;
+                if (r.Contains(mouseGui))
+                    return i;
+                var center = new Vector2(cup.position.x, cup.position.y + PreviewHalfBottleHeight);
                 var d = Vector2.Distance(uiPos, center);
-                if (d < Mathf.Max(CupPreviewW, CupPreviewH) * 0.55f && d < bestDist)
+                if (d < Mathf.Max(PreviewBottleWidth, PreviewBottleHeight) * 0.55f && d < bestDist)
                 {
                     bestDist = d;
                     best = i;
@@ -311,32 +829,56 @@ namespace AsGame.Editor.LevelEditor
             return best;
         }
 
+        void DrawEditorOptions()
+        {
+            EditorGUI.BeginChangeCheck();
+            _scenePreview = EditorGUILayout.Toggle("Scene 视图辅助预览", _scenePreview);
+            if (EditorGUI.EndChangeCheck())
+                OnScenePreviewToggled();
+
+            _clampToPlayArea = EditorGUILayout.Toggle("限制在 CupMgr 区域 (750×1334)", _clampToPlayArea);
+            _snapGrid = EditorGUILayout.Toggle("吸附网格", _snapGrid);
+            if (_snapGrid)
+                _snapSize = EditorGUILayout.FloatField("网格步长", _snapSize);
+
+            if (_scenePreview)
+                EditorGUILayout.HelpBox(
+                    "Scene 视图：灰=设计屏，绿=局内区域，瓶子已映射；灰虚线=CupMgr 原始区（需勾选）。",
+                    MessageType.Info);
+        }
+
+        void OnScenePreviewToggled()
+        {
+            if (_scenePreview)
+            {
+                FrameSceneToPlayArea();
+                if (SceneView.lastActiveSceneView != null)
+                    SceneView.lastActiveSceneView.in2DMode = true;
+            }
+
+            SceneView.RepaintAll();
+            Repaint();
+        }
+
         void DrawLevelMeta()
         {
             var exists = File.Exists(ProjectPaths.GetSplitLevelAbsolute(_levelIndex));
             EditorGUILayout.LabelField("输出", ProjectPaths.GetSplitLevelAssetPath(_levelIndex));
             EditorGUILayout.LabelField("状态", exists ? "文件已存在" : "尚未保存");
-            _scenePreview = EditorGUILayout.Toggle("Scene 视图辅助预览", _scenePreview);
-            _clampToPlayArea = EditorGUILayout.Toggle("限制在局内区域", _clampToPlayArea);
-            _snapGrid = EditorGUILayout.Toggle("吸附网格", _snapGrid);
-            if (_snapGrid)
-                _snapSize = EditorGUILayout.FloatField("网格步长", _snapSize);
         }
 
         void DrawCupList()
         {
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField($"瓶子 ({_cups.Count})", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField($"共 {_cups.Count} 个瓶子", EditorStyles.miniLabel);
             if (GUILayout.Button("+ 添加", GUILayout.Width(64)))
                 AddCup();
             if (GUILayout.Button("- 删除", GUILayout.Width(64)) && _selectedCup >= 0 && _selectedCup < _cups.Count)
                 RemoveSelectedCup();
             EditorGUILayout.EndHorizontal();
 
-            _scroll = EditorGUILayout.BeginScrollView(_scroll, GUILayout.MaxHeight(220));
             for (var i = 0; i < _cups.Count; i++)
                 DrawCupInspector(i);
-            EditorGUILayout.EndScrollView();
         }
 
         void DrawCupInspector(int index)
@@ -344,7 +886,8 @@ namespace AsGame.Editor.LevelEditor
             var cup = _cups[index];
             var isSel = index == _selectedCup;
             var header = $"#{index}  ({cup.position.x:F0}, {cup.position.y:F0})  层:{cup.colors?.Count ?? 0}";
-            if (cup.isNull != 0) header += " [空槽]";
+            var tag = CupSlotKindUtility.GetKindShortTag(cup);
+            if (!string.IsNullOrEmpty(tag)) header += $" [{tag}]";
 
             EditorGUILayout.BeginVertical(isSel ? "SelectionRect" : "box");
             EditorGUILayout.BeginHorizontal();
@@ -370,24 +913,37 @@ namespace AsGame.Editor.LevelEditor
 
             EditorGUI.BeginChangeCheck();
             var pos = EditorGUILayout.Vector2Field("位置 (底边锚点)", cup.position);
-            cup.whNums = EditorGUILayout.IntField("问号层数", cup.whNums);
-            cup.isVideo = EditorGUILayout.Toggle("广告瓶", cup.isVideo != 0) ? 1 : 0;
-            cup.isLock = EditorGUILayout.Toggle("锁瓶", cup.isLock != 0) ? 1 : 0;
-            if (cup.isLock != 0)
+            var kindChanged = DrawCupKindToolbar(ref cup);
+            var kind = CupSlotKindUtility.GetKind(cup);
+            if (kind != CupSlotKind.空槽)
             {
-                cup.lockColor = EditorGUILayout.IntField("lockColor", cup.lockColor);
-                cup.lockNums = EditorGUILayout.IntField("lockNums", cup.lockNums);
+                if (kind == CupSlotKind.普通瓶 || kind == CupSlotKind.锁瓶)
+                {
+                    cup.whNums = EditorGUILayout.IntField("问号层数", cup.whNums);
+                    if (kind == CupSlotKind.锁瓶)
+                    {
+                        cup.lockColor = EditorGUILayout.IntField("lockColor", cup.lockColor);
+                        cup.lockNums = EditorGUILayout.IntField("lockNums", cup.lockNums);
+                    }
+
+                    DrawColorLayers(cup);
+                }
+                else if (kind == CupSlotKind.空瓶)
+                {
+                    EditorGUILayout.HelpBox("空瓶：局内有瓶、开局无水，不参与「刷新水层」。", MessageType.Info);
+                }
+                else if (kind == CupSlotKind.广告瓶)
+                {
+                    EditorGUILayout.HelpBox("广告瓶不参与「刷新水层」。", MessageType.Info);
+                }
             }
 
-            cup.isNull = EditorGUILayout.Toggle("空槽", cup.isNull != 0) ? 1 : 0;
-            DrawColorLayers(cup);
-
-            if (EditorGUI.EndChangeCheck())
+            if (EditorGUI.EndChangeCheck() || kindChanged)
             {
                 RecordUndo();
                 pos = _snapGrid ? Snap(pos) : pos;
                 if (_clampToPlayArea)
-                    pos = GameplayScreenLayout.ClampCupPosition(pos, _layout);
+                    pos = GameplayCupSpace.ClampCupPosition(pos, PreviewBottleWidth, PreviewBottleHeight);
                 cup.position = pos;
                 cup.id = index;
                 _cups[index] = cup;
@@ -395,6 +951,22 @@ namespace AsGame.Editor.LevelEditor
             }
 
             EditorGUILayout.EndVertical();
+        }
+
+        static bool DrawCupKindToolbar(ref CupData cup)
+        {
+            var kind = CupSlotKindUtility.GetKind(cup);
+            EditorGUILayout.LabelField("瓶子类型（五选一）", EditorStyles.miniLabel);
+            EditorGUILayout.BeginHorizontal();
+            var selected = GUILayout.Toolbar((int)kind, CupSlotKindUtility.EditorToolbarLabels, GUILayout.Height(22));
+            EditorGUILayout.EndHorizontal();
+            if (selected != (int)kind)
+            {
+                CupSlotKindUtility.SetKind(cup, (CupSlotKind)selected);
+                return true;
+            }
+
+            return false;
         }
 
         void DrawColorLayers(CupData cup)
@@ -420,33 +992,115 @@ namespace AsGame.Editor.LevelEditor
             }
         }
 
+        /// <summary>Scene 预览以局内区域中心为原点，与局内 2D 预览的相对关系一致。</summary>
+        static Vector2 GetScenePivotUi(Rect playArea) => playArea.center;
+
+        static Vector3 UiPointToScene(Vector2 uiPoint, Vector2 pivotUi, float scale = SceneWorldScale)
+        {
+            var d = uiPoint - pivotUi;
+            return new Vector3(d.x * scale, d.y * scale, 0f);
+        }
+
+        static Vector3 UiPointToScene(float x, float y, Vector2 pivotUi, float scale = SceneWorldScale) =>
+            UiPointToScene(new Vector2(x, y), pivotUi, scale);
+
+        static void DrawSceneRectOutline(Rect uiRect, Vector2 pivotUi, Color color, float thickness = 2f)
+        {
+            var p0 = UiPointToScene(uiRect.xMin, uiRect.yMin, pivotUi);
+            var p1 = UiPointToScene(uiRect.xMax, uiRect.yMin, pivotUi);
+            var p2 = UiPointToScene(uiRect.xMax, uiRect.yMax, pivotUi);
+            var p3 = UiPointToScene(uiRect.xMin, uiRect.yMax, pivotUi);
+            Handles.color = color;
+            Handles.DrawAAPolyLine(thickness, p0, p1, p2, p3, p0);
+        }
+
+        Bounds CalcScenePreviewBounds(Rect playArea, Vector2 pivotUi, List<CupData> cups)
+        {
+            var min = UiPointToScene(playArea.xMin, playArea.yMin, pivotUi);
+            var max = UiPointToScene(playArea.xMax, playArea.yMax, pivotUi);
+
+            if (cups != null)
+            {
+                var ext = new Vector3(PreviewBottleWidth * 0.5f, PreviewHalfBottleHeight, 0f) * SceneWorldScale;
+                foreach (var cup in cups)
+                {
+                    if (cup == null || !CupSlotKindUtility.ShowInLevelPreview(cup)) continue;
+                    var mapped = GameplayLayoutMapping.CupToPlayArea(
+                        new Vector2(cup.position.x, cup.position.y + PreviewHalfBottleHeight),
+                        _layout);
+                    var cupCenter = UiPointToScene(mapped, pivotUi);
+                    min = Vector3.Min(min, cupCenter - ext);
+                    max = Vector3.Max(max, cupCenter + ext);
+                }
+            }
+
+            var boundsCenter = (min + max) * 0.5f;
+            var size = max - min;
+            size.z = 50f;
+            if (size.x < 200f) size.x = 200f;
+            if (size.y < 200f) size.y = 200f;
+            return new Bounds(boundsCenter, size);
+        }
+
         void OnSceneGUI(SceneView view)
         {
-            if (!_scenePreview) return;
+            if (s_FocusedInstance != this || !_scenePreview) return;
 
+            Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
             var play = GameplayScreenLayout.GetPlayAreaRect(_layout);
-            var corners = new[]
-            {
-                new Vector3(play.xMin, play.yMin, 0) * 0.01f,
-                new Vector3(play.xMax, play.yMin, 0) * 0.01f,
-                new Vector3(play.xMax, play.yMax, 0) * 0.01f,
-                new Vector3(play.xMin, play.yMax, 0) * 0.01f,
-            };
-            Handles.color = new Color(0.2f, 0.9f, 0.4f, 0.9f);
-            Handles.DrawLine(corners[0], corners[1]);
-            Handles.DrawLine(corners[1], corners[2]);
-            Handles.DrawLine(corners[2], corners[3]);
-            Handles.DrawLine(corners[3], corners[0]);
+            var cupArea = GameplayCupSpace.CupAreaRect;
+            var screen = GameplayScreenLayout.GetFullScreenRect(_layout.designWidth, _layout.designHeight);
+            var pivot = play.center;
 
+            DrawSceneRectOutline(screen, pivot, new Color(0.75f, 0.78f, 0.82f, 0.85f), 2f);
+            DrawSceneRectOutline(play, pivot, new Color(0.2f, 0.9f, 0.4f, 1f), 3f);
+            if (_showCupRawReference)
+                DrawSceneRectOutline(cupArea, pivot, new Color(0.55f, 0.55f, 0.55f, 0.75f), 2f);
+
+            if (_cups == null || _cups.Count == 0)
+            {
+                Handles.Label(Vector3.zero, "关卡编辑器：请先加载关卡", EditorStyles.whiteLargeLabel);
+                return;
+            }
+
+            var cupSize = new Vector3(PreviewBottleWidth, PreviewBottleHeight, 0.01f) * SceneWorldScale;
             for (var i = 0; i < _cups.Count; i++)
             {
                 var cup = _cups[i];
-                if (cup.isNull != 0) continue;
-                var center = new Vector3(cup.position.x, cup.position.y + GameConstants.HalfBottleHeight, 0) * 0.01f;
+                if (!CupSlotKindUtility.ShowInLevelPreview(cup)) continue;
+                var cupCenter = new Vector2(
+                    cup.position.x,
+                    cup.position.y + PreviewHalfBottleHeight);
+                var center = UiPointToScene(GameplayLayoutMapping.CupToPlayArea(cupCenter, _layout), pivot);
                 var isSel = i == _selectedCup;
-                Handles.color = isSel ? Color.green : Color.cyan;
-                Handles.DrawWireCube(center, new Vector3(CupPreviewW, CupPreviewH, 1f) * 0.01f);
+                Handles.color = isSel ? Color.green : new Color(0.35f, 0.75f, 1f, 0.95f);
+                Handles.DrawWireCube(center, cupSize);
             }
+        }
+
+        void FrameSceneToPlayArea()
+        {
+            var play = GameplayScreenLayout.GetPlayAreaRect(_layout);
+            var pivot = play.center;
+            var bounds = CalcScenePreviewBounds(play, pivot, _cups);
+
+            foreach (var sceneView in SceneView.sceneViews)
+            {
+                if (sceneView is not SceneView sv) continue;
+                sv.in2DMode = true;
+                sv.orthographic = true;
+                sv.rotation = Quaternion.identity;
+                sv.pivot = bounds.center;
+                sv.size = Mathf.Max(bounds.size.x, bounds.size.y) * 0.55f;
+                sv.Frame(bounds, false);
+            }
+        }
+
+        void RefreshScenePreview()
+        {
+            if (!_scenePreview) return;
+            FrameSceneToPlayArea();
+            SceneView.RepaintAll();
         }
 
         void HandleUndoRedoHotkeys()
@@ -509,8 +1163,10 @@ namespace AsGame.Editor.LevelEditor
             ReindexCups();
             _selectedCup = _cups.Count > 0 ? 0 : -1;
             _undo.Clear();
+            SyncWaterRefreshFieldsFromCups();
             _status = $"已加载第 {_levelIndex} 关，共 {_cups.Count} 个瓶子。";
             Repaint();
+            RefreshScenePreview();
         }
 
         void SaveLevel()
@@ -541,19 +1197,23 @@ namespace AsGame.Editor.LevelEditor
                 }
             };
             _selectedCup = 0;
+            SyncWaterRefreshFieldsFromCups();
             _status = "已创建空白模板（2 瓶）。";
             Repaint();
+            RefreshScenePreview();
         }
 
         void AddCup()
         {
             RecordUndo();
-            var play = GameplayScreenLayout.GetPlayAreaRect(_layout);
-            var pos = new Vector2(play.center.x, play.center.y - GameConstants.HalfBottleHeight);
+            var cupArea = GameplayCupSpace.CupAreaRect;
+            var pos = new Vector2(0f, cupArea.yMin + 80f);
             _cups.Add(new CupData
             {
                 id = _cups.Count,
-                position = _clampToPlayArea ? GameplayScreenLayout.ClampCupPosition(pos, _layout) : pos,
+                position = _clampToPlayArea
+                    ? GameplayCupSpace.ClampCupPosition(pos, PreviewBottleWidth, PreviewBottleHeight)
+                    : pos,
                 colors = new List<int>()
             });
             _selectedCup = _cups.Count - 1;
@@ -597,15 +1257,18 @@ namespace AsGame.Editor.LevelEditor
             _cups = LevelConfigLoader.MapCupData(raw);
             ReindexCups();
             _selectedCup = 0;
+            SyncWaterRefreshFieldsFromCups();
             _status = $"已从 ConfTotal 导入 {key}。";
             Repaint();
+            RefreshScenePreview();
         }
 
         void PlayTestLevel()
         {
             SaveLevel();
-            GameSaveData.CurrentLevel = _levelIndex;
+            LevelEditorPlaySession.SchedulePlayTest(_levelIndex);
             LevelConfigLoader.InvalidateCache();
+            _status = $"试玩第 {_levelIndex} 关（已保存 Split JSON）";
             EditorApplication.EnterPlaymode();
         }
 

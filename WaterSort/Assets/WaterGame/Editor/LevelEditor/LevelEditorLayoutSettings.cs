@@ -9,6 +9,16 @@ namespace AsGame.Editor.LevelEditor
         public const string AssetPath = "Assets/WaterGame/Editor/LevelEditor/LevelEditorLayoutSettings.asset";
 
         public GameplayScreenLayoutData layout = new();
+        public float bottleWidth = 91f;
+        public float bottleHeight = 245f;
+        public int waterColorCount = 3;
+        public int waterTotalLayers = 12;
+        public int waterDifficulty;
+        /// <summary>关卡编辑器左侧面板宽度（右侧为局内预览）。</summary>
+        public float leftPanelWidth = 420f;
+
+        /// <summary>左侧「瓶子」组内容区高度（可拖拽调整）。</summary>
+        public float sectionHeightCups = 360f;
 
         static LevelEditorLayoutSettings _instance;
 

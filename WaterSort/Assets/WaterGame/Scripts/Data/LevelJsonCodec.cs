@@ -24,6 +24,7 @@ namespace AsGame.Data
         public int lockColor;
         public int lockNums;
         public int isNull;
+        public int isEmptyCup;
     }
 
     /// <summary>拆关 JSON 与 <see cref="CupData"/> 互转。</summary>
@@ -70,7 +71,8 @@ namespace AsGame.Data
                     isLock = c.isLock,
                     lockColor = c.lockColor,
                     lockNums = c.lockNums,
-                    isNull = c.isNull
+                    isNull = c.isNull,
+                    isEmptyCup = c.isEmptyCup
                 };
             }
 
@@ -96,7 +98,8 @@ namespace AsGame.Data
                     isLock = e.isLock,
                     lockColor = e.lockColor,
                     lockNums = e.lockNums,
-                    isNull = e.isNull
+                    isNull = e.isNull,
+                    isEmptyCup = e.isEmptyCup
                 });
             }
 

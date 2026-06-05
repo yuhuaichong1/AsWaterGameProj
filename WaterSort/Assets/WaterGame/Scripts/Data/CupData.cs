@@ -16,6 +16,8 @@ namespace AsGame.Data
         public int lockColor;
         public int lockNums;
         public int isNull;
+        /// <summary>1=空玻璃瓶（局内有瓶，默认无水；编辑器刷新水层不参与）。</summary>
+        public int isEmptyCup;
 
         public CupData Clone()
         {
@@ -29,7 +31,8 @@ namespace AsGame.Data
                 isLock = isLock,
                 lockColor = lockColor,
                 lockNums = lockNums,
-                isNull = isNull
+                isNull = isNull,
+                isEmptyCup = isEmptyCup
             };
         }
     }

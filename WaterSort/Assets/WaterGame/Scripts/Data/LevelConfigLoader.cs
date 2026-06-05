@@ -512,7 +512,8 @@ namespace AsGame.Data
                     isLock = entry.Count > 4 ? Convert.ToInt32(entry[4]) : 0,
                     lockColor = entry.Count > 5 ? Convert.ToInt32(entry[5]) : 0,
                     lockNums = entry.Count > 6 ? Convert.ToInt32(entry[6]) : 0,
-                    isNull = entry.Count > 7 ? Convert.ToInt32(entry[7]) : 0
+                    isNull = entry.Count > 7 ? Convert.ToInt32(entry[7]) : 0,
+                    isEmptyCup = 0
                 });
             }
 
