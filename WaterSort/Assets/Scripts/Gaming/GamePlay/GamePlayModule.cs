@@ -592,8 +592,26 @@ namespace XrCode
 
             yield return new WaitForSeconds(0.4f);
 
+            IfLevelGuide();
+
             UIManager.Instance.OpenAsync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, curLevelIndex);
             FacadePlayer.AddLevel(1);
+        }
+
+        private void IfLevelGuide()
+        {
+            if(FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.PassLevel && !GameDefines.ifIAA)
+            {
+                if (curLevelIndex == 1 || curLevelIndex == 2 || curLevelIndex == GameDefines.miniLevel_End)
+                {
+                    FacadeGuide.SetIfTutorial(true);
+                    if (curLevelIndex == GameDefines.miniLevel_End)
+                    {
+                        FacadeWithdraw.SetCurWithdrawTarget(WithdrawTarget.AmountOfMoney);
+                        FacadeWithdraw.SetWTarget();
+                    }
+                }
+            }
         }
 
         private void CheckUnlockCup(int packedColor)
