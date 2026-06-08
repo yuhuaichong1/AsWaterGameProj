@@ -133,7 +133,7 @@ namespace XrCode
             ShowWaiterAndName(2);
             ShowContent(2);
 
-            mContentText2.text = string.Format(FacadeLanguage.GetText("10005"), FacadeWithdraw.GetRemainTarget(), FacadeWithdraw.GetWTarget());
+            mContentText2.text = string.Format(FacadeLanguage.GetText("10006"), FacadeWithdraw.GetRemainTarget(), FacadeWithdraw.GetWTarget());
         }
 
         private void ShowFinishTarget()

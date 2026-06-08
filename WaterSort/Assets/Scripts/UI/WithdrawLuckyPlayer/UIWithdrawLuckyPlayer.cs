@@ -53,7 +53,7 @@ namespace XrCode
                     }
                 }, null);
 
-                FacadeGamePlay.CreateLevel();
+                FacadeGamePlay.StartLevel();
             });
         }
 
