@@ -33,7 +33,8 @@ namespace XrCode
         private bool canReduceProp1Count;
         private float[] pocketXPos;
 
-        private int LRCount;
+        private bool LRBool;
+        private STimer LRTimer;
         private int LSCount;
 
         protected override void OnLoad()
@@ -53,6 +54,9 @@ namespace XrCode
 
             LoadData();
             InitGame();
+
+            LRTimer = STimerManager.Instance.CreateSTimer(GameDefines.LuckyReward_Interval, 0, true, false, () => { LRBool = true; });
+            LRTimer.Pause();
         }
 
         #region Facade
@@ -185,6 +189,9 @@ namespace XrCode
             CheckPack();
 
             status = GameStatus.Gaming;
+
+            if (curLevelIndex > 3)
+                LRTimer.ReStart();
         }
 
         /// <summary>
@@ -537,12 +544,28 @@ namespace XrCode
             }
         }
 
+        /// <summary>
+        /// 检测是否应该弹窗
+        /// </summary>
         private void CheckRemoveCount()
         {
-            LRCount++;
             LSCount++;
 
+            if (LSCount == GameDefines.LS_CheckCount)
+            {
+                if (!GameDefines.ifIAA)
+                {
+                    UIManager.Instance.OpenAsync<UILuckySpin>(EUIType.EUILuckySpin);
+                }
+                LSCount = 0;
+            }
 
+            if (LRBool)
+            {
+                LRBool = false;
+                LRTimer.ReStart();
+                UIManager.Instance.OpenAsync<UILuckyReward>(EUIType.EUILuckyReward);
+            }
         }
 
         private List<PackPair2> BatchCheckPack()
@@ -636,6 +659,7 @@ namespace XrCode
 
             UIManager.Instance.OpenAsync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, curLevelIndex);
             FacadePlayer.AddLevel(1);
+            LRTimer.Stop();
         }
 
         private void IfLevelGuide()

@@ -148,12 +148,12 @@ public abstract class GameDefines
     #region 新手引导相关
 
     public static int firstGuideId = 10001;                                                                 //第一次新手引导步骤                                             
-    
+
     #endregion
 
     #region 幸运奖励界面相关
 
-    public static int LuckyReward_CheckCount = 8;                                                           //每完成X次条件，弹一次弹窗
+    public static float LuckyReward_Interval = 30;                                                          //每完成X次条件，弹一次弹窗
     public static Vector2 LuckyReward_RandomRange = new Vector2(30f, 50f);                                  //奖励区间
 
     #endregion
