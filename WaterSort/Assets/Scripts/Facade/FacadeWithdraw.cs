@@ -36,4 +36,6 @@ public static class FacadeWithdraw
     public static Action AfterCloseWUI;                                                 //关闭部分UI来继续游戏进程
 
     public static Action<bool> SetIfAfterCreate;                                        //设置关闭某个UI后是否开始创建关卡
+
+    public static Func<string> GetWithdrawHighValueStr;                                 //获得兑现提示区间文本
 }

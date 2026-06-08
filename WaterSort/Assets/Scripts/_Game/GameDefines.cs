@@ -87,6 +87,8 @@ public abstract class GameDefines
     public static int CheckInDay = 8;                                                                       //签到领奖天数
     public static int CheckInLevel = 5;                                                                     //签到所需关卡
 
+    public static Vector2 HighValue = new Vector2(200, 1000);                                               //高价值提现区间
+
     #endregion
 
     #region UI打开、关闭动画时间
@@ -217,6 +219,9 @@ public enum EUIType
     EUIWithdrawLuckyPlayer = 19,
     EUIWithdrawProgress = 20,
     EUIWithdrawRecords = 21,
+    EUIWithdrawContinue = 22,
+    EUIWithdrawKeepEarn = 23,
+    EUIWithdrawTarget = 24,
 }
 
 /// <summary>
@@ -414,6 +419,20 @@ public enum ELuckySpinRewardType : int
     Refresh = 1,
     Undo = 2,
     AddBottle = 3,
+}
+
+/// <summary>
+/// 目标界面
+/// </summary>
+public enum UIWTOpenType : int
+{
+    FirstTarget = 0,
+    AVPTarget,
+    VPTarget,
+    SVPTarget,
+    SVPMoneyTarget,
+    FinishTarget1,
+    FinishTarget2,
 }
 
 #endregion

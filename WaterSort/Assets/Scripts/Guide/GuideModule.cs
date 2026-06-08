@@ -292,20 +292,21 @@ public class GuideModule : BaseModule
         {
             if(value == 1)
             {
-                FacadeGamePlay.CreateLevel();
-                STimerManager.Instance.CreateSDelay(0.2f, () =>
-                {
-                    curStep = 10001;
-                    SetCurGuideItems(curStep);
-                    FacadeGuide.PlayGuide();
-                });
+                UIManager.Instance.OpenSync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.FirstTarget, (Action)PlayGuideByTargetType2);
+                //FacadeGamePlay.CreateLevel();
+                //STimerManager.Instance.CreateSDelay(0.2f, () =>
+                //{
+                //    curStep = 10001;
+                //    SetCurGuideItems(curStep);
+                //    FacadeGuide.PlayGuide();
+                //});
             }
             else if (value == 2)
             {
                 UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
                 {
                     curStep = 10006;
-                    PlayGuideByTargetType2();
+                    PlayGuideByTargetType3();
 
                 }, true, false);
             }
@@ -314,7 +315,7 @@ public class GuideModule : BaseModule
                 UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
                 {
                     curStep = 10007;
-                    PlayGuideByTargetType2();
+                    PlayGuideByTargetType3();
 
                 }, true, false);
             }
@@ -323,26 +324,37 @@ public class GuideModule : BaseModule
             UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
             {
                 curStep = 10008;
-                PlayGuideByTargetType2();
+                PlayGuideByTargetType3();
             }, true, false);
         }, (value) => 
         {
             UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
             {
                 curStep = 10009;
-                PlayGuideByTargetType2();
+                PlayGuideByTargetType3();
             }, true, false);
         });
     }
 
     private void PlayGuideByTargetType2()
     {
+        FacadeGamePlay.CreateLevel();
+        STimerManager.Instance.CreateSDelay(0.2f, () =>
+        {
+            curStep = 10001;
+            SetCurGuideItems(curStep);
+            FacadeGuide.PlayGuide();
+        });
+    }
+
+    private void PlayGuideByTargetType3()
+    {
         SetCurGuideItems(curStep);
         if (FacadeGuide.PlayGuide == null)
         {
             STimerManager.Instance.CreateSDelay(0.2f, () =>
             {
-                PlayGuideByTargetType2();
+                PlayGuideByTargetType3();
             });
         }
         else

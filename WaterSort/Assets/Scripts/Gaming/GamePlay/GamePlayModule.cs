@@ -1,11 +1,9 @@
-﻿using AsGame.Ads;
-using AsGame.Core;
+﻿using AsGame.Core;
 using AsGame.Data;
-using AsGame.Events;
 using AsGame.Spine;
 using AsGame.UI;
 using AsGame.Water;
-using Spine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -34,6 +32,9 @@ namespace XrCode
 
         private bool canReduceProp1Count;
         private float[] pocketXPos;
+
+        private int LRCount;
+        private int LSCount;
 
         protected override void OnLoad()
         {
@@ -128,7 +129,31 @@ namespace XrCode
             }
             else
             {
-                CreateLevel();
+                FacadeWithdraw.ActionByCurWTarget((level) =>
+                {
+                    switch(level)
+                    {
+                        case 1:
+                            UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.AVPTarget, (Action)CreateLevel);
+                            break;
+                        case 2:
+                            UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.VPTarget, (Action)CreateLevel);
+                            break;
+                        default:
+                            UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.SVPTarget, (Action)CreateLevel);
+                            break;
+                    }
+                    
+                }, (money) => 
+                {
+                    UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.SVPMoneyTarget, (Action)CreateLevel);
+                }, (day) =>
+                {
+                    UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.SVPTarget, (Action)CreateLevel);
+                });
+
+                
+                //CreateLevel();
             }
         }
         private void CreateLevel()
@@ -512,6 +537,14 @@ namespace XrCode
             }
         }
 
+        private void CheckRemoveCount()
+        {
+            LRCount++;
+            LSCount++;
+
+
+        }
+
         private List<PackPair2> BatchCheckPack()
         {
             var result = new List<PackPair2>();
@@ -781,7 +814,7 @@ namespace XrCode
         {
             for (var i = colors.Count - 1; i > 0; i--)
             {
-                var j = Random.Range(0, i + 1);
+                var j = UnityEngine.Random.Range(0, i + 1);
                 (colors[i], colors[j]) = (colors[j], colors[i]);
             }
         }

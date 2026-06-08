@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
-using static UnityEngine.GraphicsBuffer;
 
 namespace XrCode
 {
@@ -66,6 +64,7 @@ namespace XrCode
             FacadeWithdraw.GetLuckySpinReward += GetLuckySpinReward;
             FacadeWithdraw.AfterCloseWUI += AfterCloseWUI;
             FacadeWithdraw.SetIfAfterCreate += SetIfAfterCreate;
+            FacadeWithdraw.GetWithdrawHighValueStr += GetWithdrawHighValueStr;
         }
 
         private void FacadeRemove()
@@ -98,7 +97,8 @@ namespace XrCode
             FacadeWithdraw.SetCanWithdraw -= SetCanWithdraw;
             FacadeWithdraw.GetLuckySpinReward -= GetLuckySpinReward;
             FacadeWithdraw.AfterCloseWUI -= AfterCloseWUI;
-            FacadeWithdraw.SetIfAfterCreate += SetIfAfterCreate;
+            FacadeWithdraw.SetIfAfterCreate -= SetIfAfterCreate;
+            FacadeWithdraw.GetWithdrawHighValueStr -= GetWithdrawHighValueStr;
         }
 
         #endregion
@@ -468,6 +468,9 @@ namespace XrCode
             return reward;
         }
 
+        /// <summary>
+        /// 在关闭兑现步骤的某一界面时，应该继续往下走的步骤
+        /// </summary>
         private void AfterCloseWUI()
         {
             if(ifAfterCreate)
@@ -476,16 +479,38 @@ namespace XrCode
 
                 ActionByCurWTarget((level) =>
                 {
-                    FacadeGamePlay.CreateLevel();
+                    switch (level)
+                    {
+                        case 2:
+                            UIManager.Instance.OpenSync<UIWithdrawKeepEarn>(EUIType.EUIWithdrawKeepEarn);
+                            break;
+                        case 3:
+                            UIManager.Instance.OpenSync<UIWithdrawKeepEarn>(EUIType.EUIWithdrawKeepEarn);
+                            break;
+                        case 4:
+                            FacadeGamePlay.CreateLevel();
+                            break;
+                    }
                 }, (money) =>
                 {
                     UIManager.Instance.OpenAsync<UIWithdrawLuckyPlayer>(EUIType.EUIWithdrawLuckyPlayer);
-                    FacadeGamePlay.CreateLevel();
+                    //FacadeGamePlay.CreateLevel();
                 }, (day) =>
                 {
                     FacadeGamePlay.CreateLevel();
                 });
             }       
+        }
+
+        /// <summary>
+        /// 获得兑现提示区间文本
+        /// </summary>
+        /// <returns>兑现提示区间文本</returns>
+        private string GetWithdrawHighValueStr()
+        {
+            string v1 = FacadePayType.RegionalChange(GameDefines.HighValue.x).Split('.')[0];
+            string v2 = FacadePayType.RegionalChange(GameDefines.HighValue.y).Split('.')[0];
+            return $"{v1}-{v2}";
         }
 
         protected override void OnDispose()
