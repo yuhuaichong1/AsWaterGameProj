@@ -657,11 +657,20 @@ namespace XrCode
                 }
             }
 
+            AddFlyMoney(pocket.transform);
+
             yield return pocket.OnPocketAction(packedColor);
             FacadeGamePlay.AbleProp3Btn(GetEmptySlotId() != null);
             _collected++;
             CheckUnlockCup(packedColor);
             RefillPocket(pocket);
+        }
+
+        private void AddFlyMoney(Transform startPos)
+        {
+            float moneyCount = GameDefines.ifIAA ? GameDefines.IAA_Elimination_Money : GameDefines.Elimination_Money;
+            FacadePlayer.AddMoney(moneyCount);
+            FacadeEffect.PlayFlyMoney(startPos, GameDefines.FlyMoney_FlyMoneyCount, moneyCount, () => { FacadeGamePlay.SetCurMoneyShow(); });
         }
 
         static void ResetSlotAsPacked(CupData slot)
