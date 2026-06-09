@@ -53,7 +53,8 @@ namespace XrCode
 
 	    private void OnAdBtnClickHandle()
         {
-            FacadeAd.PlayRewardAd(EAdSource.Prop, GetProp, null, null);
+            FacadeAd.PlayROIAdByWeight(EAdSource.Prop, (count) => { GetProp(1); }, (errMsg) => { GetProp(1); }, () => { GetProp(1); }, GameDefines.WeightAdRange, GameDefines.AdWeight);
+            //FacadeAd.PlayRewardAd(EAdSource.Prop, GetProp, null, null);
         }
 
         /// <summary>

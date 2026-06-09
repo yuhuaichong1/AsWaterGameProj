@@ -32,10 +32,14 @@ public static class FacadeWithdraw
     public static Action<bool> SetCanWithdraw;                                          //设置当前兑现按钮是否可点击（仅WithdrawTarget == PassLevel）
 
     public static Func<float> GetLuckySpinReward;                                       //获取幸运转盘金额奖励值
+    public static Func<float> GetLuckyReward;                                           //获取幸运奖励金额奖励值
+    public static Func<float> GetLevelComplateReward;                                   //获取通关奖励金额奖励值
 
     public static Action AfterCloseWUI;                                                 //关闭部分UI来继续游戏进程
 
     public static Action<bool> SetIfAfterCreate;                                        //设置关闭某个UI后是否开始创建关卡
 
     public static Func<string> GetWithdrawHighValueStr;                                 //获得兑现提示区间文本
+
+    
 }

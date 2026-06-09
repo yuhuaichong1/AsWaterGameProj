@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Numerics;
+using UnityEngine;
 
 public static class FacadeAd
 {
@@ -141,6 +141,8 @@ public static class FacadeAd
 
     #region 扩充
 
+    public static Action<EAdSource, Action<int>, Action<string>, Action> AdRefuse;                              //拒绝X次后强制看广告
+    public static Func<int> GetTotalAdwatch;                                                                    //获取总广告观看次数
 
     #endregion
 }

@@ -151,6 +151,12 @@ public abstract class GameDefines
 
     #endregion
 
+    #region 关卡通过相关
+
+    public static Vector2 LevelComplate_RandomRange = new Vector2(20f, 45f);                                //奖励区间
+
+    #endregion
+
     #region 幸运奖励界面相关
 
     public static float ClockTime1 = 30;                                                                    //每经过X秒，在点击水瓶后弹一次弹窗
@@ -166,8 +172,7 @@ public abstract class GameDefines
     public static List<float> LS_Angles = new List<float>() { 33, 95, 153, 210, 266, 327 };                 //转盘对应角度
     public static int LS_rotateCount = 6;                                                                   //旋转圈数
     public static float LS_rotateTime = 2f;                                                                 //转完所需时间
-    public static float lowSpinReward = 0.015f;                                                             //15关后的转盘奖励系数
-    public static Vector2 moneyReward = new Vector2(20, 45);                                                //一般情况下的转盘金额奖励
+    public static float RewardCoe = 3;                                                                      //默认情况下的转盘金钱奖励系数
 
     #endregion
 
@@ -302,6 +307,8 @@ public enum EAdSource
     LuckyReward,//幸运一刻
     UnlockPocket,//解锁饮料位
     UnlockBottle,//解锁瓶子位
+    Refuse_LuckyReward,//拒绝观看广告——幸运奖励
+    Refuse_LevelComplate,//拒绝观看广告——关卡完成
 }
 
 /// <summary>

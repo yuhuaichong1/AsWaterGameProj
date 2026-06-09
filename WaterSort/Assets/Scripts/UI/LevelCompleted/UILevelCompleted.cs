@@ -49,28 +49,41 @@ namespace XrCode
 
         private void InitShow()
         {
-            //curCompletedMoney = TBLevel.Get(curCompletedLevel).LevelReward;
-            curCompletedMoney = 10;
+            curCompletedMoney = FacadeWithdraw.GetLevelComplateReward();
             curOnlyMoney = curCompletedMoney / 10;
             mMoneyText.text = $"+{FacadePayType.RegionalChange(curCompletedMoney)}";
             mOnlyText.text = string.Format(FacadeLanguage.GetText("10019"), FacadePayType.RegionalChange(curOnlyMoney));
-            //mDialog.gameObject.SetActive(true);
         }
-        	    private void OnAdBtnClickHandle()        {            FacadeAd.PlayRewardAd(EAdSource.LevelCompleted, (amount) =>             {
-                FacadePlayer.AddMoney(curCompletedMoney);                FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]                {                     new ERewardItemStruct                    {                        Type = ERewardType.Money,                        Count = curCompletedMoney,                    }                }, null);                GoNextLevel();            }, null, null);        }        private void OnWithdrawBtnClickHandle()
+        	    private void OnAdBtnClickHandle()        {            FacadeAd.PlayROIAdByWeight(EAdSource.LevelCompleted, (count) => { GetReward(); }, (errMsg) => { GetOnlyReward(); }, ()=> { GetOnlyReward(); }, GameDefines.WeightAdRange, GameDefines.AdWeight);        }        private void OnWithdrawBtnClickHandle()
         {
             GoNextLevel();
         }
         private void OnOnlyBtnClickHandle()
         {
-            FacadePlayer.AddMoney(curOnlyMoney);
-            GoNextLevel();
+            FacadeAd.AdRefuse(EAdSource.Refuse_LevelComplate, (count) => { GetReward(); }, (errMsg) => { GetOnlyReward(); }, () => { GetOnlyReward(); });
         }
 
         private void GoNextLevel()
         {
             UIManager.Instance.CloseUI(EUIType.EUILevelCompleted);
             FacadeGamePlay.StartLevel();
+        }
+
+        private void GetReward()
+        {
+            FacadePlayer.AddMoney(curCompletedMoney);
+            FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+            {
+                new ERewardItemStruct                {                    Type = ERewardType.Money,                    Count = curCompletedMoney,                }
+            }, null);
+            GoNextLevel();
+        }
+
+        private void GetOnlyReward()
+        {
+            FacadePlayer.AddMoney(curOnlyMoney);
+            FacadeEffect.PlayFlyMoney(mOnlyBtn.transform, GameDefines.FlyMoney_FlyMoneyCount, curOnlyMoney, () => { FacadeGamePlay.SetCurMoneyShow(); });
+            GoNextLevel();
         }
 
         private bool ifWlevel()

@@ -341,13 +341,14 @@ namespace XrCode
 
             if (cup.IsVideo())
             {
-                FacadeAd.PlayRewardAd(EAdSource.UnlockBottle, (count) =>
-                {
-                    cup.UnlockVideo();
-                }, null, () =>
-                {
-                    cup.UnlockVideo();
-                });
+                FacadeAd.PlayROIAdByWeight(EAdSource.UnlockBottle, (count) => { cup.UnlockVideo(); }, (errMsg) => { cup.UnlockVideo(); }, () => { cup.UnlockVideo(); }, GameDefines.WeightAdRange, GameDefines.AdWeight);
+                //FacadeAd.PlayRewardAd(EAdSource.UnlockBottle, (count) =>
+                //{
+                //    cup.UnlockVideo();
+                //}, null, () =>
+                //{
+                //    cup.UnlockVideo();
+                //});
                 return;
             }
 
@@ -406,19 +407,22 @@ namespace XrCode
             {
                 UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10097"));
                 return;
-            }    
-            FacadeAd.PlayRewardAd(EAdSource.UnlockPocket, (count) => 
-            {
-                pocket.Init(false, _pocketColors.Count > 0 ? _pocketColors[0] : 0);
-                if (_pocketColors.Count > 0) _pocketColors.RemoveAt(0);
-                //OnUnlockPocket2(pocket);
-            }, (errMsg) =>
-            {
+            }
+
+            FacadeAd.PlayROIAdByWeight(EAdSource.Prop, (count) => { OnUnlockPocket2(pocket); }, (errMsg) => { OnUnlockPocket2(pocket); }, () => { OnUnlockPocket2(pocket); }, GameDefines.WeightAdRange, GameDefines.AdWeight);
+
+            //FacadeAd.PlayRewardAd(EAdSource.UnlockPocket, (count) => 
+            //{
+            //    pocket.Init(false, _pocketColors.Count > 0 ? _pocketColors[0] : 0);
+            //    if (_pocketColors.Count > 0) _pocketColors.RemoveAt(0);
+            //    //OnUnlockPocket2(pocket);
+            //}, (errMsg) =>
+            //{
                 
-            },() =>
-            {
-                //OnUnlockPocket2(pocket);
-            });
+            //},() =>
+            //{
+            //    //OnUnlockPocket2(pocket);
+            //});
         }
 
         private void OnUnlockPocket2(Pocket pocket)

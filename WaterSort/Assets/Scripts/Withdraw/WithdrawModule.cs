@@ -62,6 +62,8 @@ namespace XrCode
             FacadeWithdraw.GetCanWithdraw += GetCanWithdraw;
             FacadeWithdraw.SetCanWithdraw += SetCanWithdraw;
             FacadeWithdraw.GetLuckySpinReward += GetLuckySpinReward;
+            FacadeWithdraw.GetLuckyReward += GetLuckyReward;
+            FacadeWithdraw.GetLevelComplateReward += GetLevelComplateReward;
             FacadeWithdraw.AfterCloseWUI += AfterCloseWUI;
             FacadeWithdraw.SetIfAfterCreate += SetIfAfterCreate;
             FacadeWithdraw.GetWithdrawHighValueStr += GetWithdrawHighValueStr;
@@ -95,7 +97,8 @@ namespace XrCode
             FacadeWithdraw.GetRemainTarget -= GetRemainTarget;
             FacadeWithdraw.GetCanWithdraw -= GetCanWithdraw;
             FacadeWithdraw.SetCanWithdraw -= SetCanWithdraw;
-            FacadeWithdraw.GetLuckySpinReward -= GetLuckySpinReward;
+            FacadeWithdraw.GetLuckyReward -= GetLuckyReward;
+            FacadeWithdraw.GetLevelComplateReward -= GetLevelComplateReward;
             FacadeWithdraw.AfterCloseWUI -= AfterCloseWUI;
             FacadeWithdraw.SetIfAfterCreate -= SetIfAfterCreate;
             FacadeWithdraw.GetWithdrawHighValueStr -= GetWithdrawHighValueStr;
@@ -311,10 +314,7 @@ namespace XrCode
             TargetInterval = new List<float>();
             foreach (ConfMoneyInterval item in MIData.Values)
             {
-                if (item.Sn != 0 && item.Sn != MIData.Count - 1)
-                {
-                    TargetInterval.Add(item.MoneyMax);
-                }
+                TargetInterval.Add(item.MoneyMax);
             }
             TargetInterval.Add(0);
             TargetInterval.Sort();
@@ -453,18 +453,86 @@ namespace XrCode
         {
             float reward = 1;
 
-            ActionByCurWTarget((v) =>
+            if(GameDefines.ifIAA)
             {
-                reward = MIData[0].LSReward;
-            }, (v) =>
+                reward = 1;
+            }
+            else
             {
-                int id = TargetInterval.Count - TargetInterval.GetRangeIndex(GetRemainTarget()) - 1;
-                reward = MIData[id].LSReward;
-            }, (v) =>
-            {
-                reward = MIData[MIData.Count - 1].LSReward;
-            });
+                ActionByCurWTarget((v) =>
+                {
+                    reward = GameDefines.RewardCoe;
+                }, (v) =>
+                {
+                    int id = TargetInterval.Count - TargetInterval.GetRangeIndex(GetRemainTarget());
+                    reward = MIData[id].LSReward;
+                }, (v) =>
+                {
+                    reward = MIData[MIData.Count - 1].LSReward;
+                });
+            }
 
+            return reward;
+        }
+
+        /// <summary>
+        /// 获取幸运奖励金额奖励的奖励值
+        /// </summary>
+        /// <returns>幸运奖励金额奖励的奖励值</returns>
+        private float GetLuckyReward()
+        {
+            float reward = 1;
+
+            if (GameDefines.ifIAA)
+            {
+                reward = 1;
+            }
+            else
+            {
+                ActionByCurWTarget((v) =>
+                {
+                    reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
+                }, (v) =>
+                {
+                    int id = TargetInterval.Count - TargetInterval.GetRangeIndex(GetRemainTarget());
+                    reward = UnityEngine.Random.Range(MIData[id].LRMin, MIData[id].LRMax);
+                }, (v) =>
+                {
+                    int id = MIData.Count - 1;
+                    reward = UnityEngine.Random.Range(MIData[id].LRMin, MIData[id].LRMax);
+                });
+            }
+
+            return reward;
+        }
+
+        /// <summary>
+        /// 获取关卡完成金额奖励的奖励值
+        /// </summary>
+        /// <returns>关卡完成金额奖励的奖励值</returns>
+        private float GetLevelComplateReward()
+        {
+            float reward = 20;
+
+            if (GameDefines.ifIAA)
+            {
+                reward = 20;
+            }
+            else
+            {
+                ActionByCurWTarget((v) =>
+                {
+                    reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
+                }, (v) =>
+                {
+                    int id = TargetInterval.Count - TargetInterval.GetRangeIndex(GetRemainTarget());
+                    reward = UnityEngine.Random.Range(MIData[id].LSMin, MIData[id].LSMax);
+                }, (v) =>
+                {
+                    int id = MIData.Count - 1;
+                    reward = UnityEngine.Random.Range(MIData[id].LSMin, MIData[id].LSMax);
+                });
+            }
             return reward;
         }
 

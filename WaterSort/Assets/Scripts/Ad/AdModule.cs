@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace XrCode
@@ -23,6 +23,14 @@ namespace XrCode
         private Dictionary<EAdSource, Action> rewardHideActions;                    //激励广告关闭回调合集
 
         private string AdFailMsg;//广告加载失败信息
+
+        #region 额外扩充
+
+        private int curRefuseCount;//当前拒绝次数
+        private int totalAdCount;//总看广告次数
+        private double totalAdRevenue;//总看广告收入
+
+        #endregion
 
         protected override void OnLoad() 
         {
@@ -94,6 +102,9 @@ namespace XrCode
             FacadeAd.AppOpenClosed += AppOpenClosed;
             FacadeAd.AppOpenRevenuePaid += AppOpenRevenuePaid;
             FacadeAd.AppOpenotReady += AppOpenotReady;
+
+            FacadeAd.AdRefuse += AdRefuse;
+            FacadeAd.GetTotalAdwatch += GetTotalAdwatch;
         }
 
         private void RemoveFacade()
@@ -147,6 +158,9 @@ namespace XrCode
             FacadeAd.AppOpenClosed -= AppOpenClosed;
             FacadeAd.AppOpenRevenuePaid -= AppOpenRevenuePaid;
             FacadeAd.AppOpenotReady -= AppOpenotReady;
+
+            FacadeAd.AdRefuse -= AdRefuse;
+            FacadeAd.GetTotalAdwatch -= GetTotalAdwatch;
         }
 
         #endregion
@@ -397,7 +411,7 @@ namespace XrCode
                 return;
             }
 
-            int randomValue = (int)UnityEngine.Random.Range(WeightAdRange.X, WeightAdRange.Y);
+            int randomValue = (int)UnityEngine.Random.Range(WeightAdRange.x, WeightAdRange.y);
 
             if (randomValue <= WeightAdBoundary)
             {
@@ -1120,7 +1134,64 @@ namespace XrCode
 
         #region 额外扩充
 
+        /// <summary>
+        /// 拒绝X次后强制弹广告
+        /// </summary>
+        /// <param name="eAdSource">广告源</param>
+        /// <param name="successAction">成功回调</param>
+        /// <param name="failAction">失败回调</param>
+        /// <param name="rewardHideAction">激励隐藏回调</param>
+        private void AdRefuse(EAdSource eAdSource, Action<int> successAction, Action<string> failAction, Action rewardHideAction)
+        {
+            curRefuseCount++;
 
+            if (curRefuseCount >= GameDefines.AdRefuseCount)
+            {
+                PlayROIAdByWeight(eAdSource, (count) =>
+                {
+                    curRefuseCount = 0;
+                    successAction?.Invoke(count);
+                }, failAction, () =>
+                {
+                    curRefuseCount = 0;
+                    rewardHideAction?.Invoke();
+                }, GameDefines.WeightAdRange, GameDefines.AdWeight);
+            }
+            else
+            {
+                failAction?.Invoke("");
+            }
+        }
+
+        private int GetTotalAdwatch()
+        {
+            return totalAdCount;
+        }
+
+        private void AddTotalAdwatch(int count, double rCount)
+        {
+            totalAdRevenue += rCount;
+            SPlayerPrefs.SetInt(PlayerPrefDefines.totalAdRevenue, totalAdCount);
+            totalAdCount += count;
+            SPlayerPrefs.SetInt(PlayerPrefDefines.totalAdCount, totalAdCount);
+            SPlayerPrefs.Save();
+
+            switch (totalAdCount)
+            {
+                case 5:
+                    //ModuleMgr.Instance.TDAnalyticsManager.Times_5_Ad(totalAdRevenue);
+                    break;
+                case 10:
+                    //ModuleMgr.Instance.TDAnalyticsManager.Times_10_Ad(totalAdRevenue);
+                    break;
+                case 15:
+                    //ModuleMgr.Instance.TDAnalyticsManager.Times_15_Ad(totalAdRevenue);
+                    break;
+                case 20:
+                    //ModuleMgr.Instance.TDAnalyticsManager.Times_20_Ad(totalAdRevenue);
+                    break;
+            }
+        }
 
         #endregion
 

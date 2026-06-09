@@ -66,4 +66,11 @@ public abstract class PlayerPrefDefines
     public static string ifTutorial => GetKey("■_ifTutorial");                             //GuideModule_是否处于引导状态
 
     #endregion
+
+    #region AdModule
+
+    public static string totalAdCount => GetKey("■_totalAdCount");                          //AdModule_总广告次数
+    public static string totalAdRevenue => GetKey("■_totalAdRevenue");                      //AdModule_总广告收入
+
+    #endregion
 }

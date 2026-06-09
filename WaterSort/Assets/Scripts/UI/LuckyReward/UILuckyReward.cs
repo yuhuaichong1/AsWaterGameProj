@@ -8,7 +8,8 @@ namespace XrCode
 
     public partial class UILuckyReward : BaseUI
     {
-        private float rewardMoeny;
+        private float curCompletedMoney;
+        private float curOnlyMoney;
         protected override void OnAwake()
         {
             mMoneyIcon.gameObject.SetActive(!GameDefines.ifIAA);
@@ -16,58 +17,44 @@ namespace XrCode
         }
         protected override void OnEnable()
         {
-            SetRewardMoeny();
-            mMoneyText.text = $"+{FacadePayType.RegionalChange(rewardMoeny)}";
-            mOnlyText.text = string.Format(FacadeLanguage.GetText("10019"), FacadePayType.RegionalChange(rewardMoeny / 10));
+            curCompletedMoney = FacadeWithdraw.GetLuckyReward();
+            curOnlyMoney = curCompletedMoney / 10;
+            mMoneyText.text = $"+{FacadePayType.RegionalChange(curCompletedMoney)}";
+            mOnlyText.text = string.Format(FacadeLanguage.GetText("10019"), FacadePayType.RegionalChange(curCompletedMoney / 10));
 
             ShowAnim(mPlane);
         }
 
-        /// <summary>
-        /// 设置奖励金额
-        /// </summary>
-        private void SetRewardMoeny()
-        {
-            rewardMoeny = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
-        }
-
         private void OnAdBtnClickHandle()
         {
-            FacadeAd.PlayRewardAd(EAdSource.LuckyReward, (amount) =>
-            {
-                HideAnim(mPlane, () =>
-                {
-                    AddReward(rewardMoeny);
-                    UIManager.Instance.CloseUI(EUIType.EUILuckyReward);
-                    FacadeGamePlay.ReStartLRTimer();
-                });
-            }, null, null);
+            FacadeAd.PlayROIAdByWeight(EAdSource.LuckyReward, (count) => { GetReward(); }, (errMsg) => { GetOnlyReward(); }, ()=> { GetOnlyReward(); }, GameDefines.WeightAdRange, GameDefines.AdWeight);
         }
         private void OnOnlyBtnClickHandle()
         {
-            HideAnim(mPlane, () =>
-            {
-                AddReward(rewardMoeny / 10);
-                UIManager.Instance.CloseUI(EUIType.EUILuckyReward);
-                FacadeGamePlay.ReStartLRTimer();
-            });
+            FacadeAd.AdRefuse(EAdSource.Refuse_LuckyReward, (count)=> { GetReward(); }, (errMsg)=> { GetOnlyReward(); }, GetOnlyReward);
         }
 
-        /// <summary>
-        /// 添加钱特效相关
-        /// </summary>
-        /// <param name="amount">数量</param>
-        private void AddReward(float amount)
+        private void GetReward()
         {
-            FacadePlayer.AddMoney(amount);
+            FacadePlayer.AddMoney(curCompletedMoney);
             FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
             {
                 new ERewardItemStruct()
                 {
                     Type = ERewardType.Money,
-                    Count = amount,
+                    Count = curCompletedMoney,
                 }
             }, null);
+            UIManager.Instance.CloseUI(EUIType.EUILuckyReward);
+            FacadeGamePlay.ReStartLRTimer();
+        }
+
+        private void GetOnlyReward()
+        {
+            FacadePlayer.AddMoney(curOnlyMoney);
+            FacadeEffect.PlayFlyMoney(mOnlyBtn.transform, GameDefines.FlyMoney_FlyMoneyCount, curOnlyMoney, () => { FacadeGamePlay.SetCurMoneyShow(); });
+            UIManager.Instance.CloseUI(EUIType.EUILuckyReward);
+            FacadeGamePlay.ReStartLRTimer();
         }
 
         protected override void OnDisable()
