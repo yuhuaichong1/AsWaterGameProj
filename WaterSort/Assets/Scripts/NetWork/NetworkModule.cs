@@ -29,6 +29,9 @@ namespace XrCode
         private string accountId = "0";
         public System.Action OnFinished;        //初始加载完成回调
 
+        private Action request2SuccessAction;//请求2类成功回调
+        private Action request2FailAction;//请求2类失败回调
+
         public void Load()
         {
             sendMsgQue = new Queue<Notification>();
@@ -229,7 +232,13 @@ namespace XrCode
                 notify1.Content = notify["ext"];
                 Dictionary<string, object> adDic = notify1.DicData;
 
-                if(adDic.TryGetValue("AdRefuseCount", out object arc))
+                if (adDic.TryGetValue("Version_A", out object va))
+                {
+                    string vaStr = va.ToString();
+                    if (vaStr == Application.version)
+                        GameDefines.ifIAA = true;
+                }
+                if (adDic.TryGetValue("AdRefuseCount", out object arc))
                 {
                     GameDefines.AdRefuseCount = int.Parse(arc.ToString());
                 }
@@ -255,6 +264,51 @@ namespace XrCode
                 }
             }
         }
+
+        #region 网络请求2
+
+        public void GetNetworkInitInfo2(Action successAction, Action failAction = null)
+        {
+            request2SuccessAction = successAction;
+            request2FailAction = failAction;
+
+            Notification notify = new Notification();
+            Game.Instance.StartCoroutine(GetInfoformServer2(notify));
+        }
+
+        private IEnumerator GetInfoformServer2(Notification notify)
+        {
+            string url = GameDefines.URL;
+            using (UnityWebRequest webReq = new UnityWebRequest(url, UnityWebRequest.kHttpVerbGET))
+            {
+                byte[] postBytes = Encoding.UTF8.GetBytes(notify.Content.ToString());
+                webReq.uploadHandler = (UploadHandler)new UploadHandlerRaw(postBytes);
+                webReq.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+                webReq.SetRequestHeader("Content-Type", "application/json");
+                webReq.timeout = 16;
+
+                yield return webReq.SendWebRequest();
+
+                if (webReq.isDone)
+                {
+                    if (recordCodeId.Contains(notify.Sid)) recordCodeId.Remove(notify.Sid);
+                    if (webReq.result == UnityWebRequest.Result.Success)
+                    {
+                        request2SuccessAction?.Invoke();
+                    }
+                    else
+                    {
+                        request2FailAction?.Invoke();
+                        STimerManager.Instance.CreateSDelay(3.5f, () =>
+                        {
+                            GetNetworkInitInfo2(request2SuccessAction, request2FailAction);
+                        });
+                    }
+                }
+            }
+        }
+
+        #endregion
 
         #endregion
     }

@@ -32,7 +32,7 @@ namespace XrCode
 
             bool c2 = curLevel > 2;
             mChat_2_GrayBg.gameObject.SetActive(c2);
-            mChat_2_Money.text = FacadePayType.RegionalChange(c2 ? WHRecord[1].WRMoney : 0.04);
+            mChat_2_Money.text = FacadePayType.RegionalChange(c2 ? WHRecord[1].WRMoney : 2.00);
             mChat_2_Statu.text = c2 ? string.Format(FacadeLanguage.GetText("10111"), 2) : FacadeLanguage.GetText("10110");
 
             bool c3 = curLevel > GameDefines.miniLevel_Start;

@@ -410,19 +410,6 @@ namespace XrCode
             }
 
             FacadeAd.PlayROIAdByWeight(EAdSource.Prop, (count) => { OnUnlockPocket2(pocket); }, (errMsg) => { OnUnlockPocket2(pocket); }, () => { OnUnlockPocket2(pocket); }, GameDefines.WeightAdRange, GameDefines.AdWeight);
-
-            //FacadeAd.PlayRewardAd(EAdSource.UnlockPocket, (count) => 
-            //{
-            //    pocket.Init(false, _pocketColors.Count > 0 ? _pocketColors[0] : 0);
-            //    if (_pocketColors.Count > 0) _pocketColors.RemoveAt(0);
-            //    //OnUnlockPocket2(pocket);
-            //}, (errMsg) =>
-            //{
-                
-            //},() =>
-            //{
-            //    //OnUnlockPocket2(pocket);
-            //});
         }
 
         private void OnUnlockPocket2(Pocket pocket)
@@ -699,10 +686,19 @@ namespace XrCode
             yield return new WaitForSeconds(0.4f);
 
             IfLevelGuide();
-
-            UIManager.Instance.OpenAsync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, curLevelIndex);
-            FacadePlayer.AddLevel(1);
             LRTimer.Stop();
+
+            NetworkModule.Instance.GetNetworkInitInfo2(() => 
+            {
+                UIManager.Instance.OpenAsync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, curLevelIndex);
+                FacadePlayer.AddLevel(1);
+                Game.Instance.UILoadingWaiting.gameObject.SetActive(false);
+            }, () =>
+            {
+                Game.Instance.UILoadingWaiting.gameObject.SetActive(true);
+            });
+
+            
         }
 
         private void IfLevelGuide()
