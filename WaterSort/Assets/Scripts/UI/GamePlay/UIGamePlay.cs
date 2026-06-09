@@ -80,6 +80,7 @@ namespace XrCode
             mIAAMoneyIcon.gameObject.gameObject.SetActive(GameDefines.ifIAA);
             mCMBtn.gameObject.SetActive(!GameDefines.ifIAA);
             mCMDialog.gameObject.SetActive(!GameDefines.ifIAA);
+            mWLProgress.gameObject.SetActive(!GameDefines.ifIAA);
 
             mCurLevelText.text = string.Format(FacadeLanguage.GetText?.Invoke("10016"), FacadePlayer.GetLevel());
 
@@ -186,7 +187,16 @@ namespace XrCode
             mCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), levelText);
 
             bool after8_10 = curLevel > GameDefines.miniLevel_End;
-            mCurLevel.anchoredPosition = new Vector3(-22, after8_10 ? -24 : -140, 0);
+            //mCurLevel.anchoredPosition = new Vector3(-22, after8_10 ? -24 : -140, 0);
+            if(!GameDefines.ifIAA)
+            {
+                mCurLevel.anchoredPosition = new Vector3(-22, after8_10 ? -24 : -140, 0);
+            }
+            else
+            {
+                mCurLevel.anchoredPosition = new Vector3(-22, -24, 0);
+                return;
+            }
 
 
             mWLProgress.gameObject.SetActive(!after8_10);

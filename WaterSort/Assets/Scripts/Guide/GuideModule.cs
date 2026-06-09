@@ -292,47 +292,82 @@ public class GuideModule : BaseModule
         {
             if(value == 1)
             {
-                UIManager.Instance.OpenSync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.FirstTarget, (Action)PlayGuideByTargetType2);
-                //FacadeGamePlay.CreateLevel();
-                //STimerManager.Instance.CreateSDelay(0.2f, () =>
-                //{
-                //    curStep = 10001;
-                //    SetCurGuideItems(curStep);
-                //    FacadeGuide.PlayGuide();
-                //});
+                if(!GameDefines.ifIAA)
+                {
+                    UIManager.Instance.OpenSync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.FirstTarget, (Action)PlayGuideByTargetType2);
+                }
+                else
+                {
+                    FacadeGamePlay.CreateLevel();
+                    STimerManager.Instance.CreateSDelay(0.2f, () =>
+                    {
+                        curStep = 10001;
+                        SetCurGuideItems(curStep);
+                        FacadeGuide.PlayGuide();
+                    });
+                }
             }
             else if (value == 2)
             {
-                UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
+                if (!GameDefines.ifIAA)
                 {
-                    curStep = 10006;
-                    PlayGuideByTargetType3();
+                    UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
+                    {
+                        curStep = 10006;
+                        PlayGuideByTargetType3();
 
-                }, true, false);
+                    }, true, false);
+                }
+                else
+                {
+                    FacadeGamePlay.CreateLevel();
+                }
+
             }
             else if(value == 3)
             {
-                UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
+                if (!GameDefines.ifIAA)
                 {
-                    curStep = 10007;
-                    PlayGuideByTargetType3();
+                    UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
+                    {
+                        curStep = 10007;
+                        PlayGuideByTargetType3();
 
-                }, true, false);
+                    }, true, false);
+                }
+                else
+                {
+                    FacadeGamePlay.CreateLevel();
+                }
             }
         }, (value) =>
         {
-            UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
+            if (!GameDefines.ifIAA)
             {
-                curStep = 10008;
-                PlayGuideByTargetType3();
-            }, true, false);
+                UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
+                {
+                    curStep = 10008;
+                    PlayGuideByTargetType3();
+                }, true, false);
+            }
+            else
+            {
+                FacadeGamePlay.CreateLevel();
+            }
         }, (value) => 
         {
-            UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
+            if (!GameDefines.ifIAA)
             {
-                curStep = 10009;
-                PlayGuideByTargetType3();
-            }, true, false);
+                UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
+                {
+                    curStep = 10009;
+                    PlayGuideByTargetType3();
+                }, true, false);
+            }
+            else
+            {
+                FacadeGamePlay.CreateLevel();
+            }
         });
     }
 

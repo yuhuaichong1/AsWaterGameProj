@@ -133,6 +133,12 @@ namespace XrCode
             }
             else
             {
+                if(GameDefines.ifIAA)
+                {
+                    CreateLevel();
+                    return;
+                }
+
                 FacadeWithdraw.ActionByCurWTarget((level) =>
                 {
                     switch(level)
