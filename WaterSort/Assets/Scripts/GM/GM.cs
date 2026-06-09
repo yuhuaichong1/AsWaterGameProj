@@ -137,7 +137,7 @@ public class GM : MonoBehaviour
         //};
         //UIManager.Instance.OpenAsync<UIWithdrawProgress>(EUIType.EUIWithdrawalProgress, UIOpenType.None, null, wItem);
 
-        UIManager.Instance.OpenAsync<UILuckySpin>(EUIType.EUILuckySpin);
+        UIManager.Instance.OpenAsync<UILuckyReward>(EUIType.EUILuckyReward);
     }
 
 }

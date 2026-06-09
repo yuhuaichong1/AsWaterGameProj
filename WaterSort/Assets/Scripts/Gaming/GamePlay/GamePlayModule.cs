@@ -55,7 +55,7 @@ namespace XrCode
             LoadData();
             InitGame();
 
-            LRTimer = STimerManager.Instance.CreateSTimer(GameDefines.LuckyReward_Interval, 0, true, false, () => { LRBool = true; });
+            LRTimer = STimerManager.Instance.CreateSTimer(GameDefines.ClockTime1, 0, true, false, () => { LRBool = true; });
             LRTimer.Pause();
         }
 
@@ -76,6 +76,7 @@ namespace XrCode
             FacadeGamePlay.GetStatus += GetStatus;
             FacadeGamePlay.EndPorp1 += EndShuffleMode;
             FacadeGamePlay.IfLevelGuide += IfLevelGuide;
+            FacadeGamePlay.ReStartLRTimer += ReStartLRTimer;
         }
 
         /// <summary>
@@ -93,6 +94,7 @@ namespace XrCode
             FacadeGamePlay.GetStatus -= GetStatus;
             FacadeGamePlay.EndPorp1 -= EndShuffleMode;
             FacadeGamePlay.IfLevelGuide -= IfLevelGuide;
+            FacadeGamePlay.ReStartLRTimer += ReStartLRTimer;
         }
 
         #endregion
@@ -197,7 +199,11 @@ namespace XrCode
             status = GameStatus.Gaming;
 
             if (curLevelIndex > 3)
+            {
+                LRTimer.targetTime = curLevelIndex > GameDefines.ClockLv ? GameDefines.ClockTime1 : GameDefines.ClockTime2;
                 LRTimer.ReStart();
+            }
+                
         }
 
         /// <summary>
@@ -331,6 +337,8 @@ namespace XrCode
         /// <param name="cup">被点击的水瓶</param>
         private void OnCupClick(Bottle cup)
         {
+            CheckOpenLuckyReward();
+
             if (cup.IsVideo())
             {
                 FacadeAd.PlayRewardAd(EAdSource.UnlockBottle, (count) =>
@@ -541,6 +549,8 @@ namespace XrCode
 
                 if (_collected >= _needCollect)
                     yield return WinRoutine();
+                else
+                    CheckOpenLuckySpin();
             }
             finally
             {
@@ -551,13 +561,14 @@ namespace XrCode
         }
 
         /// <summary>
-        /// 检测是否应该弹窗
+        /// 检测是否应该弹幸运转盘
         /// </summary>
-        private void CheckRemoveCount()
+        private void CheckOpenLuckySpin()
         {
-            LSCount++;
+            if (curLevelIndex > 3)
+                LSCount++;
 
-            if (LSCount == GameDefines.LS_CheckCount)
+            if (LSCount == GameDefines.SpinCount)
             {
                 if (!GameDefines.ifIAA)
                 {
@@ -566,12 +577,25 @@ namespace XrCode
                 LSCount = 0;
             }
 
+            
+        }
+
+        /// <summary>
+        /// 检测是否应该弹幸运奖励
+        /// </summary>
+        private void CheckOpenLuckyReward()
+        {
             if (LRBool)
             {
                 LRBool = false;
-                LRTimer.ReStart();
+                //LRTimer.ReStart();
                 UIManager.Instance.OpenAsync<UILuckyReward>(EUIType.EUILuckyReward);
             }
+        }
+
+        private void ReStartLRTimer()
+        {
+            LRTimer.ReStart();
         }
 
         private List<PackPair2> BatchCheckPack()

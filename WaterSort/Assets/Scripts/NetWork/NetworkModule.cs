@@ -229,11 +229,30 @@ namespace XrCode
                 notify1.Content = notify["ext"];
                 Dictionary<string, object> adDic = notify1.DicData;
 
-                // 插屏广告间隔时间
-                //if (adDic.TryGetValue("adtime", out object at))
-                //{
-                //    GameDefines.adtime = int.Parse(at.ToString());
-                //}
+                if(adDic.TryGetValue("AdRefuseCount", out object arc))
+                {
+                    GameDefines.AdRefuseCount = int.Parse(arc.ToString());
+                }
+                if (adDic.TryGetValue("AdWeight", out object aw))
+                {
+                    GameDefines.AdWeight = int.Parse(aw.ToString());
+                }
+                if (adDic.TryGetValue("ClockLv", out object cl))
+                {
+                    GameDefines.ClockLv = int.Parse(cl.ToString());
+                }
+                if (adDic.TryGetValue("ClockTime1", out object ct1))
+                {
+                    GameDefines.ClockTime1 = float.Parse(ct1.ToString());
+                }
+                if (adDic.TryGetValue("ClockTime2", out object ct2))
+                {
+                    GameDefines.ClockTime2 = float.Parse(ct2.ToString());
+                }
+                if (adDic.TryGetValue("SpinCount", out object sc))
+                {
+                    GameDefines.SpinCount = int.Parse(sc.ToString());
+                }
             }
         }
 

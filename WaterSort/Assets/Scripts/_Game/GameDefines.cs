@@ -25,7 +25,7 @@ public abstract class GameDefines
     #region 游戏相关
     public static string NameString = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";               //随机名称数组
 
-    public static float Elimination_Money = 0.02f;                                                          //单次消除金额
+    public static float Elimination_Money = 0.2f;                                                           //单次消除金额
     public static float IAA_Elimination_Money = 1f;                                                         //单次消除金额（IAA）
 
     public static int miniLevel_Start = 9;                                                                  //迷你关开始关号
@@ -153,25 +153,29 @@ public abstract class GameDefines
 
     #region 幸运奖励界面相关
 
-    public static float LuckyReward_Interval = 30;                                                          //每经过X秒，在点击水瓶后弹一次弹窗
-    public static Vector2 LuckyReward_RandomRange = new Vector2(30f, 50f);                                  //奖励区间
+    public static float ClockTime1 = 30;                                                                    //每经过X秒，在点击水瓶后弹一次弹窗
+    public static float ClockTime2 = 60;                                                                    //每经过X秒，在点击水瓶后弹一次弹窗
+    public static Vector2 LuckyReward_RandomRange = new Vector2(20f, 45f);                                  //奖励区间
+    public static int ClockLv = 17;                                                                         //当<=X关时，用ClockTime1，>X关后，用ClockTime2，
 
     #endregion
 
     #region 幸运转盘相关
 
-    public static int LS_CheckCount = 30;                                                                   //每完成X次线轴，弹一次弹窗
+    public static int SpinCount = 30;                                                                       //每完成X次线轴，弹一次弹窗
     public static List<float> LS_Angles = new List<float>() { 33, 95, 153, 210, 266, 327 };                 //转盘对应角度
     public static int LS_rotateCount = 6;                                                                   //旋转圈数
     public static float LS_rotateTime = 2f;                                                                 //转完所需时间
     public static float lowSpinReward = 0.015f;                                                             //15关后的转盘奖励系数
+    public static Vector2 moneyReward = new Vector2(20, 45);                                                //一般情况下的转盘金额奖励
 
     #endregion
 
     #region 广告相关
 
     public static Vector2 WeightAdRange = new Vector2(1, 101);                                              //权重广告随机区间
-    public static int WeightAdBoundary = 50;                                                                //权重广告随机分界（小于等于为激励，大于为插屏）
+    public static int AdWeight = 50;                                                                        //权重广告随机分界（小于等于为激励，大于为插屏）
+    public static int AdRefuseCount = 3;                                                                    //广告拒绝次数
 
     #endregion
 

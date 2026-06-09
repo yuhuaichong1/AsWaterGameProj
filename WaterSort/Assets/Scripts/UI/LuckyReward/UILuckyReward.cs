@@ -38,8 +38,8 @@ namespace XrCode
                 HideAnim(mPlane, () =>
                 {
                     AddReward(rewardMoeny);
-
                     UIManager.Instance.CloseUI(EUIType.EUILuckyReward);
+                    FacadeGamePlay.ReStartLRTimer();
                 });
             }, null, null);
         }
@@ -49,6 +49,7 @@ namespace XrCode
             {
                 AddReward(rewardMoeny / 10);
                 UIManager.Instance.CloseUI(EUIType.EUILuckyReward);
+                FacadeGamePlay.ReStartLRTimer();
             });
         }
 
