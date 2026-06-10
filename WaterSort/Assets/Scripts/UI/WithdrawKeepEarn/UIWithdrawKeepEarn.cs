@@ -18,13 +18,13 @@ namespace XrCode
         	    private void OnExitBtnClickHandle()        {
             HideAnim(mPlane, () =>
             {
-                UIManager.Instance.OpenSync<UIWithdrawContinue>(EUIType.EUIWithdrawContinue);
+                UIManager.Instance.OpenAsync<UIWithdrawContinue>(EUIType.EUIWithdrawContinue);
                 UIManager.Instance.CloseUI(EUIType.EUIWithdrawKeepEarn);
             });        }	    private void OnKeepEarnBtnClickHandle()
         {
             HideAnim(mPlane, () =>
             {
-                UIManager.Instance.OpenSync<UIWithdrawContinue>(EUIType.EUIWithdrawContinue);
+                UIManager.Instance.OpenAsync<UIWithdrawContinue>(EUIType.EUIWithdrawContinue);
                 UIManager.Instance.CloseUI(EUIType.EUIWithdrawKeepEarn);
             });
         }

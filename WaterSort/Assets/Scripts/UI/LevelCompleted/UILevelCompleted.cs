@@ -28,7 +28,7 @@ namespace XrCode
         protected override void OnEnable()
         {
             InitShow();
-            FacadeAudio.PlayEffect(EAudioType.ELevelComplete);
+            FacadeAudio.PlayEffect(EAudioType.EWin);
 
             if(GameDefines.ifIAA)
             {

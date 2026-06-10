@@ -1,19 +1,15 @@
 ﻿public enum EAudioType : int
 {
-    EBgm = 1,
-    EButton = 2,
-    ESpoolClick = 3,            //线框被点击
-    EUnlock = 4,                //解锁线框
-    EChangeTarget = 5,          //更换标靶
-    EChangeTarget2 = 6,         //更换标靶2
-    ESettlement = 7,            //结算界面
-    EClick2 = 8,                //点击2
-    EMerge_1 = 9,               //线动画1
-    EMerge_2 = 10,              //线动画2
-    EMerge_3 = 11,              //线动画3
-    EMerge_4 = 12,              //线动画4
-    ESaoBa = 13,                //扫把音效
-    EBoardBreak = 14,           //板子碎裂
-    ELevelComplete = 15,        //游戏胜利
-    ELevelFailed = 16,          //游戏失败
+    EBgm = 1,                           //BGM
+    EBottleCollected = 2,               //瓶子倒满
+    EBottleMove = 3,                    //瓶子移动
+    EBottleUnlock = 4,                  //解锁瓶子
+    EBottleUp = 5,                      //选中瓶子
+    EClickButton = 6,                   //按钮点击
+    EPackUp = 7,                        //打包成功
+    EPourWater1 = 8,                    //倒水1
+    EPourWater2 = 9,                    //倒水2
+    EPourWater3 = 10,                   //倒水3
+    EPourWater4 = 11,                   //倒水4
+    EWin = 12,                          //关卡通过
 }

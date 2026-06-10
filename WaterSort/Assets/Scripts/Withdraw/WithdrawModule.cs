@@ -550,10 +550,10 @@ namespace XrCode
                     switch (level)
                     {
                         case 2:
-                            UIManager.Instance.OpenSync<UIWithdrawKeepEarn>(EUIType.EUIWithdrawKeepEarn);
+                            UIManager.Instance.OpenAsync<UIWithdrawKeepEarn>(EUIType.EUIWithdrawKeepEarn);
                             break;
                         case 3:
-                            UIManager.Instance.OpenSync<UIWithdrawKeepEarn>(EUIType.EUIWithdrawKeepEarn);
+                            UIManager.Instance.OpenAsync<UIWithdrawKeepEarn>(EUIType.EUIWithdrawKeepEarn);
                             break;
                         case 4:
                             FacadeGamePlay.CreateLevel();

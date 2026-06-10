@@ -79,7 +79,7 @@ namespace XrCode
 
                 //区分物品和按钮
 
-                if (eventData.selectedObject == null)
+                if (eventData.selectedObject != null)
                 {
                     PlayButtonSound();
                 }
@@ -161,9 +161,8 @@ namespace XrCode
                     effectSources[i].clip = null;
                     effectSources = null;
                 }
-                effectSources.Clear();
             }
-
+            effectSources.Clear();
             clipMap.Clear();
             clipMap = null;
         }
@@ -185,7 +184,7 @@ namespace XrCode
         private void PlayButtonSound()
         {
             D.Log("统一播放按钮音效");
-            AudioClip clip = GetAudioClip(EAudioType.EButton);
+            AudioClip clip = GetAudioClip(EAudioType.EClickButton);
             if (clip == null) return;
             AudioSource source = GetAvailableAudioSource();
             source.clip = clip;
@@ -293,23 +292,5 @@ namespace XrCode
         {
             return ifVibrate;
         }
-
-        private EAudioType GetEATypeByString(string str)
-        {
-            switch (str) 
-            {
-                case "merge_1":
-                    return EAudioType.EMerge_1;
-                case "merge_2":
-                    return EAudioType.EMerge_2;
-                case "merge_3":
-                    return EAudioType.EMerge_3;
-                case "merge_4":
-                    return EAudioType.EMerge_4;
-                default:
-                    return EAudioType.EMerge_1;
-            }
-        }
-
     }
 }

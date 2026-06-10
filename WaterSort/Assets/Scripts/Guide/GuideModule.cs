@@ -294,7 +294,7 @@ public class GuideModule : BaseModule
             {
                 if(!GameDefines.ifIAA)
                 {
-                    UIManager.Instance.OpenSync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.FirstTarget, (Action)PlayGuideByTargetType2);
+                    UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.FirstTarget, (Action)PlayGuideByTargetType2);
                 }
                 else
                 {

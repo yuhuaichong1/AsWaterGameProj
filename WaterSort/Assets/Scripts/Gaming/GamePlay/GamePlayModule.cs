@@ -3,6 +3,7 @@ using AsGame.Data;
 using AsGame.Spine;
 using AsGame.UI;
 using AsGame.Water;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -183,8 +184,6 @@ namespace XrCode
             CheckNewPlayUnlock();
 
             curLevelIndex = FacadePlayer.GetLevel();
-            if (LevelEditorPlaySession.TryGetPlayTestLevel(out var playTestLevel))
-                curLevelIndex = playTestLevel;
 
             FacadeGamePlay.SetLevelShow();
             GetLevelData(curLevelIndex);
@@ -242,12 +241,38 @@ namespace XrCode
         }
 
         /// <summary>
-        /// 获取当前关卡数据（优先拆关 JSON：Resources/Levels/Split/level_N.json）
+        /// 获取当前关卡数据
         /// </summary>
         /// <param name="levelIndex">关卡 id</param>
         private void GetLevelData(int levelIndex)
         {
-            curLevelData = LevelConfigLoader.LoadLevel(levelIndex);
+            TextAsset jsonDataTA = ResourceMod.Instance.SyncLoad<TextAsset>($"Json/Levels/level_{levelIndex}.json");
+
+            LevelConfig config = JsonConvert.DeserializeObject<LevelConfig>(jsonDataTA.text);
+
+            List<CupData> cupList = new List<CupData>();
+            for (int i = 0; i < config.cups.Count; i++)
+            {
+                var jsonCup = config.cups[i];
+                CupData cup = new CupData
+                {
+                    id = i,
+                    position = new Vector2(jsonCup.x, jsonCup.y),
+                    colors = jsonCup.colors ?? new List<int>(),
+                    whNums = jsonCup.whNums,
+                    isVideo = jsonCup.isVideo,
+                    isLock = jsonCup.isLock,
+                    lockColor = jsonCup.lockColor,
+                    lockNums = jsonCup.lockNums,
+                    isNull = jsonCup.isNull,
+                    isEmptyCup = jsonCup.isEmptyCup
+                };
+                cupList.Add(cup);
+            }
+            curLevelData = cupList;
+            //curLevelData = LevelConfigLoader.LoadLevel(levelIndex);
+
+
             if (curLevelData == null || curLevelData.Count == 0)
                 D.Error($"level_{levelIndex} is not exist or empty");
         }
@@ -793,8 +818,10 @@ namespace XrCode
             rt.localScale = Vector3.one * 0.8f;
             // 插在对应瓶子之前绘制，光环在瓶身/水体下层（对齐 Cocos：杯子层盖住 effectFront 光环）
             rt.SetSiblingIndex(cup.transform.GetSiblingIndex());
-            // 对齐 Cocos Spine_Shuffle：xuan_zhong / idle（spine-unity SkeletonGraphic）
-            SpineService.PlayEffect(rt, Vector3.zero, "xuan_zhong", "idle", loop: true);
+
+            //SpineService.PlayEffect(rt, Vector3.zero, "xuan_zhong", "idle", loop: true);
+            GameObject RefreshEffectPath =  GameObject.Instantiate(ResourceMod.Instance.SyncLoad<GameObject>(GameDefines.RefreshEffectPath), rt);
+
             _shuffleFxObjects.Add(anchor);
             _shuffleFxByCupId[cup.GetId()] = anchor;
         }
