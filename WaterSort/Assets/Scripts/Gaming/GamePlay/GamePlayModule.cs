@@ -202,7 +202,9 @@ namespace XrCode
                 LRTimer.targetTime = curLevelIndex > GameDefines.ClockLv ? GameDefines.ClockTime1 : GameDefines.ClockTime2;
                 LRTimer.ReStart();
             }
-                
+
+            FacadeGamePlay.ScrollingTipAnim();
+
         }
 
         /// <summary>

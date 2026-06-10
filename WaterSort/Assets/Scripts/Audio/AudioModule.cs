@@ -154,15 +154,15 @@ namespace XrCode
 
             StopBgm();
 
-            if(effectSources != null)
+            if (effectSources != null)
             {
-                for (int i = 0; i < effectSources.Count; i++)
+                foreach (var source in effectSources)
                 {
-                    effectSources[i].clip = null;
-                    effectSources = null;
+                    if (source != null)
+                        source.clip = null;
                 }
+                effectSources = null;
             }
-            effectSources.Clear();
             clipMap.Clear();
             clipMap = null;
         }

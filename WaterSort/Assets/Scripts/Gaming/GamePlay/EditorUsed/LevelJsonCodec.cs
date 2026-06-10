@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using XrCode;
 
-namespace AsGame.Data
+namespace XrCode
 {
     /// <summary>单关拆关 JSON 文档（Resources/Levels/Split/level_N.json）。</summary>
     [Serializable]

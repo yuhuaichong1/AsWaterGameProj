@@ -46,6 +46,8 @@ namespace XrCode
 
         public static Action SetLevelShow;                                              //设置关卡目标
 
+        public static Action ScrollingTipAnim;                                          //显示滑动动画
+
         #endregion
     }
 }

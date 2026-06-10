@@ -1,3 +1,5 @@
+using XrCode;
+
 namespace AsGame.Data
 {
     /// <summary>关卡槽位瓶子类型（互斥，编辑器与 JSON 字段映射见 <see cref="CupSlotKindUtility"/>）。</summary>
