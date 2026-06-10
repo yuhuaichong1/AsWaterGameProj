@@ -311,12 +311,7 @@ public class GuideModule : BaseModule
             {
                 if (!GameDefines.ifIAA)
                 {
-                    UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
-                    {
-                        curStep = 10006;
-                        PlayGuideByTargetType3();
-
-                    }, true, false);
+                    UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.FinishTarget1, (Action)BeforeTarget_Level2);
                 }
                 else
                 {
@@ -328,12 +323,7 @@ public class GuideModule : BaseModule
             {
                 if (!GameDefines.ifIAA)
                 {
-                    UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
-                    {
-                        curStep = 10007;
-                        PlayGuideByTargetType3();
-
-                    }, true, false);
+                    UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.FinishTarget1, (Action)BeforeTarget_Level3);
                 }
                 else
                 {
@@ -369,6 +359,26 @@ public class GuideModule : BaseModule
                 FacadeGamePlay.CreateLevel();
             }
         });
+    }
+
+    private void BeforeTarget_Level2()
+    {
+        UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
+        {
+            curStep = 10006;
+            PlayGuideByTargetType3();
+
+        }, true, false);
+    }
+
+    private void BeforeTarget_Level3()
+    {
+        UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
+        {
+            curStep = 10007;
+            PlayGuideByTargetType3();
+
+        }, true, false);
     }
 
     private void PlayGuideByTargetType2()
