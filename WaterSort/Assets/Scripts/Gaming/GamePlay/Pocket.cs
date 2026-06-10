@@ -109,7 +109,7 @@ namespace AsGame.Water
                 yield break;
 
             FacadeAudio.PlayEffect(EAudioType.EPackUp);
-            SpineService.ClearEffects(transform);
+            //SpineService.ClearEffects(transform);
 
             var fxPos = GetPocketFxLocalPos(packColorId);
             var baoDone = false;

@@ -28,6 +28,8 @@ namespace AsGame.Water
         [SerializeField] CanvasGroup shadowGroup;
         [SerializeField] Transform selectFxAnchor;
         [SerializeField] SkeletonGraphic finishEffect;
+        [SerializeField] SkeletonGraphic selectEffect;
+        [SerializeField] SkeletonGraphic unlockEffect;
 
         CupData _data;
         Action<Bottle> _onClick;
@@ -155,6 +157,7 @@ namespace AsGame.Water
             if (_data == null) return;
             _data.isVideo = 0;
             if (adNode != null) adNode.SetActive(false);
+            PlayProp3Effect();
             RefreshVisual();
         }
 
@@ -272,7 +275,8 @@ namespace AsGame.Water
             InitWaterColor();
             ShowWaterItems();
             UpdateWaterHeight(GameConstants.WaterMaxY[Mathf.Clamp(_data.colors.Count, 0, GameConstants.WaterMaxY.Length - 1)]);
-            SpineService.PlayEffect(transform, Vector3.zero, "bao_xing", "bao");
+            //SpineService.PlayEffect(transform, Vector3.zero, "bao_xing", "bao");
+            PlayProp3Effect();
         }
 
         public void OnPointerClick()
@@ -305,7 +309,8 @@ namespace AsGame.Water
             StartCoroutine(TweenHelper.MoveLocal(transform, _baseLocalPos, 0.2f));
             if (lightBg != null) lightBg.gameObject.SetActive(false);
             if (selectFxAnchor != null)
-                SpineService.ClearEffects(selectFxAnchor);
+                //SpineService.ClearEffects(selectFxAnchor);
+            selectEffect.gameObject.SetActive(false);
             if (_shadow != null)
                 StartCoroutine(_shadow.ResetShadow(0.2f));
             FacadeAudio.PlayEffect(EAudioType.EBottleUp);
@@ -339,7 +344,8 @@ namespace AsGame.Water
             HideAllMeniscuses();
             if (lightBg != null) lightBg.gameObject.SetActive(false);
             if (selectFxAnchor != null)
-                SpineService.ClearEffects(selectFxAnchor);
+                //SpineService.ClearEffects(selectFxAnchor);
+                selectEffect.gameObject.SetActive(false);
             if (streamNode != null) streamNode.SetActive(false);
 
             ApplyPourFlip(dir);
@@ -801,7 +807,7 @@ namespace AsGame.Water
         {
             if (_data == null || _prevWhNums <= 0 || _data.whNums >= _prevWhNums) return;
             var y = -GameConstants.HalfBottleHeight + (_data.whNums - 2) * GameConstants.GridHeight;
-            SpineService.PlayEffect(transform, new Vector3(0, y, 0), "wht", "animation2");
+            //SpineService.PlayEffect(transform, new Vector3(0, y, 0), "wht", "animation2");
             _prevWhNums = _data.whNums;
         }
 
@@ -926,9 +932,12 @@ namespace AsGame.Water
             if (selectFxAnchor == null || _data == null || _data.colors.Count == 0) return;
             SyncSelectFxAnchorPosition();
             if (!TryGetTopWaterSurfaceColor(out var color)) return;
-            SpineService.ClearEffects(selectFxAnchor);
-            SpineService.PlayEffect(selectFxAnchor, Vector3.zero, "shui", "huang", loop: false, tint: color,
-                duration: SelectWaterFxDuration);
+            //SpineService.ClearEffects(selectFxAnchor);
+            //SpineService.PlayEffect(selectFxAnchor, Vector3.zero, "shui", "huang", loop: false, tint: color,
+            //    duration: SelectWaterFxDuration);
+            selectEffect.gameObject.SetActive(true);
+            selectEffect.AnimationState.SetAnimation(0, "huang", false);
+
         }
 
         void SyncSelectFxAnchorPosition()
@@ -1073,7 +1082,7 @@ namespace AsGame.Water
         public IEnumerator DoCollected()
         {
             FacadeAudio.PlayEffect(EAudioType.EBottleCollected);
-            SpineService.ClearEffects(transform);
+            //SpineService.ClearEffects(transform);
             var fxPos = new Vector3(0f, -GameConstants.HalfBottleHeight, 0f);
             var finished = false;
             //SpineService.PlayEffect(transform, fxPos, "he_cheng_2", "guang", loop: false, onComplete: () => finished = true);
@@ -1089,7 +1098,7 @@ namespace AsGame.Water
             }
 
             yield return new WaitForSeconds(0.2f);
-            SpineService.ClearEffects(transform);
+            //SpineService.ClearEffects(transform);
         }
 
         public IEnumerator DisappearEmpty()
@@ -1390,6 +1399,13 @@ namespace AsGame.Water
             ctrl.shadowGroup = go.GetComponent<CanvasGroup>();
             ctrl.shadowGroup.alpha = 1f;
             return ctrl;
+        }
+
+        public void PlayProp3Effect()
+        {
+            unlockEffect.gameObject.SetActive(true);
+            unlockEffect.AnimationState.SetAnimation(0, "bao", false);
+            unlockEffect.AnimationState.Complete += (AnimationState) => { unlockEffect.gameObject.SetActive(false); };
         }
     }
 }

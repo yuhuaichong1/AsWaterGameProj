@@ -650,7 +650,7 @@ namespace XrCode
             var id = cup.GetId();
             var packedColor = cup.GetTopColorId();
 
-            SpineService.ClearEffects(cup.transform);
+            //SpineService.ClearEffects(cup.transform);
             if (shadows.TryGetValue(id, out var shadow) && shadow != null)
             {
                 GameObject.Destroy(shadow.gameObject);
@@ -996,7 +996,8 @@ namespace XrCode
             bottle.BindShadow(shadow);
             cups[slot.id] = bottle;
             shadows[slot.id] = shadow;
-            SpineService.PlayEffect(bottle.transform, Vector3.zero, "bao_xing", "bao");
+            //SpineService.PlayEffect(bottle.transform, Vector3.zero, "bao_xing", "bao");
+            bottle.PlayProp3Effect();
             FacadeGamePlay.AbleProp3Btn(GetEmptySlotId() != null);
         }
 

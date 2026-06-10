@@ -126,6 +126,7 @@ public abstract class GameDefines
     public static string PocketPath = "Prefabs/Game/Pocket.prefab";                                         //饮料预制体路径
     public static string RefreshEffectPath = "Prefabs/Game/RefreshEffect.prefab";                           //刷新功能特效
     public static string ShuihuaEffectPath = "Prefabs/Game/ShuihuaEffect.prefab";                           //倒水时的水花特效
+    public static string Prop3EffectPath = "Prefabs/Game/Prop3Effect.prefab";                               //功能3添加水瓶特效
 
     #region 奖励特效小图标路径
 
