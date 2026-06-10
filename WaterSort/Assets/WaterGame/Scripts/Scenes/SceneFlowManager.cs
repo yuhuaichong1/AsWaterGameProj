@@ -5,7 +5,7 @@ using AsGame.Ads;
 using AsGame.Core;
 using AsGame.Events;
 using AsGame.Water;
-using AsGame.UI;
+using AsGame.UI;using XrCode;
 
 namespace AsGame.Scenes
 {

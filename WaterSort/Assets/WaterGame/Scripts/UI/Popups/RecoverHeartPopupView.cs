@@ -5,6 +5,7 @@ using AsGame.Core;
 using AsGame.Data;
 using AsGame.Events;
 using AsGame.UI;
+using XrCode;
 
 namespace AsGame.UI.Popups
 {

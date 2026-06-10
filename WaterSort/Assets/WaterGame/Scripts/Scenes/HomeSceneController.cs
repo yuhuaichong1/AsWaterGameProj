@@ -5,6 +5,7 @@ using AsGame.Core;
 using AsGame.Data;
 using AsGame.Water;
 using AsGame.UI;
+using XrCode;
 
 namespace AsGame.Scenes
 {

@@ -2,7 +2,7 @@ using UnityEngine;
 using AsGame.Core;
 using AsGame.UI;
 
-namespace AsGame.Water
+namespace XrCode
 {
     /// <summary>从 Cocos CupComp.rotateTo / calculateTriangleSides 移植。</summary>
     public static class BottlePourMath

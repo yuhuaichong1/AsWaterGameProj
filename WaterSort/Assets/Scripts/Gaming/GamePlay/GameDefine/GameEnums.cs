@@ -1,4 +1,4 @@
-namespace AsGame.Core
+namespace XrCode
 {
     public enum GameStatus
     {

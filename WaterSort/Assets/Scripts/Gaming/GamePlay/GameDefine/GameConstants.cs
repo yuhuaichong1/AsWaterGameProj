@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AsGame.Core
+namespace XrCode
 {
     /// <summary>从 Cocos Constant.js 移植的常量。</summary>
     public static class GameConstants

@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-namespace AsGame.Core
+namespace XrCode
 {
     /// <summary>替代 Cocos cc.tween 的轻量补间，避免瞬时跳变。</summary>
     public static class TweenHelper

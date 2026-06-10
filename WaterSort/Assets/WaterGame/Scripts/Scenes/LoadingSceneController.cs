@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using AsGame.Core;
 using AsGame.Data;
 using AsGame.UI;
+using XrCode;
 
 namespace AsGame.Scenes
 {
