@@ -49,7 +49,7 @@ namespace XrCode
             _shuffleFxByCupId = new Dictionary<int, GameObject>();
 
             float PInterval = Screen.width / 4;
-            pocketXPos = new float[4] { PInterval * -1.5f, PInterval * -0.5f, PInterval * 0.5f, PInterval * 1.5f };
+            pocketXPos = new float[4] { PInterval * -1.35f, PInterval * -0.45f, PInterval * 0.45f, PInterval * 1.35f };
 
             FacadeAdd();
 

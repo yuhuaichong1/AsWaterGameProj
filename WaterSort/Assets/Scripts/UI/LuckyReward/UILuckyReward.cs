@@ -12,6 +12,8 @@ namespace XrCode
         private float curOnlyMoney;
         protected override void OnAwake()
         {
+            mMoneyRewardBigIcon.gameObject.SetActive(!GameDefines.ifIAA);
+            mIAAMoneyRewardBigIcon.gameObject.SetActive(GameDefines.ifIAA);
             mMoneyIcon.gameObject.SetActive(!GameDefines.ifIAA);
             mIAAMoneyIcon.gameObject.SetActive(GameDefines.ifIAA);
         }

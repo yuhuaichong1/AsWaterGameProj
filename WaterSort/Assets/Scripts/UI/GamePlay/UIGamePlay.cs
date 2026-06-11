@@ -88,7 +88,9 @@ namespace XrCode
             mCMDialog.gameObject.SetActive(!GameDefines.ifIAA);
             mWLProgress.gameObject.SetActive(!GameDefines.ifIAA);
 
-            mCurLevelText.text = string.Format(FacadeLanguage.GetText?.Invoke("10016"), FacadePlayer.GetLevel());
+            string levelText = string.Format(FacadeLanguage.GetText?.Invoke("10016"), FacadePlayer.GetLevel());
+            mLTCurLevelText.text = levelText;
+            mCurLevelText.text = levelText;
 
             SetCurMoneyShow();
             SetProp1CountShow();
@@ -181,6 +183,11 @@ namespace XrCode
         /// </summary>
         private void SetLevelShow()
         {
+            if (GameDefines.ifIAA)
+                mCurLevel.gameObject.SetActive(true);
+            else
+                mCurLevel.gameObject.SetActive(FacadeWithdraw.GetCurWithdrawTarget() != WithdrawTarget.PassLevel);
+
             int curLevel = FacadePlayer.GetLevel();
 
             string levelText;
@@ -191,19 +198,8 @@ namespace XrCode
             else
                 levelText = $"{curLevel - GameDefines.miniLevel_Start}";
             mCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), levelText);
-
+            mLTCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), levelText);
             bool after8_10 = curLevel > GameDefines.miniLevel_End;
-            //mCurLevel.anchoredPosition = new Vector3(-22, after8_10 ? -24 : -140, 0);
-            if(!GameDefines.ifIAA)
-            {
-                mCurLevel.anchoredPosition = new Vector3(-22, after8_10 ? -24 : -140, 0);
-            }
-            else
-            {
-                mCurLevel.anchoredPosition = new Vector3(-22, -24, 0);
-                return;
-            }
-
 
             mWLProgress.gameObject.SetActive(!after8_10);
             if (!after8_10)

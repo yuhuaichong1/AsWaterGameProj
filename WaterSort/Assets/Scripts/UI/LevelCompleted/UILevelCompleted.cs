@@ -1,8 +1,4 @@
-﻿using cfg;
-using System;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine.UI;
 
 namespace XrCode
 {
@@ -54,10 +50,17 @@ namespace XrCode
             mMoneyText.text = $"+{FacadePayType.RegionalChange(curCompletedMoney)}";
             mOnlyText.text = string.Format(FacadeLanguage.GetText("10019"), FacadePayType.RegionalChange(curOnlyMoney));
         }
-        	    private void OnAdBtnClickHandle()        {            FacadeAd.PlayROIAdByWeight(EAdSource.LevelCompleted, (count) => { GetReward(); }, (errMsg) => { GetOnlyReward(); }, ()=> { GetOnlyReward(); }, GameDefines.WeightAdRange, GameDefines.AdWeight);        }        private void OnWithdrawBtnClickHandle()
+        
+	    private void OnAdBtnClickHandle()
+        {
+            FacadeAd.PlayROIAdByWeight(EAdSource.LevelCompleted, (count) => { GetReward(); }, (errMsg) => { GetOnlyReward(); }, ()=> { GetOnlyReward(); }, GameDefines.WeightAdRange, GameDefines.AdWeight);
+        }
+
+        private void OnWithdrawBtnClickHandle()
         {
             GoNextLevel();
-        }
+        }
+
         private void OnOnlyBtnClickHandle()
         {
             FacadeAd.AdRefuse(EAdSource.Refuse_LevelComplate, (count) => { GetReward(); }, (errMsg) => { GetOnlyReward(); }, () => { GetOnlyReward(); });
@@ -74,7 +77,11 @@ namespace XrCode
             FacadePlayer.AddMoney(curCompletedMoney);
             FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
             {
-                new ERewardItemStruct                {                    Type = ERewardType.Money,                    Count = curCompletedMoney,                }
+                new ERewardItemStruct
+                {
+                    Type = ERewardType.Money,
+                    Count = curCompletedMoney,
+                }
             }, null);
             GoNextLevel();
         }
