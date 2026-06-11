@@ -51,6 +51,16 @@ public abstract class GameDefines
     public static float ScollingTipAnimInterval = 20;                                                       //滑动提示显示间隔时间
     public static Vector2 ScollingTipAnimMoney = new Vector2(100, 1000);                                    //滑动提示金额
 
+    public static int NGPLevel1;                                                                            //玩法提示1关卡
+    public static int NGPLevel2;                                                                            //玩法提示2关卡
+
+    public static float DataShowText1 = 97.24f;                                                             //数据展示界面显示数据1
+    public static int DataShowText2 = 15;                                                                   //数据展示界面显示数据2
+    public static float DataShowText3 = 3000;                                                               //数据展示界面显示数据3
+    public static float DataShowOpenTime;                                                                   //数据展示界面打开持续时间
+    public static float DataShowStayTime;                                                                   //数据展示界面显示持续时间
+    public static float DataShowCloseTime;                                                                  //数据展示界面关闭持续时间
+
     #endregion
 
     #region 特效相关
@@ -238,6 +248,8 @@ public enum EUIType
     EUIWithdrawContinue = 22,
     EUIWithdrawKeepEarn = 23,
     EUIWithdrawTarget = 24,
+    EUINewGamePlay = 25,
+    EUIDateShow = 26,
 }
 
 /// <summary>
