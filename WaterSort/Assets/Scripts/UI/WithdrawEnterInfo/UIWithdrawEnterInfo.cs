@@ -52,6 +52,21 @@ namespace XrCode
             if (b3)
                 mPY3Icon.sprite = payTypes[2].picture;
 
+            bool b4 = payTypes.Count >= 4;
+            mPayType4Toggle.gameObject.SetActive(b4);
+            if (b4)
+                mPY4Icon.sprite = payTypes[3].picture;
+
+            bool b5 = payTypes.Count >= 5;
+            mPayType5Toggle.gameObject.SetActive(b5);
+            if (b5)
+                mPY5Icon.sprite = payTypes[4].picture;
+
+            bool b6 = payTypes.Count >= 6;
+            mPayType6Toggle.gameObject.SetActive(b6);
+            if (b6)
+                mPY6Icon.sprite = payTypes[5].picture;
+
             mAreaCodeText.text = $"+{FacadePayType.GetNANP?.Invoke()}";
 
             mNameInput.placeholder.gameObject.GetComponent<Text>().text = FacadeLanguage.GetText("10056");
@@ -162,6 +177,42 @@ namespace XrCode
             {
                 ePayType = payTypes[2].payType;
                 infoType = payTypes[2].infoType;
+                ShowInputFiled(infoType);
+
+                D.Error(ePayType.ToString());
+            }
+        }
+
+        private void OnPayType4ToggleValueChanged(bool arg0)
+        {
+            if (arg0)
+            {
+                ePayType = payTypes[3].payType;
+                infoType = payTypes[3].infoType;
+                ShowInputFiled(infoType);
+
+                D.Error(ePayType.ToString());
+            }
+        }
+
+        private void OnPayType5ToggleValueChanged(bool arg0)
+        {
+            if (arg0)
+            {
+                ePayType = payTypes[4].payType;
+                infoType = payTypes[4].infoType;
+                ShowInputFiled(infoType);
+
+                D.Error(ePayType.ToString());
+            }
+        }
+
+        private void OnPayType6ToggleValueChanged(bool arg0)
+        {
+            if (arg0)
+            {
+                ePayType = payTypes[5].payType;
+                infoType = payTypes[5].infoType;
                 ShowInputFiled(infoType);
 
                 D.Error(ePayType.ToString());
