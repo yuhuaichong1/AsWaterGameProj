@@ -51,8 +51,8 @@ public abstract class GameDefines
     public static float ScollingTipAnimInterval = 20;                                                       //滑动提示显示间隔时间
     public static Vector2 ScollingTipAnimMoney = new Vector2(100, 1000);                                    //滑动提示金额
 
-    public static int NGPLevel1;                                                                            //玩法提示1关卡
-    public static int NGPLevel2;                                                                            //玩法提示2关卡
+    public static int NGPLevel1 = 3;                                                                        //玩法提示1关卡
+    public static int NGPLevel2 = 7;                                                                        //玩法提示2关卡
 
     public static float DataShowText1 = 97.24f;                                                             //数据展示界面显示数据1
     public static int DataShowText2 = 15;                                                                   //数据展示界面显示数据2
@@ -94,7 +94,7 @@ public abstract class GameDefines
     public static int LP_PackCount = 200;                                                                   //幸运玩家包数
     public static int LP_PlayerNo = 8;                                                                      //幸运玩家名次
 
-    public static Vector2 Withdrawal_RQuota = new Vector2(2000, 4000);                                      //可兑现金额随机区间
+    public static Vector2 Withdrawal_RQuota = new Vector2(3000, 4000);                                      //可兑现金额随机区间
 
     public static int[] WithdrawalLevels = new int[3] { 1, 2, 17 };                                         //可兑现关卡
     public static float MinWithdrawalAmount = 3000;                                                         //最低兑现金额

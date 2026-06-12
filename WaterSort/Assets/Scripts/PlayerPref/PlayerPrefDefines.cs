@@ -58,6 +58,9 @@ public abstract class PlayerPrefDefines
 
     public static string ifContinue => GetKey("■_ifContinue");                             //GamePlayModule_是否继续上一局游戏（数据持久化判断）
 
+    public static string showUITip1 => GetKey("■_showUITip1");                              //GanePlayModule_展示提示UI
+    public static string showUITip2 => GetKey("■_showUITip2");                              //GanePlayModule_展示提示UI2
+
     #endregion
 
     #region GuideModule

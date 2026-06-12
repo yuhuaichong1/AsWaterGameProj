@@ -34,6 +34,8 @@ public class OrderItem : MonoBehaviour
 
     public void OnBtnClick()
     {
+        return;
+
         if(item.WRState == EWithRecordState.UnderReview)
         {
             UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10089"));

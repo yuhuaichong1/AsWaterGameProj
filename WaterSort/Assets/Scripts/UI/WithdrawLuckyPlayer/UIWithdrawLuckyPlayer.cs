@@ -16,6 +16,8 @@ namespace XrCode
         }
         protected override void OnEnable()
         {
+            ShowAnim(mPlane);
+
             luckyMoney = FacadeWithdraw.GetRemainTarget() - GameDefines.DiffVal;
             mLPMoney.text = FacadePayType.RegionalChange(luckyMoney);
             mDesc.text = string.Format(FacadeLanguage.GetText("10074"), GameDefines.LP_PackCount, GameDefines.LP_PlayerNo, mLPMoney.text);
@@ -23,6 +25,8 @@ namespace XrCode
 
         private void OnExitBtnClickHandle()
         {
+            FacadeGuide.SetIfTutorial(false);
+
             HideAnim(mPlane, () =>
             {
                 UIManager.Instance.CloseUI(EUIType.EUIWithdrawLuckyPlayer);
@@ -35,12 +39,15 @@ namespace XrCode
                     }
                 }, null);
 
-                FacadeGamePlay.CreateLevel();
+                FacadeGamePlay.StartLevel();
+                
             });
         }
 
         private void OnConfirmBtnClickHandle()
         {
+            FacadeGuide.SetIfTutorial(false);
+
             HideAnim(mPlane, () => 
             {
                 UIManager.Instance.CloseUI(EUIType.EUIWithdrawLuckyPlayer);

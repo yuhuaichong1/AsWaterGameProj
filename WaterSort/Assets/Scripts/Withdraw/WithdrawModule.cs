@@ -1,6 +1,7 @@
 ﻿using cfg;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace XrCode
@@ -338,6 +339,8 @@ namespace XrCode
                 };
                 withdrawalRecordItems.Add(item.OrderId, item);
             }
+
+            ifAfterCreate = true;
         }
 
         /// <summary>
@@ -525,8 +528,17 @@ namespace XrCode
                     reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
                 }, (v) =>
                 {
-                    int id = TargetInterval.Count - TargetInterval.GetRangeIndex(GetRemainTarget());
-                    reward = UnityEngine.Random.Range(MIData[id].LSMin, MIData[id].LSMax);
+                    int intervalId = TargetInterval.GetRangeIndex(GetRemainTarget());
+
+                    if(intervalId == -1)
+                    {
+                        reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
+                    }
+                    else
+                    {
+                        int id = TargetInterval.Count - intervalId;
+                        reward = UnityEngine.Random.Range(MIData[id].LSMin, MIData[id].LSMax);
+                    }
                 }, (v) =>
                 {
                     int id = MIData.Count - 1;
@@ -541,6 +553,8 @@ namespace XrCode
         /// </summary>
         private void AfterCloseWUI()
         {
+            UnityEngine.Debug.LogError("?" + ifAfterCreate);
+
             if(ifAfterCreate)
             {
                 ifAfterCreate = false;
@@ -561,6 +575,7 @@ namespace XrCode
                     }
                 }, (money) =>
                 {
+                    UnityEngine.Debug.LogError("=====?");
                     UIManager.Instance.OpenAsync<UIWithdrawLuckyPlayer>(EUIType.EUIWithdrawLuckyPlayer);
                     //FacadeGamePlay.CreateLevel();
                 }, (day) =>

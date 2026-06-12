@@ -38,6 +38,9 @@ namespace XrCode
 
         private STimer LCTime;
 
+        private bool showUITip1;
+        private bool showUITip2;
+
         protected override void OnLoad()
         {
             curLevelData = new List<CupData>();
@@ -47,6 +50,8 @@ namespace XrCode
             _pocketColors = new List<int>();
             _shuffleFxObjects = new List<GameObject>();
             _shuffleFxByCupId = new Dictionary<int, GameObject>();
+            showUITip1 = SPlayerPrefs.GetBool(PlayerPrefDefines.showUITip1, true);
+            showUITip2 = SPlayerPrefs.GetBool(PlayerPrefDefines.showUITip2, true);
 
             float PInterval = Screen.width / 4;
             pocketXPos = new float[4] { PInterval * -1.35f, PInterval * -0.45f, PInterval * 0.45f, PInterval * 1.35f };
@@ -205,7 +210,8 @@ namespace XrCode
             }
 
             FacadeGamePlay.ScrollingTipAnim();
-
+            
+            ShowUITip();
         }
 
         /// <summary>
@@ -1023,6 +1029,8 @@ namespace XrCode
             slot.isNull = 0;
         }
 
+        #endregion
+
         private string GetLevelProgress()
         {
             return (_collected * 1f / _needCollect * 100).ToString("F2");
@@ -1030,12 +1038,12 @@ namespace XrCode
 
         private void LoopPlayCongratulationEffect(bool b)
         {
-            if(b)
+            if (b)
             {
                 FacadeEffect.PlayCongratulationEffect();
                 if (LCTime == null)
                 {
-                    LCTime = STimerManager.Instance.CreateSTimer(GameDefines.LPCETime, -1, true, false, () => 
+                    LCTime = STimerManager.Instance.CreateSTimer(GameDefines.LPCETime, -1, true, false, () =>
                     {
                         FacadeEffect.PlayCongratulationEffect();
                     });
@@ -1045,12 +1053,31 @@ namespace XrCode
             }
             else
             {
-                if(LCTime != null)
+                if (LCTime != null)
                     LCTime.Stop();
             }
         }
 
-        #endregion
+        private void ShowUITip()
+        {
+            if(curLevelIndex == GameDefines.NGPLevel1 && showUITip1)
+            {
+                showUITip1 = false;
+                SPlayerPrefs.SetBool(PlayerPrefDefines.showUITip1, showUITip1);
+                SPlayerPrefs.Save();
+
+                UIManager.Instance.OpenAsync<UINewGamePlay>(EUIType.EUINewGamePlay);
+            }
+            else if(curLevelIndex == GameDefines.NGPLevel2 && showUITip2)
+            {
+                showUITip2 = false;
+                SPlayerPrefs.SetBool(PlayerPrefDefines.showUITip2, showUITip2);
+                SPlayerPrefs.Save();
+
+                UIManager.Instance.OpenAsync<UINewGamePlay>(EUIType.EUINewGamePlay);
+            }
+        }
+
 
         protected override void OnDispose()
         {
