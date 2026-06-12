@@ -1,4 +1,5 @@
-﻿using UnityEngine.UI;
+﻿using UnityEngine;
+using UnityEngine.UI;
 
 namespace XrCode
 {
@@ -29,14 +30,14 @@ namespace XrCode
             if(GameDefines.ifIAA)
             {
                 mAdBtn.gameObject.SetActive(true);
-                mOnlyBtn.gameObject.SetActive(true);
+                mOnlyText.gameObject.SetActive(true);
                 mWithdrawBtn.gameObject.SetActive(false);
             }
             else
             {
                 bool ifWLv = ifWlevel();
                 mAdBtn.gameObject.SetActive(!ifWLv);
-                mOnlyBtn.gameObject.SetActive(!ifWLv);
+                mOnlyText.gameObject.SetActive(!ifWLv);
                 mWithdrawBtn.gameObject.SetActive(ifWLv);
                 if (ifWLv)
                     mMoneyText.text = FacadePayType.RegionalChange(FacadePlayer.GetMoney());
