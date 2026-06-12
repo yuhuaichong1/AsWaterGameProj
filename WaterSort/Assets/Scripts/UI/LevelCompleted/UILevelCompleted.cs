@@ -42,6 +42,8 @@ namespace XrCode
                 if (ifWLv)
                     mMoneyText.text = FacadePayType.RegionalChange(FacadePlayer.GetMoney());
             }
+
+            ShowAnim(mPlane);
         }
 
         private void InitShow()
