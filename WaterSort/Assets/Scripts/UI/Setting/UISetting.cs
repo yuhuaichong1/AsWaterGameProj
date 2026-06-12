@@ -18,8 +18,8 @@ namespace XrCode
             bool vT = FacadeAudio.GetVibrate();
             mS_Toggle.isOn = sT;
             mV_Toggle.isOn = vT;
-            mS_Icon.localPosition = new Vector3(88 * (sT ? 1 : -1), 36, 0);
-            mV_Icon.localPosition = new Vector3(88 * (vT ? 1 : -1), 36, 0);
+            mS_Icon.localPosition = new Vector3(88 * (sT ? 1 : -1), 28, 0);
+            mV_Icon.localPosition = new Vector3(88 * (vT ? 1 : -1), 28, 0);
 
             mUserNameText.text = $"{FacadePlayer.GetPlayerName()}";
             mUserIDText.text = string.Format(FacadeLanguage.GetText("10040"), $"{FacadePlayer.GetPlayerID().Substring(0, 13)}..."); 
@@ -71,13 +71,13 @@ namespace XrCode
         {
             FacadeAudio.SetEffectsVolume(b ? 1 : 0);
             FacadeAudio.SetMusicVolume(b ? 1 : 0);
-            mS_Icon.localPosition = new Vector3(b? 88 : -88, 36, 0);
+            mS_Icon.localPosition = new Vector3(b? 88 : -88, 28, 0);
         }
 
         private void OnV_ToggleValueChange(bool b)
         {
             FacadeAudio.SetVibrate(b);
-            mV_Icon.localPosition = new Vector3(88 * (b ? 1 : -1), 36, 0);
+            mV_Icon.localPosition = new Vector3(88 * (b ? 1 : -1), 28, 0);
         }
 
         protected override void OnDisable()

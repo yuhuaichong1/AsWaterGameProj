@@ -289,7 +289,7 @@ namespace XrCode
             mCEContent.text = string.Format(FacadeLanguage.GetText("10002"), GetRandomPlayerName(), GetRandomWMoney());
 
             DG.Tweening.Sequence sequence = DOTween.Sequence();
-            sequence.Append(mCongratulationEffect.transform.DOLocalMoveY(mCongratulationEffect.transform.localPosition.y - 320, GameDefines.CE_MoveTime));
+            sequence.Append(mCongratulationEffect.transform.DOLocalMoveY(mCongratulationEffect.transform.localPosition.y - 464, GameDefines.CE_MoveTime));
             sequence.AppendInterval(GameDefines.CE_StayTime);
             sequence.Append(mCongratulationEffect.transform.DOLocalMoveY(CongratulationEffectOrginPos.y, GameDefines.CE_MoveTime));
         }
