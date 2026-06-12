@@ -42,6 +42,8 @@ namespace AsGame.Water
         static Material _splashGraphicMaterial;
         static Material _splashScreenGraphicMaterial;
         static Sprite _cachedAdIconSprite;
+        static Sprite _cachedCollectCheckSprite;
+        Image _collectMark;
 
         const float StreamMouthX = -21f;
         const float StreamMouthY = -22f;
@@ -1042,6 +1044,45 @@ namespace AsGame.Water
             UpdateWaterHeight(totalH);
             waterVisual?.SyncWhPositions();
             SyncSelectFxAnchorPosition();
+            RefreshCollectMark();
+        }
+
+        void RefreshCollectMark()
+        {
+            if (!IsCollect())
+            {
+                if (_collectMark != null)
+                    _collectMark.gameObject.SetActive(false);
+                return;
+            }
+
+            EnsureCollectMark();
+            _collectMark.gameObject.SetActive(true);
+            _collectMark.transform.SetAsLastSibling();
+        }
+
+        void EnsureCollectMark()
+        {
+            if (_collectMark != null) return;
+
+            var parent = content != null ? content : transform;
+            var go = new GameObject("collectMark", typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = new Vector2(0f, -80f);
+            rt.sizeDelta = new Vector2(72f, 72f);
+
+            _collectMark = go.GetComponent<Image>();
+            _collectMark.raycastTarget = false;
+            if (_cachedCollectCheckSprite == null)
+                _cachedCollectCheckSprite = ResourceMod.Instance.SyncLoad<Sprite>("UI/GamePlay/icon_check.png");
+            if (_cachedCollectCheckSprite != null)
+            {
+                _collectMark.sprite = _cachedCollectCheckSprite;
+                _collectMark.SetNativeSize();
+            }
         }
 
         void RefreshLockVisual()

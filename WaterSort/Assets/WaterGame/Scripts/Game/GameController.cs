@@ -308,6 +308,7 @@ namespace AsGame.Water
 
         bool CheckPour(Bottle from, Bottle to)
         {
+            if (from.Pouring || to.Pouring) return false;
             if (from.IsEmpty()) return false;
             if (!to.IsEmpty())
             {
@@ -320,51 +321,43 @@ namespace AsGame.Water
 
         IEnumerator PourRoutine(Bottle from, Bottle to)
         {
-            _status = GameStatus.Moving;
-            try
+            var color = from.GetTopColorId();
+            var pourNum = Mathf.Min(from.GetLayerPourWater(), to.GetLayerAddWater());
+            if (pourNum <= 0)
+                yield break;
+
+            _pourAction = new PourActionRecord
             {
-                var color = from.GetTopColorId();
-                var pourNum = Mathf.Min(from.GetLayerPourWater(), to.GetLayerAddWater());
-                if (pourNum <= 0)
-                    yield break;
+                fromId = from.GetId(),
+                toId = to.GetId(),
+                colorId = color,
+                num = pourNum
+            };
+            hud?.SetUndoGray(false);
 
-                _pourAction = new PourActionRecord
-                {
-                    fromId = from.GetId(),
-                    toId = to.GetId(),
-                    colorId = color,
-                    num = pourNum
-                };
-                hud?.SetUndoGray(false);
+            var dir = from.transform.localPosition.x > to.transform.localPosition.x ? 1 : -1;
+            var pourPos = to.transform.localPosition + new Vector3(dir < 0 ? 20 : -20, 0, 0);
 
-                var dir = from.transform.localPosition.x > to.transform.localPosition.x ? 1 : -1;
-                var pourPos = to.transform.localPosition + new Vector3(dir < 0 ? 20 : -20, 0, 0);
+            var targetStartHeight = GameConstants.WaterMaxY[Mathf.Clamp(to.Data.colors.Count, 0, GameConstants.WaterMaxY.Length - 1)];
+            var streamEndRootY = to.transform.localPosition.y - 238f + targetStartHeight;
 
-                var targetStartHeight = GameConstants.WaterMaxY[Mathf.Clamp(to.Data.colors.Count, 0, GameConstants.WaterMaxY.Length - 1)];
-                var streamEndRootY = to.transform.localPosition.y - 238f + targetStartHeight;
-
-                Coroutine waterInRoutine = null;
-                yield return from.WaterOut(color, pourNum, dir, pourPos, streamEndRootY, () =>
-                {
-                    waterInRoutine = StartCoroutine(to.WaterIn(color, pourNum));
-                });
-                if (waterInRoutine != null)
-                    yield return waterInRoutine;
-
-                if (to.IsCollect())
-                {
-                    RemoveShuffleEffectForCup(to.GetId());
-                    _pourAction = null;
-                    hud?.SetUndoGray(true);
-                    yield return to.DoCollected();
-                    RegisterFullCup(to);
-                    yield return CheckPack();
-                }
-            }
-            finally
+            Coroutine waterInRoutine = null;
+            yield return from.WaterOut(color, pourNum, dir, pourPos, streamEndRootY, () =>
             {
-                if (_status == GameStatus.Moving)
-                    _status = GameStatus.Gaming;
+                waterInRoutine = StartCoroutine(to.WaterIn(color, pourNum));
+            });
+            if (waterInRoutine != null)
+                yield return waterInRoutine;
+
+            if (to.IsCollect())
+            {
+                RemoveShuffleEffectForCup(to.GetId());
+                _pourAction = null;
+                hud?.SetUndoGray(true);
+                to.RefreshVisual();
+                RegisterFullCup(to);
+                StartCoroutine(to.DoCollected());
+                BeginCheckPack();
             }
         }
 
@@ -387,14 +380,16 @@ namespace AsGame.Water
             queue.Enqueue(id);
         }
 
+        void BeginCheckPack()
+        {
+            StartCoroutine(CheckPack());
+        }
+
         /// <summary>对齐 Cocos checkPack / batchHandlePack：口袋颜色与待收集满瓶匹配时批量装袋。</summary>
         IEnumerator CheckPack()
         {
             if (_isCheckingPack) yield break;
             _isCheckingPack = true;
-            var restoreGaming = _status == GameStatus.Gaming;
-            if (restoreGaming)
-                _status = GameStatus.Moving;
             try
             {
                 while (true)
@@ -414,8 +409,6 @@ namespace AsGame.Water
             finally
             {
                 _isCheckingPack = false;
-                if (restoreGaming && _status != GameStatus.Win)
-                    _status = GameStatus.Gaming;
             }
         }
 

@@ -191,7 +191,7 @@ namespace XrCode
             foreach (var kv in cups)
                 if (kv.Value != null && kv.Value.IsCollect())
                     RegisterFullCup(kv.Value);
-            CheckPack();
+            BeginCheckPack();
 
             status = GameStatus.Gaming;
 
@@ -451,6 +451,7 @@ namespace XrCode
         /// <returns>能不能倒</returns>
         private bool CheckPour(Bottle from, Bottle to)
         {
+            if (from.Pouring || to.Pouring) return false;
             if (from.IsEmpty()) return false;
             if (!to.IsEmpty())
             {
@@ -475,53 +476,43 @@ namespace XrCode
 
         private IEnumerator PourRoutine2(Bottle from, Bottle to)
         {
-            status = GameStatus.Moving;
-            try
+            var color = from.GetTopColorId();
+            var pourNum = Mathf.Min(from.GetLayerPourWater(), to.GetLayerAddWater());
+            if (pourNum <= 0)
+                yield break;
+
+            pourAction = new PourActionRecord
             {
-                var color = from.GetTopColorId();
-                var pourNum = Mathf.Min(from.GetLayerPourWater(), to.GetLayerAddWater());
-                if (pourNum <= 0)
-                    yield break;
+                fromId = from.GetId(),
+                toId = to.GetId(),
+                colorId = color,
+                num = pourNum
+            };
+            FacadeGamePlay.AbleProp2Btn(true);
 
-                pourAction = new PourActionRecord
-                {
-                    fromId = from.GetId(),
-                    toId = to.GetId(),
-                    colorId = color,
-                    num = pourNum
-                };
-                //hud?.SetUndoGray(false);
-                FacadeGamePlay.AbleProp2Btn(true);
+            var dir = from.transform.localPosition.x > to.transform.localPosition.x ? 1 : -1;
+            var pourPos = to.transform.localPosition + new Vector3(dir < 0 ? 20 : -20, 0, 0);
 
-                var dir = from.transform.localPosition.x > to.transform.localPosition.x ? 1 : -1;
-                var pourPos = to.transform.localPosition + new Vector3(dir < 0 ? 20 : -20, 0, 0);
+            var targetStartHeight = GameConstants.WaterMaxY[Mathf.Clamp(to.Data.colors.Count, 0, GameConstants.WaterMaxY.Length - 1)];
+            var streamEndRootY = to.transform.localPosition.y - 238f + targetStartHeight;
 
-                var targetStartHeight = GameConstants.WaterMaxY[Mathf.Clamp(to.Data.colors.Count, 0, GameConstants.WaterMaxY.Length - 1)];
-                var streamEndRootY = to.transform.localPosition.y - 238f + targetStartHeight;
-
-                Coroutine waterInRoutine = null;
-                yield return from.WaterOut(color, pourNum, dir, pourPos, streamEndRootY, () =>
-                {
-                    waterInRoutine = Game.Instance.StartCoroutine(to.WaterIn(color, pourNum));
-                });
-                if (waterInRoutine != null)
-                    yield return waterInRoutine;
-
-                if (to.IsCollect())
-                {
-                    pourAction = null;
-                    //hud?.SetUndoGray(true);
-                    FacadeGamePlay.AbleProp2Btn(false);
-                    FacadePlayer.AddPlayerExp(1 + curLevelIndex / 3);
-                    yield return to.DoCollected();
-                    RegisterFullCup(to);
-                    yield return CheckPack();
-                }
-            }
-            finally
+            Coroutine waterInRoutine = null;
+            yield return from.WaterOut(color, pourNum, dir, pourPos, streamEndRootY, () =>
             {
-                if (status == GameStatus.Moving)
-                    status = GameStatus.Gaming;
+                waterInRoutine = Game.Instance.StartCoroutine(to.WaterIn(color, pourNum));
+            });
+            if (waterInRoutine != null)
+                yield return waterInRoutine;
+
+            if (to.IsCollect())
+            {
+                pourAction = null;
+                FacadeGamePlay.AbleProp2Btn(false);
+                FacadePlayer.AddPlayerExp(1 + curLevelIndex / 3);
+                to.RefreshVisual();
+                RegisterFullCup(to);
+                Game.Instance.StartCoroutine(to.DoCollected());
+                BeginCheckPack();
             }
         }
 
@@ -544,13 +535,16 @@ namespace XrCode
             queue.Enqueue(id);
         }
 
+        /// <summary>对齐 Cocos：装袋在后台进行，不阻塞其他水瓶操作。</summary>
+        void BeginCheckPack()
+        {
+            Game.Instance.StartCoroutine(CheckPack());
+        }
+
         private IEnumerator CheckPack()
         {
             if (_isCheckingPack) yield break;
             _isCheckingPack = true;
-            bool restoreGaming = status == GameStatus.Gaming;
-            if (restoreGaming)
-                status = GameStatus.Moving;
             try
             {
                 while (true)
@@ -572,8 +566,6 @@ namespace XrCode
             finally
             {
                 _isCheckingPack = false;
-                if (restoreGaming && status != GameStatus.Win)
-                    status = GameStatus.Gaming;
             }
         }
 
