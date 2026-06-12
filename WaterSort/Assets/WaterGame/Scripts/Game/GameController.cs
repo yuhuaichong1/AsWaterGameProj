@@ -33,6 +33,10 @@ namespace AsGame.Water
         bool _shuffleMode;
         bool _shuffleAnimating;
         bool _isCheckingPack;
+        int _pendingPackOps;
+        bool _packCompleteCheckRunning;
+        readonly Dictionary<Pocket, Queue<int>> _pocketAnimQueues = new();
+        readonly HashSet<Pocket> _pocketAnimProcessing = new();
         readonly List<GameObject> _shuffleFxObjects = new();
         readonly Dictionary<int, GameObject> _shuffleFxByCupId = new();
         readonly Dictionary<int, Queue<int>> _pendingFullCupsByColor = new();
@@ -163,6 +167,10 @@ namespace AsGame.Water
         {
             _pendingFullCupsByColor.Clear();
             _isCheckingPack = false;
+            _pendingPackOps = 0;
+            _packCompleteCheckRunning = false;
+            _pocketAnimQueues.Clear();
+            _pocketAnimProcessing.Clear();
             foreach (var kv in _cups.ToList())
                 if (kv.Value != null) Destroy(kv.Value.gameObject);
             _cups.Clear();
@@ -241,6 +249,7 @@ namespace AsGame.Water
                 if (!ok) return;
                 pocket.Init(false, _pocketColors.Count > 0 ? _pocketColors[0] : 0);
                 if (_pocketColors.Count > 0) _pocketColors.RemoveAt(0);
+                BeginCheckPack();
             });
         }
 
@@ -355,10 +364,16 @@ namespace AsGame.Water
                 _pourAction = null;
                 hud?.SetUndoGray(true);
                 to.RefreshVisual();
-                RegisterFullCup(to);
-                StartCoroutine(to.DoCollected());
-                BeginCheckPack();
+                StartCoroutine(CollectAndPackRoutine(to));
             }
+        }
+
+        IEnumerator CollectAndPackRoutine(Bottle cup)
+        {
+            if (cup == null) yield break;
+            yield return cup.DoCollected();
+            RegisterFullCup(cup);
+            BeginCheckPack();
         }
 
         void RegisterFullCup(Bottle cup)
@@ -399,16 +414,37 @@ namespace AsGame.Water
                     for (var i = 0; i < batch.Count; i++)
                     {
                         var item = batch[i];
-                        yield return HandlePack(item.cup, item.pocket, i * 0.2f);
+                        StartCoroutine(HandlePack(item.cup, item.pocket, i * 0.2f));
                     }
                 }
+            }
+            finally
+            {
+                _isCheckingPack = false;
+            }
+
+            yield return WaitPackCompleteAndFinalize();
+        }
+
+        IEnumerator WaitPackCompleteAndFinalize()
+        {
+            if (_packCompleteCheckRunning) yield break;
+            _packCompleteCheckRunning = true;
+            try
+            {
+                do
+                {
+                    while (_pendingPackOps > 0)
+                        yield return null;
+                    yield return null;
+                } while (_pendingPackOps > 0 || _isCheckingPack);
 
                 if (_collected >= _needCollect)
                     yield return WinRoutine();
             }
             finally
             {
-                _isCheckingPack = false;
+                _packCompleteCheckRunning = false;
             }
         }
 
@@ -448,6 +484,8 @@ namespace AsGame.Water
         IEnumerator HandlePack(Bottle cup, Pocket pocket, float delay)
         {
             if (cup == null || pocket == null) yield break;
+            _pendingPackOps++;
+
             if (delay > 0f)
                 yield return new WaitForSeconds(delay);
 
@@ -476,11 +514,37 @@ namespace AsGame.Water
                 }
             }
 
-            yield return pocket.OnPocketAction(packedColor);
             RefreshAddBottleButton();
             _collected++;
             CheckUnlockCup(packedColor);
-            RefillPocket(pocket);
+            SchedulePocketPack(pocket, packedColor);
+        }
+
+        void SchedulePocketPack(Pocket pocket, int packedColor)
+        {
+            if (!_pocketAnimQueues.TryGetValue(pocket, out var queue))
+            {
+                queue = new Queue<int>();
+                _pocketAnimQueues[pocket] = queue;
+            }
+
+            queue.Enqueue(packedColor);
+            if (_pocketAnimProcessing.Contains(pocket)) return;
+            StartCoroutine(ProcessPocketPackQueue(pocket));
+        }
+
+        IEnumerator ProcessPocketPackQueue(Pocket pocket)
+        {
+            _pocketAnimProcessing.Add(pocket);
+            while (_pocketAnimQueues.TryGetValue(pocket, out var queue) && queue.Count > 0)
+            {
+                var packedColor = queue.Dequeue();
+                yield return pocket.OnPocketAction(packedColor);
+                RefillPocket(pocket);
+                _pendingPackOps--;
+            }
+
+            _pocketAnimProcessing.Remove(pocket);
         }
 
         /// <summary>将口袋位置换算到 cupRoot 本地坐标（对齐 Cocos getTargetLocalPosAtNode(pocket, cupMgr)）。</summary>
@@ -510,6 +574,7 @@ namespace AsGame.Water
             var next = _pocketColors.Count > 0 ? _pocketColors[0] : 0;
             if (_pocketColors.Count > 0) _pocketColors.RemoveAt(0);
             pocket.SetColor(next);
+            BeginCheckPack();
         }
 
         void OnUseProp(object payload)

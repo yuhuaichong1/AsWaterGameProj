@@ -23,6 +23,10 @@ namespace XrCode
         private PourActionRecord pourAction;//上一次的操作结果
         Dictionary<int, Queue<int>> _pendingFullCupsByColor;
         private bool _isCheckingPack;
+        private int _pendingPackOps;
+        private bool _packCompleteCheckRunning;
+        private readonly Dictionary<Pocket, Queue<int>> _pocketAnimQueues = new();
+        private readonly HashSet<Pocket> _pocketAnimProcessing = new();
         private int _collected;
         private int _needCollect;
         private List<int> _pocketColors;
@@ -215,6 +219,10 @@ namespace XrCode
         {
             _pendingFullCupsByColor.Clear();
             _isCheckingPack = false;
+            _pendingPackOps = 0;
+            _packCompleteCheckRunning = false;
+            _pocketAnimQueues.Clear();
+            _pocketAnimProcessing.Clear();
             foreach (var kv in cups)
                 if (kv.Value != null) GameObject.Destroy(kv.Value.gameObject);
             cups.Clear();
@@ -444,6 +452,7 @@ namespace XrCode
         {
             pocket.Init(false, _pocketColors.Count > 0 ? _pocketColors[0] : 0);
             if (_pocketColors.Count > 0) _pocketColors.RemoveAt(0);
+            BeginCheckPack();
         }
 
         /// <summary>
@@ -513,10 +522,16 @@ namespace XrCode
                 FacadeGamePlay.AbleProp2Btn(false);
                 FacadePlayer.AddPlayerExp(1 + curLevelIndex / 3);
                 to.RefreshVisual();
-                RegisterFullCup(to);
-                Game.Instance.StartCoroutine(to.DoCollected());
-                BeginCheckPack();
+                Game.Instance.StartCoroutine(CollectAndPackRoutine(to));
             }
+        }
+
+        private IEnumerator CollectAndPackRoutine(Bottle cup)
+        {
+            if (cup == null) yield break;
+            yield return cup.DoCollected();
+            RegisterFullCup(cup);
+            BeginCheckPack();
         }
 
         void RegisterFullCup(Bottle cup)
@@ -557,9 +572,30 @@ namespace XrCode
                     for (var i = 0; i < batch.Count; i++)
                     {
                         var item = batch[i];
-                        yield return HandlePack(item.cup, item.pocket, i * 0.2f);
+                        Game.Instance.StartCoroutine(HandlePack(item.cup, item.pocket, i * 0.2f));
                     }
                 }
+            }
+            finally
+            {
+                _isCheckingPack = false;
+            }
+
+            Game.Instance.StartCoroutine(WaitPackCompleteAndFinalize());
+        }
+
+        private IEnumerator WaitPackCompleteAndFinalize()
+        {
+            if (_packCompleteCheckRunning) yield break;
+            _packCompleteCheckRunning = true;
+            try
+            {
+                do
+                {
+                    while (_pendingPackOps > 0)
+                        yield return null;
+                    yield return null;
+                } while (_pendingPackOps > 0 || _isCheckingPack);
 
                 if (_collected >= _needCollect)
                     yield return WinRoutine();
@@ -570,7 +606,7 @@ namespace XrCode
             }
             finally
             {
-                _isCheckingPack = false;
+                _packCompleteCheckRunning = false;
             }
         }
 
@@ -642,6 +678,8 @@ namespace XrCode
         private IEnumerator HandlePack(Bottle cup, Pocket pocket, float delay)
         {
             if (cup == null || pocket == null) yield break;
+            _pendingPackOps++;
+
             if (delay > 0f)
                 yield return new WaitForSeconds(delay);
 
@@ -672,12 +710,37 @@ namespace XrCode
             }
 
             AddFlyMoney(pocket.transform);
-
-            yield return pocket.OnPocketAction(packedColor);
-            FacadeGamePlay.AbleProp3Btn(GetEmptySlotId() != null);
             _collected++;
             CheckUnlockCup(packedColor);
-            RefillPocket(pocket);
+            FacadeGamePlay.AbleProp3Btn(GetEmptySlotId() != null);
+            SchedulePocketPack(pocket, packedColor);
+        }
+
+        void SchedulePocketPack(Pocket pocket, int packedColor)
+        {
+            if (!_pocketAnimQueues.TryGetValue(pocket, out var queue))
+            {
+                queue = new Queue<int>();
+                _pocketAnimQueues[pocket] = queue;
+            }
+
+            queue.Enqueue(packedColor);
+            if (_pocketAnimProcessing.Contains(pocket)) return;
+            Game.Instance.StartCoroutine(ProcessPocketPackQueue(pocket));
+        }
+
+        private IEnumerator ProcessPocketPackQueue(Pocket pocket)
+        {
+            _pocketAnimProcessing.Add(pocket);
+            while (_pocketAnimQueues.TryGetValue(pocket, out var queue) && queue.Count > 0)
+            {
+                var packedColor = queue.Dequeue();
+                yield return pocket.OnPocketAction(packedColor);
+                RefillPocket(pocket);
+                _pendingPackOps--;
+            }
+
+            _pocketAnimProcessing.Remove(pocket);
         }
 
         private void AddFlyMoney(Transform startPos)
@@ -758,6 +821,7 @@ namespace XrCode
             var next = _pocketColors.Count > 0 ? _pocketColors[0] : 0;
             if (_pocketColors.Count > 0) _pocketColors.RemoveAt(0);
             pocket.SetColor(next);
+            BeginCheckPack();
         }
 
         #endregion
