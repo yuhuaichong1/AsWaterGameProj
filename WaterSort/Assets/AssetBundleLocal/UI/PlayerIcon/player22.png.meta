@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 19b4ccc45cab14744871554b48272ec9
+guid: 0a1fc36ce6e7a114f95a720c91dfafea
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -121,7 +121,7 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
     buildTarget: Android
-    maxTextureSize: 512
+    maxTextureSize: 256
     resizeAlgorithm: 0
     textureFormat: 51
     textureCompression: 1
@@ -149,5 +149,5 @@ TextureImporter:
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
-  assetBundleName: assets/assetbundlelocal/sprites/ui/money/big/coin_big_us.png.assetbundle
+  assetBundleName: assets/assetbundlelocal/ui/playericon/player22.png.assetbundle
   assetBundleVariant: 

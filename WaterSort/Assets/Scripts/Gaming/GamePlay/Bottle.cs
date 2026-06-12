@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using AsGame.Core;
-using AsGame.Data;
 using AsGame.Spine;
 using Spine.Unity;
 using XrCode;

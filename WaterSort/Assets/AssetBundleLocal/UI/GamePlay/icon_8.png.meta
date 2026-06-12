@@ -121,7 +121,7 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
     buildTarget: Android
-    maxTextureSize: 32
+    maxTextureSize: 128
     resizeAlgorithm: 0
     textureFormat: 51
     textureCompression: 1
@@ -149,5 +149,5 @@ TextureImporter:
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
-  assetBundleName: assets/assetbundlelocal/ui/gameplay/icon_8.png.assetbundle
+  assetBundleName: assets/assetbundlelocal/prefabs/game/bottle.prefab.assetbundle
   assetBundleVariant: 

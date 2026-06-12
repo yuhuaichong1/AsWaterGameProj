@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 0b943f8e598e55b47972327b336abc3f
+guid: 4d4269f35efe9884e9913ec6addb46e4
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -121,7 +121,7 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
     buildTarget: Android
-    maxTextureSize: 256
+    maxTextureSize: 1024
     resizeAlgorithm: 0
     textureFormat: 51
     textureCompression: 1
@@ -149,5 +149,5 @@ TextureImporter:
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
-  assetBundleName: assets/assetbundlelocal/prefabs/ui/withdrawaltotal/uiwithdrawaltotal.prefab.assetbundle
+  assetBundleName: assets/assetbundlelocal/prefabs/ui/guide/uiguide.prefab.assetbundle
   assetBundleVariant: 

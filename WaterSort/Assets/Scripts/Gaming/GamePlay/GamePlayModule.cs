@@ -1,6 +1,4 @@
-﻿using AsGame.Core;
-using AsGame.Data;
-using AsGame.Spine;
+﻿using AsGame.Data;
 using AsGame.UI;
 using AsGame.Water;
 using Newtonsoft.Json;
@@ -73,11 +71,11 @@ namespace XrCode
             FacadeGamePlay.Func_Porp2 += Func_Porp2;
             FacadeGamePlay.Func_Porp3 += Func_Porp3;
             FacadeGamePlay.RePlay += RePlay;
-            FacadeGamePlay.GetCurLevelProgress += GetCurLevelProgress;
             FacadeGamePlay.GetStatus += GetStatus;
             FacadeGamePlay.EndPorp1 += EndShuffleMode;
             FacadeGamePlay.IfLevelGuide += IfLevelGuide;
             FacadeGamePlay.ReStartLRTimer += ReStartLRTimer;
+            FacadeGamePlay.GetLevelProgress += GetLevelProgress;
         }
 
         /// <summary>
@@ -91,11 +89,11 @@ namespace XrCode
             FacadeGamePlay.Func_Porp2 -= Func_Porp2;
             FacadeGamePlay.Func_Porp3 -= Func_Porp3;
             FacadeGamePlay.RePlay -= RePlay;
-            FacadeGamePlay.GetCurLevelProgress -= GetCurLevelProgress;
             FacadeGamePlay.GetStatus -= GetStatus;
             FacadeGamePlay.EndPorp1 -= EndShuffleMode;
             FacadeGamePlay.IfLevelGuide -= IfLevelGuide;
             FacadeGamePlay.ReStartLRTimer += ReStartLRTimer;
+            FacadeGamePlay.GetLevelProgress -= GetLevelProgress;
         }
 
         #endregion
@@ -514,6 +512,7 @@ namespace XrCode
                     pourAction = null;
                     //hud?.SetUndoGray(true);
                     FacadeGamePlay.AbleProp2Btn(false);
+                    FacadePlayer.AddPlayerExp(1 + curLevelIndex / 3);
                     yield return to.DoCollected();
                     RegisterFullCup(to);
                     yield return CheckPack();
@@ -774,14 +773,6 @@ namespace XrCode
             StartLevel();
         }
 
-        /// <summary>
-        /// 获取当前关卡进度
-        /// </summary>
-        private float GetCurLevelProgress()
-        {
-            return 0;
-        }
-
         #region 下三功能
 
         /// <summary>
@@ -931,6 +922,7 @@ namespace XrCode
             {
                 canReduceProp1Count = false;
                 FacadePlayer.AddProp1Num(-1);
+                FacadeGamePlay.SetProp1CountShow();
                 UIManager.Instance.OpenNotice(FacadeLanguage.GetText("10094"));
             }
         }
@@ -1024,6 +1016,11 @@ namespace XrCode
             slot.lockColor = 0;
             slot.lockNums = 0;
             slot.isNull = 0;
+        }
+
+        private string GetLevelProgress()
+        {
+            return (_collected * 1f / _needCollect * 100).ToString("F2");
         }
 
         #endregion

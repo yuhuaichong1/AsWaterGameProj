@@ -120,7 +120,7 @@ namespace XrCode
 
             if (string.IsNullOrEmpty(inputName)) 
             {
-                UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10027"));
+                UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10056"));
                 return;
             }
 

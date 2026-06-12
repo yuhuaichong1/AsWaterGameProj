@@ -17,10 +17,10 @@ namespace XrCode
         public static Action Func_Porp2;                                                //功能2
         public static Action Func_Porp3;                                                //功能3
         public static Action RePlay;                                                    //重新开始游戏
-        public static Func<float> GetCurLevelProgress;                                  //获得当前关卡进度
         public static Func<GameStatus> GetStatus;                                       //获取当前关卡状态
         public static Action EndPorp1;                                                  //结束Prop1功能
         public static Action ReStartLRTimer;                                            //重启幸运奖励计时器
+        public static Func<string> GetLevelProgress;                                    //获取当前关卡进度
 
         public static Action IfLevelGuide;//为了适配GM而写，不需请删
         #endregion

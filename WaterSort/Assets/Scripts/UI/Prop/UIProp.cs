@@ -39,7 +39,7 @@ namespace XrCode
             mPropIcon.sprite = icon;
             mPropIcon.SetNativeSize();
             mPropDesc.text = desc;
-            mLevelProgress.text = $"{FacadeLanguage.GetText?.Invoke("10033")}: {FacadeGamePlay.GetCurLevelProgress() * 100}%";
+            mLevelProgress.text = $"{FacadeLanguage.GetText?.Invoke("10033")}: {FacadeGamePlay.GetLevelProgress()}%";
             ShowAnim(mPlane);
         }
 

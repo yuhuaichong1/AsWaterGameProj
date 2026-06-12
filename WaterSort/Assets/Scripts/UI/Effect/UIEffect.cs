@@ -405,6 +405,7 @@ namespace XrCode
             flyObj.gameObject.SetActive(true);
             flyObj.transform.position = startPoint.position;
             flyObj.GetComponent<Image>().sprite = ResourceMod.Instance.SyncLoad<Sprite>(flyIconPath);
+            flyObj.GetComponent<Image>().SetNativeSize();
 
             flyObj.transform.DOMove(flyObjGoldDic[rewardType], GameDefines.FlyProp_MoveTime).OnComplete(() => 
             {
