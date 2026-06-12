@@ -71,7 +71,8 @@ namespace XrCode
         {
             curOpenType = UIWTOpenType.AVPTarget;
 
-            mTitleContent.text = string.Format(FacadeLanguage.GetText("10010"), 1);
+            mTitle.gameObject.SetActive(true);
+            mTitleContent.text = string.Format(FacadeLanguage.GetText("10005"), 1);
             mLevelTargetTip.gameObject.SetActive(false);
 
             ShowWaiterAndName(0);
@@ -87,7 +88,8 @@ namespace XrCode
         {
             curOpenType = UIWTOpenType.VPTarget;
 
-            mTitleContent.text = string.Format(FacadeLanguage.GetText("10010"), 2);
+            mTitle.gameObject.SetActive(true);
+            mTitleContent.text = string.Format(FacadeLanguage.GetText("10005"), 2);
             mLevelTargetTip.gameObject.SetActive(false);
 
             ShowWaiterAndName(1);
@@ -103,7 +105,8 @@ namespace XrCode
         {
             curOpenType = UIWTOpenType.SVPTarget;
 
-            mTitleContent.text = string.Format(FacadeLanguage.GetText("10010"), 8);
+            mTitle.gameObject.SetActive(true);
+            mTitleContent.text = string.Format(FacadeLanguage.GetText("10005"), 8);
             bool showTip = FacadePlayer.GetLevel() >= GameDefines.miniLevel_Start;
             mLevelTargetTip.gameObject.SetActive(showTip);
             if (showTip)
@@ -138,6 +141,8 @@ namespace XrCode
 
         private void ShowFinishTarget()
         {
+            mTitle.gameObject.SetActive(false);
+
             curOpenType = UIWTOpenType.FinishTarget1;
 
             mWTS2Text.text = string.Format(FacadeLanguage.GetText("10120"), FacadePlayer.GetLevel() - 1);
@@ -148,6 +153,8 @@ namespace XrCode
 
         private void ShowFinishTarget2()
         {
+            mTitle.gameObject.SetActive(false);
+
             curOpenType = UIWTOpenType.FinishTarget2;
 
             ShowWaiterAndName(0);
