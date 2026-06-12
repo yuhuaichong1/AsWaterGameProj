@@ -61,6 +61,8 @@ public abstract class GameDefines
     public static float DataShowStayTime;                                                                   //数据展示界面显示持续时间
     public static float DataShowCloseTime;                                                                  //数据展示界面关闭持续时间
 
+    public static float LPCETime = 30;                                                                      //祝贺特效间隔时间
+
     #endregion
 
     #region 特效相关
@@ -71,7 +73,7 @@ public abstract class GameDefines
     public static float LTE_StayTime = 2f;                                                                  //关卡目标特效持续时间
     public static float LTE_GoAwayTime = 0.5f;                                                              //关卡目标特效移出时间
     public static float CE_MoveTime = 0.2f;                                                                 //祝贺特效移入时间
-    public static float CE_StayTime = 1f;                                                                   //祝贺特效持续时间
+    public static float CE_StayTime = 2f;                                                                   //祝贺特效持续时间
     public static Vector2 CE_Content_attemptTimes = new Vector2(1, 3);                                      //祝贺特效内容随机尝试次数
     public static float FlyProp_MoveTime = 0.5f;                                                            //飞行道具持续时间
     public static int FlyMoney_FlyMoneyCount = 8;                                                           //单次消除后飞行钱特效的数量
@@ -92,7 +94,7 @@ public abstract class GameDefines
     public static int LP_PackCount = 200;                                                                   //幸运玩家包数
     public static int LP_PlayerNo = 8;                                                                      //幸运玩家名次
 
-    public static Vector2 Withdrawal_RQuota = new Vector2(1000, 2000);                                      //可兑现金额随机区间
+    public static Vector2 Withdrawal_RQuota = new Vector2(2000, 4000);                                      //可兑现金额随机区间
 
     public static int[] WithdrawalLevels = new int[3] { 1, 2, 17 };                                         //可兑现关卡
     public static float MinWithdrawalAmount = 3000;                                                         //最低兑现金额
