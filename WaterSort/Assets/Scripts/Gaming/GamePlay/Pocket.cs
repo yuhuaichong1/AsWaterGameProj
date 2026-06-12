@@ -111,10 +111,8 @@ namespace AsGame.Water
             FacadeAudio.PlayEffect(EAudioType.EPackUp);
             //SpineService.ClearEffects(transform);
 
-            var fxPos = GetPocketFxLocalPos(packColorId);
             var baoDone = false;
-            //SpineService.PlayEffect(transform, fxPos, "bao_xing", "bao", loop: false, onComplete: () => baoDone = true);
-            PlayFinishEffect1();
+            PlayFinishEffect1(() => baoDone = true);
 
             var wait = 0f;
             while (!baoDone && wait < 0.5f)
@@ -123,8 +121,6 @@ namespace AsGame.Water
                 yield return null;
             }
 
-            //yield return new WaitForSeconds(0.1f);
-
             if (pocketImage != null)
             {
                 var c = pocketImage.color;
@@ -132,10 +128,8 @@ namespace AsGame.Water
                 pocketImage.color = c;
             }
 
-            GameConstants.GamePocketSpineSkin.TryGetValue(packColorId, out var skinName);
             var daiDone = false;
-            //SpineService.PlayEffect(transform, fxPos, "dai_zi", "zhuang", loop: false, onComplete: () => daiDone = true, skinName: skinName);
-            PlayFinishEffect2();
+            PlayFinishEffect2(packColorId, () => daiDone = true);
 
             wait = 0f;
             while (!daiDone && wait < 2.5f)
@@ -143,8 +137,6 @@ namespace AsGame.Water
                 wait += Time.deltaTime;
                 yield return null;
             }
-
-            SpineService.ClearEffects(transform);
 
             var rt = transform as RectTransform;
             if (rt != null)
@@ -158,6 +150,10 @@ namespace AsGame.Water
                     rt.localPosition = pos;
                 });
             }
+
+            if (dai_ziEffect != null)
+                dai_ziEffect.gameObject.SetActive(false);
+            SpineService.ClearEffects(transform);
         }
 
         void RestorePocketView()
@@ -252,19 +248,38 @@ namespace AsGame.Water
             return ctrl;
         }
 
-        private void PlayFinishEffect1()
+        private void PlayFinishEffect1(Action onComplete)
         {
+            if (bao_xingEffect == null)
+            {
+                onComplete?.Invoke();
+                return;
+            }
+
             bao_xingEffect.gameObject.SetActive(true);
-            bao_xingEffect.AnimationState.SetAnimation(0, "bao", false).Complete += (Entry) => { bao_xingEffect.gameObject.SetActive(false); };
-            
+            bao_xingEffect.AnimationState.SetAnimation(0, "bao", false).Complete += _ =>
+            {
+                bao_xingEffect.gameObject.SetActive(false);
+                onComplete?.Invoke();
+            };
         }
 
-        private void PlayFinishEffect2()
+        private void PlayFinishEffect2(int packColorId, Action onComplete)
         {
+            if (dai_ziEffect == null)
+            {
+                onComplete?.Invoke();
+                return;
+            }
+
             dai_ziEffect.gameObject.SetActive(true);
-            dai_ziEffect.Skeleton.SetSkin(GameDefines.dai_ziName[_colorId]);
-            dai_ziEffect.Skeleton.SetSlotsToSetupPose();
-            dai_ziEffect.AnimationState.SetAnimation(0, "zhuang", false).Complete += (Entry) => { dai_ziEffect.gameObject.SetActive(false); };
+            if (GameDefines.dai_ziName.TryGetValue(packColorId, out var skinName) && !string.IsNullOrEmpty(skinName))
+            {
+                dai_ziEffect.Skeleton.SetSkin(skinName);
+                dai_ziEffect.Skeleton.SetSlotsToSetupPose();
+            }
+
+            dai_ziEffect.AnimationState.SetAnimation(0, "zhuang", false).Complete += _ => onComplete?.Invoke();
         }
 
         public void RequestUnlock() => _onUnlock?.Invoke(this);
