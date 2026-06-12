@@ -221,7 +221,7 @@ namespace XrCode
                     if (!GameDefines.ifIAA)
                         uIGP_LP_Item.WTip.gameObject.SetActive((i == 1 || i == 2) && curLevel <= i);
                     if (uIGP_LP_Item.Arrow != null)
-                        uIGP_LP_Item.Arrow.gameObject.SetActive(curLevel == i);
+                        uIGP_LP_Item.Arrow.gameObject.SetActive(curLevel >= i);
                 }
 
                 uIGP_LP_Item = mWLProgress.Items[mWLProgress.Items.Count - 1];

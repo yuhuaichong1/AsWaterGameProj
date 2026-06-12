@@ -25,6 +25,8 @@ namespace XrCode
         private Stack<SkeletonGraphic> clickPool;//点击特效对象池
         private Dictionary<ERewardType, Vector3> flyObjGoldDic;//飞行物体终点集合
 
+        private Vector3 CongratulationEffectOrginPos;//祝贺特效原位置
+
         protected override void OnAwake()
         {
             FacadeAdd();
@@ -49,6 +51,8 @@ namespace XrCode
             mFlyMoneyTip.gameObject.SetActive(false);
             mFlyIAAMoneyTip.gameObject.SetActive(false);
             //mDifficultyUpEffect.gameObject.SetActive(false);
+
+            CongratulationEffectOrginPos = mCongratulationEffect.transform.localPosition;
         }
 
         protected override void OnEnable()
@@ -285,12 +289,9 @@ namespace XrCode
             mCEContent.text = string.Format(FacadeLanguage.GetText("10002"), GetRandomPlayerName(), GetRandomWMoney());
 
             DG.Tweening.Sequence sequence = DOTween.Sequence();
-            sequence.Append(mCongratulationEffect.transform.DOLocalMoveY(-480, GameDefines.CE_MoveTime));
+            sequence.Append(mCongratulationEffect.transform.DOLocalMoveY(mCongratulationEffect.transform.localPosition.y - 320, GameDefines.CE_MoveTime));
             sequence.AppendInterval(GameDefines.CE_StayTime);
-            sequence.OnComplete(() => 
-            {
-                mCongratulationEffect.transform.localPosition = Vector3.zero;
-            });
+            sequence.Append(mCongratulationEffect.transform.DOLocalMoveY(CongratulationEffectOrginPos.y, GameDefines.CE_MoveTime));
         }
 
         /// <summary>

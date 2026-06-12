@@ -36,6 +36,8 @@ namespace XrCode
         private STimer LRTimer;
         private int LSCount;
 
+        private STimer LCTime;
+
         protected override void OnLoad()
         {
             curLevelData = new List<CupData>();
@@ -199,6 +201,7 @@ namespace XrCode
             {
                 LRTimer.targetTime = curLevelIndex > GameDefines.ClockLv ? GameDefines.ClockTime1 : GameDefines.ClockTime2;
                 LRTimer.ReStart();
+                LoopPlayCongratulationEffect(true);
             }
 
             FacadeGamePlay.ScrollingTipAnim();
@@ -568,6 +571,8 @@ namespace XrCode
                     yield return WinRoutine();
                 else
                     CheckOpenLuckySpin();
+
+                LoopPlayCongratulationEffect(false);
             }
             finally
             {
@@ -1021,6 +1026,28 @@ namespace XrCode
         private string GetLevelProgress()
         {
             return (_collected * 1f / _needCollect * 100).ToString("F2");
+        }
+
+        private void LoopPlayCongratulationEffect(bool b)
+        {
+            if(b)
+            {
+                FacadeEffect.PlayCongratulationEffect();
+                if (LCTime == null)
+                {
+                    LCTime = STimerManager.Instance.CreateSTimer(GameDefines.LPCETime, -1, true, false, () => 
+                    {
+                        FacadeEffect.PlayCongratulationEffect();
+                    });
+                }
+                else
+                    LCTime.ReStart();
+            }
+            else
+            {
+                if(LCTime != null)
+                    LCTime.Stop();
+            }
         }
 
         #endregion
