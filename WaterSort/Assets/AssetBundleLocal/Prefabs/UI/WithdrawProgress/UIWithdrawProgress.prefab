@@ -1309,7 +1309,7 @@ GameObject:
   - component: {fileID: 1446942161943655504}
   - component: {fileID: 8752957877770555165}
   m_Layer: 5
-  m_Name: P2_3_ProcessingIcon
+  m_Name: P2_4_ProcessingIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1854,7 +1854,7 @@ GameObject:
   m_Component:
   - component: {fileID: 462901831344569839}
   m_Layer: 5
-  m_Name: P3Icon
+  m_Name: P4Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2008,6 +2008,10 @@ MonoBehaviour:
     LoadingIcon: {fileID: 8058560766167049875}
     FinishedIcon: {fileID: 9005502119991973350}
     Content: {fileID: 8111356765811071764}
+  - Obj: {fileID: 6286248891062242119}
+    LoadingIcon: {fileID: 4483003107784334017}
+    FinishedIcon: {fileID: 4977589668595443061}
+    Content: {fileID: 7694896790607188842}
   - Obj: {fileID: 6903217523671493942}
     LoadingIcon: {fileID: 2181766656735973350}
     FinishedIcon: {fileID: 4525371787874842455}
@@ -3083,7 +3087,7 @@ GameObject:
   - component: {fileID: 563976927562789658}
   - component: {fileID: 1740445402784236810}
   m_Layer: 5
-  m_Name: P2_2_ProcessingIcon
+  m_Name: P2_3_ProcessingIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3173,7 +3177,7 @@ GameObject:
   - component: {fileID: 397982308081370404}
   - component: {fileID: 3684656531743693671}
   m_Layer: 5
-  m_Name: P2_3_CheckedIcon
+  m_Name: P2_4_CheckedIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3437,7 +3441,7 @@ GameObject:
   - component: {fileID: 1277271999352157650}
   - component: {fileID: 7795396428456840981}
   m_Layer: 5
-  m_Name: P2_2_CheckedIcon
+  m_Name: P2_3_CheckedIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
