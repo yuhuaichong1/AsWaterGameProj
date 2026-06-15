@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using AsGame.Core;
+using XrCode;
 
 namespace AsGame.Data
 {

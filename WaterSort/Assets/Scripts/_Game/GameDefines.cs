@@ -47,6 +47,22 @@ public abstract class GameDefines
         {8, "hong"},
     };                    //颜色id对应的袋子spine动画皮肤名称
 
+    public static float ScollingTipAnimTime = 10;                                                           //滑动提示持续时间
+    public static float ScollingTipAnimInterval = 20;                                                       //滑动提示显示间隔时间
+    public static Vector2 ScollingTipAnimMoney = new Vector2(100, 1000);                                    //滑动提示金额
+
+    public static int NGPLevel1 = 3;                                                                        //玩法提示1关卡
+    public static int NGPLevel2 = 7;                                                                        //玩法提示2关卡
+
+    public static float DataShowText1 = 97.24f;                                                             //数据展示界面显示数据1
+    public static int DataShowText2 = 15;                                                                   //数据展示界面显示数据2
+    public static float DataShowText3 = 3000;                                                               //数据展示界面显示数据3
+    public static float DataShowOpenTime;                                                                   //数据展示界面打开持续时间
+    public static float DataShowStayTime;                                                                   //数据展示界面显示持续时间
+    public static float DataShowCloseTime;                                                                  //数据展示界面关闭持续时间
+
+    public static float LPCETime = 30;                                                                      //祝贺特效间隔时间
+
     #endregion
 
     #region 特效相关
@@ -57,7 +73,7 @@ public abstract class GameDefines
     public static float LTE_StayTime = 2f;                                                                  //关卡目标特效持续时间
     public static float LTE_GoAwayTime = 0.5f;                                                              //关卡目标特效移出时间
     public static float CE_MoveTime = 0.2f;                                                                 //祝贺特效移入时间
-    public static float CE_StayTime = 1f;                                                                   //祝贺特效持续时间
+    public static float CE_StayTime = 2f;                                                                   //祝贺特效持续时间
     public static Vector2 CE_Content_attemptTimes = new Vector2(1, 3);                                      //祝贺特效内容随机尝试次数
     public static float FlyProp_MoveTime = 0.5f;                                                            //飞行道具持续时间
     public static int FlyMoney_FlyMoneyCount = 8;                                                           //单次消除后飞行钱特效的数量
@@ -78,7 +94,7 @@ public abstract class GameDefines
     public static int LP_PackCount = 200;                                                                   //幸运玩家包数
     public static int LP_PlayerNo = 8;                                                                      //幸运玩家名次
 
-    public static Vector2 Withdrawal_RQuota = new Vector2(1000, 2000);                                      //可兑现金额随机区间
+    public static Vector2 Withdrawal_RQuota = new Vector2(3000, 4000);                                      //可兑现金额随机区间
 
     public static int[] WithdrawalLevels = new int[3] { 1, 2, 17 };                                         //可兑现关卡
     public static float MinWithdrawalAmount = 3000;                                                         //最低兑现金额
@@ -124,6 +140,9 @@ public abstract class GameDefines
     public static string BottlePath = "Prefabs/Game/Bottle.prefab";                                         //瓶子预制体路径
     public static string BottleShadowPath = "Prefabs/Game/BottleShadow.prefab";                             //瓶子阴影预制体路径
     public static string PocketPath = "Prefabs/Game/Pocket.prefab";                                         //饮料预制体路径
+    public static string RefreshEffectPath = "Prefabs/Game/RefreshEffect.prefab";                           //刷新功能特效
+    public static string ShuihuaEffectPath = "Prefabs/Game/ShuihuaEffect.prefab";                           //倒水时的水花特效
+    public static string Prop3EffectPath = "Prefabs/Game/Prop3Effect.prefab";                               //功能3添加水瓶特效
 
     #region 奖励特效小图标路径
 
@@ -231,6 +250,8 @@ public enum EUIType
     EUIWithdrawContinue = 22,
     EUIWithdrawKeepEarn = 23,
     EUIWithdrawTarget = 24,
+    EUINewGamePlay = 25,
+    EUIDateShow = 26,
 }
 
 /// <summary>

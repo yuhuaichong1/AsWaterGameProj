@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
 using AsGame.Core;
+using XrCode;
 
 namespace AsGame.Spine
 {

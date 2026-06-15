@@ -1,8 +1,7 @@
-﻿using AsGame.Core;
-using AsGame.Data;
-using AsGame.Spine;
+﻿using AsGame.Data;
 using AsGame.UI;
 using AsGame.Water;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -37,6 +36,11 @@ namespace XrCode
         private STimer LRTimer;
         private int LSCount;
 
+        private STimer LCTime;
+
+        private bool showUITip1;
+        private bool showUITip2;
+
         protected override void OnLoad()
         {
             curLevelData = new List<CupData>();
@@ -46,9 +50,11 @@ namespace XrCode
             _pocketColors = new List<int>();
             _shuffleFxObjects = new List<GameObject>();
             _shuffleFxByCupId = new Dictionary<int, GameObject>();
+            showUITip1 = SPlayerPrefs.GetBool(PlayerPrefDefines.showUITip1, true);
+            showUITip2 = SPlayerPrefs.GetBool(PlayerPrefDefines.showUITip2, true);
 
             float PInterval = Screen.width / 4;
-            pocketXPos = new float[4] { PInterval * -1.5f, PInterval * -0.5f, PInterval * 0.5f, PInterval * 1.5f };
+            pocketXPos = new float[4] { PInterval * -1.35f, PInterval * -0.45f, PInterval * 0.45f, PInterval * 1.35f };
 
             FacadeAdd();
 
@@ -72,11 +78,11 @@ namespace XrCode
             FacadeGamePlay.Func_Porp2 += Func_Porp2;
             FacadeGamePlay.Func_Porp3 += Func_Porp3;
             FacadeGamePlay.RePlay += RePlay;
-            FacadeGamePlay.GetCurLevelProgress += GetCurLevelProgress;
             FacadeGamePlay.GetStatus += GetStatus;
             FacadeGamePlay.EndPorp1 += EndShuffleMode;
             FacadeGamePlay.IfLevelGuide += IfLevelGuide;
             FacadeGamePlay.ReStartLRTimer += ReStartLRTimer;
+            FacadeGamePlay.GetLevelProgress += GetLevelProgress;
         }
 
         /// <summary>
@@ -90,11 +96,11 @@ namespace XrCode
             FacadeGamePlay.Func_Porp2 -= Func_Porp2;
             FacadeGamePlay.Func_Porp3 -= Func_Porp3;
             FacadeGamePlay.RePlay -= RePlay;
-            FacadeGamePlay.GetCurLevelProgress -= GetCurLevelProgress;
             FacadeGamePlay.GetStatus -= GetStatus;
             FacadeGamePlay.EndPorp1 -= EndShuffleMode;
             FacadeGamePlay.IfLevelGuide -= IfLevelGuide;
             FacadeGamePlay.ReStartLRTimer += ReStartLRTimer;
+            FacadeGamePlay.GetLevelProgress -= GetLevelProgress;
         }
 
         #endregion
@@ -183,8 +189,6 @@ namespace XrCode
             CheckNewPlayUnlock();
 
             curLevelIndex = FacadePlayer.GetLevel();
-            if (LevelEditorPlaySession.TryGetPlayTestLevel(out var playTestLevel))
-                curLevelIndex = playTestLevel;
 
             FacadeGamePlay.SetLevelShow();
             GetLevelData(curLevelIndex);
@@ -202,8 +206,12 @@ namespace XrCode
             {
                 LRTimer.targetTime = curLevelIndex > GameDefines.ClockLv ? GameDefines.ClockTime1 : GameDefines.ClockTime2;
                 LRTimer.ReStart();
+                LoopPlayCongratulationEffect(true);
             }
-                
+
+            FacadeGamePlay.ScrollingTipAnim();
+            
+            ShowUITip();
         }
 
         /// <summary>
@@ -242,12 +250,38 @@ namespace XrCode
         }
 
         /// <summary>
-        /// 获取当前关卡数据（优先拆关 JSON：Resources/Levels/Split/level_N.json）
+        /// 获取当前关卡数据
         /// </summary>
         /// <param name="levelIndex">关卡 id</param>
         private void GetLevelData(int levelIndex)
         {
-            curLevelData = LevelConfigLoader.LoadLevel(levelIndex);
+            TextAsset jsonDataTA = ResourceMod.Instance.SyncLoad<TextAsset>($"Json/Levels/level_{levelIndex}.json");
+
+            LevelConfig config = JsonConvert.DeserializeObject<LevelConfig>(jsonDataTA.text);
+
+            List<CupData> cupList = new List<CupData>();
+            for (int i = 0; i < config.cups.Count; i++)
+            {
+                var jsonCup = config.cups[i];
+                CupData cup = new CupData
+                {
+                    id = i,
+                    position = new Vector2(jsonCup.x, jsonCup.y),
+                    colors = jsonCup.colors ?? new List<int>(),
+                    whNums = jsonCup.whNums,
+                    isVideo = jsonCup.isVideo,
+                    isLock = jsonCup.isLock,
+                    lockColor = jsonCup.lockColor,
+                    lockNums = jsonCup.lockNums,
+                    isNull = jsonCup.isNull,
+                    isEmptyCup = jsonCup.isEmptyCup
+                };
+                cupList.Add(cup);
+            }
+            curLevelData = cupList;
+            //curLevelData = LevelConfigLoader.LoadLevel(levelIndex);
+
+
             if (curLevelData == null || curLevelData.Count == 0)
                 D.Error($"level_{levelIndex} is not exist or empty");
         }
@@ -487,6 +521,7 @@ namespace XrCode
                     pourAction = null;
                     //hud?.SetUndoGray(true);
                     FacadeGamePlay.AbleProp2Btn(false);
+                    FacadePlayer.AddPlayerExp(1 + curLevelIndex / 3);
                     yield return to.DoCollected();
                     RegisterFullCup(to);
                     yield return CheckPack();
@@ -542,6 +577,8 @@ namespace XrCode
                     yield return WinRoutine();
                 else
                     CheckOpenLuckySpin();
+
+                LoopPlayCongratulationEffect(false);
             }
             finally
             {
@@ -625,7 +662,7 @@ namespace XrCode
             var id = cup.GetId();
             var packedColor = cup.GetTopColorId();
 
-            SpineService.ClearEffects(cup.transform);
+            //SpineService.ClearEffects(cup.transform);
             if (shadows.TryGetValue(id, out var shadow) && shadow != null)
             {
                 GameObject.Destroy(shadow.gameObject);
@@ -747,14 +784,6 @@ namespace XrCode
             StartLevel();
         }
 
-        /// <summary>
-        /// 获取当前关卡进度
-        /// </summary>
-        private float GetCurLevelProgress()
-        {
-            return 0;
-        }
-
         #region 下三功能
 
         /// <summary>
@@ -793,8 +822,10 @@ namespace XrCode
             rt.localScale = Vector3.one * 0.8f;
             // 插在对应瓶子之前绘制，光环在瓶身/水体下层（对齐 Cocos：杯子层盖住 effectFront 光环）
             rt.SetSiblingIndex(cup.transform.GetSiblingIndex());
-            // 对齐 Cocos Spine_Shuffle：xuan_zhong / idle（spine-unity SkeletonGraphic）
-            SpineService.PlayEffect(rt, Vector3.zero, "xuan_zhong", "idle", loop: true);
+
+            //SpineService.PlayEffect(rt, Vector3.zero, "xuan_zhong", "idle", loop: true);
+            GameObject RefreshEffectPath =  GameObject.Instantiate(ResourceMod.Instance.SyncLoad<GameObject>(GameDefines.RefreshEffectPath), rt);
+
             _shuffleFxObjects.Add(anchor);
             _shuffleFxByCupId[cup.GetId()] = anchor;
         }
@@ -902,6 +933,7 @@ namespace XrCode
             {
                 canReduceProp1Count = false;
                 FacadePlayer.AddProp1Num(-1);
+                FacadeGamePlay.SetProp1CountShow();
                 UIManager.Instance.OpenNotice(FacadeLanguage.GetText("10094"));
             }
         }
@@ -969,7 +1001,8 @@ namespace XrCode
             bottle.BindShadow(shadow);
             cups[slot.id] = bottle;
             shadows[slot.id] = shadow;
-            SpineService.PlayEffect(bottle.transform, Vector3.zero, "bao_xing", "bao");
+            //SpineService.PlayEffect(bottle.transform, Vector3.zero, "bao_xing", "bao");
+            bottle.PlayProp3Effect();
             FacadeGamePlay.AbleProp3Btn(GetEmptySlotId() != null);
         }
 
@@ -997,6 +1030,54 @@ namespace XrCode
         }
 
         #endregion
+
+        private string GetLevelProgress()
+        {
+            return (_collected * 1f / _needCollect * 100).ToString("F2");
+        }
+
+        private void LoopPlayCongratulationEffect(bool b)
+        {
+            if (b)
+            {
+                FacadeEffect.PlayCongratulationEffect();
+                if (LCTime == null)
+                {
+                    LCTime = STimerManager.Instance.CreateSTimer(GameDefines.LPCETime, -1, true, false, () =>
+                    {
+                        FacadeEffect.PlayCongratulationEffect();
+                    });
+                }
+                else
+                    LCTime.ReStart();
+            }
+            else
+            {
+                if (LCTime != null)
+                    LCTime.Stop();
+            }
+        }
+
+        private void ShowUITip()
+        {
+            if(curLevelIndex == GameDefines.NGPLevel1 && showUITip1)
+            {
+                showUITip1 = false;
+                SPlayerPrefs.SetBool(PlayerPrefDefines.showUITip1, showUITip1);
+                SPlayerPrefs.Save();
+
+                UIManager.Instance.OpenAsync<UINewGamePlay>(EUIType.EUINewGamePlay);
+            }
+            else if(curLevelIndex == GameDefines.NGPLevel2 && showUITip2)
+            {
+                showUITip2 = false;
+                SPlayerPrefs.SetBool(PlayerPrefDefines.showUITip2, showUITip2);
+                SPlayerPrefs.Save();
+
+                UIManager.Instance.OpenAsync<UINewGamePlay>(EUIType.EUINewGamePlay);
+            }
+        }
+
 
         protected override void OnDispose()
         {

@@ -1,8 +1,5 @@
-﻿
-using DG.Tweening;
-using System;
+﻿using DG.Tweening;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +8,8 @@ namespace XrCode
 
     public partial class UIGamePlay : BaseUI
     {
+        private Sequence scrollingTip;
+
         protected override void OnAwake()
         {
             FacadeAdd();
@@ -44,6 +43,8 @@ namespace XrCode
             FacadeGamePlay.AbleProp3Btn += AbleProp3Btn;
 
             FacadeGamePlay.SetLevelShow += SetLevelShow;
+
+            FacadeGamePlay.ScrollingTipAnim += ScrollingTipAnim;
         }
 
         /// <summary>
@@ -70,6 +71,8 @@ namespace XrCode
             FacadeGamePlay.AbleProp3Btn -= AbleProp3Btn;
 
             FacadeGamePlay.SetLevelShow -= SetLevelShow;
+
+            FacadeGamePlay.ScrollingTipAnim -= ScrollingTipAnim;
         }
 
         #endregion
@@ -82,7 +85,9 @@ namespace XrCode
             mCMDialog.gameObject.SetActive(!GameDefines.ifIAA);
             mWLProgress.gameObject.SetActive(!GameDefines.ifIAA);
 
-            mCurLevelText.text = string.Format(FacadeLanguage.GetText?.Invoke("10016"), FacadePlayer.GetLevel());
+            string levelText = string.Format(FacadeLanguage.GetText?.Invoke("10016"), FacadePlayer.GetLevel());
+            mLTCurLevelText.text = levelText;
+            mCurLevelText.text = levelText;
 
             SetCurMoneyShow();
             SetProp1CountShow();
@@ -175,6 +180,11 @@ namespace XrCode
         /// </summary>
         private void SetLevelShow()
         {
+            if (GameDefines.ifIAA)
+                mCurLevel.gameObject.SetActive(true);
+            else
+                mCurLevel.gameObject.SetActive(FacadeWithdraw.GetCurWithdrawTarget() != WithdrawTarget.PassLevel);
+
             int curLevel = FacadePlayer.GetLevel();
 
             string levelText;
@@ -185,19 +195,8 @@ namespace XrCode
             else
                 levelText = $"{curLevel - GameDefines.miniLevel_Start}";
             mCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), levelText);
-
+            mLTCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), levelText);
             bool after8_10 = curLevel > GameDefines.miniLevel_End;
-            //mCurLevel.anchoredPosition = new Vector3(-22, after8_10 ? -24 : -140, 0);
-            if(!GameDefines.ifIAA)
-            {
-                mCurLevel.anchoredPosition = new Vector3(-22, after8_10 ? -24 : -140, 0);
-            }
-            else
-            {
-                mCurLevel.anchoredPosition = new Vector3(-22, -24, 0);
-                return;
-            }
-
 
             mWLProgress.gameObject.SetActive(!after8_10);
             if (!after8_10)
@@ -222,7 +221,7 @@ namespace XrCode
                     if (!GameDefines.ifIAA)
                         uIGP_LP_Item.WTip.gameObject.SetActive((i == 1 || i == 2) && curLevel <= i);
                     if (uIGP_LP_Item.Arrow != null)
-                        uIGP_LP_Item.Arrow.gameObject.SetActive(curLevel == i);
+                        uIGP_LP_Item.Arrow.gameObject.SetActive(curLevel >= i);
                 }
 
                 uIGP_LP_Item = mWLProgress.Items[mWLProgress.Items.Count - 1];
@@ -384,7 +383,7 @@ namespace XrCode
 
 	    private void OnCMBtnClickHandle()
         {
-            UIManager.Instance.OpenSync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal);
+            UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal);
         }
 
         private void OnTipExitBtnClickHandle()
@@ -420,6 +419,56 @@ namespace XrCode
         private void AbleProp3Btn(bool b)
         {
             mBtn_Prop3.interactable = b;
+        }
+
+        /// <summary>
+        /// 滚动字幕显示
+        /// </summary>
+        private void ScrollingTipAnim()
+        {
+            if (FacadePlayer.GetLevel() <= 3 || GameDefines.ifIAA)
+            {
+                return;
+            }
+
+            if (scrollingTip == null)
+            {
+                scrollingTip = DOTween.Sequence();
+                scrollingTip.AppendCallback(SetRandomScrollingTipShow);
+                scrollingTip.AppendInterval(5);
+                scrollingTip.Append(mMarque1.transform.DOMove(mM1EndPos.transform.position, GameDefines.ScollingTipAnimTime).SetEase(Ease.Linear));
+                scrollingTip.Join(mMarque2.transform.DOMove(mM2EndPos.transform.position, GameDefines.ScollingTipAnimTime).SetEase(Ease.Linear));
+                scrollingTip.AppendInterval(GameDefines.ScollingTipAnimInterval - 5);
+                scrollingTip.SetLoops(-1);
+                scrollingTip.SetAutoKill(false);
+                scrollingTip.Play();
+            }
+            else
+            {
+                scrollingTip.Restart();
+            }
+        }
+
+        /// <summary>
+        /// 重置滚动字幕信息
+        /// </summary>
+        private void SetRandomScrollingTipShow()
+        {
+            mMarque1.transform.position = mM1StartPos.transform.position;
+            mMarque2.transform.position = mM2StartPos.transform.position;
+
+            string name1 = FacadePlayer.GetRandomName();
+            string name2 = FacadePlayer.GetRandomName();
+            string money1 = FacadePayType.RegionalChange(UnityEngine.Random.Range(GameDefines.ScollingTipAnimMoney.x, GameDefines.ScollingTipAnimMoney.y));
+            string money2 = FacadePayType.RegionalChange(UnityEngine.Random.Range(GameDefines.ScollingTipAnimMoney.x, GameDefines.ScollingTipAnimMoney.y));
+            List<PayNode> payNodes = FacadePayType.GetPayItems();
+            Sprite icon1 = payNodes[UnityEngine.Random.Range(0, payNodes.Count)].icon;
+            Sprite icon2 = payNodes[UnityEngine.Random.Range(0, payNodes.Count)].icon;
+
+            mMar1Text.text = string.Format(FacadeLanguage.GetText("10072"), name1, money1);
+            mMar1Icon.sprite = icon1;
+            mMar2Text.text = string.Format(FacadeLanguage.GetText("10072"), name2, money2);
+            mMar2Icon.sprite = icon2;
         }
 
         protected override void OnDisable()

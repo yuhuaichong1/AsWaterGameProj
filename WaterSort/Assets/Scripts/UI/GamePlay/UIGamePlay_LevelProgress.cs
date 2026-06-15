@@ -47,7 +47,7 @@ public class UIGP_LP_Item
         CurSign.SetActive(false);
         FinishSign.SetActive(true);
         WTip.SetActive(false);
-        Arrow.gameObject.SetActive(false);
+        Arrow.gameObject.SetActive(true);
     }
 
     public void SetNotArrived()

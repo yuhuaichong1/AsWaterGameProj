@@ -1,6 +1,7 @@
 ﻿using cfg;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace XrCode
@@ -22,7 +23,9 @@ namespace XrCode
         private Dictionary<int, ConfMoneyInterval> MIData;
         private List<float> TargetInterval;
 
-        private bool ifAfterCreate;
+        private bool ifAfterCreate;//是否在关闭界面后走下一步
+
+        private bool ifOpenUIDateShow;
 
         protected override void OnLoad()
         {
@@ -338,6 +341,9 @@ namespace XrCode
                 };
                 withdrawalRecordItems.Add(item.OrderId, item);
             }
+
+            //ifAfterCreate = true;
+            ifOpenUIDateShow = false;
         }
 
         /// <summary>
@@ -525,8 +531,17 @@ namespace XrCode
                     reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
                 }, (v) =>
                 {
-                    int id = TargetInterval.Count - TargetInterval.GetRangeIndex(GetRemainTarget());
-                    reward = UnityEngine.Random.Range(MIData[id].LSMin, MIData[id].LSMax);
+                    int intervalId = TargetInterval.GetRangeIndex(GetRemainTarget());
+
+                    if(intervalId == -1)
+                    {
+                        reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
+                    }
+                    else
+                    {
+                        int id = TargetInterval.Count - intervalId;
+                        reward = UnityEngine.Random.Range(MIData[id].LSMin, MIData[id].LSMax);
+                    }
                 }, (v) =>
                 {
                     int id = MIData.Count - 1;
@@ -541,6 +556,8 @@ namespace XrCode
         /// </summary>
         private void AfterCloseWUI()
         {
+            UnityEngine.Debug.LogError("ifAfterCreate: " + ifAfterCreate);
+
             if(ifAfterCreate)
             {
                 ifAfterCreate = false;
@@ -550,10 +567,10 @@ namespace XrCode
                     switch (level)
                     {
                         case 2:
-                            UIManager.Instance.OpenSync<UIWithdrawKeepEarn>(EUIType.EUIWithdrawKeepEarn);
+                            UIManager.Instance.OpenAsync<UIWithdrawKeepEarn>(EUIType.EUIWithdrawKeepEarn);
                             break;
                         case 3:
-                            UIManager.Instance.OpenSync<UIWithdrawKeepEarn>(EUIType.EUIWithdrawKeepEarn);
+                            UIManager.Instance.OpenAsync<UIWithdrawKeepEarn>(EUIType.EUIWithdrawKeepEarn);
                             break;
                         case 4:
                             FacadeGamePlay.CreateLevel();
@@ -561,7 +578,17 @@ namespace XrCode
                     }
                 }, (money) =>
                 {
-                    UIManager.Instance.OpenAsync<UIWithdrawLuckyPlayer>(EUIType.EUIWithdrawLuckyPlayer);
+                    if(!ifOpenUIDateShow && FacadePlayer.GetMoney() + GameDefines.DiffVal <= wTarget - 0.01f)
+                    {
+                        UIManager.Instance.OpenAsync<UIWithdrawLuckyPlayer>(EUIType.EUIWithdrawLuckyPlayer);
+                        ifOpenUIDateShow = true;
+                        ifAfterCreate = true;
+                    }
+                    else
+                    {
+                        UIManager.Instance.OpenAsync<UIDateShow>(EUIType.EUIDateShow);
+                        ifOpenUIDateShow = false;
+                    }
                     //FacadeGamePlay.CreateLevel();
                 }, (day) =>
                 {

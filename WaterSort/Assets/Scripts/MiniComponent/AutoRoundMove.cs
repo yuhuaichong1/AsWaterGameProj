@@ -41,8 +41,8 @@ public class AutoRoundMove : MonoBehaviour
         {
             float startY = rect.localPosition.y;
             float goalY = startY + roundDis;
-            sequence.Append(this.transform.DOLocalMoveY(startY, roundTime / 2).SetEase(Ease.Linear));
             sequence.Append(this.transform.DOLocalMoveY(goalY, roundTime / 2).SetEase(Ease.Linear));
+            sequence.Append(this.transform.DOLocalMoveY(startY, roundTime / 2).SetEase(Ease.Linear));
             sequence.SetLoops(-1);
         }
     }

@@ -28,7 +28,7 @@ namespace XrCode
         {
             InitShow();
             ShowAnim(mPlane);
-            FacadeAudio.PlayEffect(EAudioType.ELevelFailed);
+            //FacadeAudio.PlayEffect(EAudioType.ELevelFailed);
         }
 
         private void InitShow()

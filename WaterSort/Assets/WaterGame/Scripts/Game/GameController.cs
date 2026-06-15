@@ -8,6 +8,7 @@ using AsGame.Data;
 using AsGame.Events;
 using AsGame.Spine;
 using AsGame.UI;
+using XrCode;
 
 namespace AsGame.Water
 {
@@ -564,7 +565,7 @@ namespace AsGame.Water
             // 插在对应瓶子之前绘制，光环在瓶身/水体下层（对齐 Cocos：杯子层盖住 effectFront 光环）
             rt.SetSiblingIndex(cup.transform.GetSiblingIndex());
             // 对齐 Cocos Spine_Shuffle：xuan_zhong / idle（spine-unity SkeletonGraphic）
-            SpineService.PlayEffect(rt, Vector3.zero, "xuan_zhong", "idle", loop: true);
+            //SpineService.PlayEffect(rt, Vector3.zero, "xuan_zhong", "idle", loop: true);
             _shuffleFxObjects.Add(anchor);
             _shuffleFxByCupId[cup.GetId()] = anchor;
         }

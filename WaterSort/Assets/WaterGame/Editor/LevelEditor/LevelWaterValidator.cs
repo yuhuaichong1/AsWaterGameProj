@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using AsGame.Core;
 using AsGame.Data;
 using UnityEngine;
+using XrCode;
 
 namespace AsGame.Editor.LevelEditor
 {

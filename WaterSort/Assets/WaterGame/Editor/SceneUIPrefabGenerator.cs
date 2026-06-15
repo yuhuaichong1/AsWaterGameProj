@@ -7,6 +7,7 @@ using AsGame.Core;
 using AsGame.Water;
 using AsGame.Scenes;
 using AsGame.UI;
+using XrCode;
 
 namespace AsGame.Editor
 {

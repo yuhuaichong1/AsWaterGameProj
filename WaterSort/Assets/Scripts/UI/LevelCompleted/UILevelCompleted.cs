@@ -1,7 +1,4 @@
-﻿using cfg;
-using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace XrCode
@@ -28,23 +25,25 @@ namespace XrCode
         protected override void OnEnable()
         {
             InitShow();
-            FacadeAudio.PlayEffect(EAudioType.ELevelComplete);
+            FacadeAudio.PlayEffect(EAudioType.EWin);
 
             if(GameDefines.ifIAA)
             {
                 mAdBtn.gameObject.SetActive(true);
-                mOnlyBtn.gameObject.SetActive(true);
+                mOnlyText.gameObject.SetActive(true);
                 mWithdrawBtn.gameObject.SetActive(false);
             }
             else
             {
                 bool ifWLv = ifWlevel();
                 mAdBtn.gameObject.SetActive(!ifWLv);
-                mOnlyBtn.gameObject.SetActive(!ifWLv);
+                mOnlyText.gameObject.SetActive(!ifWLv);
                 mWithdrawBtn.gameObject.SetActive(ifWLv);
                 if (ifWLv)
                     mMoneyText.text = FacadePayType.RegionalChange(FacadePlayer.GetMoney());
             }
+
+            ShowAnim(mPlane);
         }
 
         private void InitShow()
@@ -54,10 +53,17 @@ namespace XrCode
             mMoneyText.text = $"+{FacadePayType.RegionalChange(curCompletedMoney)}";
             mOnlyText.text = string.Format(FacadeLanguage.GetText("10019"), FacadePayType.RegionalChange(curOnlyMoney));
         }
-        	    private void OnAdBtnClickHandle()        {            FacadeAd.PlayROIAdByWeight(EAdSource.LevelCompleted, (count) => { GetReward(); }, (errMsg) => { GetOnlyReward(); }, ()=> { GetOnlyReward(); }, GameDefines.WeightAdRange, GameDefines.AdWeight);        }        private void OnWithdrawBtnClickHandle()
+        
+	    private void OnAdBtnClickHandle()
+        {
+            FacadeAd.PlayROIAdByWeight(EAdSource.LevelCompleted, (count) => { GetReward(); }, (errMsg) => { GetOnlyReward(); }, ()=> { GetOnlyReward(); }, GameDefines.WeightAdRange, GameDefines.AdWeight);
+        }
+
+        private void OnWithdrawBtnClickHandle()
         {
             GoNextLevel();
-        }
+        }
+
         private void OnOnlyBtnClickHandle()
         {
             FacadeAd.AdRefuse(EAdSource.Refuse_LevelComplate, (count) => { GetReward(); }, (errMsg) => { GetOnlyReward(); }, () => { GetOnlyReward(); });
@@ -74,7 +80,11 @@ namespace XrCode
             FacadePlayer.AddMoney(curCompletedMoney);
             FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
             {
-                new ERewardItemStruct                {                    Type = ERewardType.Money,                    Count = curCompletedMoney,                }
+                new ERewardItemStruct
+                {
+                    Type = ERewardType.Money,
+                    Count = curCompletedMoney,
+                }
             }, null);
             GoNextLevel();
         }
