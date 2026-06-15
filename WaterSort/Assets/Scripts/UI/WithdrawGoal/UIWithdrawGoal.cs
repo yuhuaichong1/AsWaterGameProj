@@ -211,7 +211,7 @@ namespace XrCode
                         }
                         else
                         {
-                            UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIWithdrawConfirm, UIOpenType.None, null, UIProgressTarget);
+                            UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIWithdrawConfirm, UIOpenType.None, null, UIProgressTarget);
                         }
                     });
                 }
@@ -234,7 +234,7 @@ namespace XrCode
                         }
                         else
                         {
-                            UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIWithdrawConfirm, UIOpenType.None, null, UIProgressTarget);
+                            UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIWithdrawConfirm, UIOpenType.None, null, UIProgressTarget);
                         }
                     });
                 }
@@ -251,7 +251,7 @@ namespace XrCode
                         }
                         else
                         {
-                            UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIWithdrawConfirm, UIOpenType.None, null, UIProgressTarget);
+                            UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIWithdrawConfirm, UIOpenType.None, null, UIProgressTarget);
                         }
                     });
                 }
