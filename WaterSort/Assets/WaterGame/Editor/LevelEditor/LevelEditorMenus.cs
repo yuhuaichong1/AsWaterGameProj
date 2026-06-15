@@ -34,5 +34,30 @@ namespace AsGame.Editor.LevelEditor
             LevelConfigLoader.InvalidateCache();
             Debug.Log("[LevelEditor] 已清除 LevelConfigLoader 缓存。");
         }
+
+        [MenuItem("WaterGame/关卡/校验全部拆关 JSON", false, 120)]
+        public static void ValidateAllSplitLevels()
+        {
+            var entries = LevelBatchChecker.CheckAllOnDisk(showProgress: true);
+            LevelBatchChecker.LogDetailedReport(entries);
+            EditorUtility.DisplayDialog(
+                "全部校验",
+                LevelBatchChecker.FormatSummaryForStatusBar(entries) + "\n\n逐关明细已输出到 Console 窗口。",
+                "确定");
+        }
+
+        [MenuItem("WaterGame/关卡/导出全部检查报告", false, 121)]
+        public static void ExportAllCheckReport()
+        {
+            var entries = LevelBatchChecker.CheckAllOnDisk(showProgress: true);
+            if (entries.Count == 0)
+            {
+                EditorUtility.DisplayDialog("导出报告", "未找到任何拆关 JSON。", "确定");
+                return;
+            }
+
+            LevelBatchChecker.LogDetailedReport(entries);
+            LevelBatchChecker.TryExportReportWithDialog(entries);
+        }
     }
 }

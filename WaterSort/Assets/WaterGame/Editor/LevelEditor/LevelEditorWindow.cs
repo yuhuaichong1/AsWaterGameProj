@@ -34,12 +34,14 @@ namespace AsGame.Editor.LevelEditor
         Vector2 _cupsSectionScroll;
         float _cupsSectionHeight = 360f;
         bool _showLayoutSettings;
+        bool _showWaterRandomRules;
         bool _scenePreview;
         string _status = "";
         MessageType _statusLogType = MessageType.Info;
+        Vector2 _statusLogScroll;
+        List<LevelBatchCheckEntry> _lastBatchCheckEntries;
 
         [SerializeField] bool _snapGrid = true;
-        [SerializeField] float _snapSize = 10f;
         [SerializeField] bool _clampToPlayArea = true;
         /// <summary>显示 CupMgr 原始 750×1334 区域（灰虚线，仅对照 JSON 坐标系）。</summary>
         [SerializeField] bool _showCupRawReference;
@@ -48,9 +50,13 @@ namespace AsGame.Editor.LevelEditor
         GameplayScreenLayoutData _layout = new();
         float _bottleWidth = DefaultBottleWidth;
         float _bottleHeight = DefaultBottleHeight;
+        /// <summary>预览网格当前使用的瓶宽/高（设计像素），由「刷新网格」同步自水瓶尺寸设定。</summary>
+        float _gridBottleWidth = DefaultBottleWidth;
+        float _gridBottleHeight = DefaultBottleHeight;
         int _waterColorCount = 3;
         int _waterTotalLayers = 12;
         WaterRefreshDifficulty _waterDifficulty = WaterRefreshDifficulty.超简单;
+        LevelWaterDifficultyMetrics _levelDifficultyMetrics;
 
         float PreviewBottleWidth => Mathf.Max(1f, _bottleWidth);
         float PreviewBottleHeight => Mathf.Max(1f, _bottleHeight);
@@ -86,6 +92,7 @@ namespace AsGame.Editor.LevelEditor
                 ? settings.leftPanelWidth
                 : LeftPanelDefaultWidth;
             _cupsSectionHeight = NormalizeCupsSectionHeight(settings.sectionHeightCups);
+            ApplyPreviewGridFromBottleSettings();
             SceneView.duringSceneGui -= OnSceneGuiGlobal;
             SceneView.duringSceneGui += OnSceneGuiGlobal;
             s_FocusedInstance = this;
@@ -254,8 +261,26 @@ namespace AsGame.Editor.LevelEditor
                 return;
             }
 
-            EditorGUILayout.HelpBox(_status, _statusLogType);
+            EditorGUILayout.LabelField(GetStatusLogTypeLabel(_statusLogType), EditorStyles.miniBoldLabel);
+            _statusLogScroll = EditorGUILayout.BeginScrollView(
+                _statusLogScroll, GUILayout.MinHeight(96f), GUILayout.MaxHeight(280f));
+            var logStyle = new GUIStyle(EditorStyles.textArea)
+            {
+                wordWrap = true,
+                richText = false
+            };
+            EditorGUI.BeginDisabledGroup(true);
+            EditorGUILayout.TextArea(_status, logStyle, GUILayout.ExpandHeight(true));
+            EditorGUI.EndDisabledGroup();
+            EditorGUILayout.EndScrollView();
         }
+
+        static string GetStatusLogTypeLabel(MessageType type) => type switch
+        {
+            MessageType.Error => "错误",
+            MessageType.Warning => "警告",
+            _ => "信息"
+        };
 
         void SetStatusLog(string message, MessageType type = MessageType.Info)
         {
@@ -357,7 +382,8 @@ namespace AsGame.Editor.LevelEditor
             var play = GameplayScreenLayout.GetPlayAreaRect(_layout);
             EditorGUILayout.HelpBox(
                 $"绿框 = 局内区域（由边距算出）Y [{play.yMin:F0}, {play.yMax:F0}]\n" +
-                $"JSON 坐标存于 CupMgr 750×1334，预览时自动映射进绿框以贴近 Game 画面",
+                "JSON 坐标存于 CupMgr 750×1334，预览时自动映射进绿框。\n" +
+                "修改「水瓶尺寸」后，请在右侧预览栏点击「刷新网格」更新虚线网格与吸附步长。",
                 MessageType.None);
         }
 
@@ -371,13 +397,14 @@ namespace AsGame.Editor.LevelEditor
             if (GUILayout.Button("保存", GUILayout.Width(44))) SaveLevel();
             if (GUILayout.Button("新建", GUILayout.Width(44))) NewLevel();
             if (GUILayout.Button("试玩", GUILayout.Width(44))) PlayTestLevel();
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("检查", GUILayout.Width(44)))
                 CheckCurrentLevelWater();
             if (GUILayout.Button("全部检查", GUILayout.Width(72)))
-                CheckAllLevelsWater();
+                InspectAllLevelsWater();
+            if (GUILayout.Button("自动修复", GUILayout.Width(72)))
+                AutoFixAllLevelsWater();
+            if (GUILayout.Button("导出报告", GUILayout.Width(72)))
+                ExportBatchCheckReport();
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
@@ -414,27 +441,123 @@ namespace AsGame.Editor.LevelEditor
                 return;
             }
 
-            var result = LevelWaterValidator.Validate(_cups, _levelIndex);
-            SetStatusLog(
-                LevelWaterValidator.FormatReport(result),
-                result.IsValid ? MessageType.Info : MessageType.Error);
+            if (!LevelWaterCheckReroll.TryResolveRefreshParams(
+                    _cups, _levelIndex, _waterColorCount, _waterTotalLayers, _waterDifficulty,
+                    out var colorCount, out var totalLayers, out var difficulty))
+            {
+                SetStatusLog("无法解析刷新参数，请检查关卡配置或设计表。", MessageType.Warning);
+                Repaint();
+                return;
+            }
+
+            var validation = LevelWaterValidator.ValidateStructure(_cups, _levelIndex);
+            var metrics = LevelWaterDifficultyAnalyzer.AnalyzeSolvability(
+                _cups, _levelIndex, validation, fastSearch: false);
+            if (validation.IsValid && LevelWaterCheckPolicy.IsStepsAcceptable(metrics))
+            {
+                RefreshLevelDifficultyMetrics();
+                var report = LevelWaterValidator.FormatReport(validation);
+                SetStatusLog(
+                    $"【检查】第 {_levelIndex} 关通过；最少步数 {metrics.MinStepsLabel}（上限 {LevelWaterCheckPolicy.MaxAllowedMinSteps}）。\n\n{report}",
+                    MessageType.Info);
+                Repaint();
+                return;
+            }
+
+            RecordUndo();
+            var reroll = LevelWaterCheckReroll.CheckAndReroll(
+                _cups, _levelIndex, colorCount, totalLayers, difficulty, saveToDisk: false);
+
+            RefreshLevelDifficultyMetrics();
+
+            if (reroll.Success)
+            {
+                var report = LevelWaterValidator.FormatReport(reroll.Validation);
+                SetStatusLog($"【检查并修复】{reroll.Message}\n\n{report}", MessageType.Info);
+            }
+            else
+            {
+                var report = reroll.Validation != null
+                    ? LevelWaterValidator.FormatReport(reroll.Validation)
+                    : "";
+                SetStatusLog(
+                    string.IsNullOrEmpty(report)
+                        ? $"【检查并修复失败】{reroll.Message}"
+                        : $"【检查并修复失败】{reroll.Message}\n\n{report}",
+                    MessageType.Error);
+            }
+
             Repaint();
         }
 
-        void CheckAllLevelsWater()
+        void InspectAllLevelsWater()
         {
-            var results = LevelWaterValidator.ValidateAllOnDisk();
-            if (results.Count == 0)
+            RunBatchLevelOperation(
+                rerollOnFail: false,
+                progressTitle: "全部检查",
+                operationTitle: "全部检查",
+                reloadCurrentIfRerolled: false);
+        }
+
+        void AutoFixAllLevelsWater()
+        {
+            RunBatchLevelOperation(
+                rerollOnFail: true,
+                progressTitle: "自动修复",
+                operationTitle: "自动修复",
+                reloadCurrentIfRerolled: true);
+        }
+
+        void RunBatchLevelOperation(
+            bool rerollOnFail,
+            string progressTitle,
+            string operationTitle,
+            bool reloadCurrentIfRerolled)
+        {
+            var entries = LevelBatchChecker.CheckAllOnDisk(
+                showProgress: true, rerollOnFail: rerollOnFail, progressTitle: progressTitle);
+            if (entries.Count == 0)
             {
+                _lastBatchCheckEntries = null;
                 SetStatusLog("未找到任何拆关 JSON（Levels/Split/level_*.json）。", MessageType.Warning);
                 Repaint();
                 return;
             }
 
-            var allValid = results.All(r => r.IsValid);
+            _lastBatchCheckEntries = entries;
+
+            if (reloadCurrentIfRerolled &&
+                entries.Any(e => e.LevelIndex == _levelIndex && e.RerollCount > 0))
+            {
+                LoadLevel();
+                SyncWaterRefreshFieldsFromCups();
+            }
+
+            var allValid = entries.All(e => e.IsValid);
             SetStatusLog(
-                LevelWaterValidator.FormatBatchReport(results),
+                LevelBatchChecker.FormatFullLog(entries, operationTitle, rerollOnFail),
                 allValid ? MessageType.Info : MessageType.Warning);
+            Repaint();
+        }
+
+        void ExportBatchCheckReport()
+        {
+            if (_lastBatchCheckEntries == null || _lastBatchCheckEntries.Count == 0)
+            {
+                if (!EditorUtility.DisplayDialog(
+                        "导出报告",
+                        "尚未执行全部检查或自动修复。是否现在全部检查并导出？",
+                        "全部检查并导出",
+                        "取消"))
+                    return;
+
+                InspectAllLevelsWater();
+                if (_lastBatchCheckEntries == null || _lastBatchCheckEntries.Count == 0)
+                    return;
+            }
+
+            if (LevelBatchChecker.TryExportReportWithDialog(_lastBatchCheckEntries))
+                SetStatusLog("检查报告已导出。", MessageType.Info);
             Repaint();
         }
 
@@ -446,6 +569,13 @@ namespace AsGame.Editor.LevelEditor
                 _waterTotalLayers = total;
                 _waterColorCount = Mathf.Max(1, total / 4);
             }
+
+            RefreshLevelDifficultyMetrics();
+        }
+
+        void RefreshLevelDifficultyMetrics()
+        {
+            _levelDifficultyMetrics = LevelWaterDifficultyAnalyzer.Analyze(_cups, _levelIndex);
         }
 
         void DrawWaterRefreshPanel()
@@ -454,8 +584,27 @@ namespace AsGame.Editor.LevelEditor
             var lockCount = LevelWaterAnalyzer.CountLockCups(_cups);
 
             EditorGUILayout.LabelField(
-                $"参与刷新水层：{participating}（普通瓶+锁瓶；不含空槽/广告瓶/空瓶；锁瓶 {lockCount} 个固定满 4 层）",
+                $"参与刷新水层：{participating}（普通瓶+锁瓶；不含空槽/广告瓶/空瓶；锁瓶 {lockCount} 个按 lockLayers 分配）",
                 EditorStyles.miniLabel);
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField("当前关卡评估", EditorStyles.miniBoldLabel);
+            EditorGUILayout.LabelField($"难度等级：{_levelDifficultyMetrics.DifficultyLabel}");
+            EditorGUILayout.LabelField(
+                $"反推最少完成步数：{_levelDifficultyMetrics.MinStepsLabel}（上限 {LevelWaterCheckPolicy.MaxAllowedMinSteps}）");
+            if (!string.IsNullOrEmpty(_levelDifficultyMetrics.SolveNote) &&
+                _levelDifficultyMetrics.ConfigValid && !_levelDifficultyMetrics.IsSolvable)
+            {
+                EditorGUILayout.LabelField(_levelDifficultyMetrics.SolveNote, EditorStyles.miniLabel);
+            }
+            else
+            {
+                EditorGUILayout.LabelField(
+                    "步数=倒水次数；装袋/锁瓶解锁按游戏规则自动触发（含锁瓶；不含广告瓶/空槽）",
+                    EditorStyles.miniLabel);
+            }
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.Space(4);
 
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.BeginHorizontal();
@@ -489,6 +638,22 @@ namespace AsGame.Editor.LevelEditor
 
             if (GUILayout.Button("刷新水层（覆盖参与随机的瓶子）"))
                 RefreshWaterLayers();
+
+            EditorGUILayout.Space(4);
+            _showWaterRandomRules = EditorGUILayout.Foldout(
+                _showWaterRandomRules, LevelWaterRandomizerRules.Summary, true);
+            if (_showWaterRandomRules)
+            {
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                foreach (var line in LevelWaterRandomizerRules.Lines)
+                {
+                    if (string.IsNullOrEmpty(line))
+                        EditorGUILayout.Space(2);
+                    else
+                        EditorGUILayout.LabelField(line, EditorStyles.wordWrappedMiniLabel);
+                }
+                EditorGUILayout.EndVertical();
+            }
         }
 
         void RefreshWaterLayers()
@@ -511,6 +676,7 @@ namespace AsGame.Editor.LevelEditor
             _status =
                 $"已按「{LevelWaterRandomizer.GetDifficultyDisplayName(_waterDifficulty)}」刷新水层" +
                 $"（{_waterColorCount} 色 × 4 = {_waterTotalLayers} 层，写入 {LevelWaterAnalyzer.CountParticipating(_cups)} 个瓶）";
+            RefreshLevelDifficultyMetrics();
             SaveLayoutSettings();
             Repaint();
             RefreshScenePreview();
@@ -518,9 +684,17 @@ namespace AsGame.Editor.LevelEditor
 
         void DrawPlayAreaPreview()
         {
+            EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("局内预览（竖屏）", EditorStyles.boldLabel);
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("刷新网格", GUILayout.Width(72)))
+                ApplyPreviewGridFromBottleSettings();
+            EditorGUILayout.EndHorizontal();
             EditorGUILayout.LabelField(
-                "绿框 = 局内可摆放区；拖动瓶子调整位置。左侧为关卡编辑，本栏占满剩余宽度。",
+                "绿框 = 局内可摆放区；虚线网格 = 水瓶尺寸单元格；拖动瓶子调整位置。",
+                EditorStyles.miniLabel);
+            EditorGUILayout.LabelField(
+                $"当前网格：{_gridBottleWidth:F0} × {_gridBottleHeight:F0}（设计像素）",
                 EditorStyles.miniLabel);
             _showCupRawReference = EditorGUILayout.Toggle("显示 CupMgr 原始区（灰虚线对照）", _showCupRawReference);
             var rect = GUILayoutUtility.GetRect(
@@ -658,6 +832,8 @@ namespace AsGame.Editor.LevelEditor
                 layout.playGui, new Color(0.2f, 0.85f, 0.45f, 0.08f), new Color(0.2f, 0.85f, 0.45f, 1f));
             Handles.EndGUI();
 
+            DrawPlayAreaBottleGrid(layout.playGui, layout.scale);
+
             for (var i = 0; i < _cups.Count; i++)
             {
                 var cup = _cups[i];
@@ -725,10 +901,43 @@ namespace AsGame.Editor.LevelEditor
             };
             GUI.Label(new Rect(previewRect.x + 6, previewRect.y + 4, previewRect.width - 12, 18),
                 "绿框 · 局内区域（边距参数）", style);
+            GUI.Label(new Rect(previewRect.x + 6, previewRect.y + 20, previewRect.width - 12, 18),
+                $"绿虚线 · 水瓶网格 {_gridBottleWidth:F0}×{_gridBottleHeight:F0}", style);
             if (_showCupRawReference)
             {
-                GUI.Label(new Rect(previewRect.x + 6, previewRect.y + 20, previewRect.width - 12, 18),
+                GUI.Label(new Rect(previewRect.x + 6, previewRect.y + 36, previewRect.width - 12, 18),
                     "灰虚线 · CupMgr JSON 坐标系", style);
+            }
+        }
+
+        void ApplyPreviewGridFromBottleSettings()
+        {
+            _gridBottleWidth = PreviewBottleWidth;
+            _gridBottleHeight = PreviewBottleHeight;
+            _snapGrid = true;
+            Repaint();
+            SceneView.RepaintAll();
+        }
+
+        void DrawPlayAreaBottleGrid(Rect playGui, float scale)
+        {
+            var cellW = _gridBottleWidth * scale;
+            var cellH = _gridBottleHeight * scale;
+            if (cellW < 2f || cellH < 2f) return;
+
+            var color = new Color(0.2f, 0.85f, 0.45f, 0.45f);
+            var x = playGui.xMin;
+            while (x <= playGui.xMax + 0.5f)
+            {
+                DrawDashedGuiLine(new Vector2(x, playGui.yMin), new Vector2(x, playGui.yMax), color);
+                x += cellW;
+            }
+
+            var y = playGui.yMin;
+            while (y <= playGui.yMax + 0.5f)
+            {
+                DrawDashedGuiLine(new Vector2(playGui.xMin, y), new Vector2(playGui.xMax, y), color);
+                y += cellH;
             }
         }
 
@@ -837,9 +1046,13 @@ namespace AsGame.Editor.LevelEditor
                 OnScenePreviewToggled();
 
             _clampToPlayArea = EditorGUILayout.Toggle("限制在 CupMgr 区域 (750×1334)", _clampToPlayArea);
-            _snapGrid = EditorGUILayout.Toggle("吸附网格", _snapGrid);
+            _snapGrid = EditorGUILayout.Toggle("吸附虚线网格", _snapGrid);
             if (_snapGrid)
-                _snapSize = EditorGUILayout.FloatField("网格步长", _snapSize);
+            {
+                EditorGUILayout.LabelField(
+                    $"吸附单元格：{_gridBottleWidth:F0} × {_gridBottleHeight:F0}（与预览虚线网格一致，修改尺寸后请点「刷新网格」）",
+                    EditorStyles.miniLabel);
+            }
 
             if (_scenePreview)
                 EditorGUILayout.HelpBox(
@@ -1139,12 +1352,27 @@ namespace AsGame.Editor.LevelEditor
             }
         }
 
-        Vector2 Snap(Vector2 v)
+        /// <summary>将瓶子底边锚点吸附到局内预览虚线网格单元格（与 DrawPlayAreaBottleGrid 同源）。</summary>
+        Vector2 Snap(Vector2 cupPosition)
         {
-            if (_snapSize <= 0.01f) return v;
-            return new Vector2(
-                Mathf.Round(v.x / _snapSize) * _snapSize,
-                Mathf.Round(v.y / _snapSize) * _snapSize);
+            if (!_snapGrid) return cupPosition;
+
+            var cellW = _gridBottleWidth;
+            var cellH = _gridBottleHeight;
+            if (cellW <= 0.01f || cellH <= 0.01f) return cupPosition;
+
+            var play = GameplayScreenLayout.GetPlayAreaRect(_layout);
+            var playPos = GameplayLayoutMapping.CupToPlayArea(cupPosition, _layout);
+
+            var localX = playPos.x - play.xMin;
+            var localY = playPos.y - play.yMin;
+            var cellX = Mathf.Round((localX - cellW * 0.5f) / cellW);
+            var cellY = Mathf.Round(localY / cellH);
+            var snappedPlay = new Vector2(
+                play.xMin + cellX * cellW + cellW * 0.5f,
+                play.yMin + cellY * cellH);
+
+            return GameplayLayoutMapping.PlayAreaToCup(snappedPlay, _layout);
         }
 
         void LoadLevel()

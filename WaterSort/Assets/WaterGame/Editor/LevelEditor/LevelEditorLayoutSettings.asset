@@ -15,14 +15,14 @@ MonoBehaviour:
   layout:
     designWidth: 1200
     designHeight: 2132
-    insetTop: 800
+    insetTop: 670
     insetBottom: 240
-    insetLeft: 0
-    insetRight: 0
-  bottleWidth: 91
+    insetLeft: 92
+    insetRight: 92
+  bottleWidth: 92
   bottleHeight: 245
-  waterColorCount: 3
-  waterTotalLayers: 12
-  waterDifficulty: 0
-  leftPanelWidth: 573
-  sectionHeightCups: 477
+  waterColorCount: 7
+  waterTotalLayers: 28
+  waterDifficulty: 1
+  leftPanelWidth: 726
+  sectionHeightCups: 120

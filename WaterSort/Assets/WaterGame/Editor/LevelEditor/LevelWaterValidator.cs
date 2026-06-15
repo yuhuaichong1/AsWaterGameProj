@@ -37,7 +37,19 @@ namespace AsGame.Editor.LevelEditor
         const int MinPlayColor = 1;
         const int MaxPlayColor = 8;
 
-        public static LevelWaterValidationResult Validate(IList<CupData> cups, int levelIndex = 0)
+        public static LevelWaterValidationResult Validate(
+            IList<CupData> cups,
+            int levelIndex = 0,
+            bool checkSolvability = true)
+        {
+            var result = ValidateStructure(cups, levelIndex);
+            if (result.IsValid && checkSolvability)
+                ValidateSolvability(result, cups, levelIndex);
+            return result;
+        }
+
+        /// <summary>仅检查水层配置，不跑最少步数搜索。</summary>
+        public static LevelWaterValidationResult ValidateStructure(IList<CupData> cups, int levelIndex = 0)
         {
             var result = new LevelWaterValidationResult { LevelIndex = levelIndex };
 
@@ -49,6 +61,7 @@ namespace AsGame.Editor.LevelEditor
 
             var colorCounts = new Dictionary<int, int>();
             var participatingLayers = 0;
+            var lockLayersActual = 0;
 
             for (var i = 0; i < cups.Count; i++)
             {
@@ -82,12 +95,13 @@ namespace AsGame.Editor.LevelEditor
                     case CupSlotKind.锁瓶:
                         result.ParticipatingCupCount++;
                         result.LockCupCount++;
-                        ValidateParticipatingCup(result, cup, i, kind, colorCounts, ref participatingLayers);
+                        ValidateParticipatingCup(result, cup, i, kind, colorCounts, ref participatingLayers, levelIndex);
+                        lockLayersActual += cup.colors?.Count ?? 0;
                         break;
                     default:
                         result.ParticipatingCupCount++;
                         result.RegularCupCount++;
-                        ValidateParticipatingCup(result, cup, i, kind, colorCounts, ref participatingLayers);
+                        ValidateParticipatingCup(result, cup, i, kind, colorCounts, ref participatingLayers, levelIndex);
                         break;
                 }
             }
@@ -123,8 +137,115 @@ namespace AsGame.Editor.LevelEditor
                 }
             }
 
-            ValidateParticipatingCapacity(result, participatingLayers);
+            ValidateParticipatingCapacity(result, participatingLayers, lockLayersActual);
             return result;
+        }
+
+        static void ValidateLockCupLayersForLevel(
+            LevelWaterValidationResult result, int index, int layerCount, int levelIndex)
+        {
+            var expected = LevelDesignSheetLoader.TryGetExpectedLockLayers(levelIndex);
+            if (expected > 0)
+            {
+                if (layerCount != expected)
+                    result.Errors.Add(
+                        $"#{index} 第 {levelIndex} 关锁瓶应为 {expected} 层水（当前 {layerCount} 层，见优化版v1表）。");
+                return;
+            }
+
+            if (levelIndex is >= 3 and <= 5 && layerCount != 2)
+            {
+                result.Errors.Add($"#{index} 第 {levelIndex} 关锁瓶应为 2 层水（当前 {layerCount} 层）。");
+                return;
+            }
+
+            if (levelIndex is >= 6 and <= 10 && layerCount != 3)
+            {
+                result.Errors.Add($"#{index} 第 {levelIndex} 关锁瓶应为 3 层水（当前 {layerCount} 层）。");
+                return;
+            }
+
+            if (levelIndex is >= 11 and <= 40 && layerCount > 3)
+                result.Errors.Add($"#{index} 第 {levelIndex} 关锁瓶建议不超过 3 层（当前 {layerCount} 层）。");
+
+            if (levelIndex is >= 3 and <= 10 && layerCount >= MaxCapacity)
+                result.Errors.Add($"#{index} 前 10 关锁瓶不应满 {MaxCapacity} 层（当前 {layerCount} 层）。");
+        }
+
+        static void ValidateSolvability(
+            LevelWaterValidationResult result, IList<CupData> cups, int levelIndex)
+        {
+            if (HasLockDeadlockAtStart(cups))
+            {
+                result.Errors.Add("关卡不可解：锁瓶内颜色无法在不解锁的情况下先完成装袋（死锁）");
+                return;
+            }
+
+            var solve = LevelWaterSolver.TryFindMinSteps(
+                cups, levelIndex, LevelWaterCheckPolicy.MaxAllowedMinSteps);
+            if (solve.IsSolvable)
+                return;
+
+            var msg = string.IsNullOrEmpty(solve.Message)
+                ? $"关卡不可解或未在 {LevelWaterCheckPolicy.MaxAllowedMinSteps} 步内找到解"
+                : solve.Message;
+            result.Errors.Add(msg);
+        }
+
+        /// <summary>锁瓶未解锁时，外部是否至少能先装袋一次（必要条件）。</summary>
+        public static bool HasLockDeadlockAtStart(IList<CupData> cups)
+        {
+            var lockCups = new List<CupData>();
+            var outsideCounts = new Dictionary<int, int>();
+
+            foreach (var cup in cups)
+            {
+                if (cup == null) continue;
+                var kind = CupSlotKindUtility.GetKind(cup);
+                if (kind is CupSlotKind.空槽 or CupSlotKind.广告瓶 or CupSlotKind.空瓶)
+                    continue;
+                if (kind == CupSlotKind.锁瓶 && cup.lockNums > 0)
+                {
+                    lockCups.Add(cup);
+                    continue;
+                }
+
+                if (cup.colors == null) continue;
+                foreach (var c in cup.colors)
+                {
+                    if (!outsideCounts.ContainsKey(c)) outsideCounts[c] = 0;
+                    outsideCounts[c]++;
+                }
+            }
+
+            if (lockCups.Count == 0)
+                return false;
+
+            foreach (var lockCup in lockCups)
+            {
+                var need = lockCup.lockColor;
+                if (need == 0)
+                {
+                    var canPack = false;
+                    foreach (var kv in outsideCounts)
+                    {
+                        if (kv.Value >= MaxCapacity)
+                        {
+                            canPack = true;
+                            break;
+                        }
+                    }
+
+                    if (!canPack)
+                        return true;
+                }
+                else if (!outsideCounts.TryGetValue(need, out var n) || n < MaxCapacity)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         static void ValidateParticipatingCup(
@@ -133,7 +254,8 @@ namespace AsGame.Editor.LevelEditor
             int index,
             CupSlotKind kind,
             Dictionary<int, int> colorCounts,
-            ref int participatingLayers)
+            ref int participatingLayers,
+            int levelIndex)
         {
             var layers = cup.colors ?? new List<int>();
             var layerCount = layers.Count;
@@ -142,8 +264,12 @@ namespace AsGame.Editor.LevelEditor
             if (layerCount > MaxCapacity)
                 result.Errors.Add($"#{index} {KindLabel(kind)} 水层 {layerCount} 超过上限 {MaxCapacity}。");
 
-            if (kind == CupSlotKind.锁瓶 && layerCount != MaxCapacity)
-                result.Errors.Add($"#{index} 锁瓶必须为 {MaxCapacity} 层（当前 {layerCount} 层）。");
+            if (kind == CupSlotKind.锁瓶 && layerCount < 1)
+                result.Errors.Add($"#{index} 锁瓶至少需要 1 层水（当前 {layerCount} 层）。");
+            else if (kind == CupSlotKind.锁瓶 && layerCount > MaxCapacity)
+                result.Errors.Add($"#{index} 锁瓶水层 {layerCount} 超过上限 {MaxCapacity}。");
+            else if (kind == CupSlotKind.锁瓶)
+                ValidateLockCupLayersForLevel(result, index, layerCount, levelIndex);
 
             if (cup.whNums < 0 || cup.whNums > layerCount)
                 result.Errors.Add($"#{index} {KindLabel(kind)} 问号层数 whNums={cup.whNums} 超出范围 [0,{layerCount}]。");
@@ -188,24 +314,24 @@ namespace AsGame.Editor.LevelEditor
             }
         }
 
-        static void ValidateParticipatingCapacity(LevelWaterValidationResult result, int participatingLayers)
+        static void ValidateParticipatingCapacity(
+            LevelWaterValidationResult result, int participatingLayers, int lockLayersActual)
         {
-            var lockLayers = result.LockCupCount * MaxCapacity;
-            if (lockLayers > participatingLayers)
+            if (lockLayersActual > participatingLayers)
             {
                 result.Errors.Add(
-                    $"锁瓶占用 {lockLayers} 层，超过参与瓶水层总数 {participatingLayers}。");
+                    $"锁瓶占用 {lockLayersActual} 层，超过参与瓶水层总数 {participatingLayers}。");
                 return;
             }
 
-            var regularLayers = participatingLayers - lockLayers;
+            var regularLayers = participatingLayers - lockLayersActual;
             var regularCapacity = result.RegularCupCount * MaxCapacity;
 
             if (regularLayers > regularCapacity)
             {
                 result.Errors.Add(
                     $"普通瓶最多容纳 {regularCapacity} 层（{result.RegularCupCount} 瓶×4），" +
-                    $"当前需 {regularLayers} 层（总 {participatingLayers} 层，锁瓶占 {lockLayers} 层）。");
+                    $"当前需 {regularLayers} 层（总 {participatingLayers} 层，锁瓶占 {lockLayersActual} 层）。");
             }
 
             if (regularLayers > 0 && result.RegularCupCount == 0)

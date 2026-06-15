@@ -123,39 +123,18 @@ namespace AsGame.Water
 
         void BuildPocketColors()
         {
-            _pocketColors.Clear();
             _needCollect = 0;
             _collected = 0;
-            var colorCount = new Dictionary<int, int>();
             foreach (var cup in _levelData)
             {
-                if (cup.isNull != 0) continue;
-                foreach (var c in cup.colors)
-                {
-                    if (!colorCount.ContainsKey(c)) colorCount[c] = 0;
-                    colorCount[c]++;
-                    if (colorCount[c] % 4 == 0)
-                    {
-                        _pocketColors.Add(c);
-                        colorCount[c] = 0;
-                    }
-                }
-
+                if (cup == null || cup.isNull != 0 || cup.isVideo != 0 || cup.colors == null)
+                    continue;
                 _needCollect += cup.colors.Count;
             }
 
             _needCollect /= 4;
-            if (_levelIndex != 1)
-                Shuffle(_pocketColors);
-        }
-
-        static void Shuffle<T>(IList<T> list)
-        {
-            for (var i = list.Count - 1; i > 0; i--)
-            {
-                var j = Random.Range(0, i + 1);
-                (list[i], list[j]) = (list[j], list[i]);
-            }
+            LevelPocketColorPlanner.BuildPocketColors(
+                _levelData, _levelIndex, _pocketColors, useUnityRandom: true);
         }
 
         void ClearBoard()
