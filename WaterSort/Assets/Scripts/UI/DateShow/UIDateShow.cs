@@ -9,6 +9,8 @@ namespace XrCode
         private Vector3 titlePos;
         private Vector3 contentPos;
 
+        private STimer STimer;
+
         protected override void OnAwake()
         {
             titlePos = mTitle.transform.position;
@@ -20,11 +22,21 @@ namespace XrCode
 
             mContentText.text = string.Format(FacadeLanguage.GetText("10125"), GameDefines.DataShowText1, GameDefines.DataShowText2, FacadeWithdraw.GetWTarget());
 
-            STimerManager.Instance.CreateSDelay(2, OnContinueBtnClickHandle);
+            STimer = STimerManager.Instance.CreateSDelay(2, OnContinueBtnClickHandle);
         }
         	    private void OnContinueBtnClickHandle()
         {
-            HideAnim(mPlane);
+            if(STimer != null)
+            {
+                STimer.Stop();
+            }
+
+            HideAnim(mPlane, () => 
+            {
+                UIManager.Instance.CloseUI(EUIType.EUIDateShow);
+                FacadeGuide.SetIfTutorial(false);
+                FacadeGamePlay.StartLevel();
+            });
         }
 
         protected override void OnDisable() { }

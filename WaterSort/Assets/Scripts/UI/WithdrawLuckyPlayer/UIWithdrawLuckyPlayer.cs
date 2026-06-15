@@ -46,7 +46,7 @@ namespace XrCode
 
         private void OnConfirmBtnClickHandle()
         {
-            FacadeGuide.SetIfTutorial(false);
+            //FacadeGuide.SetIfTutorial(false);
 
             HideAnim(mPlane, () => 
             {
@@ -60,7 +60,8 @@ namespace XrCode
                     }
                 }, null);
 
-                FacadeGamePlay.StartLevel();
+                //FacadeGamePlay.StartLevel();
+                UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, null, false, true);
             });
         }
 

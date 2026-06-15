@@ -23,7 +23,9 @@ namespace XrCode
         private Dictionary<int, ConfMoneyInterval> MIData;
         private List<float> TargetInterval;
 
-        private bool ifAfterCreate;
+        private bool ifAfterCreate;//是否在关闭界面后走下一步
+
+        private bool ifOpenUIDateShow;
 
         protected override void OnLoad()
         {
@@ -340,7 +342,8 @@ namespace XrCode
                 withdrawalRecordItems.Add(item.OrderId, item);
             }
 
-            ifAfterCreate = true;
+            //ifAfterCreate = true;
+            ifOpenUIDateShow = false;
         }
 
         /// <summary>
@@ -553,7 +556,7 @@ namespace XrCode
         /// </summary>
         private void AfterCloseWUI()
         {
-            UnityEngine.Debug.LogError("?" + ifAfterCreate);
+            UnityEngine.Debug.LogError("ifAfterCreate: " + ifAfterCreate);
 
             if(ifAfterCreate)
             {
@@ -575,8 +578,17 @@ namespace XrCode
                     }
                 }, (money) =>
                 {
-                    UnityEngine.Debug.LogError("=====?");
-                    UIManager.Instance.OpenAsync<UIWithdrawLuckyPlayer>(EUIType.EUIWithdrawLuckyPlayer);
+                    if(!ifOpenUIDateShow && FacadePlayer.GetMoney() + GameDefines.DiffVal <= wTarget - 0.01f)
+                    {
+                        UIManager.Instance.OpenAsync<UIWithdrawLuckyPlayer>(EUIType.EUIWithdrawLuckyPlayer);
+                        ifOpenUIDateShow = true;
+                        ifAfterCreate = true;
+                    }
+                    else
+                    {
+                        UIManager.Instance.OpenAsync<UIDateShow>(EUIType.EUIDateShow);
+                        ifOpenUIDateShow = false;
+                    }
                     //FacadeGamePlay.CreateLevel();
                 }, (day) =>
                 {
