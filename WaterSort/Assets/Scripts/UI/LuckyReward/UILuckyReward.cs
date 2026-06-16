@@ -39,24 +39,31 @@ namespace XrCode
         private void GetReward()
         {
             FacadePlayer.AddMoney(curCompletedMoney);
-            FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+            FacadeGamePlay.ReStartLRTimer();
+
+            HideAnim(mPlane, () =>
             {
+                FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+                {
                 new ERewardItemStruct()
                 {
                     Type = ERewardType.Money,
                     Count = curCompletedMoney,
                 }
-            }, null);
-            UIManager.Instance.CloseUI(EUIType.EUILuckyReward);
-            FacadeGamePlay.ReStartLRTimer();
+                }, null);
+                UIManager.Instance.CloseUI(EUIType.EUILuckyReward);
+            });
         }
 
         private void GetOnlyReward()
         {
             FacadePlayer.AddMoney(curOnlyMoney);
-            FacadeEffect.PlayFlyMoney(mOnlyBtn.transform, GameDefines.FlyMoney_FlyMoneyCount, curOnlyMoney, () => { FacadeGamePlay.SetCurMoneyShow(); });
-            UIManager.Instance.CloseUI(EUIType.EUILuckyReward);
             FacadeGamePlay.ReStartLRTimer();
+            HideAnim(mPlane, () => 
+            {
+                FacadeEffect.PlayFlyMoney(mOnlyBtn.transform, GameDefines.FlyMoney_FlyMoneyCount, curOnlyMoney, () => { FacadeGamePlay.SetCurMoneyShow(); });
+                UIManager.Instance.CloseUI(EUIType.EUILuckyReward);
+            });
         }
 
         protected override void OnDisable()

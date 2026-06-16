@@ -540,6 +540,8 @@ namespace XrCode
                     else
                     {
                         int id = TargetInterval.Count - intervalId;
+                        if (id < 0) id = 0;
+                        else if (id >= MIData.Count) id = MIData.Count - 1;
                         reward = UnityEngine.Random.Range(MIData[id].LSMin, MIData[id].LSMax);
                     }
                 }, (v) =>
@@ -556,8 +558,6 @@ namespace XrCode
         /// </summary>
         private void AfterCloseWUI()
         {
-            UnityEngine.Debug.LogError("ifAfterCreate: " + ifAfterCreate);
-
             if(ifAfterCreate)
             {
                 ifAfterCreate = false;

@@ -32,7 +32,7 @@ namespace XrCode
                 FacadeWithdraw.ActionByCurWTarget((value) =>
                 {
                     mProgress1.gameObject.SetActive(true);
-
+                    mProgress1.SetOrderTime(item.CreatedDate);
                     mProgress1.PlayAnim(ShowBtn);
                 }, (value) =>
                 {
@@ -46,6 +46,7 @@ namespace XrCode
                     if (!b)
                         mP2_4_ErrorContent.text = string.Format(FacadeLanguage.GetText("10082"), FacadePayType.RegionalChange(value), FacadePayType.RegionalChange(targetMoney));
                     //mProgress2.PlayAnim(ShowBtn, b, 3);
+                    mProgress2.SetOrderTime(item.CreatedDate);
                     mProgress2.PlayAnim(ShowBtn);
                 }, (value) =>
                 {
@@ -58,6 +59,7 @@ namespace XrCode
                     if (!b)
                         mP3_4_ErrorContent.text = string.Format(FacadeLanguage.GetText("10083"), GameDefines.CheckInDay, GameDefines.CheckInDay - value);
                     //mProgress3.PlayAnim(ShowBtn, b, 3);
+                    mProgress3.SetOrderTime(item.CreatedDate);
                     mProgress3.PlayAnim(ShowBtn);
                 });
             });

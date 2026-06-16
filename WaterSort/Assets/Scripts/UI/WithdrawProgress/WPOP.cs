@@ -44,4 +44,12 @@ public class WPOP : MonoBehaviour
         else
             timer.ReStart();
     }
+
+    public void SetOrderTime(string time)
+    {
+        for(int i = 0;i < WPOrderProgress.Count;i++)
+        {
+            WPOrderProgress[i].Content.text = time;
+        }
+    }
 }
