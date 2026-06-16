@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace AsGame.UI
+namespace XrCode
 {
     /// <summary>模拟 Cocos cc.Node.skewY，用于倒水时液面倾斜。</summary>
     [RequireComponent(typeof(Graphic))]
