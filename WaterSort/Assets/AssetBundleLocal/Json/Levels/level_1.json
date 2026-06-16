@@ -2,8 +2,8 @@
     "level": 1,
     "cups": [
         {
-            "x": -120.0,
-            "y": -194.0,
+            "x": -101.14234924316406,
+            "y": -173.78924560546876,
             "colors": [
                 3,
                 3,
@@ -14,11 +14,12 @@
             "isLock": 0,
             "lockColor": 0,
             "lockNums": 0,
-            "isNull": 0
+            "isNull": 0,
+            "isEmptyCup": 0
         },
         {
-            "x": 120.0,
-            "y": -190.0,
+            "x": 103.36518096923828,
+            "y": -170.501953125,
             "colors": [
                 3
             ],
@@ -27,11 +28,12 @@
             "isLock": 0,
             "lockColor": 0,
             "lockNums": 0,
-            "isNull": 0
+            "isNull": 0,
+            "isEmptyCup": 0
         },
         {
-            "x": -240.0,
-            "y": 26.0,
+            "x": -205.21653747558595,
+            "y": 135.3649444580078,
             "colors": [
                 6,
                 6,
@@ -42,11 +44,12 @@
             "isLock": 0,
             "lockColor": 0,
             "lockNums": 0,
-            "isNull": 0
+            "isNull": 0,
+            "isEmptyCup": 0
         },
         {
-            "x": 0.0,
-            "y": 26.0,
+            "x": -1.476377248764038,
+            "y": 135.3649444580078,
             "colors": [
                 2,
                 2
@@ -56,11 +59,12 @@
             "isLock": 0,
             "lockColor": 0,
             "lockNums": 0,
-            "isNull": 0
+            "isNull": 0,
+            "isEmptyCup": 0
         },
         {
-            "x": 240.0,
-            "y": 26.0,
+            "x": 202.26377868652345,
+            "y": 135.3649444580078,
             "colors": [
                 2,
                 6,
@@ -71,7 +75,8 @@
             "isLock": 0,
             "lockColor": 0,
             "lockNums": 0,
-            "isNull": 0
+            "isNull": 0,
+            "isEmptyCup": 0
         }
     ]
 }

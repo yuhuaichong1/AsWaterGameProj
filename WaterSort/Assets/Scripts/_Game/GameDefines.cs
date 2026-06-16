@@ -91,7 +91,7 @@ public abstract class GameDefines
 
     #region 兑现相关
 
-    public static int LP_PackCount = 200;                                                                   //幸运玩家包数
+    public static int LP_PackCount = 17;                                                                   //幸运玩家包数
     public static int LP_PlayerNo = 8;                                                                      //幸运玩家名次
 
     public static Vector2 Withdrawal_RQuota = new Vector2(3000, 4000);                                      //可兑现金额随机区间
