@@ -21,8 +21,9 @@ MonoBehaviour:
     insetRight: 92
   bottleWidth: 92
   bottleHeight: 245
-  waterColorCount: 3
-  waterTotalLayers: 12
+  waterColorCount: 6
+  waterTotalLayers: 28
+  waterQuestionLayers: 0
   waterDifficulty: 1
   leftPanelWidth: 726
-  sectionHeightCups: 120
+  sectionHeightCups: 375
