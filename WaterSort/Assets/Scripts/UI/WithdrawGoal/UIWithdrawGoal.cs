@@ -28,7 +28,7 @@ namespace XrCode
         protected override void OnEnable()
         {
             mBlanceMoney.text = FacadePayType.RegionalChange(FacadePlayer.GetMoney());
-            mGoalTitle.text = string.Format(FacadeLanguage.GetText("10066"), FacadeWithdraw.GetWithdrawalRecordItems().Count + 1);
+            mGoalTitle.text = string.Format(FacadeLanguage.GetText("10066"), FacadeWithdraw.GetWithdrawalRecordItems().Count + (ifFromGuide ? 1 : 0));
 
             SetSliderValue();
             SetLevelStatus();
@@ -75,7 +75,7 @@ namespace XrCode
                     }
                     else
                     {
-                        mGoalSlider.value = level / (GameDefines.miniLevel_Start -1);
+                        mGoalSlider.value = level * 1f / (GameDefines.miniLevel_Start - 1);
                         mGoldSliderText.text = $"{level}/{(GameDefines.miniLevel_Start - 1)}";
                     }
                 }
@@ -98,7 +98,7 @@ namespace XrCode
                     mGoldSliderText.text = $"{(int)(FacadePlayer.GetMoney() * FacadePayType.GetExchangeRate())}/{(int)(wTargetMoney * FacadePayType.GetExchangeRate())}";
                     mGoalSlider.value = (float)FacadePlayer.GetMoney() / wTargetMoney;
                 }
-            },(day) =>
+            }, (day) =>
             {
                 if (ifFromGuide)
                 {
@@ -185,59 +185,80 @@ namespace XrCode
                 if (ifFromLuckyUser)
                 {
                     ifFromLuckyUser = false;
-                    FacadeGamePlay.StartLevel();
+                    //FacadeGamePlay.StartLevel();
+                    UIManager.Instance.OpenAsync<UIDateShow>(EUIType.EUIDateShow);
                 }
             });
-            
+
         }
 
-	    private void OnWithdrawBtnClickHandle()
+        private void OnWithdrawBtnClickHandle()
         {
-            if (FacadeWithdraw.GetCanWithdraw())
+            FacadeWithdraw.ActionByCurWTarget((level) =>
             {
-                FacadeWithdraw.SetCanWithdraw(false);
-
-                WithdrawalRecordItem UIProgressTarget = FacadeWithdraw.CreateOrder(FacadePlayer.GetLevel() - 1, (float)FacadePlayer.GetMoney());
-
-                FacadeWithdraw.ActionByCurWTarget((level) =>
+                if (FacadeWithdraw.GetCanWithdraw())
                 {
+                    FacadeWithdraw.SetCanWithdraw(false);
+                    WithdrawalRecordItem UIProgressTarget = FacadeWithdraw.CreateOrder(FacadePlayer.GetLevel() - 1, (float)FacadePlayer.GetMoney());
                     FacadePlayer.SetMoney(0);
                     FacadeGamePlay.SetCurMoneyShow();
-                }, (money) =>
-                {
-
-                }, (day) =>
-                {
-
-                });
-
-                HideAnim(mPlane, () =>
-                {
-                    if (FacadeWithdraw.GetPayType() == EPayType.None)
+                    HideAnim(mPlane, () =>
                     {
-                        UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIWithdrawEnterInfo, UIOpenType.None, null, UIProgressTarget);
-                    }
-                    else
-                    {
-                        FacadeWithdraw.ActionByCurWTarget((level) =>
+                        UIManager.Instance.CloseUI(EUIType.EUIWithdrawGoal);
+                        if (FacadeWithdraw.GetPayType() == EPayType.None)
+                        {
+                            UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIWithdrawEnterInfo, UIOpenType.None, null, UIProgressTarget);
+                        }
+                        else
                         {
                             UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIWithdrawConfirm, UIOpenType.None, null, UIProgressTarget);
-                        }, (money) =>
-                        {
-                            UIManager.Instance.OpenAsync<UIWithdrawProgress>(EUIType.EUIWithdrawProgress, UIOpenType.None, null, UIProgressTarget);
-                        }, (day) =>
-                        {
-                            UIManager.Instance.OpenAsync<UIWithdrawProgress>(EUIType.EUIWithdrawProgress, UIOpenType.None, null, UIProgressTarget);
-                        });
-                    }
-
-                    UIManager.Instance.CloseUI(EUIType.EUIWithdrawGoal);
-                });
-            }
-            else
+                        }
+                    });
+                }
+                else
+                {
+                    UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10102"));
+                }
+            }, (money) =>
             {
-                UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10102"));
-            }
+                if (FacadeWithdraw.GetCanWithdraw())
+                {
+                    FacadeWithdraw.SetCanWithdraw(false);
+                    WithdrawalRecordItem UIProgressTarget = FacadeWithdraw.CreateOrder(FacadePlayer.GetLevel() - 1, (float)FacadePlayer.GetMoney());
+                    HideAnim(mPlane, () =>
+                    {
+                        UIManager.Instance.CloseUI(EUIType.EUIWithdrawGoal);
+                        if (FacadeWithdraw.GetPayType() == EPayType.None)
+                        {
+                            UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIWithdrawEnterInfo, UIOpenType.None, null, UIProgressTarget);
+                        }
+                        else
+                        {
+                            UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIWithdrawConfirm, UIOpenType.None, null, UIProgressTarget);
+                        }
+                    });
+                }
+                else
+                {
+                    HideAnim(mPlane, () =>
+                    {
+                        WithdrawalRecordItem UIProgressTarget = FacadeWithdraw.GetWithdrawalRecordItemById(2);
+
+                        UIManager.Instance.CloseUI(EUIType.EUIWithdrawGoal);
+                        if (FacadeWithdraw.GetPayType() == EPayType.None)
+                        {
+                            UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIWithdrawEnterInfo, UIOpenType.None, null, UIProgressTarget);
+                        }
+                        else
+                        {
+                            UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIWithdrawConfirm, UIOpenType.None, null, UIProgressTarget);
+                        }
+                    });
+                }
+            }, (day) =>
+            {
+
+            });
         }
 
         protected override void OnDisable() { }

@@ -6,25 +6,34 @@ namespace XrCode
 {
     public partial class UIDateShow : BaseUI
     {
-        private Vector3 titlePos;
-        private Vector3 contentPos;
+        private STimer STimer;
 
         protected override void OnAwake()
         {
-            titlePos = mTitle.transform.position;
-            contentPos = mContentText.transform.position;
+
         }
         protected override void OnEnable()
         {
             ShowAnim(mPlane);
 
             mContentText.text = string.Format(FacadeLanguage.GetText("10125"), GameDefines.DataShowText1, GameDefines.DataShowText2, FacadeWithdraw.GetWTarget());
+            mTimeText.text = string.Format(FacadeLanguage.GetText("10126"),15);
 
-            STimerManager.Instance.CreateSDelay(2, OnContinueBtnClickHandle);
+            STimer = STimerManager.Instance.CreateSDelay(1.5f, OnContinueBtnClickHandle);
         }
         	    private void OnContinueBtnClickHandle()
         {
-            HideAnim(mPlane);
+            if(STimer != null)
+            {
+                STimer.Stop();
+            }
+
+            HideAnim(mPlane, () => 
+            {
+                UIManager.Instance.CloseUI(EUIType.EUIDateShow);
+                FacadeGuide.SetIfTutorial(false);
+                FacadeGamePlay.StartLevel();
+            });
         }
 
         protected override void OnDisable() { }

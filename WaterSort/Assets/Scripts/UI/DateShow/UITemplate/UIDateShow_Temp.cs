@@ -5,11 +5,11 @@ using UnityEngine.UI;
 namespace XrCode
 {
     public partial class UIDateShow : BaseUI
-    {	protected RectTransform mPlane;	protected Image mGPIcon;	protected Text mContentText;	protected Button mContinueBtn;	protected RectTransform mTitle;
+    {	protected RectTransform mPlane;	protected Image mGPIcon;	protected Text mContentText;	protected Text mTimeText;	protected Button mContinueBtn;
         protected override void LoadPanel()
         {
             base.LoadPanel();
-            		mPlane = mTransform.Find("Plane").GetComponent<RectTransform>();		mGPIcon = mTransform.Find("Plane/LightBg/GPIcon").GetComponent<Image>();		mContentText = mTransform.Find("Plane/ContentText").GetComponent<Text>();		mContinueBtn = mTransform.Find("ContinueBtn").GetComponent<Button>();		mTitle = mTransform.Find("Plane/Title").GetComponent<RectTransform>();
+            		mPlane = mTransform.Find("Plane").GetComponent<RectTransform>();		mGPIcon = mTransform.Find("Plane/GPIcon").GetComponent<Image>();		mContentText = mTransform.Find("Plane/ContentText").GetComponent<Text>();		mTimeText = mTransform.Find("Plane/TimeText").GetComponent<Text>();		mContinueBtn = mTransform.Find("ContinueText/ContinueBtn").GetComponent<Button>();
         }
     
         protected override void BindButtonEvent() 

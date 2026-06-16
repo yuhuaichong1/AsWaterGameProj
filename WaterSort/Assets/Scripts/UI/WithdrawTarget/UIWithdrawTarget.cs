@@ -18,7 +18,10 @@ namespace XrCode
         }
 
         protected override void OnAwake()
-        {}
+        {
+
+        }
+
         protected override void OnEnable()
         {
             switch (curOpenType)

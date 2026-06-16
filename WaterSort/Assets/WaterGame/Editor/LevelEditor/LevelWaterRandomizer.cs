@@ -95,6 +95,16 @@ namespace AsGame.Editor.LevelEditor
             int colorCount,
             int totalLayers,
             WaterRefreshDifficulty difficulty,
+            out string error) =>
+            TryRefresh(cups, colorCount, totalLayers, difficulty, null, out error);
+
+        /// <param name="lockLayerCounts">与锁瓶一一对应的目标层数；null 则每个锁瓶 4 层。</param>
+        public static bool TryRefresh(
+            IList<CupData> cups,
+            int colorCount,
+            int totalLayers,
+            WaterRefreshDifficulty difficulty,
+            IList<int> lockLayerCounts,
             out string error)
         {
             error = null;
@@ -136,7 +146,16 @@ namespace AsGame.Editor.LevelEditor
                 return false;
             }
 
-            var lockLayers = lockCups.Count * MaxCapacity;
+            var perLockLayers = ResolveLockLayerCounts(lockCups, lockLayerCounts, out var lockLayersError);
+            if (perLockLayers == null)
+            {
+                error = lockLayersError;
+                return false;
+            }
+
+            var lockLayers = 0;
+            foreach (var n in perLockLayers)
+                lockLayers += n;
             if (lockLayers > totalLayers)
             {
                 error = $"锁瓶需要 {lockLayers} 层水，超过水层总数 {totalLayers}";
@@ -146,7 +165,7 @@ namespace AsGame.Editor.LevelEditor
             var regularLayers = totalLayers - lockLayers;
             if (regularCups.Count == 0 && regularLayers > 0)
             {
-                error = "仅有锁瓶时，水层总数应等于锁瓶数×4";
+                error = "除锁瓶外还有水层，但没有普通瓶可承载";
                 return false;
             }
 
@@ -175,12 +194,50 @@ namespace AsGame.Editor.LevelEditor
             var rng = new System.Random();
             for (var attempt = 0; attempt < MaxAttempts; attempt++)
             {
-                if (TryBuildOnce(cups, colorCount, totalLayers, difficulty, lockCups, regularCups, regularLayers, rng))
+                if (TryBuildOnce(cups, colorCount, totalLayers, difficulty, lockCups, regularCups, regularLayers,
+                        perLockLayers, rng))
                     return true;
             }
 
             error = "随机失败：请调整水层总数、颜色数或普通瓶/锁瓶数量后重试";
             return false;
+        }
+
+        static int[] ResolveLockLayerCounts(
+            List<CupData> lockCups,
+            IList<int> lockLayerCounts,
+            out string error)
+        {
+            error = null;
+            if (lockCups.Count == 0)
+                return Array.Empty<int>();
+
+            if (lockLayerCounts == null || lockLayerCounts.Count == 0)
+            {
+                var full = new int[lockCups.Count];
+                for (var i = 0; i < full.Length; i++)
+                    full[i] = MaxCapacity;
+                return full;
+            }
+
+            if (lockLayerCounts.Count != lockCups.Count)
+            {
+                error = $"锁瓶层数配置数量（{lockLayerCounts.Count}）与锁瓶数（{lockCups.Count}）不一致";
+                return null;
+            }
+
+            var resolved = new int[lockCups.Count];
+            for (var i = 0; i < resolved.Length; i++)
+            {
+                resolved[i] = lockLayerCounts[i];
+                if (resolved[i] < 1 || resolved[i] > MaxCapacity)
+                {
+                    error = $"锁瓶 #{i} 目标层数 {resolved[i]} 无效（应为 1~{MaxCapacity}）";
+                    return null;
+                }
+            }
+
+            return resolved;
         }
 
         static bool TryBuildOnce(
@@ -191,14 +248,15 @@ namespace AsGame.Editor.LevelEditor
             List<CupData> lockCups,
             List<CupData> regularCups,
             int regularLayers,
+            int[] lockLayerCounts,
             System.Random rng)
         {
             var pool = BuildColorPool(colorCount);
             Shuffle(pool, rng);
 
-            foreach (var cup in lockCups)
+            for (var i = 0; i < lockCups.Count; i++)
             {
-                if (!TryFillLockCup(cup, ref pool, rng))
+                if (!TryFillLockCup(lockCups[i], ref pool, rng, lockLayerCounts[i]))
                     return false;
             }
 
@@ -218,24 +276,25 @@ namespace AsGame.Editor.LevelEditor
             return pool;
         }
 
-        static bool TryFillLockCup(CupData cup, ref List<int> pool, System.Random rng)
+        static bool TryFillLockCup(CupData cup, ref List<int> pool, System.Random rng, int layerCount)
         {
+            layerCount = Mathf.Clamp(layerCount, 1, MaxCapacity);
             cup.colors ??= new List<int>();
             cup.colors.Clear();
 
             if (cup.lockColor > 0)
             {
-                if (CountInPool(pool, cup.lockColor) < 4)
+                if (CountInPool(pool, cup.lockColor) < layerCount)
                     return false;
-                RemoveFromPool(pool, cup.lockColor, 4);
-                for (var i = 0; i < 4; i++)
+                RemoveFromPool(pool, cup.lockColor, layerCount);
+                for (var i = 0; i < layerCount; i++)
                     cup.colors.Add(cup.lockColor);
                 cup.whNums = 0;
                 return true;
             }
 
-            if (pool.Count < 4) return false;
-            for (var layer = 0; layer < 4; layer++)
+            if (pool.Count < layerCount) return false;
+            for (var layer = 0; layer < layerCount; layer++)
             {
                 var idx = rng.Next(pool.Count);
                 cup.colors.Add(pool[idx]);
@@ -243,7 +302,7 @@ namespace AsGame.Editor.LevelEditor
             }
 
             cup.whNums = 0;
-            return cup.colors.Count == 4;
+            return cup.colors.Count == layerCount;
         }
 
         static bool TryFillRegularCups(
@@ -254,36 +313,27 @@ namespace AsGame.Editor.LevelEditor
             System.Random rng)
         {
             var cupCount = regularCups.Count;
-            var minFillCups = Mathf.Max(1, Mathf.CeilToInt(regularLayers / (float)MaxCapacity));
-            var emptyTarget = GetEmptyCupTarget(cupCount, regularLayers, difficulty, rng);
-            emptyTarget = Mathf.Min(emptyTarget, Mathf.Max(0, cupCount - minFillCups));
-            var fillCupCount = cupCount - emptyTarget;
-            if (fillCupCount < 0) fillCupCount = 0;
-            if (regularLayers > fillCupCount * MaxCapacity)
-                return false;
-            if (regularLayers > 0 && fillCupCount > 0 && regularLayers < fillCupCount)
-                return false;
-            if (regularLayers == 0 && fillCupCount > 0)
-                fillCupCount = 0;
+            if (regularLayers == 0)
+            {
+                foreach (var cup in regularCups)
+                {
+                    cup.colors ??= new List<int>();
+                    cup.colors.Clear();
+                    cup.whNums = 0;
+                }
 
-            var layerCounts = new int[cupCount];
-            for (var i = 0; i < cupCount; i++)
-                layerCounts[i] = 0;
+                return true;
+            }
 
-            var fillIndices = new List<int>();
-            for (var i = 0; i < cupCount; i++)
-                fillIndices.Add(i);
-            Shuffle(fillIndices, rng);
-            fillIndices = fillIndices.GetRange(0, Mathf.Max(0, fillCupCount));
-
-            if (!DistributeLayerCounts(layerCounts, fillIndices, regularLayers, difficulty, rng))
+            if (cupCount == 0 || regularLayers > cupCount * MaxCapacity)
                 return false;
 
+            var layerCounts = DistributeEvenLayerCounts(regularLayers, cupCount);
             var virtuals = new VirtualBottle[cupCount];
             for (var i = 0; i < cupCount; i++)
                 virtuals[i] = new VirtualBottle(layerCounts[i]);
 
-            if (!DealTokensToVirtuals(virtuals, pool, rng))
+            if (!TryDealColorsEvenly(virtuals, pool, rng))
                 return false;
 
             var steps = GetShuffleSteps(difficulty, rng);
@@ -292,6 +342,9 @@ namespace AsGame.Editor.LevelEditor
 
             for (var i = 0; i < cupCount; i++)
             {
+                if (!IsValidRegularBottleState(virtuals[i].Layers))
+                    return false;
+
                 var cup = regularCups[i];
                 cup.colors ??= new List<int>();
                 cup.colors.Clear();
@@ -302,86 +355,118 @@ namespace AsGame.Editor.LevelEditor
             return true;
         }
 
-        static int GetEmptyCupTarget(int cupCount, int totalLayers, WaterRefreshDifficulty difficulty, System.Random rng)
+        /// <summary>普通瓶水层在参与随机的瓶子间尽量均匀（差值不超过 1）。</summary>
+        static int[] DistributeEvenLayerCounts(int totalLayers, int cupCount)
         {
-            if (cupCount <= 1) return 0;
+            var result = new int[cupCount];
+            if (cupCount <= 0) return result;
 
-            var minFill = Mathf.Max(1, Mathf.CeilToInt(totalLayers / (float)MaxCapacity));
-            var maxEmpty = Mathf.Max(0, cupCount - minFill);
-
-            if (maxEmpty == 0)
-                return 0;
-
-            var ratio = difficulty switch
-            {
-                WaterRefreshDifficulty.超简单 => 0.42f,
-                WaterRefreshDifficulty.简单 => 0.32f,
-                WaterRefreshDifficulty.中等 => 0.22f,
-                WaterRefreshDifficulty.困难 => 0.12f,
-                _ => 0.06f
-            };
-            var target = Mathf.RoundToInt(cupCount * ratio);
-            target = Mathf.Clamp(target, 0, maxEmpty);
-            if (target == 0 && maxEmpty > 0 && difficulty <= WaterRefreshDifficulty.简单)
-                target = 1;
-            if (difficulty == WaterRefreshDifficulty.超困难 && cupCount > 2)
-                target = Mathf.Min(target, Mathf.Max(0, cupCount / 6));
-            return target;
+            var baseCount = totalLayers / cupCount;
+            var remainder = totalLayers % cupCount;
+            for (var i = 0; i < cupCount; i++)
+                result[i] = baseCount + (i < remainder ? 1 : 0);
+            return result;
         }
 
-        static bool DistributeLayerCounts(
-            int[] layerCounts,
-            List<int> fillIndices,
-            int totalLayers,
-            WaterRefreshDifficulty difficulty,
-            System.Random rng)
+        /// <summary>按颜色交错 + 轮询分配到各普通瓶，避免同色集中导致满瓶完成态。</summary>
+        static bool TryDealColorsEvenly(VirtualBottle[] virtuals, List<int> pool, System.Random rng)
         {
-            if (totalLayers == 0)
-                return true;
-            var n = fillIndices.Count;
-            if (n == 0)
+            var stream = BuildInterleavedColorStream(pool, rng);
+            if (stream.Count != pool.Count)
                 return false;
 
-            var minTotal = n;
-            var maxTotal = n * MaxCapacity;
-            if (totalLayers < minTotal || totalLayers > maxTotal)
-                return false;
+            var cupCount = virtuals.Length;
+            var order = new List<int>(cupCount);
+            for (var i = 0; i < cupCount; i++)
+                order.Add(i);
+            Shuffle(order, rng);
 
-            foreach (var cup in fillIndices)
-                layerCounts[cup] = 1;
-
-            var remaining = totalLayers - n;
-            var preferHigh = difficulty >= WaterRefreshDifficulty.中等;
-            var guard = 0;
-            while (remaining > 0 && guard++ < 512)
+            var filled = new int[cupCount];
+            var cursor = 0;
+            foreach (var color in stream)
             {
-                var cup = fillIndices[rng.Next(n)];
-                if (layerCounts[cup] >= MaxCapacity) continue;
-
-                var add = 1;
-                if (preferHigh && layerCounts[cup] < MaxCapacity - 1 && rng.NextDouble() < 0.35f)
-                    add = Mathf.Min(remaining, 2, MaxCapacity - layerCounts[cup]);
-                layerCounts[cup] += add;
-                remaining -= add;
-            }
-
-            return remaining == 0;
-        }
-
-        static bool DealTokensToVirtuals(VirtualBottle[] virtuals, List<int> pool, System.Random rng)
-        {
-            Shuffle(pool, rng);
-            var idx = 0;
-            foreach (var v in virtuals)
-            {
-                for (var i = 0; i < v.TargetCount; i++)
+                var placed = false;
+                for (var t = 0; t < cupCount; t++)
                 {
-                    if (idx >= pool.Count) return false;
-                    v.Layers.Add(pool[idx++]);
+                    var ci = order[(cursor + t) % cupCount];
+                    if (filled[ci] >= virtuals[ci].TargetCount) continue;
+                    virtuals[ci].Layers.Add(color);
+                    filled[ci]++;
+                    cursor = (cursor + t + 1) % cupCount;
+                    placed = true;
+                    break;
                 }
+
+                if (!placed)
+                    return false;
             }
 
-            return idx == pool.Count;
+            for (var i = 0; i < cupCount; i++)
+            {
+                if (filled[i] != virtuals[i].TargetCount)
+                    return false;
+            }
+
+            return true;
+        }
+
+        static List<int> BuildInterleavedColorStream(List<int> pool, System.Random rng)
+        {
+            var buckets = new Dictionary<int, List<int>>();
+            foreach (var c in pool)
+            {
+                if (!buckets.TryGetValue(c, out var list))
+                {
+                    list = new List<int>();
+                    buckets[c] = list;
+                }
+
+                list.Add(c);
+            }
+
+            var colors = new List<int>(buckets.Keys);
+            Shuffle(colors, rng);
+
+            var stream = new List<int>(pool.Count);
+            var guard = 0;
+            while (stream.Count < pool.Count && guard++ < pool.Count * 8)
+            {
+                var progressed = false;
+                Shuffle(colors, rng);
+                foreach (var color in colors)
+                {
+                    if (buckets[color].Count == 0) continue;
+                    stream.Add(buckets[color][0]);
+                    buckets[color].RemoveAt(0);
+                    progressed = true;
+                }
+
+                if (!progressed) break;
+            }
+
+            return stream;
+        }
+
+        static bool IsValidRegularBottleState(List<int> layers)
+        {
+            if (layers == null || layers.Count == 0)
+                return false;
+            if (IsUniformFullBottle(layers))
+                return false;
+            if (layers.Count == MaxCapacity && CountDistinct(layers) < 2)
+                return false;
+            return true;
+        }
+
+        static bool IsUniformFullBottle(IList<int> layers)
+        {
+            if (layers == null || layers.Count != MaxCapacity)
+                return false;
+            var first = layers[0];
+            if (first < 1 || first > 8) return false;
+            for (var i = 1; i < layers.Count; i++)
+                if (layers[i] != first) return false;
+            return true;
         }
 
         static bool ScrambleVirtuals(

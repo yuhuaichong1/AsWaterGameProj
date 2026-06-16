@@ -8,10 +8,11 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: sh_Material-Screen
-  m_Shader: {fileID: 0}
+  m_Shader: {fileID: 4800000, guid: fafe06d4a7467b64bb2c171ebb7055ce, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _USE8NEIGHBOURHOOD_ON
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -35,7 +36,20 @@ Material:
     m_Floats:
     - <noninit>: 0
     - _Cutoff: 0.1
+    - _Fill: 0
+    - _OutlineMipLevel: 0
+    - _OutlineOpaqueAlpha: 1
+    - _OutlineReferenceTexWidth: 1024
+    - _OutlineSmoothness: 1
+    - _OutlineWidth: 3
+    - _StencilComp: 8
+    - _StencilRef: 1
+    - _StraightAlphaInput: 0
+    - _ThresholdEnd: 0.25
+    - _Use8Neighbourhood: 1
+    - _UseScreenSpaceOutlineWidth: 0
     m_Colors:
     - <noninit>: {r: 0, g: 2.018574, b: 1e-45, a: 0.000007121922}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

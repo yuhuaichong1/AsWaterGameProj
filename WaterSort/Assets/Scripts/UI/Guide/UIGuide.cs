@@ -257,6 +257,9 @@ namespace XrCode
                     case "canWithdraw":
                         FacadeWithdraw.SetCanWithdraw(true);
                         break;
+                    case "iac":
+                        FacadeWithdraw.SetIfAfterCreate(true);
+                        break;
                 }
             }
         }
