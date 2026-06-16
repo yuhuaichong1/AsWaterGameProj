@@ -74,6 +74,9 @@ MonoBehaviour:
   streamBody: {fileID: 0}
   shadowGroup: {fileID: 5451761821696724135}
   selectFxAnchor: {fileID: 0}
+  finishEffect: {fileID: 0}
+  selectEffect: {fileID: 0}
+  unlockEffect: {fileID: 0}
 --- !u!1 &6866452939484213402
 GameObject:
   m_ObjectHideFlags: 0
@@ -139,7 +142,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 490a040b2e8869940ae7fed6b57ac9f5, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 73d388d5949eecc4bbd64b673645dd34, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
