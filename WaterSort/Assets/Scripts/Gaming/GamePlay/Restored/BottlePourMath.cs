@@ -1,6 +1,4 @@
 using UnityEngine;
-using AsGame.Core;
-using AsGame.UI;
 
 namespace XrCode
 {
