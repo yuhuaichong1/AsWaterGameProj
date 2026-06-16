@@ -18,7 +18,7 @@ namespace AsGame.Editor.LevelEditor
             if (!EditorUtility.DisplayDialog(
                     "拆分 ConfTotal",
                     "将把 ConfTotal.json 中所有关卡导出到：\n" +
-                    "Assets/WaterGame/Resources/Levels/Split/level_N.json\n\n" +
+                    "Assets/AssetBundleLocal/Json/Levels/level_N.json\n\n" +
                     "已有同名文件会被覆盖。是否继续？",
                     "拆分",
                     "取消"))
@@ -52,7 +52,7 @@ namespace AsGame.Editor.LevelEditor
             var entries = LevelBatchChecker.CheckAllOnDisk(showProgress: true);
             if (entries.Count == 0)
             {
-                EditorUtility.DisplayDialog("导出报告", "未找到任何拆关 JSON。", "确定");
+                EditorUtility.DisplayDialog("导出报告", "未找到任何关卡 JSON。", "确定");
                 return;
             }
 

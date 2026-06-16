@@ -56,6 +56,7 @@ namespace AsGame.Editor.LevelEditor
         float _gridBottleHeight = DefaultBottleHeight;
         int _waterColorCount = 3;
         int _waterTotalLayers = 12;
+        int _waterQuestionLayers;
         WaterRefreshDifficulty _waterDifficulty = WaterRefreshDifficulty.超简单;
         LevelWaterDifficultyMetrics _levelDifficultyMetrics;
 
@@ -88,6 +89,7 @@ namespace AsGame.Editor.LevelEditor
             _bottleHeight = settings.bottleHeight > 0f ? settings.bottleHeight : DefaultBottleHeight;
             _waterColorCount = Mathf.Max(1, settings.waterColorCount);
             _waterTotalLayers = Mathf.Max(4, settings.waterTotalLayers);
+            _waterQuestionLayers = Mathf.Max(0, settings.waterQuestionLayers);
             _waterDifficulty = (WaterRefreshDifficulty)Mathf.Clamp(settings.waterDifficulty, 0, 4);
             _leftPanelWidth = settings.leftPanelWidth > LeftPanelMinWidth
                 ? settings.leftPanelWidth
@@ -124,6 +126,7 @@ namespace AsGame.Editor.LevelEditor
             settings.bottleHeight = PreviewBottleHeight;
             settings.waterColorCount = _waterColorCount;
             settings.waterTotalLayers = _waterTotalLayers;
+            settings.waterQuestionLayers = _waterQuestionLayers;
             settings.waterDifficulty = (int)_waterDifficulty;
             settings.leftPanelWidth = _leftPanelWidth;
             settings.sectionHeightCups = _cupsSectionHeight;
@@ -504,7 +507,7 @@ namespace AsGame.Editor.LevelEditor
             if (entries.Count == 0)
             {
                 _lastBatchCheckEntries = null;
-                SetStatusLog("未找到任何拆关 JSON（Levels/Split/level_*.json）。", MessageType.Warning);
+                SetStatusLog("未找到任何关卡 JSON（Assets/AssetBundleLocal/Json/Levels/level_*.json）。", MessageType.Warning);
                 Repaint();
                 return;
             }
@@ -596,6 +599,8 @@ namespace AsGame.Editor.LevelEditor
             _waterColorCount = Mathf.Clamp(EditorGUILayout.IntField("颜色种类总数", _waterColorCount), 1, 8);
             GUILayout.Space(8);
             _waterTotalLayers = Mathf.Max(0, EditorGUILayout.IntField("水层总数", _waterTotalLayers));
+            GUILayout.Space(8);
+            _waterQuestionLayers = Mathf.Max(0, EditorGUILayout.IntField("问号层数量", _waterQuestionLayers));
             EditorGUILayout.EndHorizontal();
 
             if (_waterColorCount > 0)
@@ -616,6 +621,11 @@ namespace AsGame.Editor.LevelEditor
                     EditorGUILayout.HelpBox(
                         $"当前 {minLayers}~{maxLayers} 层范围内；部分颜色将多于 4 层（4 的倍数，可多组消除）。",
                         MessageType.Info);
+
+                if (_waterQuestionLayers > _waterTotalLayers)
+                    EditorGUILayout.HelpBox(
+                        $"问号层数量不能超过水层总数（当前 {_waterQuestionLayers}/{_waterTotalLayers}）。刷新时会自动截断。",
+                        MessageType.Warning);
             }
 
             var partSum = LevelWaterAnalyzer.SumParticipatingLayers(_cups);
@@ -667,6 +677,7 @@ namespace AsGame.Editor.LevelEditor
             RecordUndo();
             if (!LevelWaterRandomizer.TryRefresh(
                     _cups, _waterColorCount, _waterTotalLayers, _waterDifficulty, null, _levelIndex,
+                    _waterQuestionLayers,
                     out var error, out var adjustLog))
             {
                 _status = error ?? "刷新失败";
@@ -677,9 +688,11 @@ namespace AsGame.Editor.LevelEditor
             }
 
             var sb = new System.Text.StringBuilder();
+            var actualQuestionLayers = CountQuestionLayers(_cups);
             sb.AppendLine(
                 $"已按「{LevelWaterRandomizer.GetDifficultyDisplayName(_waterDifficulty)}」刷新水层" +
-                $"（{_waterColorCount} 色 / {_waterTotalLayers} 层，写入 {LevelWaterAnalyzer.CountParticipating(_cups)} 个瓶）");
+                $"（{_waterColorCount} 色 / {_waterTotalLayers} 层 / {actualQuestionLayers} 问号层，" +
+                $"写入 {LevelWaterAnalyzer.CountParticipating(_cups)} 个瓶）");
             var adjustText = LevelWaterLayerAllocator.FormatAdjustLog(adjustLog);
             if (!string.IsNullOrEmpty(adjustText))
                 sb.AppendLine().Append(adjustText);
@@ -688,6 +701,22 @@ namespace AsGame.Editor.LevelEditor
             SaveLayoutSettings();
             Repaint();
             RefreshScenePreview();
+        }
+
+        static int CountQuestionLayers(IList<CupData> cups)
+        {
+            var total = 0;
+            if (cups == null)
+                return total;
+
+            foreach (var cup in cups)
+            {
+                if (cup == null || cup.colors == null)
+                    continue;
+                total += Mathf.Clamp(cup.whNums, 0, Mathf.Max(0, cup.colors.Count));
+            }
+
+            return total;
         }
 
         void DrawPlayAreaPreview()
@@ -1106,7 +1135,10 @@ namespace AsGame.Editor.LevelEditor
         {
             var cup = _cups[index];
             var isSel = index == _selectedCup;
-            var header = $"#{index}  ({cup.position.x:F0}, {cup.position.y:F0})  层:{cup.colors?.Count ?? 0}";
+            var layerCountForHeader = cup.colors?.Count ?? 0;
+            var questionCountForHeader = Mathf.Clamp(cup.whNums, 0, layerCountForHeader);
+            var header =
+                $"#{index}  ({cup.position.x:F0}, {cup.position.y:F0})  层:{layerCountForHeader}  问号:{questionCountForHeader}";
             var tag = CupSlotKindUtility.GetKindShortTag(cup);
             if (!string.IsNullOrEmpty(tag)) header += $" [{tag}]";
 
@@ -1140,7 +1172,8 @@ namespace AsGame.Editor.LevelEditor
             {
                 if (kind == CupSlotKind.普通瓶 || kind == CupSlotKind.锁瓶)
                 {
-                    cup.whNums = EditorGUILayout.IntField("问号层数", cup.whNums);
+                    var layerCount = cup.colors?.Count ?? 0;
+                    cup.whNums = Mathf.Clamp(cup.whNums, 0, layerCount);
                     if (kind == CupSlotKind.锁瓶)
                     {
                         cup.lockColor = EditorGUILayout.IntField("lockColor", cup.lockColor);
@@ -1200,6 +1233,7 @@ namespace AsGame.Editor.LevelEditor
                 cup.colors.Add(0);
             while (cup.colors.Count > layerCount)
                 cup.colors.RemoveAt(cup.colors.Count - 1);
+            cup.whNums = Mathf.Clamp(cup.whNums, 0, cup.colors.Count);
 
             for (var layer = 0; layer < cup.colors.Count; layer++)
             {
@@ -1209,6 +1243,13 @@ namespace AsGame.Editor.LevelEditor
                 var sw = GUILayoutUtility.GetRect(24, 16, GUILayout.Width(24));
                 if (GameConstants.GameColorData.TryGetValue(cup.colors[layer], out var pair))
                     EditorGUI.DrawRect(sw, pair.Base);
+                GUILayout.Space(8);
+                var isHidden = layer < cup.whNums;
+                var nextHidden = EditorGUILayout.ToggleLeft("问号", isHidden, GUILayout.Width(56));
+                if (nextHidden != isHidden)
+                    cup.whNums = nextHidden
+                        ? Mathf.Max(cup.whNums, layer + 1)
+                        : Mathf.Min(cup.whNums, layer);
                 EditorGUILayout.EndHorizontal();
             }
         }
@@ -1504,7 +1545,7 @@ namespace AsGame.Editor.LevelEditor
             SaveLevel();
             LevelEditorPlaySession.SchedulePlayTest(_levelIndex);
             LevelConfigLoader.InvalidateCache();
-            _status = $"试玩第 {_levelIndex} 关（已保存 Split JSON）";
+            _status = $"试玩第 {_levelIndex} 关（已保存关卡 JSON）";
             EditorApplication.EnterPlaymode();
         }
 

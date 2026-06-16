@@ -406,7 +406,7 @@ namespace AsGame.Editor.LevelEditor
         public static string FormatBatchReport(IReadOnlyList<LevelWaterValidationResult> results)
         {
             if (results == null || results.Count == 0)
-                return "未找到任何拆关 JSON（Levels/Split/level_*.json）。";
+                return "未找到任何关卡 JSON（Assets/AssetBundleLocal/Json/Levels/level_*.json）。";
 
             var valid = results.Count(r => r.IsValid);
             var invalid = results.Count - valid;

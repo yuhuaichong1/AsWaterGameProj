@@ -28,7 +28,7 @@ namespace AsGame.Editor.LevelEditor
     /// <summary>读取「优化版v1」导出的 LevelDesignV1.json。</summary>
     public static class LevelDesignSheetLoader
     {
-        const string JsonAssetPath = "Assets/WaterGame/Editor/LevelEditor/LevelDesignV1.json";
+        const string JsonAssetPath = "Assets/Editor/LevelEditor/LevelDesignV1.json";
 
         static Dictionary<int, LevelDesignSheetEntry> _cache;
 
@@ -58,7 +58,7 @@ namespace AsGame.Editor.LevelEditor
             if (_cache != null) return;
             _cache = new Dictionary<int, LevelDesignSheetEntry>();
 
-            var abs = Path.Combine(Application.dataPath, "WaterGame/Editor/LevelEditor/LevelDesignV1.json");
+            var abs = Path.Combine(Application.dataPath, "Editor/LevelEditor/LevelDesignV1.json");
             if (!File.Exists(abs))
             {
                 Debug.LogWarning($"[LevelDesignSheetLoader] 未找到 {JsonAssetPath}");

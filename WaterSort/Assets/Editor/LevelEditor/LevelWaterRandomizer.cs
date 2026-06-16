@@ -117,6 +117,18 @@ namespace AsGame.Editor.LevelEditor
             IList<int> lockLayerCounts,
             int levelIndex,
             out string error,
+            out List<string> adjustLog) =>
+            TryRefresh(cups, colorCount, totalLayers, difficulty, lockLayerCounts, levelIndex, -1, out error, out adjustLog);
+
+        public static bool TryRefresh(
+            IList<CupData> cups,
+            int colorCount,
+            int totalLayers,
+            WaterRefreshDifficulty difficulty,
+            IList<int> lockLayerCounts,
+            int levelIndex,
+            int questionLayerCount,
+            out string error,
             out List<string> adjustLog)
         {
             adjustLog = null;
@@ -173,6 +185,8 @@ namespace AsGame.Editor.LevelEditor
                 lockLayers += n;
 
             var regularLayers = totalLayers - lockLayers;
+            if (questionLayerCount >= 0)
+                questionLayerCount = Mathf.Clamp(questionLayerCount, 0, regularLayers);
             if (regularCups.Count == 0 && regularLayers > 0)
             {
                 error = "除锁瓶外还有水层，但没有普通瓶可承载";
@@ -205,7 +219,7 @@ namespace AsGame.Editor.LevelEditor
             for (var attempt = 0; attempt < MaxAttempts; attempt++)
             {
                 if (!TryBuildOnce(colorCount, totalLayers, difficulty, lockCups, regularCups, regularLayers,
-                        perLockLayers, regularLayerTargets, rng))
+                        perLockLayers, regularLayerTargets, questionLayerCount, rng))
                     continue;
 
                 builtAny = true;
@@ -232,6 +246,7 @@ namespace AsGame.Editor.LevelEditor
             int regularLayers,
             int[] lockLayerCounts,
             int[] regularLayerCounts,
+            int questionLayerCount,
             System.Random rng)
         {
             var pool = BuildColorPool(colorCount, totalLayers, rng);
@@ -246,7 +261,7 @@ namespace AsGame.Editor.LevelEditor
             if (regularCups.Count == 0)
                 return pool.Count == 0;
 
-            return TryFillRegularCups(regularCups, regularLayerCounts, pool, difficulty, rng);
+            return TryFillRegularCups(regularCups, regularLayerCounts, pool, difficulty, questionLayerCount, rng);
         }
 
         /// <summary>
@@ -312,6 +327,7 @@ namespace AsGame.Editor.LevelEditor
             int[] layerCountsPerCup,
             List<int> pool,
             WaterRefreshDifficulty difficulty,
+            int questionLayerCount,
             System.Random rng)
         {
             var cupCount = regularCups.Count;
@@ -357,7 +373,15 @@ namespace AsGame.Editor.LevelEditor
                 cup.colors ??= new List<int>();
                 cup.colors.Clear();
                 cup.colors.AddRange(virtuals[i].Layers);
-                cup.whNums = PickWhNums(difficulty, cup.colors.Count, rng);
+                cup.whNums = 0;
+            }
+
+            if (questionLayerCount >= 0)
+                AssignQuestionLayers(regularCups, questionLayerCount, rng);
+            else
+            {
+                foreach (var cup in regularCups)
+                    cup.whNums = PickWhNums(difficulty, cup.colors.Count, rng);
             }
 
             return true;
@@ -548,6 +572,49 @@ namespace AsGame.Editor.LevelEditor
                 WaterRefreshDifficulty.困难 => rng.NextDouble() < 0.4 ? rng.Next(1, Mathf.Min(3, layerCount) + 1) : 0,
                 _ => rng.NextDouble() < 0.5 ? rng.Next(1, Mathf.Min(3, layerCount) + 1) : 0
             };
+        }
+
+        /// <summary>
+        /// 将指定数量的问号层分配到普通瓶。当前数据结构只支持从 L0 开始连续隐藏。
+        /// </summary>
+        static void AssignQuestionLayers(List<CupData> cups, int questionLayerCount, System.Random rng)
+        {
+            if (cups == null || cups.Count == 0)
+                return;
+
+            foreach (var cup in cups)
+                cup.whNums = 0;
+
+            if (questionLayerCount <= 0)
+                return;
+
+            var capacity = 0;
+            foreach (var cup in cups)
+                capacity += MaxQuestionLayersForCup(cup);
+
+            questionLayerCount = Mathf.Clamp(questionLayerCount, 0, capacity);
+            while (questionLayerCount > 0)
+            {
+                var candidates = new List<CupData>();
+                foreach (var cup in cups)
+                {
+                    if (cup.whNums < MaxQuestionLayersForCup(cup))
+                        candidates.Add(cup);
+                }
+
+                if (candidates.Count == 0)
+                    return;
+
+                var target = candidates[rng.Next(candidates.Count)];
+                target.whNums++;
+                questionLayerCount--;
+            }
+        }
+
+        static int MaxQuestionLayersForCup(CupData cup)
+        {
+            var count = cup?.colors?.Count ?? 0;
+            return Mathf.Max(0, count - 1);
         }
 
         static bool TryPour(VirtualBottle from, VirtualBottle to)

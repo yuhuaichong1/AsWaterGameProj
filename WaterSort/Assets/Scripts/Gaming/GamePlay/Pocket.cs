@@ -3,7 +3,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using AsGame.Core;
-using AsGame.Spine;
 using AsGame.UI;
 using XrCode;
 using Spine.Unity;
@@ -153,7 +152,8 @@ namespace AsGame.Water
 
             if (dai_ziEffect != null)
                 dai_ziEffect.gameObject.SetActive(false);
-            SpineService.ClearEffects(transform);
+            if (bao_xingEffect != null)
+                bao_xingEffect.gameObject.SetActive(false);
         }
 
         void RestorePocketView()

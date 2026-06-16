@@ -190,7 +190,7 @@ namespace AsGame.Editor.LevelEditor
             bool includeRerollSummary = false)
         {
             if (entries == null || entries.Count == 0)
-                return "未找到任何拆关 JSON（Levels/Split/level_*.json）。";
+                return "未找到任何关卡 JSON（Assets/AssetBundleLocal/Json/Levels/level_*.json）。";
 
             var sb = new StringBuilder();
             sb.AppendLine(FormatSummaryForStatusBar(entries, operationTitle));
@@ -216,7 +216,7 @@ namespace AsGame.Editor.LevelEditor
             bool showRerollColumn = false)
         {
             if (entries == null || entries.Count == 0)
-                return "未找到任何拆关 JSON（Levels/Split/level_*.json）。";
+                return "未找到任何关卡 JSON（Assets/AssetBundleLocal/Json/Levels/level_*.json）。";
 
             var valid = entries.Count(e => e.IsValid);
             var invalid = entries.Count - valid;
@@ -291,7 +291,7 @@ namespace AsGame.Editor.LevelEditor
             string operationTitle = "全部检查")
         {
             if (entries == null || entries.Count == 0)
-                return "未找到任何拆关 JSON。";
+                return "未找到任何关卡 JSON。";
 
             var valid = entries.Count(e => e.IsValid);
             return $"{operationTitle}完成：共 {entries.Count} 关，通过 {valid} 关，未通过 {entries.Count - valid} 关。";

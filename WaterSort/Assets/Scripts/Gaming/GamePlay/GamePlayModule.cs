@@ -240,21 +240,7 @@ namespace XrCode
 
         void CheckNewPlayUnlock()
         {
-            return;
-
-            for (var i = 0; i < GameConstants.NewPlayUnlockLevels.Length; i++)
-            {
-                var lv = GameConstants.NewPlayUnlockLevels[i];
-                if (curLevelIndex == lv && !GameSaveData.IsNewPlayUnlocked(i + 1))
-                {
-                    GameSaveData.SetNewPlayUnlocked(i + 1);
-                    PopupManager.Instance.ShowAtOnce(new PopupContext
-                    {
-                        Type = PopupType.NewPlay,
-                        Payload = i + 1
-                    });
-                }
-            }
+            // 旧版“新玩法解锁弹窗”逻辑已随框架改版废弃，保留空实现以兼容调用点。
         }
 
         /// <summary>

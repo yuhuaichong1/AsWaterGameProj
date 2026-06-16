@@ -80,7 +80,7 @@ namespace AsGame.Editor.LevelEditor
         {
             if (!EditorUtility.DisplayDialog(
                     "批量生成关卡",
-                    $"将覆盖 Assets/WaterGame/Resources/Levels/Split/ 下 level_1.json ~ level_{MaxLevelCount}.json。\n\n" +
+                    $"将覆盖 Assets/AssetBundleLocal/Json/Levels/ 下 level_1.json ~ level_{MaxLevelCount}.json。\n\n" +
                     "规则：难度由简到难（第 161 关不超过中等）；第 1 关教学 3 瓶 2 色；\n" +
                     "每关 1~2 空瓶；第 3 关起各 1 广告瓶 + 1 空槽；布局避开 UI 遮挡。\n\n是否继续？",
                     "生成",

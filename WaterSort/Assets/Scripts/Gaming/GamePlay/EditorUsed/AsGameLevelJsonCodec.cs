@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using XrCode;
 
-namespace XrCode
+namespace AsGame.Data
 {
-    /// <summary>单关 JSON 文档（Assets/AssetBundleLocal/Json/Levels/level_N.json）。</summary>
     [Serializable]
     public class SplitLevelDocument
     {
@@ -27,17 +27,15 @@ namespace XrCode
         public int isEmptyCup;
     }
 
-    /// <summary>拆关 JSON 与 <see cref="CupData"/> 互转。</summary>
     public static class LevelJsonCodec
     {
         public static string ToJson(int levelIndex, IReadOnlyList<CupData> cups, bool prettyPrint = true)
         {
-            var doc = new SplitLevelDocument
+            return JsonUtility.ToJson(new SplitLevelDocument
             {
                 level = levelIndex,
                 cups = ToEntries(cups)
-            };
-            return JsonUtility.ToJson(doc, prettyPrint);
+            }, prettyPrint);
         }
 
         public static List<CupData> FromJson(string json)
@@ -46,13 +44,10 @@ namespace XrCode
                 return new List<CupData>();
 
             var doc = JsonUtility.FromJson<SplitLevelDocument>(json);
-            if (doc?.cups == null || doc.cups.Length == 0)
-                return new List<CupData>();
-
-            return FromEntries(doc.cups);
+            return FromEntries(doc?.cups);
         }
 
-        public static CupJsonEntry[] ToEntries(IReadOnlyList<CupData> cups)
+        static CupJsonEntry[] ToEntries(IReadOnlyList<CupData> cups)
         {
             if (cups == null || cups.Count == 0)
                 return Array.Empty<CupJsonEntry>();
@@ -79,10 +74,11 @@ namespace XrCode
             return entries;
         }
 
-        public static List<CupData> FromEntries(CupJsonEntry[] entries)
+        static List<CupData> FromEntries(CupJsonEntry[] entries)
         {
             var list = new List<CupData>();
-            if (entries == null) return list;
+            if (entries == null)
+                return list;
 
             for (var i = 0; i < entries.Length; i++)
             {
@@ -105,6 +101,5 @@ namespace XrCode
 
             return list;
         }
-
     }
 }
