@@ -117,10 +117,10 @@ namespace AsGame.Editor.LevelEditor
             out string error)
         {
             error = null;
-            var lockLayerCounts = BuildLockLayerCounts(cups, levelIndex);
+            var lockLayerCounts = LevelLockLayerPolicy.BuildLockLayerCounts(cups, levelIndex);
 
             if (!LevelWaterRandomizer.TryRefresh(
-                    cups, colorCount, totalLayers, difficulty, lockLayerCounts, out error))
+                    cups, colorCount, totalLayers, difficulty, lockLayerCounts, out error, levelIndex))
                 return false;
 
             return true;
@@ -165,20 +165,6 @@ namespace AsGame.Editor.LevelEditor
                 validation.TotalLayers,
                 validation.LockCupCount);
             return true;
-        }
-
-        static List<int> BuildLockLayerCounts(IList<CupData> cups, int levelIndex)
-        {
-            var list = new List<int>();
-            var expected = LevelDesignSheetLoader.TryGetExpectedLockLayers(levelIndex);
-
-            foreach (var cup in cups)
-            {
-                if (cup == null || cup.isLock == 0) continue;
-                list.Add(expected > 0 ? expected : Mathf.Clamp(cup.colors?.Count ?? 4, 1, 4));
-            }
-
-            return list;
         }
 
         static string FormatSuccessMessage(int levelIndex, int rerollCount, LevelWaterDifficultyMetrics metrics)

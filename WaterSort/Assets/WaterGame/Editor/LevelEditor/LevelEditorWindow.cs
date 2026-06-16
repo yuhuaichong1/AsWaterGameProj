@@ -442,50 +442,34 @@ namespace AsGame.Editor.LevelEditor
                 return;
             }
 
-            if (!LevelWaterCheckReroll.TryResolveRefreshParams(
-                    _cups, _levelIndex, _waterColorCount, _waterTotalLayers, _waterDifficulty,
-                    out var colorCount, out var totalLayers, out var difficulty))
-            {
-                SetStatusLog("无法解析刷新参数，请检查关卡配置或设计表。", MessageType.Warning);
-                Repaint();
-                return;
-            }
-
             var validation = LevelWaterValidator.ValidateStructure(_cups, _levelIndex);
             var metrics = LevelWaterDifficultyAnalyzer.AnalyzeSolvability(
                 _cups, _levelIndex, validation, fastSearch: false);
-            if (validation.IsValid && LevelWaterCheckPolicy.IsStepsAcceptable(metrics))
+            RefreshLevelDifficultyMetrics();
+
+            var passed = validation.IsValid && LevelWaterCheckPolicy.IsStepsAcceptable(metrics);
+            var report = LevelWaterValidator.FormatReport(validation);
+            if (passed)
             {
-                RefreshLevelDifficultyMetrics();
-                var report = LevelWaterValidator.FormatReport(validation);
                 SetStatusLog(
                     $"【检查】第 {_levelIndex} 关通过；最少步数 {metrics.MinStepsLabel}（上限 {LevelWaterCheckPolicy.MaxAllowedMinSteps}）。\n\n{report}",
                     MessageType.Info);
-                Repaint();
-                return;
-            }
-
-            RecordUndo();
-            var reroll = LevelWaterCheckReroll.CheckAndReroll(
-                _cups, _levelIndex, colorCount, totalLayers, difficulty, saveToDisk: false);
-
-            RefreshLevelDifficultyMetrics();
-
-            if (reroll.Success)
-            {
-                var report = LevelWaterValidator.FormatReport(reroll.Validation);
-                SetStatusLog($"【检查并修复】{reroll.Message}\n\n{report}", MessageType.Info);
             }
             else
             {
-                var report = reroll.Validation != null
-                    ? LevelWaterValidator.FormatReport(reroll.Validation)
-                    : "";
-                SetStatusLog(
-                    string.IsNullOrEmpty(report)
-                        ? $"【检查并修复失败】{reroll.Message}"
-                        : $"【检查并修复失败】{reroll.Message}\n\n{report}",
-                    MessageType.Error);
+                var sb = new System.Text.StringBuilder();
+                sb.AppendLine($"【检查未通过】第 {_levelIndex} 关（仅检查，未自动修复）");
+                if (!validation.IsValid)
+                    sb.AppendLine(report);
+                else
+                {
+                    sb.AppendLine(report);
+                    sb.AppendLine($"· 最少步数：{metrics.MinStepsLabel}（上限 {LevelWaterCheckPolicy.MaxAllowedMinSteps}）");
+                    if (!string.IsNullOrEmpty(metrics.SolveNote))
+                        sb.AppendLine("· " + metrics.SolveNote);
+                }
+
+                SetStatusLog(sb.ToString().TrimEnd(), MessageType.Error);
             }
 
             Repaint();
@@ -614,10 +598,25 @@ namespace AsGame.Editor.LevelEditor
             _waterTotalLayers = Mathf.Max(0, EditorGUILayout.IntField("水层总数", _waterTotalLayers));
             EditorGUILayout.EndHorizontal();
 
-            if (_waterColorCount > 0 && _waterTotalLayers != _waterColorCount * 4)
-                EditorGUILayout.HelpBox(
-                    $"提示：水层总数宜为 颜色种类×4（当前 {_waterColorCount}×4={_waterColorCount * 4}）",
-                    MessageType.Warning);
+            if (_waterColorCount > 0)
+            {
+                var minLayers = _waterColorCount * 4;
+                var maxLayers = participating * 4;
+                if (_waterTotalLayers % 4 != 0)
+                    EditorGUILayout.HelpBox("水层总数须为 4 的倍数。", MessageType.Warning);
+                else if (_waterTotalLayers < minLayers)
+                    EditorGUILayout.HelpBox(
+                        $"水层总数不能少于 {minLayers}（颜色种类×4）。",
+                        MessageType.Warning);
+                else if (participating > 0 && _waterTotalLayers > maxLayers)
+                    EditorGUILayout.HelpBox(
+                        $"水层总数不能超过参与瓶容量 {maxLayers}（{participating} 瓶×4）。",
+                        MessageType.Warning);
+                else if (_waterTotalLayers > minLayers)
+                    EditorGUILayout.HelpBox(
+                        $"当前 {minLayers}~{maxLayers} 层范围内；部分颜色将多于 4 层（4 的倍数，可多组消除）。",
+                        MessageType.Info);
+            }
 
             var partSum = LevelWaterAnalyzer.SumParticipatingLayers(_cups);
             if (partSum > 0 && partSum != _waterTotalLayers)
@@ -667,16 +666,24 @@ namespace AsGame.Editor.LevelEditor
 
             RecordUndo();
             if (!LevelWaterRandomizer.TryRefresh(
-                    _cups, _waterColorCount, _waterTotalLayers, _waterDifficulty, out var error))
+                    _cups, _waterColorCount, _waterTotalLayers, _waterDifficulty, null, _levelIndex,
+                    out var error, out var adjustLog))
             {
                 _status = error ?? "刷新失败";
                 EditorUtility.DisplayDialog("刷新水层", _status, "确定");
+                SetStatusLog(_status, MessageType.Error);
+                Repaint();
                 return;
             }
 
-            _status =
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine(
                 $"已按「{LevelWaterRandomizer.GetDifficultyDisplayName(_waterDifficulty)}」刷新水层" +
-                $"（{_waterColorCount} 色 × 4 = {_waterTotalLayers} 层，写入 {LevelWaterAnalyzer.CountParticipating(_cups)} 个瓶）";
+                $"（{_waterColorCount} 色 / {_waterTotalLayers} 层，写入 {LevelWaterAnalyzer.CountParticipating(_cups)} 个瓶）");
+            var adjustText = LevelWaterLayerAllocator.FormatAdjustLog(adjustLog);
+            if (!string.IsNullOrEmpty(adjustText))
+                sb.AppendLine().Append(adjustText);
+            SetStatusLog(sb.ToString().TrimEnd(), MessageType.Info);
             RefreshLevelDifficultyMetrics();
             SaveLayoutSettings();
             Repaint();

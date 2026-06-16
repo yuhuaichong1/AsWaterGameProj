@@ -95,18 +95,31 @@ namespace AsGame.Editor.LevelEditor
             int colorCount,
             int totalLayers,
             WaterRefreshDifficulty difficulty,
-            out string error) =>
-            TryRefresh(cups, colorCount, totalLayers, difficulty, null, out error);
+            out string error,
+            int levelIndex = 0) =>
+            TryRefresh(cups, colorCount, totalLayers, difficulty, null, levelIndex, out error, out _);
 
-        /// <param name="lockLayerCounts">与锁瓶一一对应的目标层数；null 则每个锁瓶 4 层。</param>
         public static bool TryRefresh(
             IList<CupData> cups,
             int colorCount,
             int totalLayers,
             WaterRefreshDifficulty difficulty,
             IList<int> lockLayerCounts,
-            out string error)
+            out string error,
+            int levelIndex = 0) =>
+            TryRefresh(cups, colorCount, totalLayers, difficulty, lockLayerCounts, levelIndex, out error, out _);
+
+        public static bool TryRefresh(
+            IList<CupData> cups,
+            int colorCount,
+            int totalLayers,
+            WaterRefreshDifficulty difficulty,
+            IList<int> lockLayerCounts,
+            int levelIndex,
+            out string error,
+            out List<string> adjustLog)
         {
+            adjustLog = null;
             error = null;
             if (cups == null || cups.Count == 0)
             {
@@ -121,23 +134,18 @@ namespace AsGame.Editor.LevelEditor
             }
 
             colorCount = Mathf.Clamp(colorCount, 1, 8);
-            if (colorCount * 4 != totalLayers)
+            var minLayers = colorCount * 4;
+            if (totalLayers < minLayers)
             {
-                error = $"颜色种类×4 应等于水层总数（当前 {colorCount}×4≠{totalLayers}）";
+                error = $"水层总数不能少于 颜色种类×4（至少 {minLayers} 层，当前 {totalLayers}）";
                 return false;
             }
 
             var participating = new List<CupData>();
-            var lockCups = new List<CupData>();
-            var regularCups = new List<CupData>();
             foreach (var c in cups)
             {
-                if (!LevelWaterAnalyzer.ParticipatesInRefresh(c)) continue;
-                participating.Add(c);
-                if (LevelWaterAnalyzer.IsLockCup(c))
-                    lockCups.Add(c);
-                else
-                    regularCups.Add(c);
+                if (LevelWaterAnalyzer.ParticipatesInRefresh(c))
+                    participating.Add(c);
             }
 
             if (participating.Count == 0)
@@ -146,21 +154,23 @@ namespace AsGame.Editor.LevelEditor
                 return false;
             }
 
-            var perLockLayers = ResolveLockLayerCounts(lockCups, lockLayerCounts, out var lockLayersError);
-            if (perLockLayers == null)
+            var maxLayers = participating.Count * MaxCapacity;
+            if (totalLayers > maxLayers)
             {
-                error = lockLayersError;
+                error =
+                    $"水层总数不能超过参与瓶容量（{participating.Count} 瓶×4 = {maxLayers} 层，当前 {totalLayers}）";
                 return false;
             }
+
+            if (!LevelWaterLayerAllocator.TryResolve(
+                    cups, totalLayers, levelIndex,
+                    out var perLockLayers, out var lockCups, out var regularLayerTargets, out var regularCups,
+                    out adjustLog, out error))
+                return false;
 
             var lockLayers = 0;
             foreach (var n in perLockLayers)
                 lockLayers += n;
-            if (lockLayers > totalLayers)
-            {
-                error = $"锁瓶需要 {lockLayers} 层水，超过水层总数 {totalLayers}";
-                return false;
-            }
 
             var regularLayers = totalLayers - lockLayers;
             if (regularCups.Count == 0 && regularLayers > 0)
@@ -176,8 +186,7 @@ namespace AsGame.Editor.LevelEditor
                 {
                     error =
                         $"普通瓶最多容纳 {regularCapacity} 层水（{regularCups.Count} 个普通瓶×4），" +
-                        $"当前需分配 {regularLayers} 层（水层总数 {totalLayers}，锁瓶占 {lockLayers} 层）。" +
-                        "请减少水层总数、增加普通瓶，或减少锁瓶/空瓶。";
+                        $"当前需分配 {regularLayers} 层（水层总数 {totalLayers}，锁瓶占 {lockLayers} 层）。";
                     return false;
                 }
 
@@ -185,63 +194,36 @@ namespace AsGame.Editor.LevelEditor
                 if (regularCups.Count < minRegularCups)
                 {
                     error =
-                        $"至少需要 {minRegularCups} 个普通瓶才能放下 {regularLayers} 层水，当前只有 {regularCups.Count} 个。" +
-                        "请增加普通瓶、减少空瓶/锁瓶占用，或降低水层总数。";
+                        $"至少需要 {minRegularCups} 个普通瓶才能放下 {regularLayers} 层水，当前只有 {regularCups.Count} 个。";
                     return false;
                 }
             }
 
             var rng = new System.Random();
+            var hasLock = lockCups.Count > 0;
+            var builtAny = false;
             for (var attempt = 0; attempt < MaxAttempts; attempt++)
             {
-                if (TryBuildOnce(cups, colorCount, totalLayers, difficulty, lockCups, regularCups, regularLayers,
-                        perLockLayers, rng))
-                    return true;
+                if (!TryBuildOnce(colorCount, totalLayers, difficulty, lockCups, regularCups, regularLayers,
+                        perLockLayers, regularLayerTargets, rng))
+                    continue;
+
+                builtAny = true;
+
+                // 锁瓶关卡：保证开局锁瓶外至少有一种颜色能凑满 4 层，否则首步无法消除→死锁。
+                if (hasLock && LevelWaterValidator.HasLockDeadlockAtStart(cups))
+                    continue;
+
+                return true;
             }
 
-            error = "随机失败：请调整水层总数、颜色数或普通瓶/锁瓶数量后重试";
+            error = builtAny && hasLock
+                ? "多次随机后仍无法保证开局可解（锁瓶外缺少完整颜色组）；请提高水层总数或减少锁瓶层数后重试"
+                : "随机失败：请调整水层总数、颜色数或普通瓶/锁瓶数量后重试";
             return false;
         }
 
-        static int[] ResolveLockLayerCounts(
-            List<CupData> lockCups,
-            IList<int> lockLayerCounts,
-            out string error)
-        {
-            error = null;
-            if (lockCups.Count == 0)
-                return Array.Empty<int>();
-
-            if (lockLayerCounts == null || lockLayerCounts.Count == 0)
-            {
-                var full = new int[lockCups.Count];
-                for (var i = 0; i < full.Length; i++)
-                    full[i] = MaxCapacity;
-                return full;
-            }
-
-            if (lockLayerCounts.Count != lockCups.Count)
-            {
-                error = $"锁瓶层数配置数量（{lockLayerCounts.Count}）与锁瓶数（{lockCups.Count}）不一致";
-                return null;
-            }
-
-            var resolved = new int[lockCups.Count];
-            for (var i = 0; i < resolved.Length; i++)
-            {
-                resolved[i] = lockLayerCounts[i];
-                if (resolved[i] < 1 || resolved[i] > MaxCapacity)
-                {
-                    error = $"锁瓶 #{i} 目标层数 {resolved[i]} 无效（应为 1~{MaxCapacity}）";
-                    return null;
-                }
-            }
-
-            return resolved;
-        }
-
         static bool TryBuildOnce(
-            IList<CupData> cups,
             int colorCount,
             int totalLayers,
             WaterRefreshDifficulty difficulty,
@@ -249,9 +231,10 @@ namespace AsGame.Editor.LevelEditor
             List<CupData> regularCups,
             int regularLayers,
             int[] lockLayerCounts,
+            int[] regularLayerCounts,
             System.Random rng)
         {
-            var pool = BuildColorPool(colorCount);
+            var pool = BuildColorPool(colorCount, totalLayers, rng);
             Shuffle(pool, rng);
 
             for (var i = 0; i < lockCups.Count; i++)
@@ -263,16 +246,34 @@ namespace AsGame.Editor.LevelEditor
             if (regularCups.Count == 0)
                 return pool.Count == 0;
 
-            // 普通瓶分配只从 pool 读取，不会 Remove；锁瓶才会清空 pool
-            return TryFillRegularCups(regularCups, regularLayers, pool, difficulty, rng);
+            return TryFillRegularCups(regularCups, regularLayerCounts, pool, difficulty, rng);
         }
 
-        static List<int> BuildColorPool(int colorCount)
+        /// <summary>
+        /// 构建颜色池：共 totalLayers 层，使用 1..colorCount 每种颜色至少 4 层，且每种颜色层数为 4 的倍数。
+        /// 超出 colorCount×4 的部分以 +4 为单位随机分配到各色。
+        /// </summary>
+        static List<int> BuildColorPool(int colorCount, int totalLayers, System.Random rng)
         {
-            var pool = new List<int>(colorCount * 4);
-            for (var c = 1; c <= colorCount; c++)
-                for (var i = 0; i < 4; i++)
-                    pool.Add(c);
+            var perColor = new int[colorCount];
+            for (var i = 0; i < colorCount; i++)
+                perColor[i] = 4;
+
+            var extra = totalLayers - colorCount * 4;
+            var extraSets = extra / 4;
+            for (var s = 0; s < extraSets; s++)
+            {
+                var idx = rng.Next(colorCount);
+                perColor[idx] += 4;
+            }
+
+            var pool = new List<int>(totalLayers);
+            for (var c = 0; c < colorCount; c++)
+            {
+                for (var i = 0; i < perColor[c]; i++)
+                    pool.Add(c + 1);
+            }
+
             return pool;
         }
 
@@ -296,9 +297,10 @@ namespace AsGame.Editor.LevelEditor
             if (pool.Count < layerCount) return false;
             for (var layer = 0; layer < layerCount; layer++)
             {
-                var idx = rng.Next(pool.Count);
-                cup.colors.Add(pool[idx]);
-                pool.RemoveAt(idx);
+                // 优先取池中层数最多的颜色，避免把「仅够 4 层」的稀缺色拆进锁瓶导致外部无法凑满。
+                var color = PickMostSuppliedColor(pool, rng);
+                cup.colors.Add(color);
+                RemoveFromPool(pool, color, 1);
             }
 
             cup.whNums = 0;
@@ -307,12 +309,19 @@ namespace AsGame.Editor.LevelEditor
 
         static bool TryFillRegularCups(
             List<CupData> regularCups,
-            int regularLayers,
+            int[] layerCountsPerCup,
             List<int> pool,
             WaterRefreshDifficulty difficulty,
             System.Random rng)
         {
             var cupCount = regularCups.Count;
+            if (layerCountsPerCup == null || layerCountsPerCup.Length != cupCount)
+                return false;
+
+            var regularLayers = 0;
+            foreach (var n in layerCountsPerCup)
+                regularLayers += n;
+
             if (regularLayers == 0)
             {
                 foreach (var cup in regularCups)
@@ -328,10 +337,9 @@ namespace AsGame.Editor.LevelEditor
             if (cupCount == 0 || regularLayers > cupCount * MaxCapacity)
                 return false;
 
-            var layerCounts = DistributeEvenLayerCounts(regularLayers, cupCount);
             var virtuals = new VirtualBottle[cupCount];
             for (var i = 0; i < cupCount; i++)
-                virtuals[i] = new VirtualBottle(layerCounts[i]);
+                virtuals[i] = new VirtualBottle(layerCountsPerCup[i]);
 
             if (!TryDealColorsEvenly(virtuals, pool, rng))
                 return false;
@@ -575,6 +583,30 @@ namespace AsGame.Editor.LevelEditor
             var set = new HashSet<int>();
             foreach (var c in layers) set.Add(c);
             return set.Count;
+        }
+
+        /// <summary>返回池中剩余层数最多的颜色（并列时随机），用于锁瓶优先消耗充裕色。</summary>
+        static int PickMostSuppliedColor(List<int> pool, System.Random rng)
+        {
+            var counts = new Dictionary<int, int>();
+            foreach (var c in pool)
+            {
+                counts.TryGetValue(c, out var n);
+                counts[c] = n + 1;
+            }
+
+            var best = pool[rng.Next(pool.Count)];
+            var bestCount = -1;
+            foreach (var kv in counts)
+            {
+                if (kv.Value > bestCount || (kv.Value == bestCount && rng.Next(2) == 0))
+                {
+                    bestCount = kv.Value;
+                    best = kv.Key;
+                }
+            }
+
+            return best;
         }
 
         static int CountInPool(List<int> pool, int color)

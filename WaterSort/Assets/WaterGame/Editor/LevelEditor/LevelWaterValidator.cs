@@ -145,24 +145,12 @@ namespace AsGame.Editor.LevelEditor
         static void ValidateLockCupLayersForLevel(
             LevelWaterValidationResult result, int index, int layerCount, int levelIndex)
         {
-            var expected = LevelDesignSheetLoader.TryGetExpectedLockLayers(levelIndex);
+            var expected = LevelLockLayerPolicy.GetMandatoryLockLayers(levelIndex);
             if (expected > 0)
             {
                 if (layerCount != expected)
                     result.Errors.Add(
-                        $"#{index} 第 {levelIndex} 关锁瓶应为 {expected} 层水（当前 {layerCount} 层，见优化版v1表）。");
-                return;
-            }
-
-            if (levelIndex is >= 3 and <= 5 && layerCount != 2)
-            {
-                result.Errors.Add($"#{index} 第 {levelIndex} 关锁瓶应为 2 层水（当前 {layerCount} 层）。");
-                return;
-            }
-
-            if (levelIndex is >= 6 and <= 10 && layerCount != 3)
-            {
-                result.Errors.Add($"#{index} 第 {levelIndex} 关锁瓶应为 3 层水（当前 {layerCount} 层）。");
+                        $"#{index} 第 {levelIndex} 关锁瓶应为 {expected} 层水（当前 {layerCount} 层）。");
                 return;
             }
 
