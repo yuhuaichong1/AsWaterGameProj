@@ -19,7 +19,7 @@ namespace XrCode
             mContentText.text = string.Format(FacadeLanguage.GetText("10125"), GameDefines.DataShowText1, GameDefines.DataShowText2, FacadeWithdraw.GetWTarget());
             mTimeText.text = string.Format(FacadeLanguage.GetText("10126"),15);
 
-            STimer = STimerManager.Instance.CreateSDelay(2, OnContinueBtnClickHandle);
+            STimer = STimerManager.Instance.CreateSDelay(1.5f, OnContinueBtnClickHandle);
         }
         	    private void OnContinueBtnClickHandle()
         {
