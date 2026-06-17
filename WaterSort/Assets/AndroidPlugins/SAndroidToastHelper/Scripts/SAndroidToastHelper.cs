@@ -26,7 +26,7 @@ public class SAndroidToastHelper
                 bgColor = new Color32(0, 0, 0, 175),
 
                 outlineWidth = 5,
-                outlineColor = new Color32(255, 255, 255, 255)
+                outlineColor = new Color32(42, 216, 40, 255)
             };
         }
     }
