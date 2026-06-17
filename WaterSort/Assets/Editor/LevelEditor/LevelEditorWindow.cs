@@ -1224,14 +1224,14 @@ namespace AsGame.Editor.LevelEditor
                             new GUIContent(
                                 "lockColor",
                                 "锁标签颜色类型（仅影响解锁条件，不约束瓶内水层颜色）。\n" +
-                                "0 = 白色标签：任意颜色满瓶装袋消除时，都会减少解锁进度。\n" +
-                                "1~8 = 彩色标签：只有消除对应颜色时才会减少进度。"),
+                                "0 = 白色标签：任意颜色水瓶倒满时，都会减少解锁进度。\n" +
+                                "1~8 = 彩色标签：只有该颜色水瓶倒满时才会减少进度。"),
                             cup.lockColor);
                         cup.lockNums = EditorGUILayout.IntField(
                             new GUIContent(
                                 "lockNums",
-                                "解锁所需消除次数。\n" +
-                                "每次满足 lockColor 条件的满瓶装袋消除时减 1；\n" +
+                                "解锁所需满瓶次数。\n" +
+                                "每次满足 lockColor 条件的水瓶倒满时减 1；\n" +
                                 "减到 0 时锁瓶解锁，可正常操作。"),
                             cup.lockNums);
                     }
@@ -1291,7 +1291,8 @@ namespace AsGame.Editor.LevelEditor
                 cup.colors.RemoveAt(cup.colors.Count - 1);
             CupWhLayerUtility.ClampToLayerCount(cup);
 
-            for (var layer = 0; layer < cup.colors.Count; layer++)
+            // colors[0]=底层、colors[^1]=顶层；属性区从上到下显示 L(顶)…L0，与局内预览一致
+            for (var layer = cup.colors.Count - 1; layer >= 0; layer--)
             {
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField($"L{layer}", GUILayout.Width(28));

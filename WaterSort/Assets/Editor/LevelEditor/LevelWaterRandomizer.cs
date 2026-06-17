@@ -233,7 +233,7 @@ namespace AsGame.Editor.LevelEditor
             }
 
             error = builtAny && hasLock
-                ? "多次随机后仍无法满足锁瓶解锁条件（锁外缺少足够解锁色或装袋次数）；请提高水层总数、减少 lockNums 或锁瓶层数后重试"
+                ? "多次随机后仍无法满足锁瓶解锁条件（锁外缺少足够解锁色或满瓶次数）；请提高水层总数、减少 lockNums 或锁瓶层数后重试"
                 : "随机失败：请调整水层总数、颜色数或普通瓶/锁瓶数量后重试";
             return false;
         }

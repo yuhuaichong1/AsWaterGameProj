@@ -148,7 +148,7 @@ namespace AsGame.Editor.LevelEditor
             if (HasLockDeadlockAtStart(cups))
             {
                 result.Errors.Add(
-                    "关卡不可解：锁瓶外无法满足解锁条件（彩色锁缺少足够解锁色，或白锁/次数锁装袋次数不足）");
+                    "关卡不可解：锁瓶外无法满足解锁条件（彩色锁缺少足够解锁色，或白锁/次数锁满瓶次数不足）");
                 return;
             }
 

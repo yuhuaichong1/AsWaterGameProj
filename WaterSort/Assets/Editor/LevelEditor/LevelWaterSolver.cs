@@ -16,7 +16,7 @@ namespace AsGame.Editor.LevelEditor
     }
 
     /// <summary>
-    /// 按正常游戏流程 BFS：倒水步数 + 自动装袋/锁瓶解锁（装袋不计步）。
+    /// 按正常游戏流程 BFS：倒水步数 + 满瓶触发锁解锁 + 自动装袋（装袋不计步）。
     /// 参与：普通瓶、锁瓶、空瓶；不参与：空槽、广告瓶。
     /// </summary>
     public static class LevelWaterSolver
@@ -171,6 +171,12 @@ namespace AsGame.Editor.LevelEditor
             state.PocketColors = new int[PocketCount];
             AssignInitialPocketColors(state);
             state.Collected = 0;
+            for (var i = 0; i < state.Bottles.Count; i++)
+            {
+                if (state.IsCollect(i))
+                    state.ApplyLockUnlockOnFullBottle(state.Bottles[i].Stack[0]);
+            }
+
             state.ApplyAutoPackAndUnlock();
             return true;
         }
@@ -302,6 +308,9 @@ namespace AsGame.Editor.LevelEditor
                     Bottles[from].Stack.RemoveAt(Bottles[from].Stack.Count - 1);
                     Bottles[to].Stack.Add(color);
                 }
+
+                if (IsCollect(to))
+                    ApplyLockUnlockOnFullBottle(Bottles[to].Stack[^1]);
             }
 
             public void ApplyAutoPackAndUnlock()
@@ -383,18 +392,17 @@ namespace AsGame.Editor.LevelEditor
                 Bottles[bottleIndex].Packed = true;
                 Bottles[bottleIndex].Stack.Clear();
                 Collected++;
-                ApplyLockUnlockOnPack(color);
                 PocketColors[pocketIndex] = PocketRefill.Count > 0 ? PocketRefill[0] : 0;
                 if (PocketRefill.Count > 0)
                     PocketRefill.RemoveAt(0);
             }
 
-            void ApplyLockUnlockOnPack(int packedColor)
+            public void ApplyLockUnlockOnFullBottle(int fullBottleColor)
             {
                 foreach (var b in Bottles)
                 {
                     if (!b.IsLockBottle || b.LockRemaining <= 0) continue;
-                    if (b.LockColor != 0 && b.LockColor != packedColor) continue;
+                    if (b.LockColor != 0 && b.LockColor != fullBottleColor) continue;
                     b.LockRemaining--;
                 }
             }

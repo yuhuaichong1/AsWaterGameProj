@@ -4,7 +4,7 @@ using XrCode;
 namespace AsGame.Data
 {
     /// <summary>
-    /// 锁瓶解锁可行性：彩色锁须在锁外保留足够解锁色；白锁须在锁外保留足够装袋次数。
+    /// 锁瓶解锁可行性：彩色锁须在锁外保留足够解锁色；白锁须在锁外保留足够可满瓶次数。
     /// 刷新水层随机与关卡检查共用。
     /// </summary>
     public static class LockUnlockFeasibility
@@ -31,7 +31,7 @@ namespace AsGame.Data
             return maxInLocks;
         }
 
-        /// <summary>彩色解锁：锁外至少保留 4×max(lockNums) 层该色（同色多锁共享装袋）。</summary>
+        /// <summary>彩色解锁：锁外至少保留 4×max(lockNums) 层该色（同色多锁共享一次满瓶）。</summary>
         public static Dictionary<int, int> ComputeRequiredOutsideLayersByColor(IList<CupData> lockCups)
         {
             var maxPacksByColor = new Dictionary<int, int>();
@@ -53,7 +53,7 @@ namespace AsGame.Data
             return result;
         }
 
-        /// <summary>白锁：至少需要的装袋次数（同色多锁共享一次装袋）。</summary>
+        /// <summary>白锁：至少需要的满瓶次数（同色多锁共享一次满瓶）。</summary>
         public static int ComputeRequiredWhiteLockPacks(IList<CupData> lockCups)
         {
             var maxPacks = 0;
@@ -71,7 +71,7 @@ namespace AsGame.Data
             return maxPacks;
         }
 
-        /// <summary>开局至少需要的有效装袋次数（白锁与各色彩锁取 max 与各色需求之和的较大逻辑）。</summary>
+        /// <summary>开局至少需要的有效满瓶次数。</summary>
         public static int ComputeMinRequiredPackEvents(IList<CupData> lockCups)
         {
             var coloredDemand = 0;
@@ -128,7 +128,7 @@ namespace AsGame.Data
             if (packCapacity < minEvents)
             {
                 error =
-                    $"锁瓶需 {minEvents} 次装袋解锁，全关满瓶组仅 {packCapacity} 组，请提高水层总数或减少 lockNums";
+                    $"锁瓶需 {minEvents} 次满瓶解锁，全关满瓶组仅 {packCapacity} 组，请提高水层总数或减少 lockNums";
                 return false;
             }
 

@@ -2,6 +2,7 @@
  * AssetBundle打包构建
  */
 
+using System;
 using System.IO;
 using UnityEditor;
 using System.Collections.Generic;
@@ -24,21 +25,123 @@ namespace Assets.Editor.AssetBundle
         /// </summary>
         private static Dictionary<string, string> mSpriteAtlasDict = new Dictionary<string, string>();
 
-        [MenuItem("Tools/AssetBundle/Build")]
+        [MenuItem("Tools/AssetBundle/Build", false, 1)]
         public static void Build()
+        {
+            ExecuteBuild(fullBuild: true);
+        }
+
+        [MenuItem("Tools/AssetBundle/Build Incremental", false, 2)]
+        public static void BuildIncremental()
+        {
+            if (!IncrementalBuildCache.CanIncrementalBuild())
+            {
+                D.Error("[AssetBundle] Incremental build requires a previous successful full build. Please run Tools/AssetBundle/Build first.");
+                return;
+            }
+
+            ExecuteBuild(fullBuild: false);
+        }
+
+        [MenuItem("Tools/AssetBundle/Build Incremental", true)]
+        private static bool ValidateBuildIncremental()
+        {
+            return IncrementalBuildCache.CanIncrementalBuild();
+        }
+
+        private static void ExecuteBuild(bool fullBuild)
         {
             mSpriteAtlasDict.Clear();
             mAssetItemDict.Clear();
-            //CreateLuaBytes();
-            CreateSpriteAtlasMap();
-            CreateAssetDependsMap();
-            GroupAssetBundles();
-            CreateAssetBundleConfig();
-            SetAssetBundleNames();
-            BuildAssetBundles();
             ClearAssetBundleNames();
+
+            var buildSucceeded = false;
+            try
+            {
+                //CreateLuaBytes();
+                CreateSpriteAtlasMap();
+                CreateAssetDependsMap();
+                GroupAssetBundles();
+
+                if (!fullBuild)
+                {
+                    var dirtyBundles = IncrementalBuildCache.GetDirtyBundleNames(mAssetItemDict);
+                    if (dirtyBundles.Count == 0)
+                    {
+                        D.Log("[AssetBundle] Incremental build: no changes detected, skipped.");
+                        buildSucceeded = true;
+                        return;
+                    }
+
+                    D.Log("[AssetBundle] Incremental build: {0} bundle(s) need rebuild.", dirtyBundles.Count);
+                }
+
+                CreateAssetBundleConfig();
+                SetAssetBundleNames();
+                AssetDatabase.SaveAssets();
+                BuildAssetBundles(fullBuild);
+                IncrementalBuildCache.Save(mAssetItemDict);
+                buildSucceeded = true;
+
+                if (fullBuild)
+                {
+                    D.Log("AssetBundle Build Success!");
+                }
+                else
+                {
+                    D.Log("AssetBundle Incremental Build Success!");
+                }
+            }
+            catch (Exception ex)
+            {
+                D.Error("[AssetBundle] Build failed: {0}", ex.Message);
+                throw;
+            }
+            finally
+            {
+                ClearAssetBundleNames();
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+                EditorUtility.ClearProgressBar();
+
+                if (!buildSucceeded)
+                {
+                    D.Log("[AssetBundle] Build cache was not updated due to failure.");
+                }
+            }
+        }
+
+        [MenuItem("Tools/AssetBundle/Clear All AssetBundle Names", false, 3)]
+        public static void ClearAllAssetBundleNamesMenu()
+        {
+            ClearAssetBundleNames();
+            AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            EditorUtility.ClearProgressBar();
+            D.Log("[AssetBundle] All asset bundle names cleared.");
+        }
+
+        /// <summary>
+        /// 是否应纳入 AB 打包（仅限 AssetBundleLocal 内、非 Editor 目录的运行时资源）
+        /// </summary>
+        private static bool ShouldBundleAsset(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return false;
+            }
+
+            path = path.Replace("\\", "/");
+            if (!AssetUtils.ValidAsset(path))
+            {
+                return false;
+            }
+
+            if (AssetUtils.IsEditorAssetPath(path))
+            {
+                return false;
+            }
+
+            return path.StartsWith(BuilderConfig.AssetRootPath);
         }
 
         /// <summary>
@@ -94,22 +197,51 @@ namespace Assets.Editor.AssetBundle
             {
                 var fileInfo = files[i];
                 EditorUtility.DisplayProgressBar("CreateSpriteAtlasMap", fileInfo.FullName, 1.0f * (i + 1) / files.Length);
-                if (AssetUtils.ValidAsset(fileInfo.FullName))
+                if (!AssetUtils.ValidAsset(fileInfo.FullName))
                 {
-                    var fullPath = fileInfo.FullName.Replace("\\", "/");
-                    var path = fullPath.Substring(fullPath.IndexOf(BuilderConfig.AssetRootPath));
-                    var assetItem = GetAssetItem(path);
-                    var depends = AssetDatabase.GetDependencies(path);
-                    foreach (var depend in depends)
+                    continue;
+                }
+
+                var fullPath = fileInfo.FullName.Replace("\\", "/");
+                var path = fullPath.Substring(fullPath.IndexOf(BuilderConfig.AssetRootPath));
+                if (!ShouldBundleAsset(path))
+                {
+                    continue;
+                }
+
+                var assetItem = GetAssetItem(path);
+                if (assetItem == null)
+                {
+                    continue;
+                }
+
+                var depends = AssetDatabase.GetDependencies(path);
+                foreach (var depend in depends)
+                {
+                    if (!ShouldBundleAsset(depend) || depend == path)
                     {
-                        if (AssetUtils.ValidAsset(depend) && depend != path)
-                        {
-                            mSpriteAtlasDict.Add(depend, path);
-                            assetItem.Depends.Add(depend);
-                            var dependAssetItem = GetAssetItem(depend);
-                            dependAssetItem.BeDepends.Add(path);
-                        }
+                        continue;
                     }
+
+                    if (!mSpriteAtlasDict.ContainsKey(depend))
+                    {
+                        mSpriteAtlasDict.Add(depend, path);
+                    }
+
+                    if (!assetItem.Depends.Contains(depend))
+                    {
+                        assetItem.Depends.Add(depend);
+                    }
+
+                    var dependAssetItem = GetAssetItem(depend);
+                    if (dependAssetItem != null && !dependAssetItem.BeDepends.Contains(path))
+                    {
+                        dependAssetItem.BeDepends.Add(path);
+                    }
+                }
+
+                if (!mSpriteAtlasDict.ContainsKey(path))
+                {
                     mSpriteAtlasDict.Add(path, path);
                 }
             }
@@ -138,33 +270,55 @@ namespace Assets.Editor.AssetBundle
                 {
                     var fileInfo = files[i];
                     EditorUtility.DisplayProgressBar("CreateAssetDependsMap", fileInfo.FullName, 1.0f * (i + 1) / files.Length);
-                    if (AssetUtils.ValidAsset(fileInfo.FullName))
+                    if (!AssetUtils.ValidAsset(fileInfo.FullName))
                     {
-                        // 处理依赖相关
-                        var fullPath = fileInfo.FullName.Replace("\\", "/");
-                        var path = fullPath.Substring(fullPath.IndexOf(BuilderConfig.AssetRootPath));
-                        // 过滤掉在图集中的资源
-                        if (!mSpriteAtlasDict.ContainsKey(path))
-                        {
-                            var assetItem = GetAssetItem(path);
-                            var depends = AssetDatabase.GetDependencies(path);
-                            foreach (var depend in depends)
-                            {
-                                if (AssetUtils.ValidAsset(depend) && depend != path)
-                                {
-                                    // 如果依赖的Sprite有对应的图集，就改为依赖SpriteAtlas
-                                    var dependPath = mSpriteAtlasDict.ContainsKey(depend) ? mSpriteAtlasDict[depend] : depend;
+                        continue;
+                    }
 
-                                    //var dependAssetItem = GetAssetItem(dependPath);
-                                    //if (dependAssetItem.Depends.Contains(path)) continue;
-                                    if (!assetItem.Depends.Contains(dependPath))
-                                    {
-                                        assetItem.Depends.Add(dependPath);
-                                        var dependAssetItem = GetAssetItem(dependPath);
-                                        dependAssetItem.BeDepends.Add(path);
-                                    }
-                                }
-                            }
+                    var fullPath = fileInfo.FullName.Replace("\\", "/");
+                    var path = fullPath.Substring(fullPath.IndexOf(BuilderConfig.AssetRootPath));
+                    if (!ShouldBundleAsset(path))
+                    {
+                        continue;
+                    }
+
+                    // 过滤掉在图集中的资源
+                    if (mSpriteAtlasDict.ContainsKey(path))
+                    {
+                        continue;
+                    }
+
+                    var assetItem = GetAssetItem(path);
+                    if (assetItem == null)
+                    {
+                        continue;
+                    }
+
+                    var depends = AssetDatabase.GetDependencies(path);
+                    foreach (var depend in depends)
+                    {
+                        if (!ShouldBundleAsset(depend) || depend == path)
+                        {
+                            continue;
+                        }
+
+                        // 如果依赖的Sprite有对应的图集，就改为依赖SpriteAtlas
+                        var dependPath = mSpriteAtlasDict.ContainsKey(depend) ? mSpriteAtlasDict[depend] : depend;
+                        if (!ShouldBundleAsset(dependPath))
+                        {
+                            continue;
+                        }
+
+                        if (assetItem.Depends.Contains(dependPath))
+                        {
+                            continue;
+                        }
+
+                        assetItem.Depends.Add(dependPath);
+                        var dependAssetItem = GetAssetItem(dependPath);
+                        if (dependAssetItem != null && !dependAssetItem.BeDepends.Contains(path))
+                        {
+                            dependAssetItem.BeDepends.Add(path);
                         }
                     }
                 }
@@ -176,6 +330,11 @@ namespace Assets.Editor.AssetBundle
         /// </summary>
         private static AssetItem GetAssetItem(string path)
         {
+            if (!ShouldBundleAsset(path))
+            {
+                return null;
+            }
+
             AssetItem item;
             if (!mAssetItemDict.TryGetValue(path, out item))
             {
@@ -208,18 +367,28 @@ namespace Assets.Editor.AssetBundle
                 var assetItem = item.Value;
                 foreach (var depend in assetItem.Depends)
                 {
-                    var dependAssetItem = GetAssetItem(depend);
+                    AssetItem dependAssetItem;
+                    if (!mAssetItemDict.TryGetValue(depend, out dependAssetItem))
+                    {
+                        continue;
+                    }
+
                     foreach (var beDepend in dependAssetItem.BeDepends)
                     {
                         if (assetItem.Depends.Contains(beDepend))
+                        {
                             removeList.Add(depend);
+                        }
                     }
                 }
                 foreach (var depend in removeList)
                 {
                     assetItem.Depends.Remove(depend);
-                    var dependAssetItem = GetAssetItem(depend);
-                    dependAssetItem.BeDepends.Remove(path);
+                    AssetItem dependAssetItem;
+                    if (mAssetItemDict.TryGetValue(depend, out dependAssetItem))
+                    {
+                        dependAssetItem.BeDepends.Remove(path);
+                    }
                 }
             }
 
@@ -237,14 +406,24 @@ namespace Assets.Editor.AssetBundle
 
                 while (assetItem.BeDepends.Count == 1)
                 {
+                    AssetItem parentItem;
+                    if (!mAssetItemDict.TryGetValue(assetItem.BeDepends[0], out parentItem))
+                    {
+                        break;
+                    }
 
-                    assetItem = GetAssetItem(assetItem.BeDepends[0]);
-                    bool isCompa = assetItem.BeDepends.Contains(path);
+                    assetItem = parentItem;
+                    var isCompa = assetItem.BeDepends.Contains(path);
                     if (assetItem.BeDepends.Count != 1 || isCompa)
                     {
                         D.Log(isCompa, $"[ABMod]: {assetItem.AssetBundleName} ___ {path}");
-                        if (isCompa) break;
+                        if (isCompa)
+                        {
+                            break;
+                        }
+
                         item.Value.AssetBundleName = assetItem.AssetBundleName;
+                        break;
                     }
                 }
             }
@@ -256,8 +435,9 @@ namespace Assets.Editor.AssetBundle
         private static void CreateAssetBundleConfig()
         {
             var configPath = BuilderConfig.PathBundleConfig;
+            var configBundleName = GetAssetBundleName(configPath);
             var config = new PathBundleInfoList();
-            config.List.Add(new PathBundleInfo() { Path = configPath, AssetBundleName = configPath });
+            config.List.Add(new PathBundleInfo() { Path = configPath, AssetBundleName = configBundleName });
             foreach (var item in mAssetItemDict)
             {
                 if (item.Key != configPath)
@@ -270,9 +450,13 @@ namespace Assets.Editor.AssetBundle
             }
             var buffer = ProtobufUtil.NSerialize(config);
             XrCode.FileUtil.WriteAllBytes(configPath, buffer);
+            AssetDatabase.ImportAsset(configPath);
+
             var assetItem = GetAssetItem(configPath);
-            assetItem.AssetBundleName = GetAssetBundleName(configPath);
-            AssetDatabase.Refresh();
+            if (assetItem != null)
+            {
+                assetItem.AssetBundleName = configBundleName;
+            }
         }
 
         /// <summary>
@@ -283,6 +467,11 @@ namespace Assets.Editor.AssetBundle
             foreach (var item in mAssetItemDict)
             {
                 var path = item.Key;
+                if (!ShouldBundleAsset(path))
+                {
+                    continue;
+                }
+
                 var assetItem = item.Value;
                 var assetImport = AssetImporter.GetAtPath(path);
                 if (assetImport != null)
@@ -315,18 +504,27 @@ namespace Assets.Editor.AssetBundle
         /// <summary>
         /// 生成AssetBundles
         /// </summary>
-        private static void BuildAssetBundles()
+        /// <param name="fullBuild">true=全量（清空输出目录）；false=增量（保留已有 AB，由 Unity 跳过未变更包）</param>
+        private static void BuildAssetBundles(bool fullBuild)
         {
-            EditorUtility.DisplayProgressBar("BuildAssetBundles", "", 0);
-            if (Directory.Exists(BuilderConfig.AssetBundleExportPath))
+            EditorUtility.DisplayProgressBar("BuildAssetBundles", fullBuild ? "Full Build" : "Incremental Build", 0);
+            if (fullBuild)
             {
-                UnityEditor.FileUtil.DeleteFileOrDirectory(BuilderConfig.AssetBundleExportPath);
+                if (Directory.Exists(BuilderConfig.AssetBundleExportPath))
+                {
+                    UnityEditor.FileUtil.DeleteFileOrDirectory(BuilderConfig.AssetBundleExportPath);
+                }
             }
-            Directory.CreateDirectory(BuilderConfig.AssetBundleExportPath);
-              BuildPipeline.BuildAssetBundles(BuilderConfig.AssetBundleExportPath, BuilderConfig.Options, EditorUserBuildSettings.activeBuildTarget);
-          //  BuildTarget target = BuildTarget.StandaloneWindows; // 或者 StandaloneWindows64
-            //BuildPipeline.BuildAssetBundles(BuilderConfig.AssetBundleExportPath, BuilderConfig.Options, BuildTarget.StandaloneWindows);
-            D.Log("AssetBundle Build Success!");
+
+            if (!Directory.Exists(BuilderConfig.AssetBundleExportPath))
+            {
+                Directory.CreateDirectory(BuilderConfig.AssetBundleExportPath);
+            }
+
+            BuildPipeline.BuildAssetBundles(
+                BuilderConfig.AssetBundleExportPath,
+                BuilderConfig.Options,
+                EditorUserBuildSettings.activeBuildTarget);
         }
     }
 }

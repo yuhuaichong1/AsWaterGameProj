@@ -201,8 +201,12 @@ namespace XrCode
             BuildPocketColors();
             GeneratePockets();
             foreach (var kv in cups)
-                if (kv.Value != null && kv.Value.IsCollect())
-                    RegisterFullCup(kv.Value);
+            {
+                if (kv.Value == null || !kv.Value.IsCollect())
+                    continue;
+                CheckUnlockCup(kv.Value.GetTopColorId());
+                RegisterFullCup(kv.Value);
+            }
             BeginCheckPack();
 
             status = GameStatus.Gaming;
@@ -525,6 +529,7 @@ namespace XrCode
         {
             if (cup == null) yield break;
             yield return cup.DoCollected();
+            CheckUnlockCup(cup.GetTopColorId());
             RegisterFullCup(cup);
             BeginCheckPack();
         }
@@ -714,7 +719,6 @@ namespace XrCode
 
             AddFlyMoney(pocket.transform);
             _collected++;
-            CheckUnlockCup(packedColor);
             FacadeGamePlay.AbleProp3Btn(GetEmptySlotId() != null);
             SchedulePocketPack(pocket, packedColor);
         }
@@ -807,14 +811,15 @@ namespace XrCode
             }
         }
 
-        private void CheckUnlockCup(int packedColor)
+        /// <summary>任意水瓶倒满（4 层同色）时减少锁瓶次数；与口袋装袋无关。</summary>
+        private void CheckUnlockCup(int fullBottleColor)
         {
             foreach (var kv in cups)
             {
                 var cup = kv.Value;
                 if (cup == null || !cup.IsLock()) continue;
                 var lockColor = cup.GetLockColor();
-                if (lockColor != 0 && lockColor != packedColor) continue;
+                if (lockColor != 0 && lockColor != fullBottleColor) continue;
                 cup.SetLockNum(cup.GetLockNum() - 1);
             }
         }
