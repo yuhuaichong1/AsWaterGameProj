@@ -230,7 +230,11 @@ n
 p
 0Assets/AssetBundleLocal/UI/Logo/Spanish_Logo.png<assets/assetbundlelocal/ui/logo/spanish_logo.png.assetbundle
 {
-0Assets/AssetBundleLocal/UI/Loading/loadingBg.jpgGassets/assetbundlelocal/prefabs/ui/loading/uiloading.prefab.assetbundle
+0Assets/AssetBundleLocal/UI/Loading/loadingBg.pngGassets/assetbundlelocal/prefabs/ui/loading/uiloading.prefab.assetbundle
+z
+/Assets/AssetBundleLocal/UI/Loading/progress.pngGassets/assetbundlelocal/prefabs/ui/loading/uiloading.prefab.assetbundle
+}
+2Assets/AssetBundleLocal/UI/Loading/progress_bg.pngGassets/assetbundlelocal/prefabs/ui/loading/uiloading.prefab.assetbundle
 h
 ,Assets/AssetBundleLocal/UI/Icon/icon_256.png8assets/assetbundlelocal/ui/icon/icon_256.png.assetbundle
 r
@@ -269,8 +273,8 @@ t
 5Assets/AssetBundleLocal/UI/GamePlay/icon_wangguan.pngIassets/assetbundlelocal/prefabs/ui/gameplay/uigameplay.prefab.assetbundle
 l
 .Assets/AssetBundleLocal/UI/GamePlay/img_10.png:assets/assetbundlelocal/ui/gameplay/img_10.png.assetbundle
-l
-.Assets/AssetBundleLocal/UI/GamePlay/img_11.png:assets/assetbundlelocal/ui/gameplay/img_11.png.assetbundle
+p
+.Assets/AssetBundleLocal/UI/GamePlay/img_11.png>assets/assetbundlelocal/prefabs/game/bottle.prefab.assetbundle
 p
 .Assets/AssetBundleLocal/UI/GamePlay/img_12.png>assets/assetbundlelocal/prefabs/game/bottle.prefab.assetbundle
 p
@@ -284,7 +288,7 @@ u
 €
 3Assets/AssetBundleLocal/UI/GamePlay/img_home_bg.pngIassets/assetbundlelocal/prefabs/ui/gameplay/uigameplay.prefab.assetbundle
 t
-2Assets/AssetBundleLocal/UI/GamePlay/img_pingzi.png>assets/assetbundlelocal/prefabs/game/bottle.prefab.assetbundle
+2Assets/AssetBundleLocal/UI/GamePlay/img_pingzi.png>assets/assetbundlelocal/ui/gameplay/img_pingzi.png.assetbundle
 }
 0Assets/AssetBundleLocal/UI/GamePlay/img_yizi.pngIassets/assetbundlelocal/prefabs/ui/gameplay/uigameplay.prefab.assetbundle
 {

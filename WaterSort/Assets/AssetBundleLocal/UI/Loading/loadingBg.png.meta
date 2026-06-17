@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 8bd79acf7ffcf594995752e033fe9a6d
+guid: de0fc8e6ee838f344ad9bc12acdfaaa4
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -37,8 +37,8 @@ TextureImporter:
     filterMode: 1
     aniso: 1
     mipBias: 0
-    wrapU: 0
-    wrapV: 0
+    wrapU: 1
+    wrapV: 1
     wrapW: 0
   nPOTScale: 0
   lightmap: 0
@@ -121,7 +121,7 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
     buildTarget: Android
-    maxTextureSize: 128
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: 51
     textureCompression: 1
@@ -149,5 +149,5 @@ TextureImporter:
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
-  assetBundleName: assets/assetbundlelocal/prefabs/game/bottle.prefab.assetbundle
+  assetBundleName: assets/assetbundlelocal/prefabs/ui/loading/uiloading.prefab.assetbundle
   assetBundleVariant: 
