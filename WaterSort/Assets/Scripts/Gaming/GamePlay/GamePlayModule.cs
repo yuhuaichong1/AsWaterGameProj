@@ -27,6 +27,7 @@ namespace XrCode
         private bool _packCompleteCheckRunning;
         private readonly Dictionary<Pocket, Queue<int>> _pocketAnimQueues = new();
         private readonly HashSet<Pocket> _pocketAnimProcessing = new();
+        private readonly HashSet<Pocket> _reservedPockets = new();
         private int _collected;
         private int _needCollect;
         private List<int> _pocketColors;
@@ -230,6 +231,7 @@ namespace XrCode
             _packCompleteCheckRunning = false;
             _pocketAnimQueues.Clear();
             _pocketAnimProcessing.Clear();
+            _reservedPockets.Clear();
             foreach (var kv in cups)
                 if (kv.Value != null) GameObject.Destroy(kv.Value.gameObject);
             cups.Clear();
@@ -648,6 +650,7 @@ namespace XrCode
             {
                 var pocket = child.GetComponent<Pocket>();
                 if (pocket == null || pocket.IsLocked || pocket.PackColorId <= 0) continue;
+                if (_reservedPockets.Contains(pocket)) continue;
                 if (!_pendingFullCupsByColor.TryGetValue(pocket.PackColorId, out var queue) || queue.Count == 0)
                     continue;
 
@@ -662,7 +665,10 @@ namespace XrCode
                 }
 
                 if (cup != null)
+                {
+                    _reservedPockets.Add(pocket);
                     result.Add(new PackPair2 { cup = cup, pocket = pocket });
+                }
             }
 
             return result;
@@ -670,7 +676,11 @@ namespace XrCode
 
         private IEnumerator HandlePack(Bottle cup, Pocket pocket, float delay)
         {
-            if (cup == null || pocket == null) yield break;
+            if (cup == null || pocket == null)
+            {
+                if (pocket != null) _reservedPockets.Remove(pocket);
+                yield break;
+            }
             _pendingPackOps++;
 
             if (delay > 0f)
@@ -814,6 +824,7 @@ namespace XrCode
             var next = _pocketColors.Count > 0 ? _pocketColors[0] : 0;
             if (_pocketColors.Count > 0) _pocketColors.RemoveAt(0);
             pocket.SetColor(next);
+            _reservedPockets.Remove(pocket);
             BeginCheckPack();
         }
 
