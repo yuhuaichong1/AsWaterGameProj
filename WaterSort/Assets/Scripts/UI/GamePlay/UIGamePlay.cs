@@ -84,6 +84,7 @@ namespace XrCode
             mCMBtn.gameObject.SetActive(!GameDefines.ifIAA);
             mCMDialog.gameObject.SetActive(!GameDefines.ifIAA);
             mWLProgress.gameObject.SetActive(!GameDefines.ifIAA);
+            if(GameDefines.ifIAA) mReStartBtn.transform.position = mReStartBtnIAAPos.position;
 
             string levelText = string.Format(FacadeLanguage.GetText?.Invoke("10016"), FacadePlayer.GetLevel());
             mLTCurLevelText.text = levelText;
@@ -198,7 +199,7 @@ namespace XrCode
             mLTCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), levelText);
             bool after8_10 = curLevel > GameDefines.miniLevel_End;
 
-            mWLProgress.gameObject.SetActive(!after8_10);
+            mWLProgress.gameObject.SetActive(!after8_10 && !GameDefines.ifIAA);
             if (!after8_10)
             {
                 UIGP_LP_Item uIGP_LP_Item;

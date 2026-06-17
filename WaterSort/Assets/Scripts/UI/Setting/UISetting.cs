@@ -10,7 +10,7 @@ namespace XrCode
     {
         protected override void OnAwake()
         {
-            
+            mWRButton.gameObject.SetActive(!GameDefines.ifIAA);
         }
         protected override void OnEnable()
         {

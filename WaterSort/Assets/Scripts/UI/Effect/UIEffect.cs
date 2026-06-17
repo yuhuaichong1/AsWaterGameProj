@@ -286,6 +286,9 @@ namespace XrCode
         /// </summary>
         private void PlayCongratulationEffect()
         {
+            if (GameDefines.ifIAA)
+                return;
+
             mCEContent.text = string.Format(FacadeLanguage.GetText("10002"), GetRandomPlayerName(), GetRandomWMoney());
 
             DG.Tweening.Sequence sequence = DOTween.Sequence();
