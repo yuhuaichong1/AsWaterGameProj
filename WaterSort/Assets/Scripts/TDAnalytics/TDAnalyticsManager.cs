@@ -400,16 +400,6 @@ namespace XrCode
 
         #region 额外扩充
 
-        public void CurCoins()
-        {
-            D.Error("当前金额埋点：" + FacadePlayer.GetMoney());
-
-            ThinkingDataDefines.UserSet(new Dictionary<string, object>()
-            {
-                {"total_mn_sum", FacadePlayer.GetMoney()}
-            });
-        }
-
         public void CurTargetsCoins(float targetMoney)
         {
             ThinkingDataDefines.UserSet(new Dictionary<string, object>()
