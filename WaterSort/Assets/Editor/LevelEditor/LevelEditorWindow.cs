@@ -450,24 +450,24 @@ namespace AsGame.Editor.LevelEditor
                 _cups, _levelIndex, validation, fastSearch: false);
             RefreshLevelDifficultyMetrics();
 
-            var passed = validation.IsValid && LevelWaterCheckPolicy.IsStepsAcceptable(metrics);
+            var passed = LevelWaterCheckPolicy.IsCheckPassed(validation, metrics);
             var report = LevelWaterValidator.FormatReport(validation);
             if (passed)
             {
                 SetStatusLog(
-                    $"【检查】第 {_levelIndex} 关通过；最少步数 {metrics.MinStepsLabel}（上限 {LevelWaterCheckPolicy.MaxAllowedMinSteps}）。\n\n{report}",
+                    $"【检查】第 {_levelIndex} 关通过；最少步数 {metrics.MinStepsLabel}。\n\n{report}",
                     MessageType.Info);
             }
             else
             {
                 var sb = new System.Text.StringBuilder();
-                sb.AppendLine($"【检查未通过】第 {_levelIndex} 关（仅检查，未自动修复）");
+                sb.AppendLine($"【检查未通过】第 {_levelIndex} 关（仅检查，未修改关卡）");
                 if (!validation.IsValid)
                     sb.AppendLine(report);
                 else
                 {
                     sb.AppendLine(report);
-                    sb.AppendLine($"· 最少步数：{metrics.MinStepsLabel}（上限 {LevelWaterCheckPolicy.MaxAllowedMinSteps}）");
+                    sb.AppendLine($"· 最少步数：{metrics.MinStepsLabel}");
                     if (!string.IsNullOrEmpty(metrics.SolveNote))
                         sb.AppendLine("· " + metrics.SolveNote);
                 }
@@ -572,7 +572,7 @@ namespace AsGame.Editor.LevelEditor
             var lockCount = LevelWaterAnalyzer.CountLockCups(_cups);
 
             EditorGUILayout.LabelField(
-                $"参与刷新水层：{participating}（普通瓶+锁瓶；不含空槽/广告瓶/空瓶；锁瓶 {lockCount} 个按 lockLayers 分配）",
+                $"参与刷新水层：{participating}（普通瓶+锁瓶；不含空槽/广告瓶/空瓶；锁瓶 {lockCount} 个保持已配置层数）",
                 EditorStyles.miniLabel);
 
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
@@ -632,7 +632,7 @@ namespace AsGame.Editor.LevelEditor
             if (partSum > 0 && partSum != _waterTotalLayers)
                 EditorGUILayout.HelpBox(
                     $"参与瓶内现有水层合计 {partSum} 层，与「水层总数」{_waterTotalLayers} 不一致；" +
-                    "刷新将按右侧水层总数/颜色数重新分配到普通瓶与锁瓶（空瓶不参与）。",
+                    "刷新将按右侧水层总数/颜色数重新分配普通瓶与锁瓶颜色（锁瓶层数不变；空瓶/广告瓶不参与）。",
                     MessageType.Info);
 
             _waterDifficulty = (WaterRefreshDifficulty)EditorGUILayout.EnumPopup("难度", _waterDifficulty);

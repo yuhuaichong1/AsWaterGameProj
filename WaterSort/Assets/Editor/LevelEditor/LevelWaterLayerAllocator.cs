@@ -7,7 +7,7 @@ using XrCode;
 
 namespace AsGame.Editor.LevelEditor
 {
-    /// <summary>刷新水层前：优先沿用各瓶已配置层数，再按水层总数补删至合法。</summary>
+    /// <summary>刷新水层前：锁瓶保持已配置层数；普通瓶优先沿用配置，再按水层总数补删。</summary>
     public static class LevelWaterLayerAllocator
     {
         const int MaxCapacity = GameConstants.WaterMaxCount;
@@ -19,7 +19,6 @@ namespace AsGame.Editor.LevelEditor
             public bool IsLock;
             public int Target;
             public bool WasConfigured;
-            /// <summary>层数被关卡策略锁定（如前 10 关锁瓶层数），不参与补删调整。</summary>
             public bool IsFixed;
         }
 
@@ -57,23 +56,28 @@ namespace AsGame.Editor.LevelEditor
                 var isLock = LevelWaterAnalyzer.IsLockCup(cup);
                 var configured = cup.colors?.Count ?? 0;
                 bool wasConfigured;
-                bool isFixed;
                 int target;
                 if (isLock)
                 {
-                    // 锁瓶层数必须与检查器一致：有强制要求时锁定为该值，否则按策略解析。
-                    var mandatory = LevelLockLayerPolicy.GetMandatoryLockLayers(levelIndex);
-                    target = mandatory > 0
-                        ? mandatory
-                        : LevelLockLayerPolicy.ResolveRefreshLockLayers(levelIndex, cup);
-                    isFixed = mandatory > 0;
+                    if (configured < 1)
+                    {
+                        error = $"#{i} 锁瓶未配置水层（至少 1 层），请先在瓶子属性中设置层数后再刷新";
+                        return false;
+                    }
+
+                    if (configured > MaxCapacity)
+                    {
+                        error = $"#{i} 锁瓶配置 {configured} 层，超过上限 {MaxCapacity}";
+                        return false;
+                    }
+
+                    target = configured;
                     wasConfigured = true;
                 }
                 else
                 {
                     wasConfigured = configured > 0;
                     target = wasConfigured ? configured : 0;
-                    isFixed = false;
                 }
 
                 if (target > MaxCapacity)
@@ -94,13 +98,28 @@ namespace AsGame.Editor.LevelEditor
                     IsLock = isLock,
                     Target = target,
                     WasConfigured = wasConfigured,
-                    IsFixed = isFixed
+                    IsFixed = isLock
                 });
             }
 
             if (slots.Count == 0)
             {
                 error = "没有可参与随机的瓶子";
+                return false;
+            }
+
+            var lockLayersSum = 0;
+            foreach (var s in slots)
+            {
+                if (s.IsLock)
+                    lockLayersSum += s.Target;
+            }
+
+            if (lockLayersSum > totalLayers)
+            {
+                error =
+                    $"锁瓶已配置合计 {lockLayersSum} 层，超过刷新目标水层总数 {totalLayers} 层；" +
+                    "请提高水层总数或减少锁瓶层数";
                 return false;
             }
 
@@ -111,7 +130,8 @@ namespace AsGame.Editor.LevelEditor
             if (configuredSum != totalLayers)
             {
                 adjustLog.Add(
-                    $"参与瓶已配置水层合计 {configuredSum} 层，与刷新目标 {totalLayers} 层不一致，开始调整。");
+                    $"参与瓶已配置水层合计 {configuredSum} 层，与刷新目标 {totalLayers} 层不一致，" +
+                    "仅调整普通瓶层数（锁瓶保持不变）。");
                 if (!AdjustToTotal(slots, totalLayers, levelIndex, adjustLog, out error))
                     return false;
             }
@@ -262,7 +282,6 @@ namespace AsGame.Editor.LevelEditor
 
         static int ScoreForIncrease(Slot s)
         {
-            // 未配置的普通瓶优先接收补充，其次层数少的瓶
             if (!s.IsLock && !s.WasConfigured)
                 return s.Target;
             if (!s.WasConfigured)
@@ -279,8 +298,7 @@ namespace AsGame.Editor.LevelEditor
                 if (s.IsFixed)
                     continue;
 
-                var min = MinTarget(s, levelIndex);
-                if (s.Target <= min)
+                if (s.Target <= MinTarget(s))
                     continue;
 
                 var score = ScoreForDecrease(s);
@@ -295,21 +313,13 @@ namespace AsGame.Editor.LevelEditor
 
         static int ScoreForDecrease(Slot s)
         {
-            // 未配置或后补的层优先删减：层数多的先减；同层数时未配置优先
             var score = s.Target * 10;
             if (!s.WasConfigured)
                 score += 5;
             return score;
         }
 
-        static int MinTarget(Slot s, int levelIndex)
-        {
-            if (!s.IsLock)
-                return 0;
-
-            var mandatory = LevelLockLayerPolicy.GetMandatoryLockLayers(levelIndex);
-            return mandatory > 0 ? mandatory : 1;
-        }
+        static int MinTarget(Slot s) => s.IsLock ? 1 : 0;
 
         static int SumTargets(List<Slot> slots)
         {

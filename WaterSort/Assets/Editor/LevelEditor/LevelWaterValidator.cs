@@ -142,25 +142,6 @@ namespace AsGame.Editor.LevelEditor
             return result;
         }
 
-        static void ValidateLockCupLayersForLevel(
-            LevelWaterValidationResult result, int index, int layerCount, int levelIndex)
-        {
-            var expected = LevelLockLayerPolicy.GetMandatoryLockLayers(levelIndex);
-            if (expected > 0)
-            {
-                if (layerCount != expected)
-                    result.Errors.Add(
-                        $"#{index} 第 {levelIndex} 关锁瓶应为 {expected} 层水（当前 {layerCount} 层）。");
-                return;
-            }
-
-            if (levelIndex is >= 11 and <= 40 && layerCount > 3)
-                result.Errors.Add($"#{index} 第 {levelIndex} 关锁瓶建议不超过 3 层（当前 {layerCount} 层）。");
-
-            if (levelIndex is >= 3 and <= 10 && layerCount >= MaxCapacity)
-                result.Errors.Add($"#{index} 前 10 关锁瓶不应满 {MaxCapacity} 层（当前 {layerCount} 层）。");
-        }
-
         static void ValidateSolvability(
             LevelWaterValidationResult result, IList<CupData> cups, int levelIndex)
         {
@@ -171,13 +152,12 @@ namespace AsGame.Editor.LevelEditor
                 return;
             }
 
-            var solve = LevelWaterSolver.TryFindMinSteps(
-                cups, levelIndex, LevelWaterCheckPolicy.MaxAllowedMinSteps);
+            var solve = LevelWaterSolver.TryFindMinSteps(cups, levelIndex);
             if (solve.IsSolvable)
                 return;
 
             var msg = string.IsNullOrEmpty(solve.Message)
-                ? $"关卡不可解或未在 {LevelWaterCheckPolicy.MaxAllowedMinSteps} 步内找到解"
+                ? "关卡不可解"
                 : solve.Message;
             result.Errors.Add(msg);
         }
@@ -206,8 +186,6 @@ namespace AsGame.Editor.LevelEditor
                 result.Errors.Add($"#{index} 锁瓶至少需要 1 层水（当前 {layerCount} 层）。");
             else if (kind == CupSlotKind.锁瓶 && layerCount > MaxCapacity)
                 result.Errors.Add($"#{index} 锁瓶水层 {layerCount} 超过上限 {MaxCapacity}。");
-            else if (kind == CupSlotKind.锁瓶)
-                ValidateLockCupLayersForLevel(result, index, layerCount, levelIndex);
 
             if (cup.whNums < 0 || cup.whNums > layerCount)
                 result.Errors.Add($"#{index} {KindLabel(kind)} 问号层数 whNums={cup.whNums} 超出范围 [0,{layerCount}]。");

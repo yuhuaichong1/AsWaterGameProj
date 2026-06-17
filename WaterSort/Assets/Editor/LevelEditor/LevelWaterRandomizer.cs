@@ -228,6 +228,7 @@ namespace AsGame.Editor.LevelEditor
                 if (hasLock && LevelWaterValidator.HasLockDeadlockAtStart(cups))
                     continue;
 
+                ClearNonParticipatingCupLayers(cups);
                 return true;
             }
 
@@ -235,6 +236,22 @@ namespace AsGame.Editor.LevelEditor
                 ? "多次随机后仍无法满足锁瓶解锁条件（锁外缺少足够解锁色或装袋次数）；请提高水层总数、减少 lockNums 或锁瓶层数后重试"
                 : "随机失败：请调整水层总数、颜色数或普通瓶/锁瓶数量后重试";
             return false;
+        }
+
+        static void ClearNonParticipatingCupLayers(IList<CupData> cups)
+        {
+            if (cups == null)
+                return;
+
+            foreach (var cup in cups)
+            {
+                if (cup == null || CupSlotKindUtility.ParticipatesInWaterRefresh(cup))
+                    continue;
+
+                cup.colors ??= new List<int>();
+                cup.colors.Clear();
+                CupWhLayerUtility.ClearHiddenLayers(cup);
+            }
         }
 
         static bool TryBuildOnce(
