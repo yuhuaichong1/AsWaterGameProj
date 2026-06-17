@@ -728,10 +728,11 @@ namespace AsGame.Editor.LevelEditor
                 ApplyPreviewGridFromBottleSettings();
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.LabelField(
-                "绿框 = 局内可摆放区；虚线网格 = 水瓶尺寸单元格；拖动瓶子调整位置。",
+                "绿框 = 局内可摆放区；虚线网格 = 半个水瓶尺寸单元格；拖动瓶子调整位置。",
                 EditorStyles.miniLabel);
+            var gridCell = GetPreviewGridCellSize();
             EditorGUILayout.LabelField(
-                $"当前网格：{_gridBottleWidth:F0} × {_gridBottleHeight:F0}（设计像素）",
+                $"当前网格：{gridCell.x:F0} × {gridCell.y:F0}（设计像素，水瓶尺寸的一半）",
                 EditorStyles.miniLabel);
             _showCupRawReference = EditorGUILayout.Toggle("显示 CupMgr 原始区（灰虚线对照）", _showCupRawReference);
             var rect = GUILayoutUtility.GetRect(
@@ -780,10 +781,9 @@ namespace AsGame.Editor.LevelEditor
                 }
 
                 var ui = PreviewToUi(rect, e.mousePosition);
-                ui.y -= PreviewHalfBottleHeight;
                 if (_snapGrid) ui = Snap(ui);
                 if (_clampToPlayArea)
-                    ui = GameplayCupSpace.ClampCupPosition(ui, PreviewBottleWidth, PreviewBottleHeight);
+                    ui = ClampCupPositionToPreviewPlayArea(ui);
                 _cups[_dragCup].position = ui;
                 e.Use();
                 Repaint();
@@ -829,6 +829,26 @@ namespace AsGame.Editor.LevelEditor
         Vector2 GetPreviewCupGuiSize(in PreviewLayout layout) =>
             new Vector2(PreviewBottleWidth * layout.scale, PreviewBottleHeight * layout.scale);
 
+        Rect GetPreviewCupAreaRect()
+        {
+            var play = GameplayScreenLayout.GetPlayAreaRect(_layout);
+            return Rect.MinMaxRect(
+                -play.width * 0.5f,
+                -play.height * 0.5f,
+                play.width * 0.5f,
+                play.height * 0.5f);
+        }
+
+        Vector2 ClampCupPositionToPreviewPlayArea(Vector2 position)
+        {
+            var area = GetPreviewCupAreaRect();
+            var halfW = PreviewBottleWidth * 0.5f;
+            var halfH = PreviewBottleHeight * 0.5f;
+            return new Vector2(
+                Mathf.Clamp(position.x, area.xMin + halfW, area.xMax - halfW),
+                Mathf.Clamp(position.y, area.yMin + halfH, area.yMax - halfH));
+        }
+
         Vector2 GuiToDesignUi(Vector2 gui, in PreviewLayout layout)
         {
             var halfW = _layout.designWidth * 0.5f;
@@ -870,6 +890,7 @@ namespace AsGame.Editor.LevelEditor
             Handles.EndGUI();
 
             DrawPlayAreaBottleGrid(layout.playGui, layout.scale);
+            DrawPlayAreaThirdGuides(layout.playGui);
 
             for (var i = 0; i < _cups.Count; i++)
             {
@@ -888,11 +909,11 @@ namespace AsGame.Editor.LevelEditor
 
         Rect GetCupGuiRect(CupData cup, in PreviewLayout layout)
         {
-            var bottomPlay = GameplayLayoutMapping.CupToPlayArea(cup.position, _layout);
-            var bottomGui = UiToGui(bottomPlay, layout.ox, layout.oy, layout.scale);
+            var centerPlay = GameplayLayoutMapping.CupToPlayArea(cup.position, _layout);
+            var centerGui = UiToGui(centerPlay, layout.ox, layout.oy, layout.scale);
             var size = GetPreviewCupGuiSize(layout);
-            // IMGUI：Rect.y 为顶边；底边锚点对应 bottomGui，瓶身向上延伸
-            return new Rect(bottomGui.x - size.x * 0.5f, bottomGui.y - size.y, size.x, size.y);
+            // 运行时 JSON 坐标对应瓶子视觉中心；IMGUI Rect.y 为顶边。
+            return new Rect(centerGui.x - size.x * 0.5f, centerGui.y - size.y * 0.5f, size.x, size.y);
         }
 
         /// <summary>沿选中瓶子矩形的四条边，向局内区域延伸对齐虚线（顶/底边为水平线，左/右边为垂直线）。</summary>
@@ -932,6 +953,7 @@ namespace AsGame.Editor.LevelEditor
         void DrawPreviewLegend(Rect previewRect)
         {
             if (Event.current.type != EventType.Repaint) return;
+            var gridCell = GetPreviewGridCellSize();
             var style = new GUIStyle(EditorStyles.miniLabel)
             {
                 normal = { textColor = new Color(0.92f, 0.92f, 0.92f, 1f) }
@@ -939,7 +961,7 @@ namespace AsGame.Editor.LevelEditor
             GUI.Label(new Rect(previewRect.x + 6, previewRect.y + 4, previewRect.width - 12, 18),
                 "绿框 · 局内区域（边距参数）", style);
             GUI.Label(new Rect(previewRect.x + 6, previewRect.y + 20, previewRect.width - 12, 18),
-                $"绿虚线 · 水瓶网格 {_gridBottleWidth:F0}×{_gridBottleHeight:F0}", style);
+                $"绿虚线 · 半瓶网格 {gridCell.x:F0}×{gridCell.y:F0}", style);
             if (_showCupRawReference)
             {
                 GUI.Label(new Rect(previewRect.x + 6, previewRect.y + 36, previewRect.width - 12, 18),
@@ -956,10 +978,16 @@ namespace AsGame.Editor.LevelEditor
             SceneView.RepaintAll();
         }
 
+        Vector2 GetPreviewGridCellSize() =>
+            new Vector2(
+                Mathf.Max(1f, _gridBottleWidth * 0.5f),
+                Mathf.Max(1f, _gridBottleHeight * 0.5f));
+
         void DrawPlayAreaBottleGrid(Rect playGui, float scale)
         {
-            var cellW = _gridBottleWidth * scale;
-            var cellH = _gridBottleHeight * scale;
+            var gridCell = GetPreviewGridCellSize();
+            var cellW = gridCell.x * scale;
+            var cellH = gridCell.y * scale;
             if (cellW < 2f || cellH < 2f) return;
 
             var color = new Color(0.2f, 0.85f, 0.45f, 0.45f);
@@ -975,6 +1003,22 @@ namespace AsGame.Editor.LevelEditor
             {
                 DrawDashedGuiLine(new Vector2(playGui.xMin, y), new Vector2(playGui.xMax, y), color);
                 y += cellH;
+            }
+        }
+
+        void DrawPlayAreaThirdGuides(Rect playGui)
+        {
+            var color = new Color(0.2f, 0.55f, 1f, 0.85f);
+            var oneThirdW = playGui.width / 3f;
+            var oneThirdH = playGui.height / 3f;
+
+            for (var i = 1; i <= 2; i++)
+            {
+                var x = playGui.xMin + oneThirdW * i;
+                DrawDashedGuiLine(new Vector2(x, playGui.yMin), new Vector2(x, playGui.yMax), color);
+
+                var y = playGui.yMin + oneThirdH * i;
+                DrawDashedGuiLine(new Vector2(playGui.xMin, y), new Vector2(playGui.xMax, y), color);
             }
         }
 
@@ -1063,8 +1107,7 @@ namespace AsGame.Editor.LevelEditor
                 var mouseGui = Event.current.mousePosition;
                 if (r.Contains(mouseGui))
                     return i;
-                var center = new Vector2(cup.position.x, cup.position.y + PreviewHalfBottleHeight);
-                var d = Vector2.Distance(uiPos, center);
+                var d = Vector2.Distance(uiPos, cup.position);
                 if (d < Mathf.Max(PreviewBottleWidth, PreviewBottleHeight) * 0.55f && d < bestDist)
                 {
                     bestDist = d;
@@ -1082,12 +1125,13 @@ namespace AsGame.Editor.LevelEditor
             if (EditorGUI.EndChangeCheck())
                 OnScenePreviewToggled();
 
-            _clampToPlayArea = EditorGUILayout.Toggle("限制在 CupMgr 区域 (750×1334)", _clampToPlayArea);
+            _clampToPlayArea = EditorGUILayout.Toggle("限制在绿框可摆放区", _clampToPlayArea);
             _snapGrid = EditorGUILayout.Toggle("吸附虚线网格", _snapGrid);
             if (_snapGrid)
             {
+                var gridCell = GetPreviewGridCellSize();
                 EditorGUILayout.LabelField(
-                    $"吸附单元格：{_gridBottleWidth:F0} × {_gridBottleHeight:F0}（与预览虚线网格一致，修改尺寸后请点「刷新网格」）",
+                    $"虚线间距：{gridCell.x:F0} × {gridCell.y:F0}；吸附步长：{gridCell.x * 0.5f:F1} × {gridCell.y * 0.5f:F1}",
                     EditorStyles.miniLabel);
             }
 
@@ -1165,7 +1209,7 @@ namespace AsGame.Editor.LevelEditor
             }
 
             EditorGUI.BeginChangeCheck();
-            var pos = EditorGUILayout.Vector2Field("位置 (底边锚点)", cup.position);
+            var pos = EditorGUILayout.Vector2Field("位置 (瓶子中心)", cup.position);
             var kindChanged = DrawCupKindToolbar(ref cup);
             var kind = CupSlotKindUtility.GetKind(cup);
             if (kind != CupSlotKind.空槽)
@@ -1197,7 +1241,7 @@ namespace AsGame.Editor.LevelEditor
                 RecordUndo();
                 pos = _snapGrid ? Snap(pos) : pos;
                 if (_clampToPlayArea)
-                    pos = GameplayCupSpace.ClampCupPosition(pos, PreviewBottleWidth, PreviewBottleHeight);
+                    pos = ClampCupPositionToPreviewPlayArea(pos);
                 cup.position = pos;
                 cup.id = index;
                 _cups[index] = cup;
@@ -1287,9 +1331,7 @@ namespace AsGame.Editor.LevelEditor
                 foreach (var cup in cups)
                 {
                     if (cup == null || !CupSlotKindUtility.ShowInLevelPreview(cup)) continue;
-                    var mapped = GameplayLayoutMapping.CupToPlayArea(
-                        new Vector2(cup.position.x, cup.position.y + PreviewHalfBottleHeight),
-                        _layout);
+                    var mapped = GameplayLayoutMapping.CupToPlayArea(cup.position, _layout);
                     var cupCenter = UiPointToScene(mapped, pivotUi);
                     min = Vector3.Min(min, cupCenter - ext);
                     max = Vector3.Max(max, cupCenter + ext);
@@ -1330,10 +1372,7 @@ namespace AsGame.Editor.LevelEditor
             {
                 var cup = _cups[i];
                 if (!CupSlotKindUtility.ShowInLevelPreview(cup)) continue;
-                var cupCenter = new Vector2(
-                    cup.position.x,
-                    cup.position.y + PreviewHalfBottleHeight);
-                var center = UiPointToScene(GameplayLayoutMapping.CupToPlayArea(cupCenter, _layout), pivot);
+                var center = UiPointToScene(GameplayLayoutMapping.CupToPlayArea(cup.position, _layout), pivot);
                 var isSel = i == _selectedCup;
                 Handles.color = isSel ? Color.green : new Color(0.35f, 0.75f, 1f, 0.95f);
                 Handles.DrawWireCube(center, cupSize);
@@ -1401,25 +1440,26 @@ namespace AsGame.Editor.LevelEditor
             }
         }
 
-        /// <summary>将瓶子底边锚点吸附到局内预览虚线网格单元格（与 DrawPlayAreaBottleGrid 同源）。</summary>
+        /// <summary>将瓶子中心点吸附到虚线线位或两条虚线的中点。</summary>
         Vector2 Snap(Vector2 cupPosition)
         {
             if (!_snapGrid) return cupPosition;
 
-            var cellW = _gridBottleWidth;
-            var cellH = _gridBottleHeight;
-            if (cellW <= 0.01f || cellH <= 0.01f) return cupPosition;
+            var gridCell = GetPreviewGridCellSize();
+            var stepW = gridCell.x * 0.5f;
+            var stepH = gridCell.y * 0.5f;
+            if (stepW <= 0.01f || stepH <= 0.01f) return cupPosition;
 
             var play = GameplayScreenLayout.GetPlayAreaRect(_layout);
             var playPos = GameplayLayoutMapping.CupToPlayArea(cupPosition, _layout);
 
             var localX = playPos.x - play.xMin;
             var localY = playPos.y - play.yMin;
-            var cellX = Mathf.Round((localX - cellW * 0.5f) / cellW);
-            var cellY = Mathf.Round(localY / cellH);
+            var cellX = Mathf.Round(localX / stepW);
+            var cellY = Mathf.Round(localY / stepH);
             var snappedPlay = new Vector2(
-                play.xMin + cellX * cellW + cellW * 0.5f,
-                play.yMin + cellY * cellH);
+                play.xMin + cellX * stepW,
+                play.yMin + cellY * stepH);
 
             return GameplayLayoutMapping.PlayAreaToCup(snappedPlay, _layout);
         }
@@ -1483,13 +1523,13 @@ namespace AsGame.Editor.LevelEditor
         void AddCup()
         {
             RecordUndo();
-            var cupArea = GameplayCupSpace.CupAreaRect;
+            var cupArea = GetPreviewCupAreaRect();
             var pos = new Vector2(0f, cupArea.yMin + 80f);
             _cups.Add(new CupData
             {
                 id = _cups.Count,
                 position = _clampToPlayArea
-                    ? GameplayCupSpace.ClampCupPosition(pos, PreviewBottleWidth, PreviewBottleHeight)
+                    ? ClampCupPositionToPreviewPlayArea(pos)
                     : pos,
                 colors = new List<int>()
             });

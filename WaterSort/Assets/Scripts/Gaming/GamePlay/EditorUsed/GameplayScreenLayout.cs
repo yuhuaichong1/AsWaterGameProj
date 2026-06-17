@@ -9,8 +9,10 @@ namespace AsGame.Core
     {
         public float designWidth = 1200f;
         public float designHeight = 2132f;
-        public float insetTop = 800f;
-        public float insetBottom = 240f;
+        // 绿框=游戏 CupPart 区域：由预制体 UIGamePlay 的 CupPart 链路推算（约 x[-600,600]、y[-744,213]）。
+        // 若与实机仍有少量竖直偏差，可在编辑器面板微调上下边距。
+        public float insetTop = 853f;
+        public float insetBottom = 322f;
         public float insetLeft = 0f;
         public float insetRight = 0f;
 

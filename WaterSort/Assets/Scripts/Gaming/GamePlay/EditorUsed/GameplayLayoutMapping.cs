@@ -3,8 +3,10 @@ using UnityEngine;
 namespace AsGame.Core
 {
     /// <summary>
-    /// 关卡 JSON 使用 CupMgr(750×1334) 坐标；局内预览按「屏幕与局内区域」边距矩形显示。
-    /// 二者通过线性映射对齐，使编辑器绿框与 Game 中瓶子相对 HUD/道具区的位置一致。
+    /// 关卡 JSON 坐标与运行时一致：直接作为 CupPart 内的 localPosition（1:1，无缩放）。
+    /// 运行时 GamePlayModule 摆放公式为 瓶底 = CupPart中心 + (x, y)（中心由预制体决定）。
+    /// 编辑器预览以「局内区域(绿框)」中心为原点，按同样的 1:1 偏移摆放，使预览与游戏一致。
+    /// 绿框（GameplayScreenLayoutData 的边距）需对齐游戏 CupPart 区域，必要时在编辑器里微调上下边距。
     /// </summary>
     public static class GameplayLayoutMapping
     {
@@ -12,24 +14,15 @@ namespace AsGame.Core
         {
             layout ??= GameplayScreenLayout.Default;
             var play = GameplayScreenLayout.GetPlayAreaRect(layout);
-            var cup = GameplayCupSpace.CupAreaRect;
-            var tx = Mathf.InverseLerp(cup.xMin, cup.xMax, cupPosition.x);
-            var ty = Mathf.InverseLerp(cup.yMin, cup.yMax, cupPosition.y);
-            return new Vector2(
-                Mathf.Lerp(play.xMin, play.xMax, tx),
-                Mathf.Lerp(play.yMin, play.yMax, ty));
+            // 1:1：cup 坐标即相对绿框中心的偏移，与运行时 CupPart 摆放完全一致。
+            return play.center + cupPosition;
         }
 
         public static Vector2 PlayAreaToCup(Vector2 playPosition, GameplayScreenLayoutData layout)
         {
             layout ??= GameplayScreenLayout.Default;
             var play = GameplayScreenLayout.GetPlayAreaRect(layout);
-            var cup = GameplayCupSpace.CupAreaRect;
-            var tx = Mathf.InverseLerp(play.xMin, play.xMax, playPosition.x);
-            var ty = Mathf.InverseLerp(play.yMin, play.yMax, playPosition.y);
-            return new Vector2(
-                Mathf.Lerp(cup.xMin, cup.xMax, tx),
-                Mathf.Lerp(cup.yMin, cup.yMax, ty));
+            return playPosition - play.center;
         }
     }
 }
