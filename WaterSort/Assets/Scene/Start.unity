@@ -2578,16 +2578,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3079785150662720349, guid: 27f8737195732c94fa2ca65ed979a56d, type: 3}
-      propertyPath: startManually
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6452142032020139993, guid: 27f8737195732c94fa2ca65ed979a56d, type: 3}
       propertyPath: m_Name
       value: ThirdSDK
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 2344226455680834933, guid: 27f8737195732c94fa2ca65ed979a56d, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
