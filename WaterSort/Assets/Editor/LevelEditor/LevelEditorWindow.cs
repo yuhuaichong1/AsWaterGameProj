@@ -713,7 +713,7 @@ namespace AsGame.Editor.LevelEditor
             {
                 if (cup == null || cup.colors == null)
                     continue;
-                total += Mathf.Clamp(cup.whNums, 0, Mathf.Max(0, cup.colors.Count));
+                total += CupWhLayerUtility.CountHiddenLayers(cup);
             }
 
             return total;
@@ -1180,7 +1180,7 @@ namespace AsGame.Editor.LevelEditor
             var cup = _cups[index];
             var isSel = index == _selectedCup;
             var layerCountForHeader = cup.colors?.Count ?? 0;
-            var questionCountForHeader = Mathf.Clamp(cup.whNums, 0, layerCountForHeader);
+            var questionCountForHeader = CupWhLayerUtility.CountHiddenLayers(cup);
             var header =
                 $"#{index}  ({cup.position.x:F0}, {cup.position.y:F0})  层:{layerCountForHeader}  问号:{questionCountForHeader}";
             var tag = CupSlotKindUtility.GetKindShortTag(cup);
@@ -1217,11 +1217,23 @@ namespace AsGame.Editor.LevelEditor
                 if (kind == CupSlotKind.普通瓶 || kind == CupSlotKind.锁瓶)
                 {
                     var layerCount = cup.colors?.Count ?? 0;
-                    cup.whNums = Mathf.Clamp(cup.whNums, 0, layerCount);
+                    CupWhLayerUtility.ClampToLayerCount(cup);
                     if (kind == CupSlotKind.锁瓶)
                     {
-                        cup.lockColor = EditorGUILayout.IntField("lockColor", cup.lockColor);
-                        cup.lockNums = EditorGUILayout.IntField("lockNums", cup.lockNums);
+                        cup.lockColor = EditorGUILayout.IntField(
+                            new GUIContent(
+                                "lockColor",
+                                "锁标签颜色类型（仅影响解锁条件，不约束瓶内水层颜色）。\n" +
+                                "0 = 白色标签：任意颜色满瓶装袋消除时，都会减少解锁进度。\n" +
+                                "1~8 = 彩色标签：只有消除对应颜色时才会减少进度。"),
+                            cup.lockColor);
+                        cup.lockNums = EditorGUILayout.IntField(
+                            new GUIContent(
+                                "lockNums",
+                                "解锁所需消除次数。\n" +
+                                "每次满足 lockColor 条件的满瓶装袋消除时减 1；\n" +
+                                "减到 0 时锁瓶解锁，可正常操作。"),
+                            cup.lockNums);
                     }
 
                     DrawColorLayers(cup);
@@ -1277,7 +1289,7 @@ namespace AsGame.Editor.LevelEditor
                 cup.colors.Add(0);
             while (cup.colors.Count > layerCount)
                 cup.colors.RemoveAt(cup.colors.Count - 1);
-            cup.whNums = Mathf.Clamp(cup.whNums, 0, cup.colors.Count);
+            CupWhLayerUtility.ClampToLayerCount(cup);
 
             for (var layer = 0; layer < cup.colors.Count; layer++)
             {
@@ -1288,12 +1300,10 @@ namespace AsGame.Editor.LevelEditor
                 if (GameConstants.GameColorData.TryGetValue(cup.colors[layer], out var pair))
                     EditorGUI.DrawRect(sw, pair.Base);
                 GUILayout.Space(8);
-                var isHidden = layer < cup.whNums;
+                var isHidden = CupWhLayerUtility.IsLayerHidden(cup, layer);
                 var nextHidden = EditorGUILayout.ToggleLeft("问号", isHidden, GUILayout.Width(56));
                 if (nextHidden != isHidden)
-                    cup.whNums = nextHidden
-                        ? Mathf.Max(cup.whNums, layer + 1)
-                        : Mathf.Min(cup.whNums, layer);
+                    CupWhLayerUtility.SetLayerHidden(cup, layer, nextHidden);
                 EditorGUILayout.EndHorizontal();
             }
         }

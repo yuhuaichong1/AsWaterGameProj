@@ -15,6 +15,7 @@ public class CupDataJson
     public float y;
     public List<int> colors;
     public int whNums;
+    public int whMask;
     public int isVideo;
     public int isLock;
     public int lockColor;

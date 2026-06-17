@@ -224,7 +224,7 @@ namespace AsGame.Editor.LevelEditor
 
                 builtAny = true;
 
-                // 锁瓶关卡：保证开局锁瓶外至少有一种颜色能凑满 4 层，否则首步无法消除→死锁。
+                // 锁瓶关卡：锁外须保留足够解锁色与装袋次数，避免彩色/次数锁开局无解。
                 if (hasLock && LevelWaterValidator.HasLockDeadlockAtStart(cups))
                     continue;
 
@@ -232,7 +232,7 @@ namespace AsGame.Editor.LevelEditor
             }
 
             error = builtAny && hasLock
-                ? "多次随机后仍无法保证开局可解（锁瓶外缺少完整颜色组）；请提高水层总数或减少锁瓶层数后重试"
+                ? "多次随机后仍无法满足锁瓶解锁条件（锁外缺少足够解锁色或装袋次数）；请提高水层总数、减少 lockNums 或锁瓶层数后重试"
                 : "随机失败：请调整水层总数、颜色数或普通瓶/锁瓶数量后重试";
             return false;
         }
@@ -252,9 +252,16 @@ namespace AsGame.Editor.LevelEditor
             var pool = BuildColorPool(colorCount, totalLayers, rng);
             Shuffle(pool, rng);
 
+            var totalColorCounts = CountPoolColors(pool);
+            if (!LockUnlockFeasibility.TryValidatePoolAgainstLocks(lockCups, totalColorCounts, out _))
+                return false;
+
+            var maxInLocks = LockUnlockFeasibility.ComputeMaxLayersAllowedInLocks(lockCups, totalColorCounts);
+            var lockColorUsage = new Dictionary<int, int>();
+
             for (var i = 0; i < lockCups.Count; i++)
             {
-                if (!TryFillLockCup(lockCups[i], ref pool, rng, lockLayerCounts[i]))
+                if (!TryFillLockCup(lockCups[i], ref pool, rng, lockLayerCounts[i], maxInLocks, lockColorUsage))
                     return false;
             }
 
@@ -292,34 +299,94 @@ namespace AsGame.Editor.LevelEditor
             return pool;
         }
 
-        static bool TryFillLockCup(CupData cup, ref List<int> pool, System.Random rng, int layerCount)
+        static bool TryFillLockCup(
+            CupData cup,
+            ref List<int> pool,
+            System.Random rng,
+            int layerCount,
+            IReadOnlyDictionary<int, int> maxInLocks,
+            Dictionary<int, int> lockColorUsage)
         {
             layerCount = Mathf.Clamp(layerCount, 1, MaxCapacity);
             cup.colors ??= new List<int>();
             cup.colors.Clear();
 
-            if (cup.lockColor > 0)
-            {
-                if (CountInPool(pool, cup.lockColor) < layerCount)
-                    return false;
-                RemoveFromPool(pool, cup.lockColor, layerCount);
-                for (var i = 0; i < layerCount; i++)
-                    cup.colors.Add(cup.lockColor);
-                cup.whNums = 0;
-                return true;
-            }
-
             if (pool.Count < layerCount) return false;
             for (var layer = 0; layer < layerCount; layer++)
             {
-                // 优先取池中层数最多的颜色，避免把「仅够 4 层」的稀缺色拆进锁瓶导致外部无法凑满。
-                var color = PickMostSuppliedColor(pool, rng);
+                // 优先充裕色，但禁止占用彩色锁须在锁外保留的解锁色（如全关仅 4 层绿则锁瓶不能抽绿）。
+                if (!TryPickColorForLockCup(pool, rng, maxInLocks, lockColorUsage, out var color))
+                    return false;
+
                 cup.colors.Add(color);
                 RemoveFromPool(pool, color, 1);
+                lockColorUsage.TryGetValue(color, out var used);
+                lockColorUsage[color] = used + 1;
             }
 
-            cup.whNums = 0;
+            CupWhLayerUtility.ClearHiddenLayers(cup);
             return cup.colors.Count == layerCount;
+        }
+
+        static bool TryPickColorForLockCup(
+            List<int> pool,
+            System.Random rng,
+            IReadOnlyDictionary<int, int> maxInLocks,
+            Dictionary<int, int> lockColorUsage,
+            out int color)
+        {
+            color = 0;
+            if (pool == null || pool.Count == 0)
+                return false;
+
+            var counts = new Dictionary<int, int>();
+            foreach (var c in pool)
+            {
+                counts.TryGetValue(c, out var n);
+                counts[c] = n + 1;
+            }
+
+            var bestCount = -1;
+            var candidates = new List<int>();
+            foreach (var kv in counts)
+            {
+                lockColorUsage.TryGetValue(kv.Key, out var inLocks);
+                maxInLocks.TryGetValue(kv.Key, out var allowed);
+                if (inLocks >= allowed)
+                    continue;
+
+                if (kv.Value > bestCount)
+                {
+                    bestCount = kv.Value;
+                    candidates.Clear();
+                    candidates.Add(kv.Key);
+                }
+                else if (kv.Value == bestCount)
+                {
+                    candidates.Add(kv.Key);
+                }
+            }
+
+            if (candidates.Count == 0)
+                return false;
+
+            color = candidates[rng.Next(candidates.Count)];
+            return true;
+        }
+
+        static Dictionary<int, int> CountPoolColors(IList<int> pool)
+        {
+            var counts = new Dictionary<int, int>();
+            if (pool == null)
+                return counts;
+
+            foreach (var c in pool)
+            {
+                counts.TryGetValue(c, out var n);
+                counts[c] = n + 1;
+            }
+
+            return counts;
         }
 
         static bool TryFillRegularCups(
@@ -344,7 +411,7 @@ namespace AsGame.Editor.LevelEditor
                 {
                     cup.colors ??= new List<int>();
                     cup.colors.Clear();
-                    cup.whNums = 0;
+                    CupWhLayerUtility.ClearHiddenLayers(cup);
                 }
 
                 return true;
@@ -373,7 +440,7 @@ namespace AsGame.Editor.LevelEditor
                 cup.colors ??= new List<int>();
                 cup.colors.Clear();
                 cup.colors.AddRange(virtuals[i].Layers);
-                cup.whNums = 0;
+                CupWhLayerUtility.ClearHiddenLayers(cup);
             }
 
             if (questionLayerCount >= 0)
@@ -381,7 +448,11 @@ namespace AsGame.Editor.LevelEditor
             else
             {
                 foreach (var cup in regularCups)
-                    cup.whNums = PickWhNums(difficulty, cup.colors.Count, rng);
+                {
+                    var n = PickWhNums(difficulty, cup.colors.Count, rng);
+                    cup.whNums = n;
+                    cup.whMask = n > 0 ? (1 << n) - 1 : 0;
+                }
             }
 
             return true;
@@ -575,7 +646,7 @@ namespace AsGame.Editor.LevelEditor
         }
 
         /// <summary>
-        /// 将指定数量的问号层分配到普通瓶。当前数据结构只支持从 L0 开始连续隐藏。
+        /// 将指定数量的问号层分配到普通瓶（随机刷新默认从 L0 连续隐藏）。
         /// </summary>
         static void AssignQuestionLayers(List<CupData> cups, int questionLayerCount, System.Random rng)
         {
@@ -583,7 +654,7 @@ namespace AsGame.Editor.LevelEditor
                 return;
 
             foreach (var cup in cups)
-                cup.whNums = 0;
+                CupWhLayerUtility.ClearHiddenLayers(cup);
 
             if (questionLayerCount <= 0)
                 return;
@@ -607,6 +678,7 @@ namespace AsGame.Editor.LevelEditor
 
                 var target = candidates[rng.Next(candidates.Count)];
                 target.whNums++;
+                target.whMask = target.whNums > 0 ? (1 << target.whNums) - 1 : 0;
                 questionLayerCount--;
             }
         }
@@ -650,30 +722,6 @@ namespace AsGame.Editor.LevelEditor
             var set = new HashSet<int>();
             foreach (var c in layers) set.Add(c);
             return set.Count;
-        }
-
-        /// <summary>返回池中剩余层数最多的颜色（并列时随机），用于锁瓶优先消耗充裕色。</summary>
-        static int PickMostSuppliedColor(List<int> pool, System.Random rng)
-        {
-            var counts = new Dictionary<int, int>();
-            foreach (var c in pool)
-            {
-                counts.TryGetValue(c, out var n);
-                counts[c] = n + 1;
-            }
-
-            var best = pool[rng.Next(pool.Count)];
-            var bestCount = -1;
-            foreach (var kv in counts)
-            {
-                if (kv.Value > bestCount || (kv.Value == bestCount && rng.Next(2) == 0))
-                {
-                    bestCount = kv.Value;
-                    best = kv.Key;
-                }
-            }
-
-            return best;
         }
 
         static int CountInPool(List<int> pool, int color)

@@ -265,6 +265,7 @@ namespace XrCode
                     position = new Vector2(jsonCup.x, jsonCup.y),
                     colors = jsonCup.colors ?? new List<int>(),
                     whNums = jsonCup.whNums,
+                    whMask = jsonCup.whMask,
                     isVideo = jsonCup.isVideo,
                     isLock = jsonCup.isLock,
                     lockColor = jsonCup.lockColor,
@@ -757,6 +758,7 @@ namespace XrCode
             if (slot == null) return;
             slot.colors.Clear();
             slot.whNums = 0;
+            slot.whMask = 0;
             slot.isVideo = 0;
             slot.isLock = 0;
             slot.lockColor = 0;
@@ -1075,6 +1077,7 @@ namespace XrCode
             if (slot == null) return;
             slot.colors.Clear();
             slot.whNums = 0;
+            slot.whMask = 0;
             slot.isVideo = 0;
             slot.isLock = 0;
             slot.lockColor = 0;
