@@ -132,8 +132,9 @@ namespace XrSDK
         /// <param name="conversionData">归因数据</param>
         private void OnConversionDataSuccess(Dictionary<string, object> conversionData)
         {
-            FacadeTracking.SetAttributionData(conversionData);
+            //FacadeTracking.SetAttributionData(conversionData);
             //ModuleMgr.Instance.TDAnalyticsManager.ProcessAndReportAttribution(conversionData);
+            TDAnalyticsManager.Instance.SetAttributionData(conversionData);
         }
 
         /// <summary>

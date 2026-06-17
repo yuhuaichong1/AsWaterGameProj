@@ -143,6 +143,7 @@ namespace XrCode
             money = value;
             SPlayerPrefs.SetDouble(PlayerPrefDefines.money, money);
             SPlayerPrefs.Save();
+            TDAnalyticsManager.Instance.SetUserMoney((float)money);
         }
 
         private void AddMoney(double value)
@@ -150,6 +151,7 @@ namespace XrCode
             money += value;
             SPlayerPrefs.SetDouble(PlayerPrefDefines.money, money);
             SPlayerPrefs.Save();
+            TDAnalyticsManager.Instance.SetUserMoney((float)money);
         }
 
         #endregion
@@ -354,6 +356,7 @@ namespace XrCode
         public void LoadData()
         {
             money = SPlayerPrefs.GetDouble(PlayerPrefDefines.money, 0);
+            TDAnalyticsManager.Instance.SetUserMoney((float)money);
             level = SPlayerPrefs.GetInt(PlayerPrefDefines.level, 1);
             energy = SPlayerPrefs.GetInt(PlayerPrefDefines.energy, GameDefines.Default_MaxEnergy);
             prop1Num = SPlayerPrefs.GetInt(PlayerPrefDefines.prop1Num, GameDefines.Default_Prop1_Count);

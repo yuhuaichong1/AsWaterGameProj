@@ -272,7 +272,7 @@ namespace XrCode
             SPlayerPrefs.SetFloat(PlayerPrefDefines.wTarget, wTarget);
             SPlayerPrefs.Save();
 
-            //ModuleMgr.Instance.TDAnalyticsManager.CurTargetsCoins(wTarget);
+            TDAnalyticsManager.Instance.CurTargetsCoins(wTarget);
         }
 
         #endregion

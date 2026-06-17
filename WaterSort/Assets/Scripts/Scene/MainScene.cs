@@ -11,6 +11,7 @@
                 UIManager.Instance.OpenAsync<UIEffect>(EUIType.EUIEffect);
                 UIManager.Instance.OpenAsync<UIGuide>(EUIType.EUIGuide);
                 FacadeAudio.PlayBgm();
+                TDAnalyticsManager.Instance.EnterMainUI();
             });
         }
 

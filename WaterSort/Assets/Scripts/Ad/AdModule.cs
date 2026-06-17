@@ -24,6 +24,8 @@ namespace XrCode
 
         private string AdFailMsg;//广告加载失败信息
 
+        private DateTime adStartTime;
+
         #region 额外扩充
 
         private int curRefuseCount;//当前拒绝次数
@@ -485,6 +487,8 @@ namespace XrCode
         {
             D.Log($"'{eAdType}' Ad '{eAdSource}' displayed successfully");
             FacadeAd.OnAdDisplayed?.Invoke(eAdType, eAdSource, platform, revenue, ecpm, precision);
+            TDAnalyticsManager.Instance.AdStart(eAdType, eAdSource, ecpm, platform, precision);
+            adStartTime = DateTime.Now;
         }
 
         /// <summary>
@@ -499,6 +503,7 @@ namespace XrCode
             D.Log($"'{eAdType}' Ad '{eAdSource}' displayed failed: '{errMsg}'");
             OnAdFailed(eAdType, eAdSource, errMsg);
             FacadeAd.OnAdDisplayFailed?.Invoke(eAdType, eAdSource, platform, errMsg);
+            TDAnalyticsManager.Instance.AdFail(eAdType, eAdSource, errMsg);
         }
 
         /// <summary>
@@ -514,6 +519,7 @@ namespace XrCode
         {
             D.Log($"'{eAdType}' Ad '{eAdSource}' completed");
             FacadeAd.OnAdCompleted?.Invoke(eAdType, eAdSource, platform, revenue, ecpm, precision);
+            TDAnalyticsManager.Instance.AdComplete(eAdType, eAdSource, ecpm, platform, precision);
         }
 
         /// <summary>
@@ -559,6 +565,9 @@ namespace XrCode
         {
             D.Log($"'{eAdType}' Ad '{eAdSource}' revenue paid: '{revenue}'");
             FacadeAd.OnAdRevenuePaid?.Invoke(eAdType, eAdSource, platform, revenue, ecpm, precision);
+            TDAnalyticsManager.Instance.AdRevenuePaid(eAdType, revenue, precision, eAdSource, platform);
+            AddTotalAdwatch(1, revenue);
+            AddTotalAdInfo(1, revenue);
         }
 
         /// <summary>
@@ -1179,17 +1188,30 @@ namespace XrCode
             switch (totalAdCount)
             {
                 case 5:
-                    //ModuleMgr.Instance.TDAnalyticsManager.Times_5_Ad(totalAdRevenue);
+                    TDAnalyticsManager.Instance.Times_5_Ad(totalAdRevenue);
                     break;
                 case 10:
-                    //ModuleMgr.Instance.TDAnalyticsManager.Times_10_Ad(totalAdRevenue);
+                    TDAnalyticsManager.Instance.Times_10_Ad(totalAdRevenue);
                     break;
                 case 15:
-                    //ModuleMgr.Instance.TDAnalyticsManager.Times_15_Ad(totalAdRevenue);
+                    TDAnalyticsManager.Instance.Times_15_Ad(totalAdRevenue);
                     break;
                 case 20:
-                    //ModuleMgr.Instance.TDAnalyticsManager.Times_20_Ad(totalAdRevenue);
+                    TDAnalyticsManager.Instance.Times_20_Ad(totalAdRevenue);
                     break;
+            }
+        }
+
+        private void AddTotalAdInfo(int count, double revenue)
+        {
+            float time = (float)(DateTime.Now - adStartTime).TotalSeconds;
+            if (time < 0)
+                return;
+            else
+            {
+                if (time > 3000)
+                    time = 3000;
+                TDAnalyticsManager.Instance.SetAdInfo(count, time, (float)revenue);
             }
         }
 

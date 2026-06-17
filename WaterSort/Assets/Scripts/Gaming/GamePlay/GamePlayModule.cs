@@ -193,6 +193,7 @@ namespace XrCode
             CheckNewPlayUnlock();
 
             curLevelIndex = FacadePlayer.GetLevel();
+            TDAnalyticsManager.Instance.SetLevel(curLevelIndex);
 
             FacadeGamePlay.SetLevelShow();
             GetLevelData(curLevelIndex);
