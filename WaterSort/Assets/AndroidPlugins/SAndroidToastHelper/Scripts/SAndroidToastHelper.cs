@@ -1,10 +1,9 @@
-ï»¿#if UNITY_ANDROID && !UNITY_EDITOR
 using System.Collections;
 using UnityEngine;
 
 public class SAndroidToastHelper
 {
-    private AndroidJavaObject toastInstance; // Androidå·¥å…·ç±»å®ä¾‹
+    private AndroidJavaObject toastInstance; // Android¹¤¾ßÀàÊµÀı
     private AndroidToastItem defaultATI;
 
     public SAndroidToastHelper()
@@ -44,13 +43,12 @@ public class SAndroidToastHelper
     }
 
     /// <summary>
-    /// å°†Color32è½¬æ¢ä¸º#XXXXXXçš„å½¢å¼
+    /// ½«Color32×ª»»Îª#XXXXXXµÄĞÎÊ½
     /// </summary>
-    /// <param name="color32">é¢œè‰²</param>
+    /// <param name="color32">ÑÕÉ«</param>
     /// <returns>#XXXXXX</returns>
     private string Color32ToHex6(Color32 color32)
     {
         return $"#{color32.r.ToString("X2")}{color32.g.ToString("X2")}{color32.b.ToString("X2")}";
     }
 }
-#endif

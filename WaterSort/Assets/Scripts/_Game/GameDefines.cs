@@ -337,7 +337,7 @@ public enum EAdSource
 /// </summary>
 public enum EAdType
 {
-    Reward,//激励
+    Reward = 1,//激励
     Interstitial,//插屏
     Banner,//横幅
     AppOpen,//开屏

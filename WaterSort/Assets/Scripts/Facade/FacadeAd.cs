@@ -16,6 +16,7 @@ public static class FacadeAd
     public static Func<bool> GetROIAdRevenue;                                                                   //获取激励or插屏的收入并进行比较（ture时为激励）
     public static Func<bool> GetRewardAdReady;                                                                  //激励广告是否准备完毕
     public static Func<bool> GetInterAdReady;                                                                   //插屏广告是否准备完毕
+    public static Func<bool> GetAppOpenAdReady;
 
     public static Action ShowRewardAd;                                                                          //播放激励广告（广告类监听）
     public static Action ShowInterAd;                                                                           //播放插屏广告（广告类监听）
