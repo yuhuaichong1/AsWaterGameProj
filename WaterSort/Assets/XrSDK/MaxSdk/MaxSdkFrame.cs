@@ -146,7 +146,7 @@ namespace XrSDK
             {
                 D.Error("inter ad not ready");
                 FacadeMaxSdkExtend.OnInterstitialAdNotReady?.Invoke();
-                FacadeAd.OnInterstitialAdNotReady?.Invoke();
+                FacadeAd.InterstitialAdNotReady?.Invoke();
                 LoadInterstitial();
                 //interstitialStatusText.text = "Ad not ready";
             }
@@ -173,14 +173,14 @@ namespace XrSDK
 
             FacadeMaxSdkExtend.OnInterstitialAdLoadedEvent?.Invoke(adUnitId, adInfo);
 
-            FacadeAd.OnInterstitialAdLoaded?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
+            FacadeAd.InterstitialAdLoaded?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
         }
 
         private void OnInterstitialDisplayedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
         {
             D.Log("Interstitial ad displayed");
             FacadeMaxSdkExtend.OnInterstitialAdDisplayedEvent?.Invoke(adUnitId, adInfo);
-            FacadeAd.OnInterstitialAdDisplayed?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
+            FacadeAd.InterstitialAdDisplayed?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
         }
 
         private void OnInterstitialFailedEvent(string adUnitId, MaxSdkBase.ErrorInfo errorInfo)
@@ -195,7 +195,7 @@ namespace XrSDK
             MonoInst.Instance.Invoke("LoadInterstitial", (float)retryDelay);
 
             FacadeMaxSdkExtend.OnInterstitialAdLoadFailedEvent?.Invoke(adUnitId, errorInfo);
-            FacadeAd.OnInterstitialAdLoadFailed?.Invoke(errorInfo.Code.ToString(), errorInfo.Message);
+            FacadeAd.InterstitialAdLoadFailed?.Invoke(errorInfo.Code.ToString(), errorInfo.Message);
         }
 
         private void InterstitialFailedToDisplayEvent(string adUnitId, MaxSdkBase.ErrorInfo errorInfo, MaxSdkBase.AdInfo adInfo)
@@ -207,7 +207,7 @@ namespace XrSDK
             LoadInterstitial();
 
             FacadeMaxSdkExtend.OnInterstitialAdFailedToDisplayEvent?.Invoke(adUnitId, errorInfo, adInfo);
-            FacadeAd.OnInterstitialAdDisplayFailed?.Invoke(errorInfo.Code.ToString(), errorInfo.Message);
+            FacadeAd.InterstitialAdDisplayFailed?.Invoke(errorInfo.Code.ToString(), errorInfo.Message);
         }
 
         private void OnInterstitialDismissedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
@@ -220,7 +220,7 @@ namespace XrSDK
             LoadInterstitial();
 
             FacadeMaxSdkExtend.OnInterstitialAdDismissedEvent?.Invoke(adUnitId, adInfo);
-            FacadeAd.OnInterstitialAdClosed?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
+            FacadeAd.InterstitialAdClosed?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
         }
 
         private void OnInterstitialClickedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
@@ -228,7 +228,7 @@ namespace XrSDK
             D.Log("Interstitial ad clicked");
 
             FacadeMaxSdkExtend.OnInterstitialAdClickedEvent?.Invoke(adUnitId, adInfo);
-            FacadeAd.OnInterstitialAdClicked?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
+            FacadeAd.InterstitialAdClicked?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
         }
 
         private void OnInterstitialRevenuePaidEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
@@ -250,7 +250,7 @@ namespace XrSDK
             FacadeMaxSdkExtend.OnInterstitialAdRevenuePaidEvent?.Invoke(adUnitId, adInfo);
 
             FacadeAppsFlyerExtend.SendAdRevenue?.Invoke(EAppsFlyerAdType.EInterstitial, adInfo.AdUnitIdentifier, adInfo.Placement, "monetizationNetworkEx", MediationNetwork.ApplovinMax, "USD", adInfo.Revenue);
-            FacadeAd.OnInterstitialAdRevenuePaid?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
+            FacadeAd.InterstitialAdRevenuePaid?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
         }
 
         #endregion
@@ -303,7 +303,7 @@ namespace XrSDK
             {
                 D.Error("reward ad not ready");
                 FacadeMaxSdkExtend.OnRewardAdNotReadyEvent?.Invoke();
-                FacadeAd.OnRewardAdNotReady?.Invoke();
+                FacadeAd.RewardAdNotReady?.Invoke();
                 LoadRewardedAd();
             }
         }
@@ -332,7 +332,7 @@ namespace XrSDK
 
             FacadeMaxSdkExtend.OnRewardedAdLoadEvent?.Invoke(adUnitId, adInfo);
 
-            FacadeAd.OnRewardAdLoaded?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
+            FacadeAd.RewardAdLoaded?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
         }
 
         private void OnRewardedAdFailedEvent(string adUnitId, MaxSdkBase.ErrorInfo errorInfo)
@@ -347,7 +347,7 @@ namespace XrSDK
             //广播激励视频加载失败事件
             FacadeMaxSdkExtend.OnRewardedAdLoadFailEvent?.Invoke(adUnitId, errorInfo);
 
-            //FacadeAd.OnRewardAdLoadFailed?.Invoke(errorInfo.Code.ToString(), errorInfo.Message);
+            FacadeAd.RewardAdLoadFailed?.Invoke(errorInfo.Code.ToString(), errorInfo.Message);
         }
 
         private void OnRewardedAdFailedToDisplayEvent(string adUnitId, MaxSdkBase.ErrorInfo errorInfo, MaxSdkBase.AdInfo adInfo)
@@ -359,7 +359,7 @@ namespace XrSDK
             //广播激励视频显示失败事件
             FacadeMaxSdkExtend.OnRewardedAdFailToDisplayEvent?.Invoke(adUnitId, errorInfo, adInfo);
 
-            FacadeAd.OnRewardAdDisplayFailed?.Invoke(errorInfo.Code.ToString(), errorInfo.Message);
+            FacadeAd.RewardAdDisplayFailed?.Invoke(errorInfo.Code.ToString(), errorInfo.Message);
         }
 
         private void OnRewardedAdDisplayedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
@@ -368,7 +368,7 @@ namespace XrSDK
 
             FacadeMaxSdkExtend.OnRewardedAdDisplayEvent?.Invoke(adUnitId, adInfo);
 
-            FacadeAd.OnRewardAdDisplayed?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
+            FacadeAd.RewardAdDisplayed?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
         }
 
         private void OnRewardedAdClickedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
@@ -377,7 +377,7 @@ namespace XrSDK
 
             FacadeMaxSdkExtend.OnRewardAdClickEvent?.Invoke(adUnitId, adInfo);
 
-            FacadeAd.OnRewardAdClicked?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
+            FacadeAd.RewardAdClicked?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
         }
 
         private void OnRewardedAdDismissedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
@@ -388,7 +388,7 @@ namespace XrSDK
             LoadRewardedAd();
             FacadeMaxSdkExtend.OnRewardAdHiddenEvent?.Invoke(adUnitId, adInfo);
 
-            FacadeAd.OnRewardAdClosed?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
+            FacadeAd.RewardAdClosed?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
         }
 
         private void OnRewardedAdReceivedRewardEvent(string adUnitId, MaxSdk.Reward reward, MaxSdkBase.AdInfo adInfo)
@@ -398,7 +398,7 @@ namespace XrSDK
 
             FacadeMaxSdkExtend.OnRewardAdReceivRewardEvent?.Invoke(adUnitId, reward, adInfo);
 
-            FacadeAd.OnRewardAdReceivedReward?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement, reward.Amount);
+            FacadeAd.RewardAdReceivedReward?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement, reward.Amount);
         }
 
         private void OnRewardedAdRevenuePaidEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
@@ -421,7 +421,7 @@ namespace XrSDK
 
             FacadeAppsFlyerExtend.SendAdRevenue?.Invoke(EAppsFlyerAdType.EReward, adInfo.AdUnitIdentifier, adInfo.Placement, "monetizationNetworkEx", MediationNetwork.ApplovinMax, "USD", adInfo.Revenue);
 
-            FacadeAd.OnRewardAdRevenuePaid?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
+            FacadeAd.RewardAdRevenuePaid?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.Placement);
         }
 
         #endregion
