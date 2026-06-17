@@ -19,6 +19,7 @@ namespace XrCode
         public float y;
         public int[] colors = Array.Empty<int>();
         public int whNums;
+        public int whMask;
         public int isVideo;
         public int isLock;
         public int lockColor;
@@ -61,12 +62,14 @@ namespace XrCode
             for (var i = 0; i < cups.Count; i++)
             {
                 var c = cups[i];
+                CupWhLayerUtility.NormalizeForSave(c);
                 entries[i] = new CupJsonEntry
                 {
                     x = c.position.x,
                     y = c.position.y,
                     colors = c.colors != null ? c.colors.ToArray() : Array.Empty<int>(),
                     whNums = c.whNums,
+                    whMask = c.whMask,
                     isVideo = c.isVideo,
                     isLock = c.isLock,
                     lockColor = c.lockColor,
@@ -94,6 +97,7 @@ namespace XrCode
                     position = new Vector2(e.x, e.y),
                     colors = e.colors != null ? new List<int>(e.colors) : new List<int>(),
                     whNums = e.whNums,
+                    whMask = e.whMask,
                     isVideo = e.isVideo,
                     isLock = e.isLock,
                     lockColor = e.lockColor,

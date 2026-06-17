@@ -139,6 +139,7 @@ namespace AsGame.Editor.LevelEditor
                 }
 
                 sim.WhNums = cup.whNums;
+                sim.WhMask = CupWhLayerUtility.GetMask(cup);
                 if (cup.colors != null)
                 {
                     sim.Stack.AddRange(cup.colors);
@@ -198,6 +199,7 @@ namespace AsGame.Editor.LevelEditor
             public int LockColor;
             public int LockRemaining;
             public int WhNums;
+            public int WhMask;
             public List<int> Stack = new();
 
             public bool InPlay => !Packed;
@@ -213,6 +215,7 @@ namespace AsGame.Editor.LevelEditor
                     LockColor = LockColor,
                     LockRemaining = LockRemaining,
                     WhNums = WhNums,
+                    WhMask = WhMask,
                     Stack = new List<int>(Stack)
                 };
             }
@@ -275,13 +278,13 @@ namespace AsGame.Editor.LevelEditor
             bool IsHiddenLayer(int bottleIndex, int layerIndex)
             {
                 var b = Bottles[bottleIndex];
-                return b.WhNums > 0 && b.Stack.Count > 1 && layerIndex < b.WhNums;
+                return b.Stack.Count > 1 && (b.WhMask & (1 << layerIndex)) != 0;
             }
 
             public bool IsCollect(int i)
             {
                 var b = Bottles[i];
-                if (!b.InPlay || b.Stack.Count != MaxCapacity || b.WhNums > 0) return false;
+                if (!b.InPlay || b.Stack.Count != MaxCapacity || b.WhMask != 0) return false;
                 var c = b.Stack[0];
                 for (var l = 1; l < b.Stack.Count; l++)
                 {

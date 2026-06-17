@@ -166,7 +166,8 @@ namespace AsGame.Editor.LevelEditor
         {
             if (HasLockDeadlockAtStart(cups))
             {
-                result.Errors.Add("关卡不可解：锁瓶内颜色无法在不解锁的情况下先完成装袋（死锁）");
+                result.Errors.Add(
+                    "关卡不可解：锁瓶外无法满足解锁条件（彩色锁缺少足够解锁色，或白锁/次数锁装袋次数不足）");
                 return;
             }
 
@@ -181,61 +182,9 @@ namespace AsGame.Editor.LevelEditor
             result.Errors.Add(msg);
         }
 
-        /// <summary>锁瓶未解锁时，外部是否至少能先装袋一次（必要条件）。</summary>
-        public static bool HasLockDeadlockAtStart(IList<CupData> cups)
-        {
-            var lockCups = new List<CupData>();
-            var outsideCounts = new Dictionary<int, int>();
-
-            foreach (var cup in cups)
-            {
-                if (cup == null) continue;
-                var kind = CupSlotKindUtility.GetKind(cup);
-                if (kind is CupSlotKind.空槽 or CupSlotKind.广告瓶 or CupSlotKind.空瓶)
-                    continue;
-                if (kind == CupSlotKind.锁瓶 && cup.lockNums > 0)
-                {
-                    lockCups.Add(cup);
-                    continue;
-                }
-
-                if (cup.colors == null) continue;
-                foreach (var c in cup.colors)
-                {
-                    if (!outsideCounts.ContainsKey(c)) outsideCounts[c] = 0;
-                    outsideCounts[c]++;
-                }
-            }
-
-            if (lockCups.Count == 0)
-                return false;
-
-            foreach (var lockCup in lockCups)
-            {
-                var need = lockCup.lockColor;
-                if (need == 0)
-                {
-                    var canPack = false;
-                    foreach (var kv in outsideCounts)
-                    {
-                        if (kv.Value >= MaxCapacity)
-                        {
-                            canPack = true;
-                            break;
-                        }
-                    }
-
-                    if (!canPack)
-                        return true;
-                }
-                else if (!outsideCounts.TryGetValue(need, out var n) || n < MaxCapacity)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        /// <summary>锁瓶未解锁时，外部是否无法满足彩色/次数解锁条件。</summary>
+        public static bool HasLockDeadlockAtStart(IList<CupData> cups) =>
+            LockUnlockFeasibility.HasUnlockInfeasibleAtStart(cups);
 
         static void ValidateParticipatingCup(
             LevelWaterValidationResult result,
@@ -263,18 +212,9 @@ namespace AsGame.Editor.LevelEditor
             if (cup.whNums < 0 || cup.whNums > layerCount)
                 result.Errors.Add($"#{index} {KindLabel(kind)} 问号层数 whNums={cup.whNums} 超出范围 [0,{layerCount}]。");
 
-            if (kind == CupSlotKind.锁瓶 && cup.lockColor > 0)
-            {
-                for (var l = 0; l < layers.Count; l++)
-                {
-                    if (layers[l] != cup.lockColor)
-                    {
-                        result.Errors.Add(
-                            $"#{index} 锁瓶 lockColor={cup.lockColor}，但第 {l} 层颜色为 {layers[l]}。");
-                        break;
-                    }
-                }
-            }
+            var hiddenMask = CupWhLayerUtility.GetMask(cup);
+            if ((hiddenMask & ~CupWhLayerUtility.LayerCountMask(layerCount)) != 0)
+                result.Errors.Add($"#{index} {KindLabel(kind)} 问号层 whMask={cup.whMask} 超出有效水层范围。");
 
             if (kind == CupSlotKind.普通瓶 && IsUniformFullBottle(layers))
             {
