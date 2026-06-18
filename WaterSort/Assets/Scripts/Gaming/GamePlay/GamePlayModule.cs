@@ -1023,6 +1023,7 @@ namespace XrCode
             for (var i = 0; i < num; i++)
                 if (to.Data.colors.Count > 0)
                     to.Data.colors.RemoveAt(to.Data.colors.Count - 1);
+            CupWhLayerUtility.OnRemovedTopLayers(to.Data);
             for (var i = 0; i < num; i++)
                 from.Data.colors.Add(color);
 

@@ -51,6 +51,57 @@ namespace AsGame.Editor.LevelEditor
                     sum += c.colors?.Count ?? 0;
             return sum;
         }
+
+        /// <summary>从参与刷新的普通瓶统计刷新面板字段（颜色种数、水层总数、问号层数）。</summary>
+        public static void GetRefreshPanelFields(
+            IList<CupData> cups, out int colorCount, out int totalLayers, out int questionLayers)
+        {
+            totalLayers = SumParticipatingLayers(cups);
+            questionLayers = 0;
+            var colors = new HashSet<int>();
+            if (cups != null)
+            {
+                foreach (var cup in cups)
+                {
+                    if (!ParticipatesInRefresh(cup))
+                        continue;
+
+                    if (!IsLockCup(cup))
+                        questionLayers += CupWhLayerUtility.CountConfiguredHiddenLayers(cup);
+
+                    if (cup.colors == null)
+                        continue;
+
+                    foreach (var c in cup.colors)
+                    {
+                        if (c >= 1 && c <= 8)
+                            colors.Add(c);
+                    }
+                }
+            }
+
+            colorCount = colors.Count > 0
+                ? colors.Count
+                : totalLayers > 0
+                    ? Mathf.Max(1, totalLayers / 4)
+                    : 1;
+        }
+
+        public static int CountConfiguredQuestionLayers(IList<CupData> cups)
+        {
+            var total = 0;
+            if (cups == null)
+                return total;
+
+            foreach (var cup in cups)
+            {
+                if (!ParticipatesInRefresh(cup) || IsLockCup(cup))
+                    continue;
+                total += CupWhLayerUtility.CountConfiguredHiddenLayers(cup);
+            }
+
+            return total;
+        }
     }
 
     public static class LevelWaterRandomizer
@@ -457,11 +508,10 @@ namespace AsGame.Editor.LevelEditor
                 cup.colors ??= new List<int>();
                 cup.colors.Clear();
                 cup.colors.AddRange(virtuals[i].Layers);
-                CupWhLayerUtility.ClearHiddenLayers(cup);
             }
 
             if (questionLayerCount >= 0)
-                AssignQuestionLayers(regularCups, questionLayerCount, rng);
+                ResolveQuestionLayers(regularCups, questionLayerCount, rng);
             else
             {
                 foreach (var cup in regularCups)
@@ -662,48 +712,168 @@ namespace AsGame.Editor.LevelEditor
             };
         }
 
+        sealed class QuestionSlot
+        {
+            public CupData Cup;
+            public int Layer;
+        }
+
         /// <summary>
-        /// 将指定数量的问号层分配到普通瓶（随机刷新默认从 L0 连续隐藏）。
+        /// 按目标问号层数 N 与瓶中已配置 M 层对齐：N=M 保留；N&gt;M 随机补充（不含顶层 L3）；N&lt;M 优先同瓶扣减。
         /// </summary>
-        static void AssignQuestionLayers(List<CupData> cups, int questionLayerCount, System.Random rng)
+        static void ResolveQuestionLayers(List<CupData> cups, int targetCount, System.Random rng)
         {
             if (cups == null || cups.Count == 0)
                 return;
 
             foreach (var cup in cups)
-                CupWhLayerUtility.ClearHiddenLayers(cup);
+                CupWhLayerUtility.ClampToLayerCount(cup);
 
-            if (questionLayerCount <= 0)
+            var configured = CollectConfiguredQuestionSlots(cups);
+            var capacity = CountQuestionSlotCapacity(cups);
+            targetCount = Mathf.Clamp(targetCount, 0, capacity);
+
+            if (targetCount == configured.Count)
                 return;
 
-            var capacity = 0;
-            foreach (var cup in cups)
-                capacity += MaxQuestionLayersForCup(cup);
-
-            questionLayerCount = Mathf.Clamp(questionLayerCount, 0, capacity);
-            while (questionLayerCount > 0)
+            if (targetCount < configured.Count)
             {
-                var candidates = new List<CupData>();
-                foreach (var cup in cups)
+                var toRemove = configured.Count - targetCount;
+                while (toRemove > 0 && configured.Count > 0)
                 {
-                    if (cup.whNums < MaxQuestionLayersForCup(cup))
-                        candidates.Add(cup);
+                    var pickCup = PickCupWithMostQuestions(configured);
+                    if (pickCup == null)
+                        break;
+
+                    var slotIndex = -1;
+                    var bestLayer = -1;
+                    for (var i = 0; i < configured.Count; i++)
+                    {
+                        if (configured[i].Cup != pickCup)
+                            continue;
+                        if (configured[i].Layer <= bestLayer)
+                            continue;
+                        bestLayer = configured[i].Layer;
+                        slotIndex = i;
+                    }
+
+                    if (slotIndex < 0)
+                        break;
+
+                    var slot = configured[slotIndex];
+                    CupWhLayerUtility.SetLayerHidden(slot.Cup, slot.Layer, false);
+                    configured.RemoveAt(slotIndex);
+                    toRemove--;
                 }
 
-                if (candidates.Count == 0)
-                    return;
+                return;
+            }
 
-                var target = candidates[rng.Next(candidates.Count)];
-                target.whNums++;
-                target.whMask = target.whNums > 0 ? (1 << target.whNums) - 1 : 0;
-                questionLayerCount--;
+            var toAdd = targetCount - configured.Count;
+            var available = CollectAvailableQuestionSlots(cups, configured);
+            while (toAdd > 0 && available.Count > 0)
+            {
+                var pick = available[rng.Next(available.Count)];
+                CupWhLayerUtility.SetLayerHidden(pick.Cup, pick.Layer, true);
+                configured.Add(pick);
+                available.RemoveAll(s => s.Cup == pick.Cup && s.Layer == pick.Layer);
+                toAdd--;
             }
         }
 
-        static int MaxQuestionLayersForCup(CupData cup)
+        static List<QuestionSlot> CollectConfiguredQuestionSlots(List<CupData> cups)
+        {
+            var list = new List<QuestionSlot>();
+            foreach (var cup in cups)
+            {
+                var layerCount = cup.colors?.Count ?? 0;
+                for (var layer = 0; layer < layerCount; layer++)
+                {
+                    if (!CupWhLayerUtility.IsConfiguredHidden(cup, layer))
+                        continue;
+                    list.Add(new QuestionSlot { Cup = cup, Layer = layer });
+                }
+            }
+
+            return list;
+        }
+
+        static List<QuestionSlot> CollectAvailableQuestionSlots(
+            List<CupData> cups, List<QuestionSlot> configured)
+        {
+            var available = new List<QuestionSlot>();
+            foreach (var cup in cups)
+            {
+                var layerCount = cup.colors?.Count ?? 0;
+                for (var layer = 0; layer < layerCount; layer++)
+                {
+                    if (!CanAssignQuestionAtLayer(cup, layer))
+                        continue;
+                    if (IsQuestionSlotConfigured(configured, cup, layer))
+                        continue;
+                    available.Add(new QuestionSlot { Cup = cup, Layer = layer });
+                }
+            }
+
+            return available;
+        }
+
+        static bool IsQuestionSlotConfigured(List<QuestionSlot> configured, CupData cup, int layer)
+        {
+            foreach (var slot in configured)
+            {
+                if (slot.Cup == cup && slot.Layer == layer)
+                    return true;
+            }
+
+            return false;
+        }
+
+        static CupData PickCupWithMostQuestions(List<QuestionSlot> configured)
+        {
+            CupData bestCup = null;
+            var bestCount = 0;
+            foreach (var slot in configured)
+            {
+                var count = 0;
+                foreach (var other in configured)
+                {
+                    if (other.Cup == slot.Cup)
+                        count++;
+                }
+
+                if (count <= bestCount)
+                    continue;
+                bestCount = count;
+                bestCup = slot.Cup;
+            }
+
+            return bestCup;
+        }
+
+        static int CountQuestionSlotCapacity(IList<CupData> cups)
+        {
+            var capacity = 0;
+            if (cups == null)
+                return capacity;
+
+            foreach (var cup in cups)
+            {
+                var layerCount = cup.colors?.Count ?? 0;
+                for (var layer = 0; layer < layerCount; layer++)
+                {
+                    if (CanAssignQuestionAtLayer(cup, layer))
+                        capacity++;
+                }
+            }
+
+            return capacity;
+        }
+
+        static bool CanAssignQuestionAtLayer(CupData cup, int layerIndex)
         {
             var count = cup?.colors?.Count ?? 0;
-            return Mathf.Max(0, count - 1);
+            return count > 1 && layerIndex >= 0 && layerIndex < count - 1 && layerIndex < CupWhLayerUtility.MaxLayers;
         }
 
         static bool TryPour(VirtualBottle from, VirtualBottle to)

@@ -284,13 +284,21 @@ namespace AsGame.Editor.LevelEditor
             bool IsHiddenLayer(int bottleIndex, int layerIndex)
             {
                 var b = Bottles[bottleIndex];
-                return b.Stack.Count > 1 && (b.WhMask & (1 << layerIndex)) != 0;
+                if (b.Stack.Count <= 1 || layerIndex >= b.Stack.Count - 1)
+                    return false;
+                return (b.WhMask & (1 << layerIndex)) != 0;
             }
 
             public bool IsCollect(int i)
             {
                 var b = Bottles[i];
-                if (!b.InPlay || b.Stack.Count != MaxCapacity || b.WhMask != 0) return false;
+                if (!b.InPlay || b.Stack.Count != MaxCapacity) return false;
+                for (var l = 0; l < b.Stack.Count - 1; l++)
+                {
+                    if ((b.WhMask & (1 << l)) != 0)
+                        return false;
+                }
+
                 var c = b.Stack[0];
                 for (var l = 1; l < b.Stack.Count; l++)
                 {
@@ -308,6 +316,10 @@ namespace AsGame.Editor.LevelEditor
                     Bottles[from].Stack.RemoveAt(Bottles[from].Stack.Count - 1);
                     Bottles[to].Stack.Add(color);
                 }
+
+                var fromBottle = Bottles[from];
+                fromBottle.WhMask = CupWhLayerUtility.NormalizeMaskAfterTopRemoved(
+                    fromBottle.WhMask, fromBottle.Stack.Count);
 
                 if (IsCollect(to))
                     ApplyLockUnlockOnFullBottle(Bottles[to].Stack[^1]);

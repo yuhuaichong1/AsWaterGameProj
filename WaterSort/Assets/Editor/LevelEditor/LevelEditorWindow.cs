@@ -551,14 +551,18 @@ namespace AsGame.Editor.LevelEditor
 
         void SyncWaterRefreshFieldsFromCups()
         {
-            var total = LevelWaterAnalyzer.SumParticipatingLayers(_cups);
-            if (total > 0)
+            LevelWaterAnalyzer.GetRefreshPanelFields(
+                _cups, out var colorCount, out var totalLayers, out var questionLayers);
+            if (totalLayers > 0)
             {
-                _waterTotalLayers = total;
-                _waterColorCount = Mathf.Max(1, total / 4);
+                _waterTotalLayers = totalLayers;
+                _waterColorCount = Mathf.Clamp(colorCount, 1, 8);
+                _waterQuestionLayers = questionLayers;
             }
 
             RefreshLevelDifficultyMetrics();
+            if (_levelDifficultyMetrics.HasData)
+                _waterDifficulty = _levelDifficultyMetrics.Difficulty;
         }
 
         void RefreshLevelDifficultyMetrics()
@@ -688,7 +692,7 @@ namespace AsGame.Editor.LevelEditor
             }
 
             var sb = new System.Text.StringBuilder();
-            var actualQuestionLayers = CountQuestionLayers(_cups);
+            var actualQuestionLayers = LevelWaterAnalyzer.CountConfiguredQuestionLayers(_cups);
             sb.AppendLine(
                 $"已按「{LevelWaterRandomizer.GetDifficultyDisplayName(_waterDifficulty)}」刷新水层" +
                 $"（{_waterColorCount} 色 / {_waterTotalLayers} 层 / {actualQuestionLayers} 问号层，" +
@@ -703,21 +707,8 @@ namespace AsGame.Editor.LevelEditor
             RefreshScenePreview();
         }
 
-        static int CountQuestionLayers(IList<CupData> cups)
-        {
-            var total = 0;
-            if (cups == null)
-                return total;
-
-            foreach (var cup in cups)
-            {
-                if (cup == null || cup.colors == null)
-                    continue;
-                total += CupWhLayerUtility.CountHiddenLayers(cup);
-            }
-
-            return total;
-        }
+        static int CountQuestionLayers(IList<CupData> cups) =>
+            LevelWaterAnalyzer.CountConfiguredQuestionLayers(cups);
 
         void DrawPlayAreaPreview()
         {
@@ -1180,7 +1171,7 @@ namespace AsGame.Editor.LevelEditor
             var cup = _cups[index];
             var isSel = index == _selectedCup;
             var layerCountForHeader = cup.colors?.Count ?? 0;
-            var questionCountForHeader = CupWhLayerUtility.CountHiddenLayers(cup);
+            var questionCountForHeader = CupWhLayerUtility.CountConfiguredHiddenLayers(cup);
             var header =
                 $"#{index}  ({cup.position.x:F0}, {cup.position.y:F0})  层:{layerCountForHeader}  问号:{questionCountForHeader}";
             var tag = CupSlotKindUtility.GetKindShortTag(cup);
