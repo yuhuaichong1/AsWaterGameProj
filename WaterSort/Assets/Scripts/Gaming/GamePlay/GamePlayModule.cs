@@ -377,7 +377,8 @@ namespace XrCode
 
             if (cup.IsVideo())
             {
-                FacadeAd.PlayROIAdByWeight(EAdSource.UnlockBottle, (count) => { cup.UnlockVideo(); }, (errMsg) => { cup.UnlockVideo(); }, () => { cup.UnlockVideo(); }, GameDefines.WeightAdRange, GameDefines.AdWeight);
+                FacadeAd.PlayInterAd(EAdSource.UnlockBottle, (count) => { cup.UnlockVideo(); }, (errMsg) => { cup.UnlockVideo(); });
+                //FacadeAd.PlayROIAdByWeight(EAdSource.UnlockBottle, (count) => { cup.UnlockVideo(); }, (errMsg) => { cup.UnlockVideo(); }, () => { cup.UnlockVideo(); }, GameDefines.WeightAdRange, GameDefines.AdWeight);
                 //FacadeAd.PlayRewardAd(EAdSource.UnlockBottle, (count) =>
                 //{
                 //    cup.UnlockVideo();
@@ -445,7 +446,8 @@ namespace XrCode
                 return;
             }
 
-            FacadeAd.PlayROIAdByWeight(EAdSource.Prop, (count) => { OnUnlockPocket2(pocket); }, (errMsg) => { OnUnlockPocket2(pocket); }, () => { OnUnlockPocket2(pocket); }, GameDefines.WeightAdRange, GameDefines.AdWeight);
+            FacadeAd.PlayInterAd(EAdSource.UnlockPocket, (count) => { OnUnlockPocket2(pocket); }, (errMsg) => { OnUnlockPocket2(pocket); });
+            //FacadeAd.PlayROIAdByWeight(EAdSource.UnlockPocket, (count) => { OnUnlockPocket2(pocket); }, (errMsg) => { OnUnlockPocket2(pocket); }, () => { OnUnlockPocket2(pocket); }, GameDefines.WeightAdRange, GameDefines.AdWeight);
         }
 
         private void OnUnlockPocket2(Pocket pocket)
