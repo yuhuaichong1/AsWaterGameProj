@@ -478,9 +478,7 @@ namespace AsGame.Water
             {
                 UpdateWaterHeight(h);
                 if (splashHost != null)
-                {
-                    splashHost.transform.localPosition = new Vector3(0, -238f + h, 0);
-                }
+                    splashHost.transform.localPosition = new Vector3(0, ResolveSplashSurfaceLocalY(h), 0);
             });
 
             if (splashHost != null)
@@ -499,13 +497,41 @@ namespace AsGame.Water
             _pouring = false;
         }
 
+        /// <summary>接水水花应贴在 water_parent 内液面高度，对齐 content 局部坐标。</summary>
+        float ResolveSplashSurfaceLocalY(float surfaceHeight)
+        {
+            EnsureWaterVisual();
+            EnsureHierarchyRefs();
+            if (waterVisual?.WaterParent is RectTransform waterParentRt
+                && content != null
+                && waterParentRt.parent == content)
+            {
+                return waterParentRt.anchoredPosition.y + surfaceHeight;
+            }
+
+            // 与 BottleWaterVisual.WaterAreaY 保持一致的后备值
+            return -244f + surfaceHeight;
+        }
+
+        /// <summary>液面在瓶子父节点（cupPart）局部坐标下的 Y，用于水柱终点计算。</summary>
+        public float GetWaterSurfaceRootY(float surfaceHeight)
+        {
+            var rootParent = transform.parent;
+            var surfaceAnchor = content != null ? content : transform;
+            var surfaceLocal = new Vector3(0f, ResolveSplashSurfaceLocalY(surfaceHeight), 0f);
+            if (rootParent == null)
+                return surfaceLocal.y;
+
+            var world = surfaceAnchor.TransformPoint(surfaceLocal);
+            return rootParent.InverseTransformPoint(world).y;
+        }
+
         /// <summary>对应 Cocos sdEff：接水时在水面位置播放水花特效，随倒水进度由小变大。</summary>
         GameObject CreateSplashHost(int color, float surfaceHeight)
         {
-            // water_parent 底边在 content 局部 y = -238，水面在其上 surfaceHeight 处。
             GameObject host = new GameObject("SplashHost", typeof(RectTransform), typeof(CanvasGroup));
             host.transform.SetParent(content != null ? content : transform, false);
-            host.transform.localPosition = new Vector3(0, -238f + surfaceHeight + 8f, 0);
+            host.transform.localPosition = new Vector3(0, ResolveSplashSurfaceLocalY(surfaceHeight), 0);
             host.transform.localScale = Vector3.one;
 
             SkeletonGraphic shuihuaEffect = GameObject.Instantiate(ResourceMod.Instance.SyncLoad<GameObject>(GameDefines.ShuihuaEffectPath), host.transform).GetComponent<SkeletonGraphic>();
@@ -882,7 +908,7 @@ namespace AsGame.Water
             if (streamNode == null || transform.parent == null) return 180f;
             Transform parent = transform.parent;
             Vector3 origin = parent.InverseTransformPoint(streamNode.transform.position);
-            return Mathf.Clamp(origin.y - _streamEndRootY + 8f, 40f, 320f);
+            return Mathf.Clamp(origin.y - _streamEndRootY + 8f, 40f, 420f);
         }
 
         void SetPourWaterMask(bool enabled)

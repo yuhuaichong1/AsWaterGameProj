@@ -98,8 +98,8 @@ public static class SListHelper
                     }
                     else
                     {
-                        targetIndex = mid;
-                        break;
+                        // value 落在断点上，区间即 [list[mid], list[mid+1])；须直接返回，break 只跳出 switch 会导致 while 死循环
+                        return Mathf.Clamp(mid, 0, list.Count - 2);
                     }
                     break;
 

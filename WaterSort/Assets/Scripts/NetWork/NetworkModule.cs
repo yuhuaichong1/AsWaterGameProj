@@ -262,6 +262,14 @@ namespace XrCode
                 {
                     GameDefines.SpinCount = int.Parse(sc.ToString());
                 }
+                if(adDic.TryGetValue("ClockLvArr", out object ckla))
+                {
+                    GameDefines.ClockLvArr = Array.ConvertAll(ckla.ToString().Split(','), int.Parse);
+                }
+                if(adDic.TryGetValue("ClockTimeArr", out object cta))
+                {
+                    GameDefines.ClockTimeArr = Array.ConvertAll(cta.ToString().Split(','), float.Parse);
+                }
             }
         }
 

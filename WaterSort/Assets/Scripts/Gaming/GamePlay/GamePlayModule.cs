@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -216,7 +217,10 @@ namespace XrCode
             if (curLevelIndex > 3)
             {
                 LRBool = false;
-                LRTimer.targetTime = curLevelIndex <= GameDefines.ClockLv ? GameDefines.ClockTime1 : GameDefines.ClockTime2;
+                //LRTimer.targetTime = curLevelIndex <= GameDefines.ClockLv ? GameDefines.ClockTime1 : GameDefines.ClockTime2;
+                int inarId = GameDefines.ClockLvArr.ToList().GetRangeIndex(curLevelIndex);
+                LRTimer.targetTime = GameDefines.ClockTimeArr[inarId];
+                Debug.LogError(LRTimer.targetTime);
                 LRTimer.ReStart();
                 LoopPlayCongratulationEffect(true);
             }
@@ -510,7 +514,7 @@ namespace XrCode
             var pourPos = to.transform.localPosition + new Vector3(dir < 0 ? 20 : -20, 0, 0);
 
             var targetStartHeight = GameConstants.WaterMaxY[Mathf.Clamp(to.Data.colors.Count, 0, GameConstants.WaterMaxY.Length - 1)];
-            var streamEndRootY = to.transform.localPosition.y - 238f + targetStartHeight;
+            var streamEndRootY = to.GetWaterSurfaceRootY(targetStartHeight);
 
             Coroutine waterInRoutine = null;
             yield return from.WaterOut(color, pourNum, dir, pourPos, streamEndRootY, () =>
