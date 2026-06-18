@@ -367,7 +367,6 @@ namespace AsGame.Water
             moveDuration = Mathf.Clamp(moveDuration, 0.15f, 1.2f);
 
             FacadeAudio.PlayEffect(EAudioType.EBottleMove);
-            Debug.LogError("开始移动");
             GetComponent<CanvasGroup>().blocksRaycasts = false;
             yield return TweenHelper.MoveLocal(transform, BottlePourMath.PourPosition(pourAnchor, midAngle, dir), moveDuration);
 
