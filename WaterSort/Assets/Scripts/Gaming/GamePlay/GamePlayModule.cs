@@ -217,7 +217,6 @@ namespace XrCode
             if (curLevelIndex > 3)
             {
                 LRBool = false;
-                Debug.LogError(GameDefines.ClockTime2);
                 LRTimer.targetTime = curLevelIndex <= GameDefines.ClockLv ? GameDefines.ClockTime1 : GameDefines.ClockTime2;
                 LRTimer.ReStart();
                 LoopPlayCongratulationEffect(true);
