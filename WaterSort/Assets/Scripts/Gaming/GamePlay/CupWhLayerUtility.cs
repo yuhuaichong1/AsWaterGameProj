@@ -69,6 +69,15 @@ namespace XrCode
             SyncLegacyWhNums(cup);
         }
 
+        /// <summary>倒出上层后，若新的顶层仍为问号层则揭开颜色。</summary>
+        public static void RevealHiddenLayerUncoveredByPour(CupData cup)
+        {
+            if (cup == null || cup.colors == null || cup.colors.Count == 0) return;
+            var top = cup.colors.Count - 1;
+            if (!IsLayerHidden(cup, top)) return;
+            SetLayerHidden(cup, top, false);
+        }
+
         /// <summary>连续 L0..n-1 时同步 whNums；非连续时 whNums=0，以 whMask 为准。</summary>
         public static void SyncLegacyWhNums(CupData cup)
         {

@@ -381,6 +381,8 @@ namespace AsGame.Water
                 if (_data.colors.Count > 0)
                     _data.colors.RemoveAt(_data.colors.Count - 1);
 
+            CupWhLayerUtility.RevealHiddenLayerUncoveredByPour(_data);
+
             ShowWaterItems();
             HideAllMeniscuses();
             yield return new WaitForSeconds(0.1f);
