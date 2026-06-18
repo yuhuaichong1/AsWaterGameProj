@@ -72,13 +72,12 @@ namespace AsGame.Editor.LevelEditor
             if (LevelWaterValidator.HasLockDeadlockAtStart(cups))
             {
                 metrics.IsSolvable = false;
-                metrics.SolveNote = "关卡不可解：锁瓶内颜色无法在不解锁的情况下先完成装袋（死锁）";
+                metrics.SolveNote = "关卡不可解：锁瓶外无法满足解锁条件";
                 return metrics;
             }
 
             var maxVisited = fastSearch ? LevelWaterCheckPolicy.FastSearchMaxVisited : 0;
-            var solve = LevelWaterSolver.TryFindMinSteps(
-                cups, levelIndex, LevelWaterCheckPolicy.MaxAllowedMinSteps, maxVisited);
+            var solve = LevelWaterSolver.TryFindMinSteps(cups, levelIndex, 0, maxVisited);
             metrics.IsSolvable = solve.IsSolvable;
             metrics.MinSolveSteps = solve.MinSteps;
             metrics.SearchLimitSteps = solve.SearchLimitSteps;

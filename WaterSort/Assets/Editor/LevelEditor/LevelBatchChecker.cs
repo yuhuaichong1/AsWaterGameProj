@@ -125,7 +125,7 @@ namespace AsGame.Editor.LevelEditor
             var metrics = LevelWaterDifficultyAnalyzer.AnalyzeSolvability(
                 cups, levelIndex, validation, fastSearch: false);
             AppendSolvabilityErrors(validation, metrics);
-            var isValid = validation.IsValid && LevelWaterCheckPolicy.IsStepsAcceptable(metrics);
+            var isValid = LevelWaterCheckPolicy.IsCheckPassed(validation, metrics);
             return BuildEntry(levelIndex, validation, metrics, isValid, 0);
         }
 
@@ -133,17 +133,14 @@ namespace AsGame.Editor.LevelEditor
             LevelWaterValidationResult validation,
             LevelWaterDifficultyMetrics metrics)
         {
-            if (validation == null || !validation.IsValid || LevelWaterCheckPolicy.IsStepsAcceptable(metrics))
+            if (validation == null || !validation.IsValid || metrics.IsSolvable)
                 return;
 
             if (!string.IsNullOrEmpty(metrics.SolveNote) &&
                 !validation.Errors.Contains(metrics.SolveNote))
                 validation.Errors.Add(metrics.SolveNote);
-            else if (metrics.MinSolveSteps > LevelWaterCheckPolicy.MaxAllowedMinSteps)
-                validation.Errors.Add(
-                    $"最少步数 {metrics.MinSolveSteps} 超过上限 {LevelWaterCheckPolicy.MaxAllowedMinSteps}");
-            else if (!metrics.IsSolvable)
-                validation.Errors.Add("关卡不可解或未在步数上限内找到解");
+            else
+                validation.Errors.Add("关卡不可解");
         }
 
         static LevelBatchCheckEntry BuildEntry(

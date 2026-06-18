@@ -450,24 +450,24 @@ namespace AsGame.Editor.LevelEditor
                 _cups, _levelIndex, validation, fastSearch: false);
             RefreshLevelDifficultyMetrics();
 
-            var passed = validation.IsValid && LevelWaterCheckPolicy.IsStepsAcceptable(metrics);
+            var passed = LevelWaterCheckPolicy.IsCheckPassed(validation, metrics);
             var report = LevelWaterValidator.FormatReport(validation);
             if (passed)
             {
                 SetStatusLog(
-                    $"【检查】第 {_levelIndex} 关通过；最少步数 {metrics.MinStepsLabel}（上限 {LevelWaterCheckPolicy.MaxAllowedMinSteps}）。\n\n{report}",
+                    $"【检查】第 {_levelIndex} 关通过；最少步数 {metrics.MinStepsLabel}。\n\n{report}",
                     MessageType.Info);
             }
             else
             {
                 var sb = new System.Text.StringBuilder();
-                sb.AppendLine($"【检查未通过】第 {_levelIndex} 关（仅检查，未自动修复）");
+                sb.AppendLine($"【检查未通过】第 {_levelIndex} 关（仅检查，未修改关卡）");
                 if (!validation.IsValid)
                     sb.AppendLine(report);
                 else
                 {
                     sb.AppendLine(report);
-                    sb.AppendLine($"· 最少步数：{metrics.MinStepsLabel}（上限 {LevelWaterCheckPolicy.MaxAllowedMinSteps}）");
+                    sb.AppendLine($"· 最少步数：{metrics.MinStepsLabel}");
                     if (!string.IsNullOrEmpty(metrics.SolveNote))
                         sb.AppendLine("· " + metrics.SolveNote);
                 }
@@ -551,14 +551,18 @@ namespace AsGame.Editor.LevelEditor
 
         void SyncWaterRefreshFieldsFromCups()
         {
-            var total = LevelWaterAnalyzer.SumParticipatingLayers(_cups);
-            if (total > 0)
+            LevelWaterAnalyzer.GetRefreshPanelFields(
+                _cups, out var colorCount, out var totalLayers, out var questionLayers);
+            if (totalLayers > 0)
             {
-                _waterTotalLayers = total;
-                _waterColorCount = Mathf.Max(1, total / 4);
+                _waterTotalLayers = totalLayers;
+                _waterColorCount = Mathf.Clamp(colorCount, 1, 8);
+                _waterQuestionLayers = questionLayers;
             }
 
             RefreshLevelDifficultyMetrics();
+            if (_levelDifficultyMetrics.HasData)
+                _waterDifficulty = _levelDifficultyMetrics.Difficulty;
         }
 
         void RefreshLevelDifficultyMetrics()
@@ -572,7 +576,7 @@ namespace AsGame.Editor.LevelEditor
             var lockCount = LevelWaterAnalyzer.CountLockCups(_cups);
 
             EditorGUILayout.LabelField(
-                $"参与刷新水层：{participating}（普通瓶+锁瓶；不含空槽/广告瓶/空瓶；锁瓶 {lockCount} 个按 lockLayers 分配）",
+                $"参与刷新水层：{participating}（普通瓶+锁瓶；不含空槽/广告瓶/空瓶；锁瓶 {lockCount} 个保持已配置层数）",
                 EditorStyles.miniLabel);
 
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
@@ -632,7 +636,7 @@ namespace AsGame.Editor.LevelEditor
             if (partSum > 0 && partSum != _waterTotalLayers)
                 EditorGUILayout.HelpBox(
                     $"参与瓶内现有水层合计 {partSum} 层，与「水层总数」{_waterTotalLayers} 不一致；" +
-                    "刷新将按右侧水层总数/颜色数重新分配到普通瓶与锁瓶（空瓶不参与）。",
+                    "刷新将按右侧水层总数/颜色数重新分配普通瓶与锁瓶颜色（锁瓶层数不变；空瓶/广告瓶不参与）。",
                     MessageType.Info);
 
             _waterDifficulty = (WaterRefreshDifficulty)EditorGUILayout.EnumPopup("难度", _waterDifficulty);
@@ -688,7 +692,7 @@ namespace AsGame.Editor.LevelEditor
             }
 
             var sb = new System.Text.StringBuilder();
-            var actualQuestionLayers = CountQuestionLayers(_cups);
+            var actualQuestionLayers = LevelWaterAnalyzer.CountConfiguredQuestionLayers(_cups);
             sb.AppendLine(
                 $"已按「{LevelWaterRandomizer.GetDifficultyDisplayName(_waterDifficulty)}」刷新水层" +
                 $"（{_waterColorCount} 色 / {_waterTotalLayers} 层 / {actualQuestionLayers} 问号层，" +
@@ -703,21 +707,8 @@ namespace AsGame.Editor.LevelEditor
             RefreshScenePreview();
         }
 
-        static int CountQuestionLayers(IList<CupData> cups)
-        {
-            var total = 0;
-            if (cups == null)
-                return total;
-
-            foreach (var cup in cups)
-            {
-                if (cup == null || cup.colors == null)
-                    continue;
-                total += Mathf.Clamp(cup.whNums, 0, Mathf.Max(0, cup.colors.Count));
-            }
-
-            return total;
-        }
+        static int CountQuestionLayers(IList<CupData> cups) =>
+            LevelWaterAnalyzer.CountConfiguredQuestionLayers(cups);
 
         void DrawPlayAreaPreview()
         {
@@ -1180,7 +1171,7 @@ namespace AsGame.Editor.LevelEditor
             var cup = _cups[index];
             var isSel = index == _selectedCup;
             var layerCountForHeader = cup.colors?.Count ?? 0;
-            var questionCountForHeader = Mathf.Clamp(cup.whNums, 0, layerCountForHeader);
+            var questionCountForHeader = CupWhLayerUtility.CountConfiguredHiddenLayers(cup);
             var header =
                 $"#{index}  ({cup.position.x:F0}, {cup.position.y:F0})  层:{layerCountForHeader}  问号:{questionCountForHeader}";
             var tag = CupSlotKindUtility.GetKindShortTag(cup);
@@ -1217,11 +1208,23 @@ namespace AsGame.Editor.LevelEditor
                 if (kind == CupSlotKind.普通瓶 || kind == CupSlotKind.锁瓶)
                 {
                     var layerCount = cup.colors?.Count ?? 0;
-                    cup.whNums = Mathf.Clamp(cup.whNums, 0, layerCount);
+                    CupWhLayerUtility.ClampToLayerCount(cup);
                     if (kind == CupSlotKind.锁瓶)
                     {
-                        cup.lockColor = EditorGUILayout.IntField("lockColor", cup.lockColor);
-                        cup.lockNums = EditorGUILayout.IntField("lockNums", cup.lockNums);
+                        cup.lockColor = EditorGUILayout.IntField(
+                            new GUIContent(
+                                "lockColor",
+                                "锁标签颜色类型（仅影响解锁条件，不约束瓶内水层颜色）。\n" +
+                                "0 = 白色标签：任意颜色水瓶倒满时，都会减少解锁进度。\n" +
+                                "1~8 = 彩色标签：只有该颜色水瓶倒满时才会减少进度。"),
+                            cup.lockColor);
+                        cup.lockNums = EditorGUILayout.IntField(
+                            new GUIContent(
+                                "lockNums",
+                                "解锁所需满瓶次数。\n" +
+                                "每次满足 lockColor 条件的水瓶倒满时减 1；\n" +
+                                "减到 0 时锁瓶解锁，可正常操作。"),
+                            cup.lockNums);
                     }
 
                     DrawColorLayers(cup);
@@ -1277,9 +1280,10 @@ namespace AsGame.Editor.LevelEditor
                 cup.colors.Add(0);
             while (cup.colors.Count > layerCount)
                 cup.colors.RemoveAt(cup.colors.Count - 1);
-            cup.whNums = Mathf.Clamp(cup.whNums, 0, cup.colors.Count);
+            CupWhLayerUtility.ClampToLayerCount(cup);
 
-            for (var layer = 0; layer < cup.colors.Count; layer++)
+            // colors[0]=底层、colors[^1]=顶层；属性区从上到下显示 L(顶)…L0，与局内预览一致
+            for (var layer = cup.colors.Count - 1; layer >= 0; layer--)
             {
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField($"L{layer}", GUILayout.Width(28));
@@ -1288,12 +1292,10 @@ namespace AsGame.Editor.LevelEditor
                 if (GameConstants.GameColorData.TryGetValue(cup.colors[layer], out var pair))
                     EditorGUI.DrawRect(sw, pair.Base);
                 GUILayout.Space(8);
-                var isHidden = layer < cup.whNums;
+                var isHidden = CupWhLayerUtility.IsLayerHidden(cup, layer);
                 var nextHidden = EditorGUILayout.ToggleLeft("问号", isHidden, GUILayout.Width(56));
                 if (nextHidden != isHidden)
-                    cup.whNums = nextHidden
-                        ? Mathf.Max(cup.whNums, layer + 1)
-                        : Mathf.Min(cup.whNums, layer);
+                    CupWhLayerUtility.SetLayerHidden(cup, layer, nextHidden);
                 EditorGUILayout.EndHorizontal();
             }
         }

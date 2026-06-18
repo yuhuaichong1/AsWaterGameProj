@@ -11,6 +11,8 @@ namespace XrCode
         public Vector2 position;
         public List<int> colors = new List<int>();
         public int whNums;
+        /// <summary>按位标记 L0..L3 是否为问号层；0 时回退使用 whNums 连续隐藏。</summary>
+        public int whMask;
         public int isVideo;
         public int isLock;
         public int lockColor;
@@ -27,6 +29,7 @@ namespace XrCode
                 position = position,
                 colors = new List<int>(colors),
                 whNums = whNums,
+                whMask = whMask,
                 isVideo = isVideo,
                 isLock = isLock,
                 lockColor = lockColor,

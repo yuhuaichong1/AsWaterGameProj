@@ -16,7 +16,7 @@ namespace AsGame.Editor.LevelEditor
     }
 
     /// <summary>
-    /// 按正常游戏流程 BFS：倒水步数 + 自动装袋/锁瓶解锁（装袋不计步）。
+    /// 按正常游戏流程 BFS：倒水步数 + 满瓶触发锁解锁 + 自动装袋（装袋不计步）。
     /// 参与：普通瓶、锁瓶、空瓶；不参与：空槽、广告瓶。
     /// </summary>
     public static class LevelWaterSolver
@@ -139,6 +139,7 @@ namespace AsGame.Editor.LevelEditor
                 }
 
                 sim.WhNums = cup.whNums;
+                sim.WhMask = CupWhLayerUtility.GetMask(cup);
                 if (cup.colors != null)
                 {
                     sim.Stack.AddRange(cup.colors);
@@ -170,6 +171,12 @@ namespace AsGame.Editor.LevelEditor
             state.PocketColors = new int[PocketCount];
             AssignInitialPocketColors(state);
             state.Collected = 0;
+            for (var i = 0; i < state.Bottles.Count; i++)
+            {
+                if (state.IsCollect(i))
+                    state.ApplyLockUnlockOnFullBottle(state.Bottles[i].Stack[0]);
+            }
+
             state.ApplyAutoPackAndUnlock();
             return true;
         }
@@ -198,6 +205,7 @@ namespace AsGame.Editor.LevelEditor
             public int LockColor;
             public int LockRemaining;
             public int WhNums;
+            public int WhMask;
             public List<int> Stack = new();
 
             public bool InPlay => !Packed;
@@ -213,6 +221,7 @@ namespace AsGame.Editor.LevelEditor
                     LockColor = LockColor,
                     LockRemaining = LockRemaining,
                     WhNums = WhNums,
+                    WhMask = WhMask,
                     Stack = new List<int>(Stack)
                 };
             }
@@ -275,13 +284,21 @@ namespace AsGame.Editor.LevelEditor
             bool IsHiddenLayer(int bottleIndex, int layerIndex)
             {
                 var b = Bottles[bottleIndex];
-                return b.WhNums > 0 && b.Stack.Count > 1 && layerIndex < b.WhNums;
+                if (b.Stack.Count <= 1 || layerIndex >= b.Stack.Count - 1)
+                    return false;
+                return (b.WhMask & (1 << layerIndex)) != 0;
             }
 
             public bool IsCollect(int i)
             {
                 var b = Bottles[i];
-                if (!b.InPlay || b.Stack.Count != MaxCapacity || b.WhNums > 0) return false;
+                if (!b.InPlay || b.Stack.Count != MaxCapacity) return false;
+                for (var l = 0; l < b.Stack.Count - 1; l++)
+                {
+                    if ((b.WhMask & (1 << l)) != 0)
+                        return false;
+                }
+
                 var c = b.Stack[0];
                 for (var l = 1; l < b.Stack.Count; l++)
                 {
@@ -299,6 +316,13 @@ namespace AsGame.Editor.LevelEditor
                     Bottles[from].Stack.RemoveAt(Bottles[from].Stack.Count - 1);
                     Bottles[to].Stack.Add(color);
                 }
+
+                var fromBottle = Bottles[from];
+                fromBottle.WhMask = CupWhLayerUtility.NormalizeMaskAfterTopRemoved(
+                    fromBottle.WhMask, fromBottle.Stack.Count);
+
+                if (IsCollect(to))
+                    ApplyLockUnlockOnFullBottle(Bottles[to].Stack[^1]);
             }
 
             public void ApplyAutoPackAndUnlock()
@@ -380,18 +404,17 @@ namespace AsGame.Editor.LevelEditor
                 Bottles[bottleIndex].Packed = true;
                 Bottles[bottleIndex].Stack.Clear();
                 Collected++;
-                ApplyLockUnlockOnPack(color);
                 PocketColors[pocketIndex] = PocketRefill.Count > 0 ? PocketRefill[0] : 0;
                 if (PocketRefill.Count > 0)
                     PocketRefill.RemoveAt(0);
             }
 
-            void ApplyLockUnlockOnPack(int packedColor)
+            public void ApplyLockUnlockOnFullBottle(int fullBottleColor)
             {
                 foreach (var b in Bottles)
                 {
                     if (!b.IsLockBottle || b.LockRemaining <= 0) continue;
-                    if (b.LockColor != 0 && b.LockColor != packedColor) continue;
+                    if (b.LockColor != 0 && b.LockColor != fullBottleColor) continue;
                     b.LockRemaining--;
                 }
             }

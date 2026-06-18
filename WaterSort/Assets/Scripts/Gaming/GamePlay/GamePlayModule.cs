@@ -45,6 +45,7 @@ namespace XrCode
 
         private bool showUITip1;
         private bool showUITip2;
+        private bool showUITip3;
 
         protected override void OnLoad()
         {
@@ -57,6 +58,7 @@ namespace XrCode
             _shuffleFxByCupId = new Dictionary<int, GameObject>();
             showUITip1 = SPlayerPrefs.GetBool(PlayerPrefDefines.showUITip1, true);
             showUITip2 = SPlayerPrefs.GetBool(PlayerPrefDefines.showUITip2, true);
+            showUITip3 = SPlayerPrefs.GetBool(PlayerPrefDefines.showUITip3, true);
 
             float PInterval = Screen.width / 4;
             pocketXPos = new float[4] { PInterval * -1.35f, PInterval * -0.45f, PInterval * 0.45f, PInterval * 1.35f };
@@ -202,15 +204,21 @@ namespace XrCode
             BuildPocketColors();
             GeneratePockets();
             foreach (var kv in cups)
-                if (kv.Value != null && kv.Value.IsCollect())
-                    RegisterFullCup(kv.Value);
+            {
+                if (kv.Value == null || !kv.Value.IsCollect())
+                    continue;
+                CheckUnlockCup(kv.Value.GetTopColorId());
+                RegisterFullCup(kv.Value);
+            }
             BeginCheckPack();
 
             status = GameStatus.Gaming;
 
             if (curLevelIndex > 3)
             {
-                LRTimer.targetTime = curLevelIndex > GameDefines.ClockLv ? GameDefines.ClockTime1 : GameDefines.ClockTime2;
+                LRBool = false;
+                Debug.LogError(GameDefines.ClockTime2);
+                LRTimer.targetTime = curLevelIndex <= GameDefines.ClockLv ? GameDefines.ClockTime1 : GameDefines.ClockTime2;
                 LRTimer.ReStart();
                 LoopPlayCongratulationEffect(true);
             }
@@ -266,6 +274,7 @@ namespace XrCode
                     position = new Vector2(jsonCup.x, jsonCup.y),
                     colors = jsonCup.colors ?? new List<int>(),
                     whNums = jsonCup.whNums,
+                    whMask = jsonCup.whMask,
                     isVideo = jsonCup.isVideo,
                     isLock = jsonCup.isLock,
                     lockColor = jsonCup.lockColor,
@@ -372,7 +381,8 @@ namespace XrCode
 
             if (cup.IsVideo())
             {
-                FacadeAd.PlayROIAdByWeight(EAdSource.UnlockBottle, (count) => { cup.UnlockVideo(); }, (errMsg) => { cup.UnlockVideo(); }, () => { cup.UnlockVideo(); }, GameDefines.WeightAdRange, GameDefines.AdWeight);
+                FacadeAd.PlayInterAd(EAdSource.UnlockBottle, (count) => { cup.UnlockVideo(); }, (errMsg) => { cup.UnlockVideo(); });
+                //FacadeAd.PlayROIAdByWeight(EAdSource.UnlockBottle, (count) => { cup.UnlockVideo(); }, (errMsg) => { cup.UnlockVideo(); }, () => { cup.UnlockVideo(); }, GameDefines.WeightAdRange, GameDefines.AdWeight);
                 //FacadeAd.PlayRewardAd(EAdSource.UnlockBottle, (count) =>
                 //{
                 //    cup.UnlockVideo();
@@ -425,7 +435,7 @@ namespace XrCode
             }
             else
             {
-                UIManager.Instance.OpenNotice2(cup.IsFull() ? FacadeLanguage.GetText("10091") : FacadeLanguage.GetText("10092"));
+                //UIManager.Instance.OpenNotice2(cup.IsFull() ? FacadeLanguage.GetText("10091") : FacadeLanguage.GetText("10092"));
                 _selected.DoUnSelect();
                 _selected = cup;
                 cup.DoSelect();
@@ -440,7 +450,8 @@ namespace XrCode
                 return;
             }
 
-            FacadeAd.PlayROIAdByWeight(EAdSource.Prop, (count) => { OnUnlockPocket2(pocket); }, (errMsg) => { OnUnlockPocket2(pocket); }, () => { OnUnlockPocket2(pocket); }, GameDefines.WeightAdRange, GameDefines.AdWeight);
+            FacadeAd.PlayInterAd(EAdSource.UnlockPocket, (count) => { OnUnlockPocket2(pocket); }, (errMsg) => { OnUnlockPocket2(pocket); });
+            //FacadeAd.PlayROIAdByWeight(EAdSource.UnlockPocket, (count) => { OnUnlockPocket2(pocket); }, (errMsg) => { OnUnlockPocket2(pocket); }, () => { OnUnlockPocket2(pocket); }, GameDefines.WeightAdRange, GameDefines.AdWeight);
         }
 
         private void OnUnlockPocket2(Pocket pocket)
@@ -525,6 +536,7 @@ namespace XrCode
         {
             if (cup == null) yield break;
             yield return cup.DoCollected();
+            CheckUnlockCup(cup.GetTopColorId());
             RegisterFullCup(cup);
             BeginCheckPack();
         }
@@ -714,7 +726,6 @@ namespace XrCode
 
             AddFlyMoney(pocket.transform);
             _collected++;
-            CheckUnlockCup(packedColor);
             FacadeGamePlay.AbleProp3Btn(GetEmptySlotId() != null);
             SchedulePocketPack(pocket, packedColor);
         }
@@ -758,6 +769,7 @@ namespace XrCode
             if (slot == null) return;
             slot.colors.Clear();
             slot.whNums = 0;
+            slot.whMask = 0;
             slot.isVideo = 0;
             slot.isLock = 0;
             slot.lockColor = 0;
@@ -806,14 +818,15 @@ namespace XrCode
             }
         }
 
-        private void CheckUnlockCup(int packedColor)
+        /// <summary>任意水瓶倒满（4 层同色）时减少锁瓶次数；与口袋装袋无关。</summary>
+        private void CheckUnlockCup(int fullBottleColor)
         {
             foreach (var kv in cups)
             {
                 var cup = kv.Value;
                 if (cup == null || !cup.IsLock()) continue;
                 var lockColor = cup.GetLockColor();
-                if (lockColor != 0 && lockColor != packedColor) continue;
+                if (lockColor != 0 && lockColor != fullBottleColor) continue;
                 cup.SetLockNum(cup.GetLockNum() - 1);
             }
         }
@@ -1017,6 +1030,7 @@ namespace XrCode
             for (var i = 0; i < num; i++)
                 if (to.Data.colors.Count > 0)
                     to.Data.colors.RemoveAt(to.Data.colors.Count - 1);
+            CupWhLayerUtility.OnRemovedTopLayers(to.Data);
             for (var i = 0; i < num; i++)
                 from.Data.colors.Add(color);
 
@@ -1076,6 +1090,7 @@ namespace XrCode
             if (slot == null) return;
             slot.colors.Clear();
             slot.whNums = 0;
+            slot.whMask = 0;
             slot.isVideo = 0;
             slot.isLock = 0;
             slot.lockColor = 0;
@@ -1126,6 +1141,14 @@ namespace XrCode
             {
                 showUITip2 = false;
                 SPlayerPrefs.SetBool(PlayerPrefDefines.showUITip2, showUITip2);
+                SPlayerPrefs.Save();
+
+                UIManager.Instance.OpenAsync<UINewGamePlay>(EUIType.EUINewGamePlay);
+            }
+            else if(curLevelIndex == GameDefines.NGPLevel3 && showUITip3)
+            {
+                showUITip3 = false;
+                SPlayerPrefs.SetBool(PlayerPrefDefines.showUITip3, showUITip3);
                 SPlayerPrefs.Save();
 
                 UIManager.Instance.OpenAsync<UINewGamePlay>(EUIType.EUINewGamePlay);

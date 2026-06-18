@@ -18,6 +18,10 @@ namespace Assets.Editor.AssetBundle
             ".cs",
             ".zip",
             ".DS_Store",
+            ".asmdef",
+            ".cginc",
+            ".md",
+            ".preset",
             ""
         };
 
@@ -27,6 +31,14 @@ namespace Assets.Editor.AssetBundle
         public static bool ValidAsset(string path)
         {
             return !FilterAssetTyteExtension.Contains(Path.GetExtension(path));
+        }
+
+        /// <summary>
+        /// 是否为 Editor 目录下的资源（不应参与 AB 打包）
+        /// </summary>
+        public static bool IsEditorAssetPath(string path)
+        {
+            return path.Replace("\\", "/").Contains("/Editor/");
         }
     }
 }

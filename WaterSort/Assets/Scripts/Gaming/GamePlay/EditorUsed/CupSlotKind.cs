@@ -44,7 +44,7 @@ namespace AsGame.Data
                 case CupSlotKind.空槽:
                     cup.isNull = 1;
                     cup.colors?.Clear();
-                    cup.whNums = 0;
+                    CupWhLayerUtility.ClearHiddenLayers(cup);
                     break;
                 case CupSlotKind.广告瓶:
                     cup.isVideo = 1;
@@ -55,7 +55,7 @@ namespace AsGame.Data
                 case CupSlotKind.空瓶:
                     cup.isEmptyCup = 1;
                     cup.colors?.Clear();
-                    cup.whNums = 0;
+                    CupWhLayerUtility.ClearHiddenLayers(cup);
                     break;
             }
         }

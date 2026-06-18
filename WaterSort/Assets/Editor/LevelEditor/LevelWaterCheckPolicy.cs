@@ -28,5 +28,9 @@ namespace AsGame.Editor.LevelEditor
 
         public static bool IsStepsAcceptable(LevelWaterDifficultyMetrics metrics) =>
             metrics.IsSolvable && metrics.MinSolveSteps <= MaxAllowedMinSteps;
+
+        /// <summary>「检查」通过：配置合法且关卡可解（不限制最少步数）。</summary>
+        public static bool IsCheckPassed(LevelWaterValidationResult validation, LevelWaterDifficultyMetrics metrics) =>
+            validation != null && validation.IsValid && metrics.IsSolvable;
     }
 }

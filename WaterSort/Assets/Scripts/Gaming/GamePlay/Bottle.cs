@@ -36,6 +36,7 @@ namespace AsGame.Water
         bool _pouring;
         Bottle _shadow;
         int _prevWhNums;
+        int _prevWhMask;
         float _streamEndRootY;
         static Dictionary<string, Sprite> _splashSprites;
         static SkeletonDataAsset _splashSkeletonData;
@@ -73,6 +74,7 @@ namespace AsGame.Water
             _pouring = false;
             _baseLocalPos = transform.localPosition;
             _prevWhNums = _data.whNums;
+            _prevWhMask = CupWhLayerUtility.GetMask(_data);
             if (lightBg != null) lightBg.gameObject.SetActive(false);
             if (streamNode != null) streamNode.SetActive(false);
             EnsureRootVisible();
@@ -170,7 +172,7 @@ namespace AsGame.Water
             var top = GetTopColorId();
             foreach (var c in _data.colors)
                 if (c != top) return false;
-            return _data.whNums <= 0;
+            return !CupWhLayerUtility.HasHiddenLayers(_data);
         }
 
         /// <summary>对齐 Cocos isUnShuffle：不参与打乱的瓶子。</summary>
@@ -183,7 +185,7 @@ namespace AsGame.Water
             var top = GetTopColorId();
             foreach (var c in _data.colors)
                 if (c != top) return false;
-            return _data.whNums <= 0;
+            return !CupWhLayerUtility.HasHiddenLayers(_data);
         }
 
         public bool IsOneWater() => _data != null && _data.colors.Count == 1;
@@ -240,7 +242,8 @@ namespace AsGame.Water
         public int GetLayerAddWater() => GameConstants.WaterMaxCount - _data.colors.Count;
 
         bool IsWhtLayer(int index) =>
-            _data.whNums > 0 && !IsEmpty() && _data.colors.Count > 1 && index < _data.whNums;
+            _data != null && !IsEmpty() && _data.colors.Count > 1 &&
+            CupWhLayerUtility.IsLayerHidden(_data, index);
 
         public void SetLockNum(int num)
         {
@@ -364,6 +367,8 @@ namespace AsGame.Water
             moveDuration = Mathf.Clamp(moveDuration, 0.15f, 1.2f);
 
             FacadeAudio.PlayEffect(EAudioType.EBottleMove);
+            Debug.LogError("开始移动");
+            GetComponent<CanvasGroup>().blocksRaycasts = false;
             yield return TweenHelper.MoveLocal(transform, BottlePourMath.PourPosition(pourAnchor, midAngle, dir), moveDuration);
 
             yield return AnimateAngle(0f, midAngle, moveDuration * 0.5f, dir, pourAnchor, color, false);
@@ -375,6 +380,8 @@ namespace AsGame.Water
             for (var i = 0; i < num; i++)
                 if (_data.colors.Count > 0)
                     _data.colors.RemoveAt(_data.colors.Count - 1);
+
+            CupWhLayerUtility.RevealHiddenLayerUncoveredByPour(_data);
 
             ShowWaterItems();
             HideAllMeniscuses();
@@ -392,6 +399,7 @@ namespace AsGame.Water
             InitWaterColor();
             transform.SetSiblingIndex(originalSiblingIndex);
             _pouring = false;
+            GetComponent<CanvasGroup>().blocksRaycasts = true;
         }
 
         IEnumerator AnimateAngle(float from, float to, float duration, int dir, Vector3 pourAnchor, int color, bool showStream)
@@ -806,10 +814,29 @@ namespace AsGame.Water
 
         void TryPlayWhUnlockFx()
         {
-            if (_data == null || _prevWhNums <= 0 || _data.whNums >= _prevWhNums) return;
-            var y = -GameConstants.HalfBottleHeight + (_data.whNums - 2) * GameConstants.GridHeight;
-            //SpineService.PlayEffect(transform, new Vector3(0, y, 0), "wht", "animation2");
+            if (_data == null) return;
+            var currentMask = CupWhLayerUtility.GetMask(_data);
+            if (_prevWhMask <= 0 || currentMask >= _prevWhMask) return;
+            var revealedLayer = -1;
+            for (var i = 0; i < CupWhLayerUtility.MaxLayers; i++)
+            {
+                var wasHidden = (_prevWhMask & (1 << i)) != 0;
+                var isHidden = (currentMask & (1 << i)) != 0;
+                if (wasHidden && !isHidden)
+                {
+                    revealedLayer = i;
+                    break;
+                }
+            }
+
+            if (revealedLayer >= 0)
+            {
+                var y = -GameConstants.HalfBottleHeight + (revealedLayer - 1) * GameConstants.GridHeight;
+                //SpineService.PlayEffect(transform, new Vector3(0, y, 0), "wht", "animation2");
+            }
+
             _prevWhNums = _data.whNums;
+            _prevWhMask = currentMask;
         }
 
         void ShowStream(int colorId, float contentAngle)
@@ -887,16 +914,17 @@ namespace AsGame.Water
             if (_data == null || waterVisual == null) return;
             var bodies = waterVisual.Bodies;
             var whOverlays = waterVisual.WhOverlays;
-            var oldWh = _prevWhNums;
-            _data.whNums = Mathf.Min(_data.whNums, Mathf.Max(0, _data.colors.Count - 1));
-            var revealIndex = oldWh > 0 && _data.whNums < oldWh ? _data.whNums : -1;
+            var oldMask = _prevWhMask;
+            CupWhLayerUtility.ClampToLayerCount(_data);
+            var newMask = CupWhLayerUtility.GetMask(_data);
 
             for (var i = _data.colors.Count - 1; i >= 0; i--)
             {
                 if (bodies == null || i >= bodies.Length || bodies[i] == null) continue;
                 if (!GameConstants.GameColorData.TryGetValue(_data.colors[i], out var pair)) continue;
 
-                var isHidden = i < _data.whNums;
+                var isHidden = CupWhLayerUtility.IsLayerHidden(_data, i);
+                var wasHidden = (oldMask & (1 << i)) != 0;
                 var layer = bodies[i];
                 var top = waterVisual.TopAt(i);
                 var wh = whOverlays != null && i < whOverlays.Length ? whOverlays[i] : null;
@@ -910,7 +938,7 @@ namespace AsGame.Water
                 else
                 {
                     if (wh != null) wh.SetActive(false);
-                    if (i == revealIndex)
+                    if (wasHidden)
                         StartCoroutine(RevealWaterLayer(layer, top, pair));
                     else
                     {
@@ -921,6 +949,7 @@ namespace AsGame.Water
             }
 
             _prevWhNums = _data.whNums;
+            _prevWhMask = newMask;
             waterVisual.RefreshTopMeniscus(_data.colors.Count);
             waterVisual.SyncWhPositions();
             SyncSelectFxAnchorPosition();
