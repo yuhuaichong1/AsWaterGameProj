@@ -112,6 +112,10 @@ namespace XrCode
         {
             double money = FacadePlayer.GetMoney?.Invoke() ?? 0;
             mCurMoneyText.text = FacadePayType.RegionalChange?.Invoke(money);
+            if (FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.AmountOfMoney)
+            {
+                SetWPMsg();
+            }
         }
 
         /// <summary>
@@ -195,7 +199,7 @@ namespace XrCode
                 levelText = $"{GameDefines.miniLevel_Start - 1}-{curLevel - GameDefines.miniLevel_Start + 2}";
             else
                 levelText = $"{curLevel - GameDefines.miniLevel_Start}";
-            mCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), levelText);
+            
             mLTCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), levelText);
             bool after8_10 = curLevel > GameDefines.miniLevel_End;
 
@@ -260,7 +264,7 @@ namespace XrCode
             else
             {
                 mWPrompt.gameObject.SetActive(false);
-
+                mCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), curLevel);
             }
 
         }

@@ -51,7 +51,7 @@ public abstract class GameDefines
     public static float ScollingTipAnimInterval = 20;                                                       //滑动提示显示间隔时间
     public static Vector2 ScollingTipAnimMoney = new Vector2(100, 1000);                                    //滑动提示金额
 
-    public static int NGPLevel1 = 10;                                                                       //玩法提示1关卡
+    public static int NGPLevel1 = 7;                                                                        //玩法提示1关卡
     public static int NGPLevel2 = 15;                                                                       //玩法提示2关卡
     public static int NGPLevel3 = 19;                                                                       //玩法提示3关卡
 
@@ -183,6 +183,8 @@ public abstract class GameDefines
     public static float ClockTime2 = 60;                                                                    //每经过X秒，在点击水瓶后弹一次弹窗
     public static Vector2 LuckyReward_RandomRange = new Vector2(20f, 45f);                                  //奖励区间
     public static int ClockLv = 17;                                                                         //当<=X关时，用ClockTime1，>X关后，用ClockTime2，
+    public static int[] ClockLvArr = { 1, 7, 12, 20, 1000 };                                                //关卡区间
+    public static float[] ClockTimeArr = { 20, 30, 35, 45 };                                                //关卡区间对应值
 
     #endregion
 
@@ -201,6 +203,8 @@ public abstract class GameDefines
     public static Vector2 WeightAdRange = new Vector2(1, 101);                                              //权重广告随机区间
     public static int AdWeight = 50;                                                                        //权重广告随机分界（小于等于为激励，大于为插屏）
     public static int AdRefuseCount = 3;                                                                    //广告拒绝次数
+
+
 
     #endregion
 

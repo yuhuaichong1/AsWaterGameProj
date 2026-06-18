@@ -487,11 +487,11 @@ namespace XrCode
         /// <returns>幸运奖励金额奖励的奖励值</returns>
         private float GetLuckyReward()
         {
-            float reward = 1;
+            float reward = 10;
 
             if (GameDefines.ifIAA)
             {
-                reward = 1;
+                reward = 10;
             }
             else
             {

@@ -38,7 +38,7 @@ namespace XrCode
         {
             AddFacade();
 
-            AdFailMsg = FacadeLanguage.GetText("10088") ?? "Ad loading failed, please try again later";
+            AdFailMsg = FacadeLanguage.GetText("10090") ?? "Ad loading failed, please try again later";
 
             rewardSuccessActions = new Dictionary<EAdSource, Action<int>>();
             interstitialSuccessActions = new Dictionary<EAdSource, Action<int>>();
