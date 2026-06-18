@@ -27,46 +27,18 @@ namespace XrCode
             return 0;
         }
 
-        public static int CountConfiguredHiddenLayers(CupData cup)
-        {
-            if (cup == null)
-                return 0;
-
-            var mask = GetMask(cup);
-            var layers = cup.colors?.Count ?? 0;
-            var count = 0;
-            for (var i = 0; i < layers && i < MaxLayers; i++)
-            {
-                if ((mask & (1 << i)) != 0)
-                    count++;
-            }
-
-            return count;
-        }
-
-        /// <summary>该层在关卡数据中是否勾选为问号（不考虑局内遮挡）。</summary>
-        public static bool IsConfiguredHidden(CupData cup, int layer) =>
+        public static bool IsLayerHidden(CupData cup, int layer) =>
             cup != null && layer >= 0 && layer < MaxLayers && (GetMask(cup) & (1 << layer)) != 0;
 
-        public static bool HasHiddenLayers(CupData cup)
-        {
-            var count = cup.colors?.Count ?? 0;
-            for (var i = 0; i < count; i++)
-            {
-                if (IsLayerHidden(cup, i))
-                    return true;
-            }
-
-            return false;
-        }
+        public static bool HasHiddenLayers(CupData cup) => GetMask(cup) != 0;
 
         public static int CountHiddenLayers(CupData cup)
         {
+            var mask = GetMask(cup);
             var count = 0;
-            var layers = cup.colors?.Count ?? 0;
-            for (var i = 0; i < layers; i++)
+            for (var i = 0; i < MaxLayers; i++)
             {
-                if (IsLayerHidden(cup, i))
+                if ((mask & (1 << i)) != 0)
                     count++;
             }
 
@@ -97,34 +69,13 @@ namespace XrCode
             SyncLegacyWhNums(cup);
         }
 
-        /// <summary>顶层水倒出后：裁剪无效位并揭开新顶层（上方已无水遮挡）。</summary>
-        public static void OnRemovedTopLayers(CupData cup)
+        /// <summary>倒出上层后，若新的顶层仍为问号层则揭开颜色。</summary>
+        public static void RevealHiddenLayerUncoveredByPour(CupData cup)
         {
-            if (cup == null) return;
-            var count = cup.colors?.Count ?? 0;
-            cup.whMask = NormalizeMaskAfterTopRemoved(GetMask(cup), count);
-            SyncLegacyWhNums(cup);
-        }
-
-        /// <summary>按当前层数裁剪掩码并揭开顶层，供运行时与求解器共用。</summary>
-        public static int NormalizeMaskAfterTopRemoved(int mask, int layerCount)
-        {
-            mask &= LayerCountMask(layerCount);
-            if (layerCount > 0)
-                mask &= ~(1 << (layerCount - 1));
-            return mask;
-        }
-
-        /// <summary>层是否仍显示为问号：掩码标记且上方还有水层遮挡。</summary>
-        public static bool IsLayerHidden(CupData cup, int layer)
-        {
-            if (cup == null || layer < 0 || layer >= MaxLayers)
-                return false;
-            if ((GetMask(cup) & (1 << layer)) == 0)
-                return false;
-
-            var count = cup.colors?.Count ?? 0;
-            return layer < count - 1;
+            if (cup == null || cup.colors == null || cup.colors.Count == 0) return;
+            var top = cup.colors.Count - 1;
+            if (!IsLayerHidden(cup, top)) return;
+            SetLayerHidden(cup, top, false);
         }
 
         /// <summary>连续 L0..n-1 时同步 whNums；非连续时 whNums=0，以 whMask 为准。</summary>

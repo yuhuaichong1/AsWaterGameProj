@@ -17,11 +17,14 @@ namespace XrCode
             int curLevel = FacadePlayer.GetLevel();
             bool b1 = curLevel == GameDefines.NGPLevel1;
             bool b2 = curLevel == GameDefines.NGPLevel2;
+            bool b3 = curLevel == GameDefines.NGPLevel3;
 
             mGPIcon1.gameObject.SetActive(b1);
             mGPIcon2.gameObject.SetActive(b2);
+            mGPIcon3.gameObject.SetActive(b3);
             mContentText1.gameObject.SetActive(b1);
             mContentText2.gameObject.SetActive(b2);
+            mContentText3.gameObject.SetActive(b3);
 
             ShowAnim(mPlane);
         }
