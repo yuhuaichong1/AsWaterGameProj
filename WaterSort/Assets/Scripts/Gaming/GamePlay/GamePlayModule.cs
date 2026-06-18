@@ -213,6 +213,7 @@ namespace XrCode
 
             if (curLevelIndex > 3)
             {
+                LRBool = false;
                 LRTimer.targetTime = curLevelIndex > GameDefines.ClockLv ? GameDefines.ClockTime1 : GameDefines.ClockTime2;
                 LRTimer.ReStart();
                 LoopPlayCongratulationEffect(true);
@@ -429,7 +430,7 @@ namespace XrCode
             }
             else
             {
-                UIManager.Instance.OpenNotice2(cup.IsFull() ? FacadeLanguage.GetText("10091") : FacadeLanguage.GetText("10092"));
+                //UIManager.Instance.OpenNotice2(cup.IsFull() ? FacadeLanguage.GetText("10091") : FacadeLanguage.GetText("10092"));
                 _selected.DoUnSelect();
                 _selected = cup;
                 cup.DoSelect();

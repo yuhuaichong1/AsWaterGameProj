@@ -367,6 +367,8 @@ namespace AsGame.Water
             moveDuration = Mathf.Clamp(moveDuration, 0.15f, 1.2f);
 
             FacadeAudio.PlayEffect(EAudioType.EBottleMove);
+            Debug.LogError("开始移动");
+            GetComponent<CanvasGroup>().blocksRaycasts = false;
             yield return TweenHelper.MoveLocal(transform, BottlePourMath.PourPosition(pourAnchor, midAngle, dir), moveDuration);
 
             yield return AnimateAngle(0f, midAngle, moveDuration * 0.5f, dir, pourAnchor, color, false);
@@ -395,6 +397,7 @@ namespace AsGame.Water
             InitWaterColor();
             transform.SetSiblingIndex(originalSiblingIndex);
             _pouring = false;
+            GetComponent<CanvasGroup>().blocksRaycasts = true;
         }
 
         IEnumerator AnimateAngle(float from, float to, float duration, int dir, Vector3 pourAnchor, int color, bool showStream)
