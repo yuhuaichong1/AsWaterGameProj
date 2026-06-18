@@ -18,9 +18,9 @@ using XrCode;
 /// </summary>
 public class BottleWaterVisual : MonoBehaviour
 {
-    const float WaterAreaY = -238f;
-    const float WaterAreaH = 204f;
-    const float WaterWidth = 76f;
+    const float WaterAreaY = -244f;
+    const float WaterAreaH = 248f;
+    const float WaterWidth = 90f;
     const float MeniscusHeight = 43f;
     const float UpperOverflow = 24f; // 上层 rect 向下溢出量（Cocos _bottom:-24）
 

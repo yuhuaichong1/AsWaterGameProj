@@ -6,16 +6,17 @@ namespace XrCode
     /// <summary>从 Cocos Constant.js 移植的常量。</summary>
     public static class GameConstants
     {
-        public const float BottleWidth = 91f;
+        public const float BottleWidth = 114f;
         public const float HalfBottleWidth = BottleWidth * 0.5f;
-        public const float BottleHeight = 242f;
+        public const float BottleHeight = 303f;
         public const float HalfBottleHeight = BottleHeight * 0.5f;
         public const float BottleShadowDiffX = -12f;
         public const float BottleShadowDiffY = 47f;
-        public const float GridHeight = 40f;
-        public const float GridOneHeight = 60f;
+        public const float GridHeight = 47f;
+        // 底层无向下溢出，需比 GridHeight 多 UpperOverflow(24) 才能与上层视觉等高。
+        public const float GridOneHeight = 71f;
         public static readonly float[] BottleAngles = { 95f, 78f, 66f, 54f, 42f };
-        public static readonly float[] WaterMaxY = { 0f, 60f, 100f, 140f, 180f, 220f };
+        public static readonly float[] WaterMaxY = { 0f, 71f, 118f, 165f, 212f, 230f };
         public const int WaterMaxCount = 4;
         public const float MinAnimDuration = 0.1f;
         public const float MaxAnimDuration = 5f;
