@@ -1,3 +1,4 @@
+using AsGame;
 using UnityEngine;
 
 namespace XrCode
