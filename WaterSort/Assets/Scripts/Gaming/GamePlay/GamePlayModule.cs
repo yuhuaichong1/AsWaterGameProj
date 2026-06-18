@@ -45,6 +45,7 @@ namespace XrCode
 
         private bool showUITip1;
         private bool showUITip2;
+        private bool showUITip3;
 
         protected override void OnLoad()
         {
@@ -57,6 +58,7 @@ namespace XrCode
             _shuffleFxByCupId = new Dictionary<int, GameObject>();
             showUITip1 = SPlayerPrefs.GetBool(PlayerPrefDefines.showUITip1, true);
             showUITip2 = SPlayerPrefs.GetBool(PlayerPrefDefines.showUITip2, true);
+            showUITip3 = SPlayerPrefs.GetBool(PlayerPrefDefines.showUITip3, true);
 
             float PInterval = Screen.width / 4;
             pocketXPos = new float[4] { PInterval * -1.35f, PInterval * -0.45f, PInterval * 0.45f, PInterval * 1.35f };
@@ -214,7 +216,8 @@ namespace XrCode
             if (curLevelIndex > 3)
             {
                 LRBool = false;
-                LRTimer.targetTime = curLevelIndex > GameDefines.ClockLv ? GameDefines.ClockTime1 : GameDefines.ClockTime2;
+                Debug.LogError(GameDefines.ClockTime2);
+                LRTimer.targetTime = curLevelIndex <= GameDefines.ClockLv ? GameDefines.ClockTime1 : GameDefines.ClockTime2;
                 LRTimer.ReStart();
                 LoopPlayCongratulationEffect(true);
             }
@@ -1136,6 +1139,14 @@ namespace XrCode
             {
                 showUITip2 = false;
                 SPlayerPrefs.SetBool(PlayerPrefDefines.showUITip2, showUITip2);
+                SPlayerPrefs.Save();
+
+                UIManager.Instance.OpenAsync<UINewGamePlay>(EUIType.EUINewGamePlay);
+            }
+            else if(curLevelIndex == GameDefines.NGPLevel3 && showUITip3)
+            {
+                showUITip3 = false;
+                SPlayerPrefs.SetBool(PlayerPrefDefines.showUITip3, showUITip3);
                 SPlayerPrefs.Save();
 
                 UIManager.Instance.OpenAsync<UINewGamePlay>(EUIType.EUINewGamePlay);

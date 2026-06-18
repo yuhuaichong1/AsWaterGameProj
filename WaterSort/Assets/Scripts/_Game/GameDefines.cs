@@ -53,6 +53,7 @@ public abstract class GameDefines
 
     public static int NGPLevel1 = 10;                                                                       //玩法提示1关卡
     public static int NGPLevel2 = 15;                                                                       //玩法提示2关卡
+    public static int NGPLevel3 = 19;                                                                       //玩法提示3关卡
 
     public static float DataShowText1 = 97.24f;                                                             //数据展示界面显示数据1
     public static int DataShowText2 = 15;                                                                   //数据展示界面显示数据2
