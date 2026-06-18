@@ -293,7 +293,7 @@ namespace XrSDK
             {
                 if (string.IsNullOrEmpty(toastText))
                 {
-                    toastText = ModuleMgr.Instance.LanguageMod.GetText("10285");
+                    toastText = ModuleMgr.Instance.LanguageMod.GetText("10128");
                 }
 
                 if (SAndroidToastHelper != null)

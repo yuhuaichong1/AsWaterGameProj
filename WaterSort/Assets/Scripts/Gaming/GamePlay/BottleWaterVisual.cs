@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using AsGame.Core;
 using AsGame.UI;
 using XrCode;
+using AsGame;
 
 
 /// <summary>
