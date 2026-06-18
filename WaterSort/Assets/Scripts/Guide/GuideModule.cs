@@ -299,12 +299,7 @@ public class GuideModule : BaseModule
                 else
                 {
                     FacadeGamePlay.CreateLevel();
-                    STimerManager.Instance.CreateSDelay(0.2f, () =>
-                    {
-                        curStep = 10001;
-                        SetCurGuideItems(curStep);
-                        FacadeGuide.PlayGuide();
-                    });
+                    ShowIAAGuide();
                 }
             }
             else if (value == 2)
@@ -358,6 +353,19 @@ public class GuideModule : BaseModule
             {
                 FacadeGamePlay.CreateLevel();
             }
+        });
+    }
+
+    private void ShowIAAGuide()
+    {
+        STimerManager.Instance.CreateSDelay(0.2f, () =>
+        {
+            curStep = 10001;
+            SetCurGuideItems(curStep);
+            if (FacadeGuide.PlayGuide == null)
+                ShowIAAGuide();
+            else
+                FacadeGuide.PlayGuide();
         });
     }
 

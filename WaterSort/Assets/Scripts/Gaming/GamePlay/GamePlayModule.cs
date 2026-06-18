@@ -1107,12 +1107,12 @@ namespace XrCode
         {
             if (b)
             {
-                FacadeEffect.PlayCongratulationEffect();
+                FacadeEffect.PlayCongratulationEffect?.Invoke();
                 if (LCTime == null)
                 {
                     LCTime = STimerManager.Instance.CreateSTimer(GameDefines.LPCETime, -1, true, false, () =>
                     {
-                        FacadeEffect.PlayCongratulationEffect();
+                        FacadeEffect.PlayCongratulationEffect?.Invoke();
                     });
                 }
                 else
