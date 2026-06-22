@@ -340,6 +340,10 @@ namespace XrCode
                 parameters["user_type"] = "organic";
                 parameters["is_organic_user"] = true;
                 D.Log($" 判断为: 自然用户");
+                if (GameDefines.AFJustState)
+                    CompetitionManager.Instance.CompetitionVariable(CompetitionKey.IfIAA, true, 3);
+                else
+                    CompetitionManager.Instance.SkipCompetition(CompetitionKey.IfIAA);
             }
             else if (afStatus == "Non-organic")
             {
@@ -351,6 +355,7 @@ namespace XrCode
                 parameters["user_type"] = "paid";
                 parameters["is_organic_user"] = false;
                 D.Log($" 判断为: 导量用户 - 渠道: {mediaSource}, 活动: {campaign}");
+                CompetitionManager.Instance.SkipCompetition(CompetitionKey.IfIAA);
             }
             else
             {
@@ -362,6 +367,7 @@ namespace XrCode
                 parameters["user_type"] = "unknown";
                 parameters["is_organic_user"] = true;
                 D.Log($"判断为: 未知类型({afStatus})，按自然用户处理");
+                CompetitionManager.Instance.SkipCompetition(CompetitionKey.IfIAA);
             }
 
             if (data.ContainsKey("af_siteid"))

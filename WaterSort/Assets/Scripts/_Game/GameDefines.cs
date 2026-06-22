@@ -208,6 +208,13 @@ public abstract class GameDefines
 
     #endregion
 
+    #region 竞争组相关
+
+    public static float AFWaitTime = 10;                                                                    //等待AF的相应时间
+    public static bool AFJustState = true;                                                                  //是否激活“根据AF的数据来判断否为自然量用户”的竞争
+
+    #endregion
+
     #endregion
 }
 
@@ -470,6 +477,15 @@ public enum UIWTOpenType : int
     SVPMoneyTarget,
     FinishTarget1,
     FinishTarget2,
+}
+
+/// <summary>
+/// 竞争组键名
+/// </summary>
+public enum CompetitionKey
+{
+    IfIAA,
+    IFAF,
 }
 
 #endregion

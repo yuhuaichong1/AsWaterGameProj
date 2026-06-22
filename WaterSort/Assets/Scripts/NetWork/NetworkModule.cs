@@ -223,6 +223,7 @@ namespace XrCode
             {
                 bool iaa = bool.Parse(notify["data"].ToString());
                 GameDefines.ifIAA = iaa;
+                CompetitionManager.Instance.CompetitionVariable(CompetitionKey.IfIAA, iaa, 0);
             }
 
             Dictionary<string, object> iaaDic = notify["data"] as Dictionary<string, object>;
@@ -236,7 +237,11 @@ namespace XrCode
                 {
                     string vaStr = va.ToString();
                     if (vaStr == Application.version)
-                        GameDefines.ifIAA = true;
+                        CompetitionManager.Instance.CompetitionVariable(CompetitionKey.IfIAA, true, 1);
+                    else
+                        CompetitionManager.Instance.SkipCompetition(CompetitionKey.IfIAA);
+
+
                 }
                 if (adDic.TryGetValue("AdRefuseCount", out object arc))
                 {
@@ -269,6 +274,11 @@ namespace XrCode
                 if(adDic.TryGetValue("ClockTimeArr", out object cta))
                 {
                     GameDefines.ClockTimeArr = Array.ConvertAll(cta.ToString().Split(','), float.Parse);
+                }
+                if (adDic.TryGetValue("AFJustState", out object afjs))
+                {
+                    bool b = bool.Parse(afjs.ToString());
+                    CompetitionManager.Instance.CompetitionVariable(CompetitionKey.IFAF, b, 0);
                 }
             }
         }
