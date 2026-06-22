@@ -169,7 +169,7 @@ namespace XrCode
                 webReq.uploadHandler = (UploadHandler)new UploadHandlerRaw(postBytes);
                 webReq.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
                 webReq.SetRequestHeader("Content-Type", "application/json");
-                webReq.timeout = 20;
+                webReq.timeout = 10;
                 Debug.LogError(":::::: 请求服务器数据 :::::: ");
                 yield return webReq.SendWebRequest();
 
@@ -187,7 +187,7 @@ namespace XrCode
                         Debug.LogError(":::::: server page can't be found. :::::: " + webReq.responseCode);
                         Debug.LogError(":::::: UnityWebRequest  error :::::: " + webReq.error);
 
-                        TimerManager.Instance.CreateTimer(7, () =>
+                        TimerManager.Instance.CreateTimer(5, () =>
                         {
                             Debug.LogError(":::::: 重新连接 :::::: ");
                             GetNetworkInitInfo();
@@ -303,7 +303,7 @@ namespace XrCode
                 webReq.uploadHandler = (UploadHandler)new UploadHandlerRaw(postBytes);
                 webReq.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
                 webReq.SetRequestHeader("Content-Type", "application/json");
-                webReq.timeout = 16;
+                webReq.timeout = 5;
 
                 yield return webReq.SendWebRequest();
 
