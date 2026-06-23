@@ -1,6 +1,6 @@
 ﻿
+using cfg;
 using DG.Tweening;
-using Spine;
 using Spine.Unity;
 using System;
 using System.Collections.Generic;
@@ -20,12 +20,15 @@ namespace XrCode
         private char[] nameChars;//随机名称字符组
 
         private Stack<GameObject> flyMoneyPool;//飞行钱的对象池
+        private Stack<GameObject> flyMoneyPool2;//飞行钱的对象池2
         private Stack<GameObject> flyMoneyTipPool;//飞行钱提示的对象池
         private Stack<GameObject> flyPropPool;//飞行道具的对象池
         private Stack<SkeletonGraphic> clickPool;//点击特效对象池
         private Dictionary<ERewardType, Vector3> flyObjGoldDic;//飞行物体终点集合
 
         private Vector3 CongratulationEffectOrginPos;//祝贺特效原位置
+
+        private GameObject GRE2MoneyIcon;
 
         protected override void OnAwake()
         {
@@ -34,6 +37,7 @@ namespace XrCode
             ERItemPool = new Stack<EffectRewardItem>();
             curERItem = new List<EffectRewardItem>();
             flyMoneyPool = new Stack<GameObject>();
+            flyMoneyPool2 = new Stack<GameObject>();
             flyMoneyTipPool = new Stack<GameObject>();
             flyPropPool = new Stack<GameObject>();
             clickPool = new Stack<SkeletonGraphic>();
@@ -51,6 +55,12 @@ namespace XrCode
             mFlyMoneyTip.gameObject.SetActive(false);
             mFlyIAAMoneyTip.gameObject.SetActive(false);
             //mDifficultyUpEffect.gameObject.SetActive(false);
+            mGetRewardEffect2.gameObject.SetActive(false);
+            mFlyMoney2.gameObject.SetActive(false);
+            mFlyIAAMoney2.gameObject.SetActive(false);
+            mGRE2_MoneyIcon.gameObject.SetActive(false);
+            mGRE2_IAAIcon.gameObject.SetActive(false);
+            GRE2MoneyIcon = GameDefines.ifIAA ? mGRE2_IAAIcon.gameObject : mGRE2_MoneyIcon.gameObject;
 
             CongratulationEffectOrginPos = mCongratulationEffect.transform.localPosition;
         }
@@ -66,6 +76,7 @@ namespace XrCode
         {
             FacadeEffect.PlayLevelTargetEffect += PlayLevelTargetEffect;
             FacadeEffect.PlayGetRewardEffect += PlayGetRewardEffect;
+            FacadeEffect.PlayGetRewardEffect2 += PlayGetRewardEffect2;
             FacadeEffect.PlayCongratulationEffect += PlayCongratulationEffect;
             FacadeEffect.PlayFlyMoney += PlayFlyMoney;
             FacadeEffect.PlayFlyMoneyTip += PlayFlyMoneyTip;
@@ -77,6 +88,7 @@ namespace XrCode
         {
             FacadeEffect.PlayLevelTargetEffect -= PlayLevelTargetEffect;
             FacadeEffect.PlayGetRewardEffect -= PlayGetRewardEffect;
+            FacadeEffect.PlayGetRewardEffect2 -= PlayGetRewardEffect2;
             FacadeEffect.PlayCongratulationEffect -= PlayCongratulationEffect;
             FacadeEffect.PlayFlyMoney -= PlayFlyMoney;
             FacadeEffect.PlayFlyMoneyTip -= PlayFlyMoneyTip;
@@ -280,6 +292,81 @@ namespace XrCode
 
         #endregion
 
+        #region 播放获取奖励特效2
+
+        private void PlayGetRewardEffect2(ERewardItemStruct item, Action finishAction)
+        {
+            mGRE2_Bg.alpha = 1;
+            GRE2MoneyIcon.gameObject.SetActive(item.Type == ERewardType.Money);
+            mGRE2_PorpIcon.gameObject.SetActive(item.Type != ERewardType.Money);
+            if(item.Type != ERewardType.Money)
+            {
+                ConfProp prop = ConfigModule.Instance.Tables.TBProp.GetOrDefault((int)ERewardType.Prop1 - 1);
+                Sprite icon = ResourceMod.Instance.SyncLoad<Sprite>(prop.IconPath);
+                mGRE2_PorpIcon.sprite = icon;
+                mGRE2_PorpIcon.SetNativeSize();
+
+                mGRE2_Count.text = $"{item.Count}";
+            }
+            else
+            {
+                mGRE2_Count.text = $"{FacadePayType.RegionalChange(item.Count)}";
+            }
+
+            mGetRewardEffect2.gameObject.SetActive(true);
+            mGRE2_Plane.localScale = Vector3.zero;
+            Sequence sequence = DOTween.Sequence();
+            
+            sequence.Append(mGRE2_Plane.DOScale(Vector3.one, GameDefines.GRE2_ScaleTime));
+            sequence.AppendInterval(GameDefines.GRE2_StayTime);
+            sequence.AppendCallback(() => { GetRewardEffectAfterFly2(item); });
+            sequence.AppendInterval(GameDefines.FlyMoney_DelayTime);
+            sequence.Append(mGRE2_Bg.DOFade(0, GameDefines.GRE2_FadeTime).SetEase(Ease.Linear));
+            sequence.OnComplete(()=>
+            {
+                mGetRewardEffect2.gameObject.SetActive(false);
+                finishAction?.Invoke();
+            });
+
+            
+        }
+
+        private void GetRewardEffectAfterFly2(ERewardItemStruct item)
+        {
+            switch (item.Type)
+            {
+                case ERewardType.Money:
+                    PlayFlyMoney2(mGRE2_Plane.transform, GameDefines.GRE_FlyMoneyCount, item.Count, () =>
+                    {
+                        FacadeGamePlay.SetCurMoneyShow();
+                    });
+                    break;
+                case ERewardType.Prop1:
+                    PlayFlyProp(mGRE2_Plane.transform, ERewardType.Prop1, () =>
+                    {
+                        FacadePlayer.AddProp1Num((int)item.Count);
+                        FacadeGamePlay.SetProp1CountShow();
+                    });
+                    break;
+                case ERewardType.Prop2:
+                    PlayFlyProp(mGRE2_Plane.transform, ERewardType.Prop2, () =>
+                    {
+                        FacadePlayer.AddProp2Num((int)item.Count);
+                        FacadeGamePlay.SetProp2CountShow();
+                    });
+                    break;
+                case ERewardType.Prop3:
+                    PlayFlyProp(mGRE2_Plane.transform, ERewardType.Prop3, () =>
+                    {
+                        FacadePlayer.AddProp3Num((int)item.Count);
+                        FacadeGamePlay.SetProp3CountShow();
+                    });
+                    break;
+            }
+        }
+
+        #endregion
+
         #region 播放祝贺特效
         /// <summary>
         /// 播放祝贺特效
@@ -346,8 +433,8 @@ namespace XrCode
                 flyObj.gameObject.SetActive(true);
 
                 flyObj.transform.position = startPoint.position;
-                float r1 = UnityEngine.Random.Range(0, GameDefines.FlyMoney_RandomSpawnDist);
-                float r2 = UnityEngine.Random.Range(0, GameDefines.FlyMoney_RandomSpawnDist);
+                float r1 = UnityEngine.Random.Range(-GameDefines.FlyMoney_RandomSpawnDist, GameDefines.FlyMoney_RandomSpawnDist);
+                float r2 = UnityEngine.Random.Range(-GameDefines.FlyMoney_RandomSpawnDist, GameDefines.FlyMoney_RandomSpawnDist);
                 flyObj.transform.GetComponent<RectTransform>().localPosition += new Vector3(r1, r2, 0);
 
                 flyObj.transform.DOMove(flyObjGoldDic[ERewardType.Money], GameDefines.FlyMoney_MoveTime)
@@ -364,6 +451,34 @@ namespace XrCode
                 PlayFlyMoneyTip(money);
             });
             
+        }
+
+        private void PlayFlyMoney2(Transform startPoint, int count, float money, Action successAction)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                GameObject flyObj = flyMoneyPool2.Count > 0 ? flyMoneyPool2.Pop() : GameObject.Instantiate(GameDefines.ifIAA ? mFlyIAAMoney2.gameObject : mFlyMoney2.gameObject, mFlyEffectParent);
+                flyObj.gameObject.SetActive(true);
+
+                flyObj.transform.position = startPoint.position;
+                float r1 = UnityEngine.Random.value > 0.5f ? UnityEngine.Random.Range(GameDefines.FlyMoney_RandomSpawnDist2X.x, GameDefines.FlyMoney_RandomSpawnDist2X.y) : UnityEngine.Random.Range(GameDefines.FlyMoney_RandomSpawnDist2X_2.x, GameDefines.FlyMoney_RandomSpawnDist2X_2.y);
+                float r2 = UnityEngine.Random.value > 0.5f ? UnityEngine.Random.Range(GameDefines.FlyMoney_RandomSpawnDist2Y.x, GameDefines.FlyMoney_RandomSpawnDist2Y.y) : UnityEngine.Random.Range(GameDefines.FlyMoney_RandomSpawnDist2Y_2.x, GameDefines.FlyMoney_RandomSpawnDist2Y_2.y);
+                flyObj.transform.GetComponent<RectTransform>().localPosition += new Vector3(r1, r2, 0);
+
+                flyObj.transform.DOMove(flyObjGoldDic[ERewardType.Money], GameDefines.FlyMoney_MoveTime)
+                    .SetDelay(GameDefines.FlyMoney_DelayTime + i * GameDefines.FlyMoney_IntervalTime)
+                    .OnComplete(() =>
+                    {
+                        successAction?.Invoke();
+                        flyMoneyPool2.Push(flyObj);
+                        flyObj.gameObject.SetActive(false);
+                    });
+            }
+            STimerManager.Instance.CreateSDelay(GameDefines.FlyMoneyTip_DelayTime, () =>
+            {
+                PlayFlyMoneyTip(money);
+            });
+
         }
 
         /// <summary>
@@ -460,6 +575,8 @@ namespace XrCode
             curERItem = null;
             flyMoneyPool.Clear();
             flyMoneyPool = null;
+            flyMoneyPool2.Clear();
+            flyMoneyPool2 = null;
             flyMoneyTipPool.Clear();
             flyMoneyTipPool = null;
             flyPropPool.Clear();

@@ -81,12 +81,19 @@ public abstract class GameDefines
     public static float FlyMoney_MoveTime = 0.5f;                                                           //飞行钱持续时间
     public static float FlyMoney_DelayTime = 0.5f;                                                          //飞行钱延迟播放时间
     public static float FlyMoney_IntervalTime = 0.1f;                                                       //飞行钱间隔时间
-    public static float FlyMoney_RandomSpawnDist = 100f;                                                    //飞行钱随机生成位置的区间
+    public static float FlyMoney_RandomSpawnDist = 50f;                                                     //飞行钱随机生成位置的区间
     public static float FlyMoneyTip_DelayTime = 1f;                                                         //飞行钱提示延迟播放时间
     public static float FlyMoneyTip_MoveTime = 2f;                                                          //飞行钱提示持续时间
     public static float FlyMoneyTip_MoveDist = 60f;                                                         //飞行钱提示移动距离
     public static float DifficultyUp_StayTime = 1;                                                          //难度提升特效持续时间
     public static Vector2 TargetArriveTime = new Vector2(1, 5);                                             //关卡目标特效随机时间
+    public static float GRE2_ScaleTime = 4.2f;                                                              //获取奖励特效2缩放出现时间
+    public static float GRE2_StayTime = 1.3f;                                                               //获取奖励特效2持续时间
+    public static float GRE2_FadeTime = 0.4f;                                                               //获取奖励特效2渐隐消失时间
+    public static Vector2 FlyMoney_RandomSpawnDist2X = new Vector2(100, 200);                               //飞行钱随机生成位置的X区间
+    public static Vector2 FlyMoney_RandomSpawnDist2X_2 = new Vector2(-200, 100);                            //飞行钱随机生成位置的X区间
+    public static Vector2 FlyMoney_RandomSpawnDist2Y = new Vector2(-90, 0);                                 //飞行钱随机生成位置的Y区间
+    public static Vector2 FlyMoney_RandomSpawnDist2Y_2 = new Vector2(130, 220);                             //飞行钱随机生成位置的Y区间2
 
     #endregion
 

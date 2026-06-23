@@ -137,16 +137,22 @@ public class GM : MonoBehaviour
         //};
         //UIManager.Instance.OpenAsync<UIWithdrawProgress>(EUIType.EUIWithdrawalProgress, UIOpenType.None, null, wItem);
 
-        WithdrawalRecordItem testItem = new WithdrawalRecordItem();
-        testItem.OrderId = 999;
-        testItem.LevelId = 999;
-        testItem.CreatedDate = "9999-99-99";
-        testItem.WRState = EWithRecordState.UnderReview;
-        testItem.WRMoney = 999;
-        testItem.TargetType = WithdrawTarget.AmountOfMoney;
-        FacadeWithdraw.SetCurWithdrawTarget(WithdrawTarget.AmountOfMoney);
+        //WithdrawalRecordItem testItem = new WithdrawalRecordItem();
+        //testItem.OrderId = 999;
+        //testItem.LevelId = 999;
+        //testItem.CreatedDate = "9999-99-99";
+        //testItem.WRState = EWithRecordState.UnderReview;
+        //testItem.WRMoney = 999;
+        //testItem.TargetType = WithdrawTarget.AmountOfMoney;
+        //FacadeWithdraw.SetCurWithdrawTarget(WithdrawTarget.AmountOfMoney);
 
-        UIManager.Instance.OpenAsync<UIWithdrawProgress>(EUIType.EUIWithdrawProgress, UIOpenType.None, null, testItem);
+        //UIManager.Instance.OpenAsync<UIWithdrawProgress>(EUIType.EUIWithdrawProgress, UIOpenType.None, null, testItem);
+
+        FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct 
+        { 
+            Type = ERewardType.Money,
+            Count = 999.99f,
+        }, null);
     }
 
 }
