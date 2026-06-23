@@ -87,7 +87,7 @@ public abstract class GameDefines
     public static float FlyMoneyTip_MoveDist = 60f;                                                         //飞行钱提示移动距离
     public static float DifficultyUp_StayTime = 1;                                                          //难度提升特效持续时间
     public static Vector2 TargetArriveTime = new Vector2(1, 5);                                             //关卡目标特效随机时间
-    public static float GRE2_ScaleTime = 4.2f;                                                              //获取奖励特效2缩放出现时间
+    public static float GRE2_ScaleTime = 0.42f;                                                             //获取奖励特效2缩放出现时间
     public static float GRE2_StayTime = 1.3f;                                                               //获取奖励特效2持续时间
     public static float GRE2_FadeTime = 0.4f;                                                               //获取奖励特效2渐隐消失时间
     public static Vector2 FlyMoney_RandomSpawnDist2X = new Vector2(100, 200);                               //飞行钱随机生成位置的X区间

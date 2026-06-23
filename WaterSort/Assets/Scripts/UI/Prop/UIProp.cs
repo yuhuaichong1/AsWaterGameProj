@@ -72,15 +72,12 @@ namespace XrCode
                 {
                     case EFuncType.Prop1:
                         type = ERewardType.Prop1;
-                        FacadePlayer.AddProp1Num(1);
                         break;
                     case EFuncType.Prop2:
                         type = ERewardType.Prop2;
-                        FacadePlayer.AddProp2Num(1);
                         break;
                     case EFuncType.Prop3:
                         type = ERewardType.Prop3;
-                        FacadePlayer.AddProp3Num(1);
                         break;
                 }
 

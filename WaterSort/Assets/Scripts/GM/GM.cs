@@ -98,15 +98,12 @@ public class GM : MonoBehaviour
         switch(PropDropdown.value) 
         {
             case 0:
-                FacadePlayer.AddProp1Num(1);
                 FacadeGamePlay.SetProp1CountShow();
                 break;
             case 1:
-                FacadePlayer.AddProp2Num(1);
                 FacadeGamePlay.SetProp2CountShow();
                 break;
             case 2:
-                FacadePlayer.AddProp3Num(1);
                 FacadeGamePlay.SetProp3CountShow();
                 break;
         }
@@ -150,8 +147,8 @@ public class GM : MonoBehaviour
 
         FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct 
         { 
-            Type = ERewardType.Money,
-            Count = 999.99f,
+            Type = ERewardType.Prop1,
+            Count = 1f,
         }, null);
     }
 

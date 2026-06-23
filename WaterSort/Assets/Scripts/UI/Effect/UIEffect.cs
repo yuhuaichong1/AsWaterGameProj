@@ -269,21 +269,18 @@ namespace XrCode
                 case ERewardType.Prop1:
                     PlayFlyProp(ERItem.transform, ERewardType.Prop1, () => 
                     {
-                        FacadePlayer.AddProp1Num((int)ERItem.Count);
                         FacadeGamePlay.SetProp1CountShow();
                     });
                     break;
                 case ERewardType.Prop2:
                     PlayFlyProp(ERItem.transform, ERewardType.Prop2, () =>
                     {
-                        FacadePlayer.AddProp2Num((int)ERItem.Count);
                         FacadeGamePlay.SetProp2CountShow();
                     });
                     break;
                 case ERewardType.Prop3:
                     PlayFlyProp(ERItem.transform, ERewardType.Prop3, () =>
                     {
-                        FacadePlayer.AddProp3Num((int)ERItem.Count);
                         FacadeGamePlay.SetProp3CountShow();
                     });
                     break;
@@ -328,7 +325,21 @@ namespace XrCode
                 finishAction?.Invoke();
             });
 
-            
+            switch (item.Type)
+            {
+                case ERewardType.Money:
+                    FacadePlayer.AddMoney(item.Count);
+                    break;
+                case ERewardType.Prop1:
+                    FacadePlayer.AddProp1Num((int)item.Count);
+                    break;
+                case ERewardType.Prop2:
+                    FacadePlayer.AddProp2Num((int)item.Count);
+                    break;
+                case ERewardType.Prop3:
+                    FacadePlayer.AddProp3Num((int)item.Count);
+                    break;
+            }
         }
 
         private void GetRewardEffectAfterFly2(ERewardItemStruct item)
@@ -344,21 +355,18 @@ namespace XrCode
                 case ERewardType.Prop1:
                     PlayFlyProp(mGRE2_Plane.transform, ERewardType.Prop1, () =>
                     {
-                        FacadePlayer.AddProp1Num((int)item.Count);
                         FacadeGamePlay.SetProp1CountShow();
                     });
                     break;
                 case ERewardType.Prop2:
                     PlayFlyProp(mGRE2_Plane.transform, ERewardType.Prop2, () =>
                     {
-                        FacadePlayer.AddProp2Num((int)item.Count);
                         FacadeGamePlay.SetProp2CountShow();
                     });
                     break;
                 case ERewardType.Prop3:
                     PlayFlyProp(mGRE2_Plane.transform, ERewardType.Prop3, () =>
                     {
-                        FacadePlayer.AddProp3Num((int)item.Count);
                         FacadeGamePlay.SetProp3CountShow();
                     });
                     break;
