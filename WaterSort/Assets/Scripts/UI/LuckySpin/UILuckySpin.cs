@@ -167,46 +167,66 @@ namespace XrCode
                 case ELuckySpinRewardType.Money:
                     count = FacadeWithdraw.GetLuckySpinReward();
                     FacadePlayer.AddMoney(count);
-                    FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+                    //FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+                    //{
+                    //    new ERewardItemStruct()
+                    //    {
+                    //        Type = ERewardType.Money,
+                    //        Count = count,
+                    //    }
+                    //}, null);
+                    FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct
                     {
-                        new ERewardItemStruct()
-                        {
-                            Type = ERewardType.Money,
-                            Count = count,
-                        }
+                        Type = ERewardType.Money,
+                        Count = count,
                     }, null);
                     break;
                 case ELuckySpinRewardType.Refresh:
                     FacadePlayer.AddProp1Num((int)count);
-                    FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+                    //FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+                    //{
+                    //    new ERewardItemStruct()
+                    //    {
+                    //        Type = ERewardType.Prop1,
+                    //        Count = count,
+                    //    }
+                    //}, null);
+                    FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct
                     {
-                        new ERewardItemStruct()
-                        {
-                            Type = ERewardType.Prop1,
-                            Count = count,
-                        }
+                        Type = ERewardType.Prop1,
+                        Count = count,
                     }, null);
                     break;
                 case ELuckySpinRewardType.Undo:
                     FacadePlayer.AddProp2Num((int)count);
-                    FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+                    //FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+                    //{
+                    //    new ERewardItemStruct()
+                    //    {
+                    //        Type = ERewardType.Prop2,
+                    //        Count = count,
+                    //    }
+                    //}, null);
+                    FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct
                     {
-                        new ERewardItemStruct()
-                        {
-                            Type = ERewardType.Prop2,
-                            Count = count,
-                        }
+                        Type = ERewardType.Prop2,
+                        Count = count,
                     }, null);
                     break;
                 case ELuckySpinRewardType.AddBottle:
                     FacadePlayer.AddProp3Num((int)count);
-                    FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+                    //FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+                    //{
+                    //    new ERewardItemStruct()
+                    //    {
+                    //        Type = ERewardType.Prop3,
+                    //        Count = count,
+                    //    }
+                    //}, null);
+                    FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct
                     {
-                        new ERewardItemStruct()
-                        {
-                            Type = ERewardType.Prop3,
-                            Count = count,
-                        }
+                        Type = ERewardType.Prop3,
+                        Count = count,
                     }, null);
                     break;
             }

@@ -43,14 +43,20 @@ namespace XrCode
 
             HideAnim(mPlane, () =>
             {
-                FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
-                {
-                new ERewardItemStruct()
+                //FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+                //{
+                //new ERewardItemStruct()
+                //{
+                //    Type = ERewardType.Money,
+                //    Count = curCompletedMoney,
+                //}
+                //}, null);
+                FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct
                 {
                     Type = ERewardType.Money,
                     Count = curCompletedMoney,
-                }
                 }, null);
+
                 UIManager.Instance.CloseUI(EUIType.EUILuckyReward);
             });
         }

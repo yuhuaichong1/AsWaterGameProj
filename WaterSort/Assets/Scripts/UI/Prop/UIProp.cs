@@ -72,32 +72,28 @@ namespace XrCode
                 {
                     case EFuncType.Prop1:
                         type = ERewardType.Prop1;
-                        FacadePlayer.AddProp1Num(1);
                         break;
                     case EFuncType.Prop2:
                         type = ERewardType.Prop2;
-                        FacadePlayer.AddProp2Num(1);
                         break;
                     case EFuncType.Prop3:
                         type = ERewardType.Prop3;
-                        FacadePlayer.AddProp3Num(1);
                         break;
                 }
 
-                FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+                //FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+                //{
+                //    new ERewardItemStruct
+                //    {
+                //        Type = type,
+                //        Count = 1
+                //    }
+                //}, null);
+                FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct
                 {
-                    new ERewardItemStruct
-                    {
-                        Type = type,
-                        Count = 1
-                    }
-                }, () => 
-                {
-                    //在UIEffect已有显示逻辑
-                    //FacadeGamePlay.SetBATCountShow(FacadeUser.GetAddSpacePropNum());
-                    //FacadeGamePlay.SetBCTCountShow(FacadeUser.GetClearPropNum());
-                    //FacadeGamePlay.SetBRBCountShow(FacadeUser.GetHammerPropNum());
-                });
+                    Type = type,
+                    Count = 1
+                }, null);
             });
             
         }

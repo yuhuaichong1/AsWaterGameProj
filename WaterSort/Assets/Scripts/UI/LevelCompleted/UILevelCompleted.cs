@@ -78,14 +78,20 @@ namespace XrCode
         private void GetReward()
         {
             FacadePlayer.AddMoney(curCompletedMoney);
-            FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+            //FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+            //{
+            //    new ERewardItemStruct
+            //    {
+            //        Type = ERewardType.Money,
+            //        Count = curCompletedMoney,
+            //    }
+            //}, null);
+            FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct 
             {
-                new ERewardItemStruct
-                {
-                    Type = ERewardType.Money,
-                    Count = curCompletedMoney,
-                }
+                Type = ERewardType.Money,
+                Count = curCompletedMoney,
             }, null);
+
             GoNextLevel();
         }
 
