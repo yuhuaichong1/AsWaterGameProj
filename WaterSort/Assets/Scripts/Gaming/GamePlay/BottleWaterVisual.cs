@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using AsGame.Core;
 using AsGame.UI;
 using XrCode;
-
+using AsGame;
 
 /// <summary>
 /// 对齐 Cocos Cup.prefab：water_parent(Mask) / water1..4(rect+top)。
