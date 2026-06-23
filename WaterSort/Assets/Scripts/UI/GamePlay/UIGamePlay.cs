@@ -260,6 +260,8 @@ namespace XrCode
                 {
                     SetWPMsg();
                 }
+
+                mCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), curLevel - GameDefines.miniLevel_Start);
             }
             else
             {
