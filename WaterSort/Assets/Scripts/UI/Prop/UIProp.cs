@@ -81,14 +81,14 @@ namespace XrCode
                         break;
                 }
 
-                FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
-                {
-                    new ERewardItemStruct
-                    {
-                        Type = type,
-                        Count = 1
-                    }
-                }, null);
+                //FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+                //{
+                //    new ERewardItemStruct
+                //    {
+                //        Type = type,
+                //        Count = 1
+                //    }
+                //}, null);
                 FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct
                 {
                     Type = type,
