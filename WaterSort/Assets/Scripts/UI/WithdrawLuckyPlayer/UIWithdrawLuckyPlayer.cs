@@ -30,13 +30,18 @@ namespace XrCode
             HideAnim(mPlane, () =>
             {
                 UIManager.Instance.CloseUI(EUIType.EUIWithdrawLuckyPlayer);
-                FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+                //FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+                //{
+                //    new ERewardItemStruct
+                //    {
+                //        Type = ERewardType.Money,
+                //        Count = luckyMoney,
+                //    }
+                //}, null);
+                FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct
                 {
-                    new ERewardItemStruct
-                    {
-                        Type = ERewardType.Money,
-                        Count = luckyMoney,
-                    }
+                    Type = ERewardType.Money,
+                    Count = luckyMoney
                 }, null);
 
                 FacadeGamePlay.StartLevel();
@@ -51,13 +56,18 @@ namespace XrCode
             HideAnim(mPlane, () => 
             {
                 UIManager.Instance.CloseUI(EUIType.EUIWithdrawLuckyPlayer);
-                FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+                //FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
+                //{
+                //    new ERewardItemStruct
+                //    {
+                //        Type = ERewardType.Money,
+                //        Count = luckyMoney,
+                //    }
+                //}, null);
+                FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct
                 {
-                    new ERewardItemStruct
-                    {
-                        Type = ERewardType.Money,
-                        Count = luckyMoney,
-                    }
+                    Type = ERewardType.Money,
+                    Count = luckyMoney
                 }, null);
 
                 //FacadeGamePlay.StartLevel();

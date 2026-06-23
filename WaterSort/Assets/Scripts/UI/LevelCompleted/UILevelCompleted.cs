@@ -86,6 +86,13 @@ namespace XrCode
                     Count = curCompletedMoney,
                 }
             }, null);
+
+            FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct 
+            {
+                Type = ERewardType.Money,
+                Count = curCompletedMoney,
+            }, null);
+
             GoNextLevel();
         }
 

@@ -88,13 +88,12 @@ namespace XrCode
                         Type = type,
                         Count = 1
                     }
-                }, () => 
+                }, null);
+                FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct
                 {
-                    //在UIEffect已有显示逻辑
-                    //FacadeGamePlay.SetBATCountShow(FacadeUser.GetAddSpacePropNum());
-                    //FacadeGamePlay.SetBCTCountShow(FacadeUser.GetClearPropNum());
-                    //FacadeGamePlay.SetBRBCountShow(FacadeUser.GetHammerPropNum());
-                });
+                    Type = type,
+                    Count = 1
+                }, null);
             });
             
         }
