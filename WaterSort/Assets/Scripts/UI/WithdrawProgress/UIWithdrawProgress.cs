@@ -55,12 +55,17 @@ namespace XrCode
                 {
                     mProgress3.gameObject.SetActive(true);
 
-                    bool b = value >= FacadeWithdraw.GetCurCheckInDay();
+                    bool b = value < FacadeWithdraw.GetCurCheckInDay();
                     mP3_3_Title.text = string.Format(FacadeLanguage.GetText("10080"), FacadePayType.RegionalChange(FacadePlayer.GetMoney()));
                     mP3_4_Content.gameObject.SetActive(b);
                     mP3_4_ErrorContent.gameObject.SetActive(!b);
                     if (!b)
-                        mP3_4_ErrorContent.text = string.Format(FacadeLanguage.GetText("10083"), GameDefines.CheckInDay, GameDefines.CheckInDay - value);
+                    {
+                        string dayText = FacadeWithdraw.GetWCheckInDayText();
+                        string levelText = FacadeWithdraw.GetWCheckInLevelText();
+                        mP3_4_ErrorContent.text = $"{dayText}\n{levelText}";
+                    }
+                        
                     //mProgress3.PlayAnim(ShowBtn, b, 3);
                     mProgress3.SetOrderTime(item.CreatedDate);
                     mProgress3.PlayAnim(ShowBtn);

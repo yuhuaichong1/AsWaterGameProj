@@ -28,7 +28,23 @@ namespace XrCode
         protected override void OnEnable()
         {
             mBlanceMoney.text = FacadePayType.RegionalChange(FacadePlayer.GetMoney());
-            mGoalTitle.text = string.Format(FacadeLanguage.GetText("10066"), FacadeWithdraw.GetWithdrawalRecordItems().Count + (ifFromGuide ? 1 : 0));
+
+            FacadeWithdraw.ActionByCurWTarget((value) => 
+            {
+                mGoalTitle.text = string.Format(FacadeLanguage.GetText("10066"), FacadeWithdraw.GetWithdrawalRecordItems().Count + (ifFromGuide ? 1 : 0));
+            }, (value) => 
+            {
+                mGoalTitle.text = string.Format(FacadeLanguage.GetText("10066"), 3);
+            }, (value) => 
+            {
+                int count = FacadeWithdraw.GetWithdrawalRecordItems().Count;
+                if(count == 3)
+                    mGoalTitle.text = string.Format(FacadeLanguage.GetText("10066"), 3);
+                else
+                    mGoalTitle.text = string.Format(FacadeLanguage.GetText("10066"), FacadeWithdraw.GetWithdrawalRecordItems().Count + (ifFromGuide ? 1 : 0));
+            });
+            
+            
 
             SetSliderValue();
             SetLevelStatus();

@@ -415,7 +415,6 @@ public class GuideModule : BaseModule
         {
             STimerManager.Instance.CreateSDelay(GameDefines.ShowAnimTime, () =>
             {
-                Debug.LogError("?3");
                 FacadeGuide.PlayGuide();
             });
         }
