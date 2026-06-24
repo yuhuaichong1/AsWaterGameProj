@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using UnityEngine.UI;
 
 namespace XrCode
 {
@@ -26,6 +27,8 @@ namespace XrCode
         private bool ifAfterCreate;//是否在关闭界面后走下一步
 
         private bool ifOpenUIDateShow;
+
+        private bool ifDailyChecked;//今日的每日签到是否完成
 
         protected override void OnLoad()
         {
@@ -70,6 +73,8 @@ namespace XrCode
             FacadeWithdraw.AfterCloseWUI += AfterCloseWUI;
             FacadeWithdraw.SetIfAfterCreate += SetIfAfterCreate;
             FacadeWithdraw.GetWithdrawHighValueStr += GetWithdrawHighValueStr;
+            FacadeWithdraw.GetWCheckInLevelText += GetWCheckInLevelText;
+            FacadeWithdraw.GetWCheckInDayText += GetWCheckInDayText;
         }
 
         private void FacadeRemove()
@@ -105,6 +110,8 @@ namespace XrCode
             FacadeWithdraw.AfterCloseWUI -= AfterCloseWUI;
             FacadeWithdraw.SetIfAfterCreate -= SetIfAfterCreate;
             FacadeWithdraw.GetWithdrawHighValueStr -= GetWithdrawHighValueStr;
+            FacadeWithdraw.GetWCheckInLevelText -= GetWCheckInLevelText;
+            FacadeWithdraw.GetWCheckInDayText -= GetWCheckInDayText;
         }
 
         #endregion
@@ -229,9 +236,9 @@ namespace XrCode
         private void SetCurCheckLevel(int value)
         {
             curCheckInLevel = value;
-            if (curCheckInDay > GameDefines.CheckInDay)
+            if (curCheckInLevel > GameDefines.CheckInLevel)
             {
-                curCheckInDay = GameDefines.CheckInDay;
+                curCheckInLevel = GameDefines.CheckInLevel;
             }
             SPlayerPrefs.SetInt(PlayerPrefDefines.curCheckInLevel, curCheckInLevel);
             SPlayerPrefs.Save();
@@ -240,9 +247,14 @@ namespace XrCode
         private void AddCurCheckInLevel(int value)
         {
             curCheckInLevel += value;
-            if(curCheckInDay > GameDefines.CheckInDay)
+            if(curCheckInLevel > GameDefines.CheckInLevel)
             {
-                curCheckInDay = GameDefines.CheckInDay;
+                curCheckInLevel = GameDefines.CheckInLevel;
+            }
+            if(curCheckInLevel == GameDefines.CheckInLevel && ifDailyChecked)
+            {
+                SetIfDailyChecked(false);
+                AddCurCheckInDay(1);
             }
             SPlayerPrefs.SetInt(PlayerPrefDefines.curCheckInLevel, curCheckInLevel);
             SPlayerPrefs.Save();
@@ -302,6 +314,17 @@ namespace XrCode
 
         #endregion
 
+        #region ifDailyChecked
+
+        private void SetIfDailyChecked(bool value)
+        {
+            ifDailyChecked = value;
+            SPlayerPrefs.SetBool(PlayerPrefDefines.ifDailyChecked, ifDailyChecked);
+            SPlayerPrefs.Save();
+        }
+
+        #endregion
+
         #endregion
 
         /// <summary>
@@ -344,6 +367,15 @@ namespace XrCode
 
             //ifAfterCreate = true;
             ifOpenUIDateShow = false;
+
+            curCheckInDay = SPlayerPrefs.GetInt(PlayerPrefDefines.curCheckInDay, 0);
+            curCheckInLevel = SPlayerPrefs.GetInt(PlayerPrefDefines.curCheckInLevel, 0);
+            ifDailyChecked = SPlayerPrefs.GetBool(PlayerPrefDefines.ifDailyChecked, true);
+            if (SCheckDateTime.Instance.IfNextDay(GameDefines.CheckInDayKey))
+            {
+                SetIfDailyChecked(true);
+                SetCurCheckLevel(0);
+            }
         }
 
         /// <summary>
@@ -615,6 +647,38 @@ namespace XrCode
             string v1 = FacadePayType.RegionalChange(GameDefines.HighValue.x).Split('.')[0];
             string v2 = FacadePayType.RegionalChange(GameDefines.HighValue.y).Split('.')[0];
             return $"{v1}-{v2}";
+        }
+
+        /// <summary>
+        /// 获取当前签到目标关卡文本
+        /// </summary>
+        /// <returns>签到目标关卡文本</returns>
+        private string GetWCheckInLevelText()
+        {
+            if(curCheckInLevel >= GameDefines.CheckInLevel)
+            {
+                return FacadeLanguage.GetText("10008");
+            }
+            else
+            {
+                return string.Format(FacadeLanguage.GetText("10007"), GameDefines.CheckInLevel - curCheckInLevel);
+            }
+        }
+
+        /// <summary>
+        /// 获取当前签到目标日文本
+        /// </summary>
+        /// <returns>签到目标日文本</returns>
+        private string GetWCheckInDayText()
+        {
+            if(curCheckInDay >= GameDefines.CheckInDay)
+            {
+                return string.Format(FacadeLanguage.GetText("10128"));
+            }
+            else
+            {
+                return string.Format(FacadeLanguage.GetText("10083"), GameDefines.CheckInDay, GameDefines.CheckInDay - curCheckInDay);
+            }
         }
 
         protected override void OnDispose()

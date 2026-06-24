@@ -276,12 +276,43 @@ namespace XrCode
         /// </summary>
         private void SetWPMsg()
         {
-            float remainMoney = FacadeWithdraw.GetRemainTarget();
-            float wTargetMoney = FacadeWithdraw.GetWTarget();
-            mWPText.text = string.Format(FacadeLanguage.GetText("10005"), FacadePayType.RegionalChange(remainMoney), FacadePayType.RegionalChange(wTargetMoney));
+            if(FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.AmountOfMoney)
+            {
+                float remainMoney = FacadeWithdraw.GetRemainTarget();
+                float wTargetMoney = FacadeWithdraw.GetWTarget();
+                mWPText.text = string.Format(FacadeLanguage.GetText("10005"), FacadePayType.RegionalChange(remainMoney), FacadePayType.RegionalChange(wTargetMoney));
 
-            mWPSText.text = $"{(int)(FacadePlayer.GetMoney())}/{(int)(wTargetMoney * FacadePayType.GetExchangeRate())}";
-            mWPSlider.value = (float)FacadePlayer.GetMoney() / wTargetMoney;
+                mWPSText.text = $"{(int)(FacadePlayer.GetMoney())}/{(int)(wTargetMoney * FacadePayType.GetExchangeRate())}";
+                mWPSlider.value = (float)FacadePlayer.GetMoney() / wTargetMoney;
+            }
+            else if(FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.CheckIn)
+            {
+                if(FacadeWithdraw.GetCurCheckInDay() >= GameDefines.CheckInDay)
+                {
+                    mWPText.text = FacadeLanguage.GetText("10128");
+                    mWPSText.text = $"{GameDefines.CheckInDay}/{GameDefines.CheckInDay}";
+                    mWPSlider.value = 1;
+                }
+                else
+                {
+                    if(FacadeWithdraw.GetCurCheckLevel() >= GameDefines.CheckInLevel)
+                    {
+                        int remainDay = GameDefines.CheckInDay - FacadeWithdraw.GetCurCheckInDay();
+                        mWPText.text = string.Format(FacadeLanguage.GetText("10083"), GameDefines.CheckInDay, remainDay);
+                        mWPSText.text = $"{FacadeWithdraw.GetCurCheckInDay()}/{GameDefines.CheckInDay}";
+                        mWPSlider.value = (float)FacadeWithdraw.GetCurCheckInDay() / GameDefines.CheckInDay;
+
+                    }
+                    else
+                    {
+                        int remainLevel = GameDefines.CheckInLevel - FacadeWithdraw.GetCurCheckLevel();
+                        mWPText.text = string.Format(FacadeLanguage.GetText("10007"), remainLevel);
+                        mWPSText.text = $"{FacadeWithdraw.GetCurCheckLevel()}/{GameDefines.CheckInLevel}";
+                        mWPSlider.value = (float)FacadeWithdraw.GetCurCheckLevel() / GameDefines.CheckInLevel;
+                    }
+                }
+            }
+
         }
 
         #endregion

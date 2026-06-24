@@ -47,7 +47,7 @@ namespace XrCode
                     mP2_4_Content.gameObject.SetActive(b);
                     mP2_4_ErrorContent.gameObject.SetActive(!b);
                     if (!b)
-                        mP2_4_ErrorContent.text = string.Format(FacadeLanguage.GetText("10082"), FacadePayType.RegionalChange(value), FacadePayType.RegionalChange(targetMoney));
+                        mP2_4_ErrorContent.text = string.Format(FacadeLanguage.GetText("10082"), FacadePayType.RegionalChange(value), FacadePayType.RegionalChange(FacadeWithdraw.GetRemainTarget()));
                     //mProgress2.PlayAnim(ShowBtn, b, 3);
                     mProgress2.SetOrderTime(item.CreatedDate);
                     mProgress2.PlayAnim(ShowBtn);

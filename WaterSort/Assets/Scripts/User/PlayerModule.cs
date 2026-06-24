@@ -150,6 +150,13 @@ namespace XrCode
             money += value;
             SPlayerPrefs.SetDouble(PlayerPrefDefines.money, money);
             SPlayerPrefs.Save();
+
+            if(money >= FacadeWithdraw.GetWTarget() && FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.AmountOfMoney)
+            {
+                FacadeGuide.SetIfTutorial(true);
+                FacadeWithdraw.SetCurWithdrawTarget(WithdrawTarget.CheckIn);
+                FacadeGuide.PlayGuideByTargetType();
+            }
         }
 
         #endregion
@@ -220,6 +227,11 @@ namespace XrCode
             level += value;
             SPlayerPrefs.SetInt(PlayerPrefDefines.level, level);
             SPlayerPrefs.Save();
+
+            if(FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.CheckIn)
+            {
+                FacadeWithdraw.AddCurCheckInLevel(value);
+            }
         }
 
         #endregion

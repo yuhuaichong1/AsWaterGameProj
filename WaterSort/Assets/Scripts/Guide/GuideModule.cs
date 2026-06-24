@@ -343,6 +343,7 @@ public class GuideModule : BaseModule
         {
             if (!GameDefines.ifIAA)
             {
+                
                 UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
                 {
                     curStep = 10009;
@@ -414,6 +415,7 @@ public class GuideModule : BaseModule
         {
             STimerManager.Instance.CreateSDelay(GameDefines.ShowAnimTime, () =>
             {
+                Debug.LogError("?3");
                 FacadeGuide.PlayGuide();
             });
         }
