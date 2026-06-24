@@ -452,6 +452,18 @@ namespace XrCode
         }
 
         /// <summary>
+        /// 根据剩余目标金额查找 MoneyInterval 配置的 sn。
+        /// TargetInterval 升序断点对应 sn 从大到小，不能用 TargetInterval.Count 做反转。
+        /// </summary>
+        private int GetMoneyIntervalSn(float remainTarget)
+        {
+            int intervalId = TargetInterval.GetRangeIndex(remainTarget);
+            if (intervalId < 0)
+                return -1;
+            return MIData.Count - 1 - intervalId;
+        }
+
+        /// <summary>
         /// 获得幸运转盘金额奖励的奖励值
         /// </summary>
         /// <returns>幸运转盘金额奖励的奖励值</returns>
@@ -470,7 +482,7 @@ namespace XrCode
                     reward = GameDefines.RewardCoe;
                 }, (v) =>
                 {
-                    int id = TargetInterval.Count - TargetInterval.GetRangeIndex(GetRemainTarget());
+                    int id = GetMoneyIntervalSn(GetRemainTarget());
                     reward = MIData[id].LSReward;
                 }, (v) =>
                 {
@@ -500,7 +512,7 @@ namespace XrCode
                     reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
                 }, (v) =>
                 {
-                    int id = TargetInterval.Count - TargetInterval.GetRangeIndex(GetRemainTarget());
+                    int id = GetMoneyIntervalSn(GetRemainTarget());
                     reward = UnityEngine.Random.Range(MIData[id].LRMin, MIData[id].LRMax);
                 }, (v) =>
                 {
@@ -531,17 +543,14 @@ namespace XrCode
                     reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
                 }, (v) =>
                 {
-                    int intervalId = TargetInterval.GetRangeIndex(GetRemainTarget());
+                    int id = GetMoneyIntervalSn(GetRemainTarget());
 
-                    if(intervalId == -1)
+                    if (id < 0)
                     {
                         reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
                     }
                     else
                     {
-                        int id = TargetInterval.Count - intervalId;
-                        if (id < 0) id = 0;
-                        else if (id >= MIData.Count) id = MIData.Count - 1;
                         reward = UnityEngine.Random.Range(MIData[id].LSMin, MIData[id].LSMax);
                     }
                 }, (v) =>
