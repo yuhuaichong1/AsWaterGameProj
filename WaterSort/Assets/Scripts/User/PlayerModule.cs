@@ -151,8 +151,6 @@ namespace XrCode
             SPlayerPrefs.SetDouble(PlayerPrefDefines.money, money);
             SPlayerPrefs.Save();
 
-            Debug.LogError(money + "  " + FacadeWithdraw.GetWTarget());
-
             if(money >= FacadeWithdraw.GetWTarget() && FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.AmountOfMoney)
             {
                 FacadeGuide.SetIfTutorial(true);

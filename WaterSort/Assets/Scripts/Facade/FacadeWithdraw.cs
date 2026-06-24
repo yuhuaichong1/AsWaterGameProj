@@ -43,4 +43,6 @@ public static class FacadeWithdraw
 
     public static Func<string> GetWCheckInLevelText;                                    //获取签到关卡文本
     public static Func<string> GetWCheckInDayText;                                      //获取签到天数文本
+
+    public static Action ReSetCheckInData;                                              //重置签到数据
 }

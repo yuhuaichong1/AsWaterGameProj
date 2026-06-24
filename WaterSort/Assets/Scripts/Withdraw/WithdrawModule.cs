@@ -75,6 +75,7 @@ namespace XrCode
             FacadeWithdraw.GetWithdrawHighValueStr += GetWithdrawHighValueStr;
             FacadeWithdraw.GetWCheckInLevelText += GetWCheckInLevelText;
             FacadeWithdraw.GetWCheckInDayText += GetWCheckInDayText;
+            FacadeWithdraw.ReSetCheckInData += ReSetCheckInData;
         }
 
         private void FacadeRemove()
@@ -112,6 +113,7 @@ namespace XrCode
             FacadeWithdraw.GetWithdrawHighValueStr -= GetWithdrawHighValueStr;
             FacadeWithdraw.GetWCheckInLevelText -= GetWCheckInLevelText;
             FacadeWithdraw.GetWCheckInDayText -= GetWCheckInDayText;
+            FacadeWithdraw.ReSetCheckInData -= ReSetCheckInData;
         }
 
         #endregion
@@ -219,6 +221,10 @@ namespace XrCode
             if (curCheckInDay > GameDefines.CheckInDay)
             {
                 curCheckInDay = GameDefines.CheckInDay;
+            }
+            if(curCheckInDay == GameDefines.CheckInDay)
+            {
+                FacadeGuide.SetIfTutorial(true);
             }
             SPlayerPrefs.SetInt(PlayerPrefDefines.curCheckInDay, curCheckInDay);
             SPlayerPrefs.Save();
@@ -679,6 +685,23 @@ namespace XrCode
             {
                 return string.Format(FacadeLanguage.GetText("10083"), GameDefines.CheckInDay, GameDefines.CheckInDay - curCheckInDay);
             }
+        }
+
+        /// <summary>
+        /// 重置签到数据
+        /// </summary>
+        private void ReSetCheckInData()
+        {
+            FacadePlayer.SetMoney(0);
+            FacadeGamePlay.SetCurMoneyShow();
+
+            FacadeWithdraw.SetCurCheckInDay(0);
+            if (FacadeWithdraw.GetCurCheckLevel() >= GameDefines.CheckInLevel)
+            {
+                FacadeWithdraw.AddCurCheckInDay(1);
+            }
+
+            FacadeGamePlay.SetLevelShow();
         }
 
         protected override void OnDispose()

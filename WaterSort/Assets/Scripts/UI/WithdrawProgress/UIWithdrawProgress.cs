@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine.UI;
+﻿using UnityEngine.UI;
 
 namespace XrCode
 {
@@ -54,21 +53,29 @@ namespace XrCode
                 }, (value) =>
                 {
                     mProgress3.gameObject.SetActive(true);
+                    bool b = value < GameDefines.CheckInDay;
+                    mP3_4_Title.text = string.Format(FacadeLanguage.GetText("10080"), FacadePayType.RegionalChange(FacadePlayer.GetMoney()));
+                    mP3_3_Title.text = string.Format(FacadeLanguage.GetText("10131"), FacadeWithdraw.GetCurCheckInDay(), GameDefines.CheckInDay);
 
-                    bool b = value < FacadeWithdraw.GetCurCheckInDay();
-                    mP3_3_Title.text = string.Format(FacadeLanguage.GetText("10080"), FacadePayType.RegionalChange(FacadePlayer.GetMoney()));
-                    mP3_4_Content.gameObject.SetActive(b);
-                    mP3_4_ErrorContent.gameObject.SetActive(!b);
-                    if (!b)
+                    mP3_3_Content.gameObject.SetActive(!b);
+                    mP3_3_ErrorContent.gameObject.SetActive(b);
+                    if (b)
                     {
-                        string dayText = FacadeWithdraw.GetWCheckInDayText();
-                        string levelText = FacadeWithdraw.GetWCheckInLevelText();
-                        mP3_4_ErrorContent.text = $"{dayText}\n{levelText}";
+                        //string dayText = FacadeWithdraw.GetWCheckInDayText();
+                        //string levelText = FacadeWithdraw.GetWCheckInLevelText();
+                        //mP3_3_ErrorContent.text = $"{dayText}\n{levelText}";
+                        mP3_3_ErrorContent.text = string.Format(FacadeLanguage.GetText("10132"), GameDefines.CheckInDay, GameDefines.CheckInLevel - FacadeWithdraw.GetCurCheckLevel());
                     }
-                        
+                    
                     //mProgress3.PlayAnim(ShowBtn, b, 3);
                     mProgress3.SetOrderTime(item.CreatedDate);
                     mProgress3.PlayAnim(ShowBtn);
+
+                    if(!b)
+                    {
+                        item.WRMoney = FacadePlayer.GetMoney();
+                        FacadeWithdraw.ReSetCheckInData();
+                    }
                 });
             });
         }
