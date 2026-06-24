@@ -16,7 +16,10 @@ namespace XrCode
         protected override void OnSetParam(params object[] args)
         {
             item = (WithdrawalRecordItem)args[0];
-            mCurMoneyText.text = FacadePayType.RegionalChange(item.WRMoney);
+            if(item.TargetType == WithdrawTarget.PassLevel)
+                mCurMoneyText.text = FacadePayType.RegionalChange(item.WRMoney);
+            else
+                mCurMoneyText.text = FacadePayType.RegionalChange(FacadePlayer.GetMoney());
         }
 
         protected override void OnEnable() 
