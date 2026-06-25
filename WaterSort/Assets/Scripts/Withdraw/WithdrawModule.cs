@@ -30,6 +30,8 @@ namespace XrCode
 
         private bool ifDailyChecked;//今日的每日签到是否完成
 
+        private int curCehckInBankDay;//当前银行累计审核天数
+
         protected override void OnLoad()
         {
             FacadeAdd();
@@ -76,6 +78,7 @@ namespace XrCode
             FacadeWithdraw.GetWCheckInLevelText += GetWCheckInLevelText;
             FacadeWithdraw.GetWCheckInDayText += GetWCheckInDayText;
             FacadeWithdraw.ReSetCheckInData += ReSetCheckInData;
+            FacadeWithdraw.GetCurCheckInBankDay += GetCurCheckInBankDay;
         }
 
         private void FacadeRemove()
@@ -114,6 +117,7 @@ namespace XrCode
             FacadeWithdraw.GetWCheckInLevelText -= GetWCheckInLevelText;
             FacadeWithdraw.GetWCheckInDayText -= GetWCheckInDayText;
             FacadeWithdraw.ReSetCheckInData -= ReSetCheckInData;
+            FacadeWithdraw.GetCurCheckInBankDay -= GetCurCheckInBankDay;
         }
 
         #endregion
@@ -331,6 +335,22 @@ namespace XrCode
 
         #endregion
 
+        #region curCheckInBankDay
+
+        private int GetCurCheckInBankDay()
+        {
+            return curCehckInBankDay;
+        }
+
+        private void SetCurCheckInBankDay(int value)
+        {
+            curCehckInBankDay = value;
+            SPlayerPrefs.SetInt(PlayerPrefDefines.curCehckInBankDay, curCehckInBankDay);
+            SPlayerPrefs.Save();
+        }
+
+        #endregion
+
         #endregion
 
         /// <summary>
@@ -377,10 +397,17 @@ namespace XrCode
             curCheckInDay = SPlayerPrefs.GetInt(PlayerPrefDefines.curCheckInDay, 0);
             curCheckInLevel = SPlayerPrefs.GetInt(PlayerPrefDefines.curCheckInLevel, 0);
             ifDailyChecked = SPlayerPrefs.GetBool(PlayerPrefDefines.ifDailyChecked, true);
-            if (SCheckDateTime.Instance.IfNextDay(GameDefines.CheckInDayKey))
+            if (curWithdrawTarget == WithdrawTarget.CheckIn && SCheckDateTime.Instance.IfNextDay(GameDefines.CheckInDayKey))
             {
                 SetIfDailyChecked(true);
                 SetCurCheckLevel(0);
+            }
+
+            curCehckInBankDay = SPlayerPrefs.GetInt(PlayerPrefDefines.curCehckInBankDay, 0);
+            if(curCheckInDay == GameDefines.CheckInDay && SCheckDateTime.Instance.IfNextDay(GameDefines.CheckInBankKey))
+            {
+                curCehckInBankDay += 1;
+                SetCurCheckInBankDay(curCehckInBankDay);
             }
         }
 

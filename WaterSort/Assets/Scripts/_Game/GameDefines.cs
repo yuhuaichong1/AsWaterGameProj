@@ -111,6 +111,8 @@ public abstract class GameDefines
     public static int CheckInDay = 7;                                                                       //签到领奖天数
     public static int CheckInLevel = 5;                                                                     //签到所需关卡
     public static string CheckInDayKey = "CheckInDayKey";                                                   //判断签到日是否刷新的key
+    public static int CheckInBankDay = 5;                                                                   //银行审核日期
+    public static string CheckInBankKey = "CheckInBankKey";                                                 //判断银行审核日是否刷新的key
 
     public static Vector2 HighValue = new Vector2(200, 1000);                                               //高价值提现区间
 

@@ -949,7 +949,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1956521168854971586
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4543,7 +4543,7 @@ MonoBehaviour:
   - Obj: {fileID: 5874394402875177431}
     LoadingIcon: {fileID: 3180388131201863189}
     FinishedIcon: {fileID: 6277967053933436575}
-    Content: {fileID: 1488956035165107219}
+    Content: {fileID: 4357078134160590426}
 --- !u!1 &6286248891062242119
 GameObject:
   m_ObjectHideFlags: 0
@@ -5276,7 +5276,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.909804, g: 0.6313726, b: 0.24313727, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5804,7 +5804,7 @@ GameObject:
   - component: {fileID: 4232675407106735333}
   - component: {fileID: 4357078134160590426}
   m_Layer: 5
-  m_Name: Content
+  m_Name: P3_4_Content
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

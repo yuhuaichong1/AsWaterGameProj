@@ -45,4 +45,6 @@ public static class FacadeWithdraw
     public static Func<string> GetWCheckInDayText;                                      //获取签到天数文本
 
     public static Action ReSetCheckInData;                                              //重置签到数据
+
+    public static Func<int> GetCurCheckInBankDay;                                       //获取当前银行审核日
 }

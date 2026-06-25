@@ -57,25 +57,32 @@ namespace XrCode
                     mP3_4_Title.text = string.Format(FacadeLanguage.GetText("10080"), FacadePayType.RegionalChange(FacadePlayer.GetMoney()));
                     mP3_3_Title.text = string.Format(FacadeLanguage.GetText("10131"), FacadeWithdraw.GetCurCheckInDay(), GameDefines.CheckInDay);
 
-                    mP3_3_Content.gameObject.SetActive(!b);
-                    mP3_3_ErrorContent.gameObject.SetActive(b);
+                    //mP3_3_Content.gameObject.SetActive(!b);
+                    //mP3_3_ErrorContent.gameObject.SetActive(b);
                     if (b)
                     {
-                        //string dayText = FacadeWithdraw.GetWCheckInDayText();
-                        //string levelText = FacadeWithdraw.GetWCheckInLevelText();
-                        //mP3_3_ErrorContent.text = $"{dayText}\n{levelText}";
+                        mP3_3_Title.text = string.Format(FacadeLanguage.GetText("10131"), FacadeWithdraw.GetCurCheckInDay(), GameDefines.CheckInDay);
                         mP3_3_ErrorContent.text = string.Format(FacadeLanguage.GetText("10132"), GameDefines.CheckInDay, GameDefines.CheckInLevel - FacadeWithdraw.GetCurCheckLevel());
                     }
+                    else
+                    {
+                        int remainCheckInBankDay = GameDefines.CheckInBankDay - FacadeWithdraw.GetCurCheckInBankDay();
+                        int remainCheckInLevel = GameDefines.CheckInLevel - FacadeWithdraw.GetCurCheckLevel();
+                        mP3_3_Title.text = string.Format(FacadeLanguage.GetText("10134"), FacadeWithdraw.GetCurCheckInBankDay(), GameDefines.CheckInBankDay);
+                        if (FacadeWithdraw.GetCurCheckInBankDay() < GameDefines.CheckInBankDay)
+                        {
+                            mP3_3_ErrorContent.text = string.Format(FacadeLanguage.GetText("10135"), remainCheckInBankDay, remainCheckInLevel);
+                        }
+                        else
+                        {
+                            mP3_3_ErrorContent.text = string.Format(FacadeLanguage.GetText("10136"), remainCheckInLevel);
+                        }
+                    }
                     
-                    //mProgress3.PlayAnim(ShowBtn, b, 3);
                     mProgress3.SetOrderTime(item.CreatedDate);
                     mProgress3.PlayAnim(ShowBtn);
 
-                    if(!b)
-                    {
-                        item.WRMoney = FacadePlayer.GetMoney();
-                        FacadeWithdraw.ReSetCheckInData();
-                    }
+                    item.WRMoney = FacadePlayer.GetMoney();
                 });
             });
         }

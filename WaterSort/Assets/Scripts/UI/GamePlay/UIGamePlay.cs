@@ -289,9 +289,13 @@ namespace XrCode
             {
                 if(FacadeWithdraw.GetCurCheckInDay() >= GameDefines.CheckInDay)
                 {
-                    mWPText.text = FacadeLanguage.GetText("10128");
-                    mWPSText.text = $"{GameDefines.CheckInDay}/{GameDefines.CheckInDay}";
-                    mWPSlider.value = 1;
+                    //mWPText.text = FacadeLanguage.GetText("10128");
+                    //mWPSText.text = $"{GameDefines.CheckInDay}/{GameDefines.CheckInDay}";
+                    //mWPSlider.value = 1;
+                    int remainLevel = GameDefines.CheckInLevel - FacadeWithdraw.GetCurCheckLevel();
+                    mWPText.text = FacadeWithdraw.GetWCheckInLevelText();
+                    mWPSText.text = $"{FacadeWithdraw.GetCurCheckLevel()}/{GameDefines.CheckInLevel}";
+                    mWPSlider.value = (float)FacadeWithdraw.GetCurCheckLevel() / GameDefines.CheckInLevel;
                 }
                 else
                 {

@@ -343,5 +343,10 @@ public static class SPlayerPrefs
     {
         return PlayerPrefs.HasKey(key);
     }
+
+    internal static int GetInt(object curCehckInBankDay, int v)
+    {
+        throw new NotImplementedException();
+    }
     #endregion
 }
