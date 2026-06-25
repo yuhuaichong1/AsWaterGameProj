@@ -23,12 +23,21 @@ public class GM : MonoBehaviour
     public Button PassLevelBtn;
     [Space]
     public Button TestFunctionBtn;
+    [Space]
+    public Button SkipCheckInBtn;
+    public Button SkipBankReviewBtn;
 
-    private bool GMbool;
+    public bool GMbool;
 
     void Awake()
     {
         GMbool = false;
+
+        if (!GameDefines.ifDebug)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
 
         if (GMBtn != null && GMPlane != null)
         {
@@ -65,6 +74,33 @@ public class GM : MonoBehaviour
         {
             TestFunctionBtn.onClick.AddListener(OnTestFunctionBtnClick);
         }
+
+        if (SkipCheckInBtn != null)
+        {
+            SkipCheckInBtn.onClick.AddListener(OnSkipCheckInBtnClick);
+        }
+
+        if (SkipBankReviewBtn != null)
+        {
+            SkipBankReviewBtn.onClick.AddListener(OnSkipBankReviewBtnClick);
+        }
+    }
+
+    void Update()
+    {
+        if (!IsGmPanelOpen())
+            return;
+
+        // GM 面板打开时可用快捷键：F1 跳过签到，F2 跳过银行审核
+        if (Input.GetKeyDown(KeyCode.F1))
+            GmSkipCheckInStep();
+        if (Input.GetKeyDown(KeyCode.F2))
+            GmSkipBankReviewStep();
+    }
+
+    private bool IsGmPanelOpen()
+    {
+        return GameDefines.ifDebug && GMbool && GMPlane != null && GMPlane.activeSelf;
     }
 
     private void OnGMBtnClick()
@@ -121,6 +157,68 @@ public class GM : MonoBehaviour
         FacadeGamePlay.IfLevelGuide();
         UIManager.Instance.OpenAsync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, FacadePlayer.GetLevel());
         FacadePlayer.AddLevel(1);
+    }
+
+    private void OnSkipCheckInBtnClick()
+    {
+        GmSkipCheckInStep();
+    }
+
+    private void OnSkipBankReviewBtnClick()
+    {
+        GmSkipBankReviewStep();
+    }
+
+    /// <summary>
+    /// GM：跳过签到阶段（满签 + 今日关卡完成）
+    /// </summary>
+    private void GmSkipCheckInStep()
+    {
+        if (!GameDefines.ifDebug)
+            return;
+
+        if (FacadeWithdraw.GetCurWithdrawTarget() != WithdrawTarget.CheckIn)
+        {
+            D.Log("[GM] 当前不是签到提现阶段，已跳过操作");
+            return;
+        }
+
+        FacadeWithdraw.SetCurCheckInDay(GameDefines.CheckInDay);
+        FacadeWithdraw.SetCurCheckLevel(GameDefines.CheckInLevel);
+        RefreshWithdrawGmUI();
+        D.Log($"[GM] 已跳过签到：{GameDefines.CheckInDay}/{GameDefines.CheckInDay} 天");
+    }
+
+    /// <summary>
+    /// GM：跳过银行审核阶段（满审核天数 + 今日关卡完成）
+    /// </summary>
+    private void GmSkipBankReviewStep()
+    {
+        if (!GameDefines.ifDebug)
+            return;
+
+        if (FacadeWithdraw.GetCurWithdrawTarget() != WithdrawTarget.CheckIn)
+        {
+            D.Log("[GM] 当前不是签到提现阶段，已跳过操作");
+            return;
+        }
+
+        if (FacadeWithdraw.GetCurCheckInDay() < GameDefines.CheckInDay)
+        {
+            D.Log("[GM] 签到未满，请先跳过签到或完成签到");
+            return;
+        }
+
+        FacadeWithdraw.SetCurCheckInBankDay(GameDefines.CheckInBankDay);
+        FacadeWithdraw.SetCurCheckLevel(GameDefines.CheckInLevel);
+        RefreshWithdrawGmUI();
+        D.Log($"[GM] 已跳过银行审核：{GameDefines.CheckInBankDay}/{GameDefines.CheckInBankDay} 天");
+    }
+
+    private void RefreshWithdrawGmUI()
+    {
+        FacadeGamePlay.SetLevelShow();
+        FacadeGamePlay.SetCurMoneyShow();
     }
 
     private void OnTestFunctionBtnClick()

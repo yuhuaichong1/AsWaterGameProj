@@ -47,6 +47,9 @@ namespace XrCode
                 case UIWTOpenType.FinishTarget2:
                     ShowFinishTarget2();
                     break;
+                case UIWTOpenType.SVPCheckInTarget:
+                    ShowSVPCheckInTarget();
+                    break;
             }
 
             ShowAnim(mPlane);
@@ -162,6 +165,18 @@ namespace XrCode
 
             ShowWaiterAndName(0);
             ShowContent(4);
+        }
+
+        private void ShowSVPCheckInTarget()
+        {
+            curOpenType = UIWTOpenType.SVPCheckInTarget;
+            mTitle.gameObject.SetActive(false);
+            mLevelTargetTip.gameObject.SetActive(false);
+
+            ShowWaiterAndName(2);
+            ShowContent(2);
+
+            mContentText2.text = FacadeWithdraw.GetWCheckInLevelText();
         }
 
         /// <summary>

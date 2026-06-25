@@ -51,6 +51,8 @@ public abstract class PlayerPrefDefines
     public static string curCheckInLevel => GetKey("WS_curCheckInLevel");        //WithdrawModule_当前签到关卡
     public static string wTarget => GetKey("WS_wTarget");                        //WithdrawModule_当前兑现金额目标
     public static string canWithdraw => GetKey("WS_canWithdraw");                //WithdrawModule_当前是否可兑现
+    public static string ifDailyChecked => GetKey("WS_ifDailyChecked");          //WithdrawModule_当前是否可推进一个日期签到
+    public static string curCehckInBankDay => GetKey("WS_curCehckInBankDay");    //WithdrawModule_当前是否可推进一个银行日期审核
 
     #endregion
 

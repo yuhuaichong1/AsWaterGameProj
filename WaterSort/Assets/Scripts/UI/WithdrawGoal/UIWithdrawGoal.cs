@@ -28,7 +28,23 @@ namespace XrCode
         protected override void OnEnable()
         {
             mBlanceMoney.text = FacadePayType.RegionalChange(FacadePlayer.GetMoney());
-            mGoalTitle.text = string.Format(FacadeLanguage.GetText("10066"), FacadeWithdraw.GetWithdrawalRecordItems().Count + (ifFromGuide ? 1 : 0));
+
+            FacadeWithdraw.ActionByCurWTarget((value) => 
+            {
+                mGoalTitle.text = string.Format(FacadeLanguage.GetText("10066"), FacadeWithdraw.GetWithdrawalRecordItems().Count + (ifFromGuide ? 1 : 0));
+            }, (value) => 
+            {
+                mGoalTitle.text = string.Format(FacadeLanguage.GetText("10066"), 3);
+            }, (value) => 
+            {
+                int count = FacadeWithdraw.GetWithdrawalRecordItems().Count;
+                if(count == 3)
+                    mGoalTitle.text = string.Format(FacadeLanguage.GetText("10066"), 3);
+                else
+                    mGoalTitle.text = string.Format(FacadeLanguage.GetText("10066"), FacadeWithdraw.GetWithdrawalRecordItems().Count + (ifFromGuide ? 1 : 0));
+            });
+            
+            
 
             SetSliderValue();
             SetLevelStatus();
@@ -172,7 +188,7 @@ namespace XrCode
                 }
                 else
                 {
-                    mGoalText.text = string.Format(FacadeLanguage.GetText("10099"), FacadePayType.RegionalChange(FacadeWithdraw.GetWTarget()));
+                    mGoalText.text = string.Format(FacadeLanguage.GetText("10099"), $"{FacadeWithdraw.GetCurCheckInDay()}/{GameDefines.CheckInDay}");
                 }
             });
         }
@@ -224,7 +240,17 @@ namespace XrCode
                 if (FacadeWithdraw.GetCanWithdraw())
                 {
                     FacadeWithdraw.SetCanWithdraw(false);
-                    WithdrawalRecordItem UIProgressTarget = FacadeWithdraw.CreateOrder(FacadePlayer.GetLevel() - 1, (float)FacadePlayer.GetMoney());
+                    WithdrawalRecordItem UIProgressTarget;
+                    if (FacadeWithdraw.GetWithdrawalRecordItems().Count == 3)
+                    {
+                        UIProgressTarget = FacadeWithdraw.GetWithdrawalRecordItemById(2);
+                        UIProgressTarget.WRMoney = FacadePlayer.GetMoney();
+                    }
+                    else
+                    {
+                        UIProgressTarget = FacadeWithdraw.CreateOrder(FacadePlayer.GetLevel() - 1, (float)FacadePlayer.GetMoney());
+                    }
+
                     HideAnim(mPlane, () =>
                     {
                         UIManager.Instance.CloseUI(EUIType.EUIWithdrawGoal);
@@ -257,7 +283,21 @@ namespace XrCode
                 }
             }, (day) =>
             {
+                HideAnim(mPlane, () =>
+                {
+                    WithdrawalRecordItem UIProgressTarget = FacadeWithdraw.GetWithdrawalRecordItemById(2);
+                    UIProgressTarget.TargetType = WithdrawTarget.CheckIn;
 
+                    UIManager.Instance.CloseUI(EUIType.EUIWithdrawGoal);
+                    if (FacadeWithdraw.GetPayType() == EPayType.None)
+                    {
+                        UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIWithdrawEnterInfo, UIOpenType.None, null, UIProgressTarget);
+                    }
+                    else
+                    {
+                        UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIWithdrawConfirm, UIOpenType.None, null, UIProgressTarget);
+                    }
+                });
             });
         }
 

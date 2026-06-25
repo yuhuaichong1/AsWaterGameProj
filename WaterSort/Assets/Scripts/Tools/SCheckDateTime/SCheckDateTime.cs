@@ -2,7 +2,7 @@
 using UnityEngine;
 using XrCode;
 
-public class SCheckDateTime
+public class SCheckDateTime : Singleton<SCheckDateTime>, ILoad, IDispose
 {
     /// <summary>
     /// 距离上一次的时间
@@ -93,5 +93,15 @@ public class SCheckDateTime
         double timelength = SinceLastTime(key, ifUpdate);
 
         return timelength >= time;
+    }
+
+    public void Load()
+    {
+        
+    }
+
+    public void Dispose()
+    {
+        
     }
 }

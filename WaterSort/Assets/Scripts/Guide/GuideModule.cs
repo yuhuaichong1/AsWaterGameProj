@@ -343,6 +343,7 @@ public class GuideModule : BaseModule
         {
             if (!GameDefines.ifIAA)
             {
+                
                 UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
                 {
                     curStep = 10009;
