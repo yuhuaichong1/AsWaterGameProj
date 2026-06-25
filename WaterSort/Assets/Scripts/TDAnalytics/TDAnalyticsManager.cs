@@ -217,6 +217,18 @@ namespace XrCode
             ThinkingDataDefines.Track("GuideStep", properties);
         }
 
+        /// <summary>
+        /// 完成了某关
+        /// </summary>
+        /// <param name="level">关卡</param>
+        public void LevelComplate(int level)
+        {
+            Dictionary<string, object> properties = new Dictionary<string, object>();
+            properties.Add("level", level);
+
+            ThinkingDataDefines.Track("LevelComplated", properties);
+        }
+
         #endregion
 
         #endregion

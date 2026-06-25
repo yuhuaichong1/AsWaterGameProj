@@ -136,7 +136,7 @@ namespace XrSDK
             if (MaxSdk.IsInterstitialReady(interstitialAdUnitId))
             {
                 if (string.IsNullOrEmpty(toastText))
-                    toastText = ModuleMgr.Instance.LanguageMod.GetText("10128");
+                    toastText = ModuleMgr.Instance.LanguageMod.GetText("10137");
                 if (SAndroidToastHelper != null)
                     SAndroidToastHelper.PlayToast(toastText);
                 //interstitialStatusText.text = "Showing";
@@ -293,7 +293,7 @@ namespace XrSDK
             {
                 if (string.IsNullOrEmpty(toastText))
                 {
-                    toastText = ModuleMgr.Instance.LanguageMod.GetText("10128");
+                    toastText = ModuleMgr.Instance.LanguageMod.GetText("10137");
                 }
 
                 if (SAndroidToastHelper != null)

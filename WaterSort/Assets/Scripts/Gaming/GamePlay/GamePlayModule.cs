@@ -794,6 +794,7 @@ namespace XrCode
             NetworkModule.Instance.GetNetworkInitInfo2(() => 
             {
                 UIManager.Instance.OpenAsync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, curLevelIndex);
+                TDAnalyticsManager.Instance.LevelComplate(curLevelIndex);
                 FacadePlayer.AddLevel(1);
                 Game.Instance.UILoadingWaiting.gameObject.SetActive(false);
                 Game.Instance.UILoadingWaiting.StopTextAnim();
