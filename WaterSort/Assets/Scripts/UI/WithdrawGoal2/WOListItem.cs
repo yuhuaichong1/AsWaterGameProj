@@ -12,6 +12,8 @@ public class WOListItem : MonoBehaviour
     public Button CashOutBtn;
     public Button ContinueBtn;
     public Button UnContinueBtn;
+    public GameObject ProgressObj;
+    public Text PTime;
 
     void Awake()
     {

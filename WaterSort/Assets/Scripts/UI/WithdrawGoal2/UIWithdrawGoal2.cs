@@ -12,7 +12,7 @@ namespace XrCode
         protected override void OnEnable() { }
         	    private void OnExitBtnClickHandle()        {            UIManager.Instance.CloseUI(EUIType.EUIWithdrawGoal2);        }	    private void OnSetCurWInfoBtnClickHandle()
         {
-            
+            //FacadeWithdraw.CheckOpenUI();
         }
 
         protected override void OnDisable() { }
