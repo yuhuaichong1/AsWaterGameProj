@@ -1,4 +1,5 @@
 ﻿using UnityEngine.UI;
+using UnityEngine;
 
 namespace XrCode
 {
@@ -49,7 +50,7 @@ namespace XrCode
                         mP2_4_ErrorContent.text = string.Format(FacadeLanguage.GetText("10082"), FacadePayType.RegionalChange(value), FacadePayType.RegionalChange(FacadeWithdraw.GetRemainTarget()));
                     //mProgress2.PlayAnim(ShowBtn, b, 3);
                     mProgress2.SetOrderTime(item.CreatedDate);
-                    mProgress2.PlayAnim(ShowBtn);
+                    mProgress2.PlayAnim(ShowBtn, 3);
                 }, (value) =>
                 {
                     mProgress3.gameObject.SetActive(true);
@@ -80,7 +81,7 @@ namespace XrCode
                     }
                     
                     mProgress3.SetOrderTime(item.CreatedDate);
-                    mProgress3.PlayAnim(ShowBtn);
+                    mProgress3.PlayAnim(ShowBtn, 2);
 
                     item.WRMoney = FacadePlayer.GetMoney();
                 });
