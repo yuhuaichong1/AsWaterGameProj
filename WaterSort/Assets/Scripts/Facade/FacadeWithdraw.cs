@@ -41,5 +41,11 @@ public static class FacadeWithdraw
 
     public static Func<string> GetWithdrawHighValueStr;                                 //获得兑现提示区间文本
 
-    
+    public static Func<string> GetWCheckInLevelText;                                    //获取签到关卡文本
+    public static Func<string> GetWCheckInDayText;                                      //获取签到天数文本
+
+    public static Action ReSetCheckInData;                                              //重置签到数据
+
+    public static Func<int> GetCurCheckInBankDay;                                       //获取当前银行审核日
+    public static Action<int> SetCurCheckInBankDay;                                     //设置当前银行审核日（GM测试用）
 }

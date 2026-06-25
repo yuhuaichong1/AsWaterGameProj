@@ -175,7 +175,7 @@ namespace XrCode
                     UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.SVPMoneyTarget, (Action)CreateLevel);
                 }, (day) =>
                 {
-                    UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.SVPTarget, (Action)CreateLevel);
+                    UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.SVPCheckInTarget, (Action)CreateLevel);
                 });
 
                 
@@ -220,7 +220,6 @@ namespace XrCode
                 //LRTimer.targetTime = curLevelIndex <= GameDefines.ClockLv ? GameDefines.ClockTime1 : GameDefines.ClockTime2;
                 int inarId = GameDefines.ClockLvArr.ToList().GetRangeIndex(curLevelIndex);
                 LRTimer.targetTime = GameDefines.ClockTimeArr[inarId];
-                Debug.LogError(LRTimer.targetTime);
                 LRTimer.ReStart();
                 LoopPlayCongratulationEffect(true);
             }
@@ -802,8 +801,6 @@ namespace XrCode
                 Game.Instance.UILoadingWaiting.gameObject.SetActive(true);
                 Game.Instance.UILoadingWaiting.StartTextAnim();
             });
-
-            
         }
 
         private void IfLevelGuide()

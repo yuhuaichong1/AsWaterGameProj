@@ -1,5 +1,5 @@
-﻿using System;
-using UnityEngine.UI;
+﻿using UnityEngine.UI;
+using UnityEngine;
 
 namespace XrCode
 {
@@ -16,7 +16,10 @@ namespace XrCode
         protected override void OnSetParam(params object[] args)
         {
             item = (WithdrawalRecordItem)args[0];
-            mCurMoneyText.text = FacadePayType.RegionalChange(item.WRMoney);
+            if(item.TargetType == WithdrawTarget.PassLevel)
+                mCurMoneyText.text = FacadePayType.RegionalChange(item.WRMoney);
+            else
+                mCurMoneyText.text = FacadePayType.RegionalChange(FacadePlayer.GetMoney());
         }
 
         protected override void OnEnable() 
@@ -44,23 +47,43 @@ namespace XrCode
                     mP2_4_Content.gameObject.SetActive(b);
                     mP2_4_ErrorContent.gameObject.SetActive(!b);
                     if (!b)
-                        mP2_4_ErrorContent.text = string.Format(FacadeLanguage.GetText("10082"), FacadePayType.RegionalChange(value), FacadePayType.RegionalChange(targetMoney));
+                        mP2_4_ErrorContent.text = string.Format(FacadeLanguage.GetText("10082"), FacadePayType.RegionalChange(value), FacadePayType.RegionalChange(FacadeWithdraw.GetRemainTarget()));
                     //mProgress2.PlayAnim(ShowBtn, b, 3);
                     mProgress2.SetOrderTime(item.CreatedDate);
-                    mProgress2.PlayAnim(ShowBtn);
+                    mProgress2.PlayAnim(ShowBtn, 3);
                 }, (value) =>
                 {
                     mProgress3.gameObject.SetActive(true);
+                    bool b = value < GameDefines.CheckInDay;
+                    mP3_4_Title.text = string.Format(FacadeLanguage.GetText("10080"), FacadePayType.RegionalChange(FacadePlayer.GetMoney()));
+                    mP3_3_Title.text = string.Format(FacadeLanguage.GetText("10131"), FacadeWithdraw.GetCurCheckInDay(), GameDefines.CheckInDay);
 
-                    bool b = value >= FacadeWithdraw.GetCurCheckInDay();
-                    mP3_3_Title.text = string.Format(FacadeLanguage.GetText("10080"), FacadePayType.RegionalChange(FacadePlayer.GetMoney()));
-                    mP3_4_Content.gameObject.SetActive(b);
-                    mP3_4_ErrorContent.gameObject.SetActive(!b);
-                    if (!b)
-                        mP3_4_ErrorContent.text = string.Format(FacadeLanguage.GetText("10083"), GameDefines.CheckInDay, GameDefines.CheckInDay - value);
-                    //mProgress3.PlayAnim(ShowBtn, b, 3);
+                    //mP3_3_Content.gameObject.SetActive(!b);
+                    //mP3_3_ErrorContent.gameObject.SetActive(b);
+                    if (b)
+                    {
+                        mP3_3_Title.text = string.Format(FacadeLanguage.GetText("10131"), FacadeWithdraw.GetCurCheckInDay(), GameDefines.CheckInDay);
+                        mP3_3_ErrorContent.text = string.Format(FacadeLanguage.GetText("10132"), GameDefines.CheckInDay, GameDefines.CheckInLevel - FacadeWithdraw.GetCurCheckLevel());
+                    }
+                    else
+                    {
+                        int remainCheckInBankDay = GameDefines.CheckInBankDay - FacadeWithdraw.GetCurCheckInBankDay();
+                        int remainCheckInLevel = GameDefines.CheckInLevel - FacadeWithdraw.GetCurCheckLevel();
+                        mP3_3_Title.text = string.Format(FacadeLanguage.GetText("10134"), FacadeWithdraw.GetCurCheckInBankDay(), GameDefines.CheckInBankDay);
+                        if (FacadeWithdraw.GetCurCheckInBankDay() < GameDefines.CheckInBankDay)
+                        {
+                            mP3_3_ErrorContent.text = string.Format(FacadeLanguage.GetText("10135"), remainCheckInBankDay, remainCheckInLevel);
+                        }
+                        else
+                        {
+                            mP3_3_ErrorContent.text = string.Format(FacadeLanguage.GetText("10136"), remainCheckInLevel);
+                        }
+                    }
+                    
                     mProgress3.SetOrderTime(item.CreatedDate);
-                    mProgress3.PlayAnim(ShowBtn);
+                    mProgress3.PlayAnim(ShowBtn, 2);
+
+                    item.WRMoney = FacadePlayer.GetMoney();
                 });
             });
         }

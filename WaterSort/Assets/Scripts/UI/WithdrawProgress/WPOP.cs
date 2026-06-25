@@ -9,13 +9,13 @@ public class WPOP : MonoBehaviour
     private int curId;
     private STimer timer;
 
-    public void PlayAnim(Action finishAction, bool ifFail = false, int failStep = 0)
+    public void PlayAnim(Action finishAction, int failStep = (-1))
     {
-        if (failStep > WPOrderProgress.Count - 1)
-            ifFail = false;
+        if (failStep > WPOrderProgress.Count || failStep == -1)
+            failStep = WPOrderProgress.Count;
 
         curId = 0;
-        int progressGold = ifFail ? failStep - 1 : WPOrderProgress.Count;
+        int progressGold = WPOrderProgress.Count;
 
         for (int i = 0; i < WPOrderProgress.Count; i++)
         {
@@ -29,8 +29,12 @@ public class WPOP : MonoBehaviour
         if (timer == null)
             timer = STimerManager.Instance.CreateSTimer(1, progressGold - 1, true, false, () => 
             {
-                WPOrderProgress[curId].FinishedIcon.SetActive(true);
-                WPOrderProgress[curId].LoadingIcon.gameObject.SetActive(false);
+                if(curId < failStep)
+                {
+                    WPOrderProgress[curId].FinishedIcon.SetActive(true);
+                    WPOrderProgress[curId].LoadingIcon.gameObject.SetActive(false);
+                }
+
                 curId++;
                 if (curId < WPOrderProgress.Count)
                 {
