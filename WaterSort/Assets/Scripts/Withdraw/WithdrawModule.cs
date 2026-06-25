@@ -79,6 +79,7 @@ namespace XrCode
             FacadeWithdraw.GetWCheckInDayText += GetWCheckInDayText;
             FacadeWithdraw.ReSetCheckInData += ReSetCheckInData;
             FacadeWithdraw.GetCurCheckInBankDay += GetCurCheckInBankDay;
+            FacadeWithdraw.SetCurCheckInBankDay += SetCurCheckInBankDay;
         }
 
         private void FacadeRemove()
@@ -118,6 +119,7 @@ namespace XrCode
             FacadeWithdraw.GetWCheckInDayText -= GetWCheckInDayText;
             FacadeWithdraw.ReSetCheckInData -= ReSetCheckInData;
             FacadeWithdraw.GetCurCheckInBankDay -= GetCurCheckInBankDay;
+            FacadeWithdraw.SetCurCheckInBankDay -= SetCurCheckInBankDay;
         }
 
         #endregion
