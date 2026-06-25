@@ -267,6 +267,8 @@ public enum EUIType
     EUIWithdrawTarget = 24,
     EUINewGamePlay = 25,
     EUIDateShow = 26,
+    EUIWithdrawGoal2 = 27,
+    EUIWithdrawTip = 28,
 }
 
 /// <summary>

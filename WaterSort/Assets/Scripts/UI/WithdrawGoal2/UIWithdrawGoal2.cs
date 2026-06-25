@@ -10,7 +10,7 @@ namespace XrCode
     {
         protected override void OnAwake() { }
         protected override void OnEnable() { }
-        	    private void OnExitBtnClickHandle()        {            //UIManager.Instance.CloseUI(EUIType.EUIWithdrawGoal2);        }	    private void OnSetCurWInfoBtnClickHandle()
+        	    private void OnExitBtnClickHandle()        {            UIManager.Instance.CloseUI(EUIType.EUIWithdrawGoal2);        }	    private void OnSetCurWInfoBtnClickHandle()
         {
             
         }
