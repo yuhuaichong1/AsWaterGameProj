@@ -33,6 +33,7 @@ namespace cfg
 		public TBMoneyInterval TBMoneyInterval {get; private set;}
 		public TBPayoutStep TBPayoutStep {get; private set;}
 		public TBPayoutTier TBPayoutTier {get; private set;}
+		public TBOrderStateInfo TBOrderStateInfo {get; private set;}
 
 		private Queue<string> configNames;
 		private Queue<System.Action<ByteBuf>> configCbFuncs;
@@ -72,6 +73,8 @@ namespace cfg
 			tables.Add("TBPayoutStep", TBPayoutStep);
 			TBPayoutTier = new TBPayoutTier(loader("tbpayouttier")); 
 			tables.Add("TBPayoutTier", TBPayoutTier);
+			TBOrderStateInfo = new TBOrderStateInfo(loader("tborderstateinfo")); 
+			tables.Add("TBOrderStateInfo", TBOrderStateInfo);
 	
 			PostInit();
 			ResolveAllTable();
@@ -110,6 +113,8 @@ namespace cfg
             configCbFuncs.Enqueue(OnTBPayoutStepDataFinish);
 			configNames.Enqueue("tbpayouttier");
             configCbFuncs.Enqueue(OnTBPayoutTierDataFinish);
+			configNames.Enqueue("tborderstateinfo");
+            configCbFuncs.Enqueue(OnTBOrderStateInfoDataFinish);
 
             LoadAllConfig();
         }
@@ -165,6 +170,7 @@ namespace cfg
 			TBMoneyInterval.TranslateText(translator); 
 			TBPayoutStep.TranslateText(translator); 
 			TBPayoutTier.TranslateText(translator); 
+			TBOrderStateInfo.TranslateText(translator); 
 		}
 		
 		partial void PostInit();
@@ -185,6 +191,7 @@ namespace cfg
 			TBMoneyInterval.Resolve(tables);
 			TBPayoutStep.Resolve(tables);
 			TBPayoutTier.Resolve(tables);
+			TBOrderStateInfo.Resolve(tables);
 		}
 	
 		private void ReloadOneTable(string reloadTableName)
@@ -234,6 +241,9 @@ namespace cfg
 					break;
 				case "TBPayoutTier":
 					TBPayoutTier.Reload(_loader("TBPayoutTier"));
+					break;
+				case "TBOrderStateInfo":
+					TBOrderStateInfo.Reload(_loader("TBOrderStateInfo"));
 					break;
 			}
 	
@@ -318,6 +328,11 @@ namespace cfg
 		{
 			TBPayoutTier = new TBPayoutTier(buf);
 			tables.Add("TBPayoutTier", TBPayoutTier);
+		}
+		public void OnTBOrderStateInfoDataFinish(ByteBuf buf)
+		{
+			TBOrderStateInfo = new TBOrderStateInfo(buf);
+			tables.Add("TBOrderStateInfo", TBOrderStateInfo);
 		}
 		//Finish Load all table 
 		public void OnLoadTbDataFinish()
