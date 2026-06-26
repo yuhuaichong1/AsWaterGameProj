@@ -221,6 +221,15 @@ public abstract class GameDefines
 
     #endregion
 
+    #region 累计通关界面相关
+
+    public static float totalRewardMoney = 50000;                                                           //最高奖励值
+    public static int totalRewardLevel = 60;                                                                //总需通关次数
+    public static int totalRewardTime = 3;                                                                  //抽奖等待时间
+    public static float totalRewardMoney2 = 1000;                                                           //安慰奖值
+
+    #endregion
+
     #endregion
 }
 
@@ -263,7 +272,7 @@ public enum EUIType
     EUIWithdrawGoal2 = 17,
     EUIWithdrawAccount = 18,
     EUIWithdrawConfirm2 = 19,
- EUIProgressPanel = 29,
+    EUIProgressPanel = 20,
 }
 
 /// <summary>

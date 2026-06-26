@@ -57,7 +57,7 @@ namespace XrCode
 
             var payType = payItems[Mathf.Clamp(curChannelIndex, 0, payItems.Count - 1)].payType;
             PayNode node = payItems.Find(p => p.payType == payType) ?? payItems[curChannelIndex];
-            mCurWIcon.sprite = node.icon;
+            mCurWIcon.sprite = node.picture;
             mCurWInfo.text = FacadeWithdraw.GetWPhoneOrEmail();
         }
 
@@ -77,7 +77,7 @@ namespace XrCode
             {
                 var item = GameObject.Instantiate(mWOTypeItem, mWOTContent);
                 item.gameObject.SetActive(true);
-                item.Icon.sprite = payItems[i].icon;
+                item.Icon.sprite = payItems[i].picture;
                 int index = i;
                 item.Toggle.onValueChanged.AddListener(isOn =>
                 {
@@ -113,7 +113,7 @@ namespace XrCode
                 var item = GameObject.Instantiate(mWOListItem, mWOLContent);
                 item.gameObject.SetActive(true);
                 var key = new PayoutEntryKey(channel, tier.Sn);
-                item.Init(key, payItems[curChannelIndex].icon, tier.TargetAmount, RefreshTierList);
+                item.Init(key, payItems[curChannelIndex].picture, tier.TargetAmount, RefreshTierList);
                 listItems.Add(item);
             }
         }
