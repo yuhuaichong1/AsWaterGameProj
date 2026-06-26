@@ -10,7 +10,7 @@ namespace XrCode
     {
         protected override void OnAwake()
         {
-            mWRButton.gameObject.SetActive(!GameDefines.ifIAA);
+            //mWRButton.gameObject.SetActive(!GameDefines.ifIAA);
         }
         protected override void OnEnable()
         {
@@ -48,7 +48,6 @@ namespace XrCode
         {
             HideAnim(mPlane, () => {
                 UIManager.Instance.CloseUI(EUIType.EUISetting);
-                UIManager.Instance.OpenAsync<UIWithdrawRecords>(EUIType.EUIWithdrawRecords);
             });
         }
 

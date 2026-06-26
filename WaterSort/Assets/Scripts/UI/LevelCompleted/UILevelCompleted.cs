@@ -27,21 +27,9 @@ namespace XrCode
             InitShow();
             FacadeAudio.PlayEffect(EAudioType.EWin);
 
-            if(GameDefines.ifIAA)
-            {
-                mAdBtn.gameObject.SetActive(true);
-                mOnlyText.gameObject.SetActive(true);
-                mWithdrawBtn.gameObject.SetActive(false);
-            }
-            else
-            {
-                bool ifWLv = ifWlevel();
-                mAdBtn.gameObject.SetActive(!ifWLv);
-                mOnlyText.gameObject.SetActive(!ifWLv);
-                mWithdrawBtn.gameObject.SetActive(ifWLv);
-                if (ifWLv)
-                    mMoneyText.text = FacadePayType.RegionalChange(FacadePlayer.GetMoney());
-            }
+            mAdBtn.gameObject.SetActive(true);
+            mOnlyText.gameObject.SetActive(true);
+            mWithdrawBtn.gameObject.SetActive(false);
 
             ShowAnim(mPlane);
         }
@@ -71,8 +59,11 @@ namespace XrCode
 
         private void GoNextLevel()
         {
-            UIManager.Instance.CloseUI(EUIType.EUILevelCompleted);
-            FacadeGamePlay.StartLevel();
+            HideAnim(mPlane, () =>
+            {
+                UIManager.Instance.CloseUI(EUIType.EUILevelCompleted);
+                FacadeGamePlay.StartLevel();
+            });
         }
 
         private void GetReward()

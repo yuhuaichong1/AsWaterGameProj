@@ -47,7 +47,6 @@ namespace XrCode
             LTEGoldTrans = FacadeGamePlay.GetCMDialogTextPos();
 
             mEffectRewardItem.gameObject.SetActive(false);
-            mLevelTargetEffect.gameObject.SetActive(false);
             mGetRewardEffect.gameObject.SetActive(false);
             mFlyProp.gameObject.SetActive(false);
             mFlyMoney.gameObject.SetActive(false);
@@ -74,7 +73,6 @@ namespace XrCode
 
         private void FacadeAdd()
         {
-            FacadeEffect.PlayLevelTargetEffect += PlayLevelTargetEffect;
             FacadeEffect.PlayGetRewardEffect += PlayGetRewardEffect;
             FacadeEffect.PlayGetRewardEffect2 += PlayGetRewardEffect2;
             FacadeEffect.PlayCongratulationEffect += PlayCongratulationEffect;
@@ -86,7 +84,6 @@ namespace XrCode
 
         private void FacadeRemove()
         {
-            FacadeEffect.PlayLevelTargetEffect -= PlayLevelTargetEffect;
             FacadeEffect.PlayGetRewardEffect -= PlayGetRewardEffect;
             FacadeEffect.PlayGetRewardEffect2 -= PlayGetRewardEffect2;
             FacadeEffect.PlayCongratulationEffect -= PlayCongratulationEffect;
@@ -94,106 +91,6 @@ namespace XrCode
             FacadeEffect.PlayFlyMoneyTip -= PlayFlyMoneyTip;
             FacadeEffect.PlayFlyProp -= PlayFlyProp;
             FacadeEffect.PlayDifficultyUpEffect -= PlayDifficultyUpEffect;
-        }
-
-        #endregion
-
-        #region 播放提现目标特效
-
-        /// <summary>
-        /// 播放提现目标特效
-        /// </summary>
-        /// <param name="finishAction">特效完成回调</param>
-        private void PlayLevelTargetEffect(Action finishAction)
-        {
-            mLevelTargetEffect.gameObject.SetActive(true);
-            mLTEPlane.transform.localScale = Vector3.one;
-            SetLevelTargetText();
-
-            mLTEPlane.transform.position = mLTEStartPoint.transform.position;
-            DG.Tweening.Sequence sequence = DOTween.Sequence();
-            sequence.Append(mLTEPlane.transform.DOLocalMoveY(0, GameDefines.LTE_MoveTime));
-            sequence.AppendInterval(GameDefines.LTE_StayTime);
-            sequence.Append(mLTEPlane.transform.DOMove(LTEGoldTrans, GameDefines.LTE_GoAwayTime));
-            sequence.Join(mLTEPlane.transform.DOScale(0, GameDefines.LTE_GoAwayTime));
-            sequence.OnComplete(() => 
-            {
-                mLevelTargetEffect.gameObject.SetActive(false);
-                finishAction?.Invoke();
-            });
-        }
-
-        /// <summary>
-        /// 设置关卡目标特效文本
-        /// </summary>
-        private void SetLevelTargetText()
-        {
-            FacadeWithdraw.ActionByCurWTarget((value) =>
-            {
-                bool justOnce = true;
-                bool ifWithdrawLevel = false;
-                int targetLevel = 0;
-                for (int i = 0; i < GameDefines.WithdrawalLevels.Length; i++)
-                {
-                    if(value < GameDefines.WithdrawalLevels[i] && justOnce)
-                    {
-                        justOnce = false;
-                        targetLevel = GameDefines.WithdrawalLevels[i];
-                    }
-                    if (value == GameDefines.WithdrawalLevels[i])
-                    {
-                        ifWithdrawLevel = true;
-                        break;
-                    }
-                }
-
-                if (ifWithdrawLevel)
-                    mNextTargetText.text = string.Format(FacadeLanguage.GetText("10005"), targetLevel);
-                else
-                    mNextTargetText.text = FacadeLanguage.GetText("10004");
-
-                if(value > GameDefines.miniLevel_Start && value <= GameDefines.miniLevel_End)
-                {
-                    mMiniDialog.gameObject.SetActive(true);
-                    mMiniTargetText.text = GetLevelDisplayText(value);
-                }
-                else
-                {
-                    mMiniDialog.gameObject.SetActive(false);
-                }
-
-            },(value)=>
-            {
-                if (value < FacadeWithdraw.GetWTarget())
-                    mNextTargetText.text = string.Format(FacadeLanguage.GetText("10006"), FacadePayType.RegionalChange(FacadeWithdraw.GetRemainTarget()));
-                else
-                    mNextTargetText.text = string.Format(FacadeLanguage.GetText("10051"));
-
-            },(value)=>
-            {
-                if(value < GameDefines.CheckInDay)
-                {
-                    if (FacadeWithdraw.GetCurCheckLevel() < GameDefines.CheckInLevel)
-                        mNextTargetText.text = string.Format(FacadeLanguage.GetText("10007"), GameDefines.CheckInLevel - FacadeWithdraw.GetCurCheckLevel());
-                    else
-                        mNextTargetText.text = FacadeLanguage.GetText("10008");
-                }
-                else
-                {
-                    mNextTargetText.text = string.Format(FacadeLanguage.GetText("10051"));
-                }
-            });
-        }
-
-        /// <summary>
-        /// 获取迷你关的显示内容
-        /// </summary>
-        /// <param name="level">当前关卡</param>
-        /// <returns>迷你关的显示内容</returns>
-        private string GetLevelDisplayText(int level)
-        {
-            string roundText = $"{level - GameDefines.miniLevel_End + 1}/{GameDefines.miniLevel_End - GameDefines.miniLevel_Start + 1}";
-            return string.Format(FacadeLanguage.GetText("10003"), GameDefines.miniLevel_Start, roundText);
         }
 
         #endregion

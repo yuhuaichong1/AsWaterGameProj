@@ -5,7 +5,6 @@ using UnityEngine;
 
 public static class FacadeEffect
 {
-    public static Action<Action> PlayLevelTargetEffect;                     //播放提现目标特效
     public static Action<ERewardItemStruct[], Action> PlayGetRewardEffect;  //播放获取奖励特效
     public static Action<ERewardItemStruct, Action> PlayGetRewardEffect2;   //播放获取奖励特效2
     public static Action PlayCongratulationEffect;                          //播放祝贺特效

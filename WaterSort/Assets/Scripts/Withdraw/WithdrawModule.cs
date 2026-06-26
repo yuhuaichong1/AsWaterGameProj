@@ -15,22 +15,8 @@ namespace XrCode
 
         private Dictionary<int, WithdrawalRecordItem> withdrawalRecordItems;//兑现记录数据
 
-        private WithdrawTarget curWithdrawTarget;//当前兑现目标
-        private float wTarget;//目标兑现金额
-        private int curCheckInDay;//当前累计兑现签到天数
-        private int curCheckInLevel;//当前累计兑现签到关卡
-        private bool canWithdraw;//是否能够兑现
-
         private Dictionary<int, ConfMoneyInterval> MIData;
         private List<float> TargetInterval;
-
-        private bool ifAfterCreate;//是否在关闭界面后走下一步
-
-        private bool ifOpenUIDateShow;
-
-        private bool ifDailyChecked;//今日的每日签到是否完成
-
-        private int curCehckInBankDay;//当前银行累计审核天数
 
         protected override void OnLoad()
         {
@@ -49,37 +35,16 @@ namespace XrCode
             FacadeWithdraw.SetWPhoneOrEmail += SetWPhoneOrEmail;
             FacadeWithdraw.GetPayType += GetPOEType;
             FacadeWithdraw.SetPayType += SetPOEType;
-            FacadeWithdraw.GetCurWithdrawTarget += GetCurWithdrawTarget;
-            FacadeWithdraw.SetCurWithdrawTarget += SetCurWithdrawTarget;
-            FacadeWithdraw.GetCurCheckInDay += GetCurCheckInDay;
-            FacadeWithdraw.SetCurCheckInDay += SetCurCheckInDay;
-            FacadeWithdraw.AddCurCheckInDay += AddCurCheckInDay;
-            FacadeWithdraw.GetCurCheckLevel += GetCurCheckLevel;
-            FacadeWithdraw.SetCurCheckLevel += SetCurCheckLevel;
-            FacadeWithdraw.AddCurCheckInLevel += AddCurCheckInLevel;
-            FacadeWithdraw.GetWTarget += GetWTarget;
-            FacadeWithdraw.SetWTarget += SetWTarget;
             FacadeWithdraw.CreateOrder += CreateOrder;
             FacadeWithdraw.SaveCurWithdrawalRecordItems += SaveCurWithdrawalRecordItems;
             FacadeWithdraw.GetTotalRecordMoney += GetTotalRecordMoney;
             FacadeWithdraw.GetWithdrawalRecordItems += GetWithdrawalRecordItems;
             FacadeWithdraw.GetWithdrawalRecordItemById += GetWithdrawalRecordItemById;
             FacadeWithdraw.CheckOpenUI += CheckOpenUI;
-            FacadeWithdraw.ActionByCurWTarget += ActionByCurWTarget;
-            FacadeWithdraw.GetRemainTarget += GetRemainTarget;
-            FacadeWithdraw.GetCanWithdraw += GetCanWithdraw;
-            FacadeWithdraw.SetCanWithdraw += SetCanWithdraw;
             FacadeWithdraw.GetLuckySpinReward += GetLuckySpinReward;
             FacadeWithdraw.GetLuckyReward += GetLuckyReward;
             FacadeWithdraw.GetLevelComplateReward += GetLevelComplateReward;
-            FacadeWithdraw.AfterCloseWUI += AfterCloseWUI;
-            FacadeWithdraw.SetIfAfterCreate += SetIfAfterCreate;
             FacadeWithdraw.GetWithdrawHighValueStr += GetWithdrawHighValueStr;
-            FacadeWithdraw.GetWCheckInLevelText += GetWCheckInLevelText;
-            FacadeWithdraw.GetWCheckInDayText += GetWCheckInDayText;
-            FacadeWithdraw.ReSetCheckInData += ReSetCheckInData;
-            FacadeWithdraw.GetCurCheckInBankDay += GetCurCheckInBankDay;
-            FacadeWithdraw.SetCurCheckInBankDay += SetCurCheckInBankDay;
         }
 
         private void FacadeRemove()
@@ -90,36 +55,15 @@ namespace XrCode
             FacadeWithdraw.SetWPhoneOrEmail -= SetWPhoneOrEmail;
             FacadeWithdraw.GetPayType -= GetPOEType;
             FacadeWithdraw.SetPayType -= SetPOEType;
-            FacadeWithdraw.GetCurWithdrawTarget -= GetCurWithdrawTarget;
-            FacadeWithdraw.SetCurWithdrawTarget -= SetCurWithdrawTarget;
-            FacadeWithdraw.GetCurCheckInDay -= GetCurCheckInDay;
-            FacadeWithdraw.SetCurCheckInDay -= SetCurCheckInDay;
-            FacadeWithdraw.AddCurCheckInDay -= AddCurCheckInDay;
-            FacadeWithdraw.GetCurCheckLevel -= GetCurCheckLevel;
-            FacadeWithdraw.SetCurCheckLevel -= SetCurCheckLevel;
-            FacadeWithdraw.AddCurCheckInLevel -= AddCurCheckInLevel;
-            FacadeWithdraw.GetWTarget -= GetWTarget;
-            FacadeWithdraw.SetWTarget -= SetWTarget;
             FacadeWithdraw.CreateOrder -= CreateOrder;
             FacadeWithdraw.SaveCurWithdrawalRecordItems -= SaveCurWithdrawalRecordItems;
             FacadeWithdraw.GetTotalRecordMoney += GetTotalRecordMoney;
             FacadeWithdraw.GetWithdrawalRecordItems -= GetWithdrawalRecordItems;
             FacadeWithdraw.GetWithdrawalRecordItemById -= GetWithdrawalRecordItemById;
             FacadeWithdraw.CheckOpenUI -= CheckOpenUI;
-            FacadeWithdraw.ActionByCurWTarget -= ActionByCurWTarget;
-            FacadeWithdraw.GetRemainTarget -= GetRemainTarget;
-            FacadeWithdraw.GetCanWithdraw -= GetCanWithdraw;
-            FacadeWithdraw.SetCanWithdraw -= SetCanWithdraw;
             FacadeWithdraw.GetLuckyReward -= GetLuckyReward;
             FacadeWithdraw.GetLevelComplateReward -= GetLevelComplateReward;
-            FacadeWithdraw.AfterCloseWUI -= AfterCloseWUI;
-            FacadeWithdraw.SetIfAfterCreate -= SetIfAfterCreate;
             FacadeWithdraw.GetWithdrawHighValueStr -= GetWithdrawHighValueStr;
-            FacadeWithdraw.GetWCheckInLevelText -= GetWCheckInLevelText;
-            FacadeWithdraw.GetWCheckInDayText -= GetWCheckInDayText;
-            FacadeWithdraw.ReSetCheckInData -= ReSetCheckInData;
-            FacadeWithdraw.GetCurCheckInBankDay -= GetCurCheckInBankDay;
-            FacadeWithdraw.SetCurCheckInBankDay -= SetCurCheckInBankDay;
         }
 
         #endregion
@@ -187,172 +131,6 @@ namespace XrCode
 
         #endregion
 
-        #region curWithdrawTarget
-
-        private WithdrawTarget GetCurWithdrawTarget()
-        {
-            return curWithdrawTarget;
-        }
-
-        private void SetCurWithdrawTarget(WithdrawTarget value)
-        {
-            curWithdrawTarget = value;
-            SPlayerPrefs.SetInt(PlayerPrefDefines.curWithdrawTarget, (int)curWithdrawTarget);
-            SPlayerPrefs.Save();
-        }
-
-        #endregion
-
-        #region curCheckInDay
-
-        private int GetCurCheckInDay()
-        {
-            return curCheckInDay;
-        }
-
-        private void SetCurCheckInDay(int value)
-        {
-            curCheckInDay = value;
-            if(curCheckInDay > GameDefines.CheckInDay)
-            {
-                curCheckInDay = GameDefines.CheckInDay;
-            }
-            SPlayerPrefs.SetInt(PlayerPrefDefines.curCheckInDay, curCheckInDay);
-            SPlayerPrefs.Save();
-        }
-
-        private void AddCurCheckInDay(int value)
-        {
-            curCheckInDay += value;
-            if (curCheckInDay > GameDefines.CheckInDay)
-            {
-                curCheckInDay = GameDefines.CheckInDay;
-            }
-            if(curCheckInDay == GameDefines.CheckInDay)
-            {
-                FacadeGuide.SetIfTutorial(true);
-            }
-            SPlayerPrefs.SetInt(PlayerPrefDefines.curCheckInDay, curCheckInDay);
-            SPlayerPrefs.Save();
-        }
-
-        #endregion
-
-        #region curCheckInLevel
-
-        private int GetCurCheckLevel()
-        {
-            return curCheckInLevel;
-        }
-
-        private void SetCurCheckLevel(int value)
-        {
-            curCheckInLevel = value;
-            if (curCheckInLevel > GameDefines.CheckInLevel)
-            {
-                curCheckInLevel = GameDefines.CheckInLevel;
-            }
-            SPlayerPrefs.SetInt(PlayerPrefDefines.curCheckInLevel, curCheckInLevel);
-            SPlayerPrefs.Save();
-        }
-
-        private void AddCurCheckInLevel(int value)
-        {
-            curCheckInLevel += value;
-            if(curCheckInLevel > GameDefines.CheckInLevel)
-            {
-                curCheckInLevel = GameDefines.CheckInLevel;
-            }
-            if(curCheckInLevel == GameDefines.CheckInLevel && ifDailyChecked)
-            {
-                SetIfDailyChecked(false);
-                AddCurCheckInDay(1);
-            }
-            SPlayerPrefs.SetInt(PlayerPrefDefines.curCheckInLevel, curCheckInLevel);
-            SPlayerPrefs.Save();
-        }
-
-        #endregion
-
-        #region wTarget
-
-        private float GetWTarget()
-        {
-            return wTarget;
-        }
-
-        private void SetWTarget()
-        {
-            float target;
-            double curMoney = FacadePlayer.GetMoney();
-
-            int n = (int)(Math.Floor(curMoney) / 1000);
-
-            target = (n + 2) * 1000;
-            if (target < GameDefines.MinWithdrawalAmount) target = GameDefines.MinWithdrawalAmount;
-
-            wTarget = target;
-
-            SPlayerPrefs.SetFloat(PlayerPrefDefines.wTarget, wTarget);
-            SPlayerPrefs.Save();
-
-            //ModuleMgr.Instance.TDAnalyticsManager.CurTargetsCoins(wTarget);
-        }
-
-        #endregion
-
-        #region canWithdraw
-
-        private bool GetCanWithdraw()
-        {
-            return canWithdraw;
-        }
-
-        private void SetCanWithdraw(bool b)
-        {
-            canWithdraw = b;
-            SPlayerPrefs.SetBool(PlayerPrefDefines.canWithdraw, canWithdraw);
-            SPlayerPrefs.Save();
-        }
-
-        #endregion
-
-        #region ifAfterCreate
-
-        private void SetIfAfterCreate(bool b)
-        {
-            ifAfterCreate = b;
-        }
-
-        #endregion
-
-        #region ifDailyChecked
-
-        private void SetIfDailyChecked(bool value)
-        {
-            ifDailyChecked = value;
-            SPlayerPrefs.SetBool(PlayerPrefDefines.ifDailyChecked, ifDailyChecked);
-            SPlayerPrefs.Save();
-        }
-
-        #endregion
-
-        #region curCheckInBankDay
-
-        private int GetCurCheckInBankDay()
-        {
-            return curCehckInBankDay;
-        }
-
-        private void SetCurCheckInBankDay(int value)
-        {
-            curCehckInBankDay = value;
-            SPlayerPrefs.SetInt(PlayerPrefDefines.curCehckInBankDay, curCehckInBankDay);
-            SPlayerPrefs.Save();
-        }
-
-        #endregion
-
         #endregion
 
         /// <summary>
@@ -361,8 +139,6 @@ namespace XrCode
         private void LoadData()
         {
             withdrawalRecordItems = new Dictionary<int, WithdrawalRecordItem>();
-
-            wTarget = SPlayerPrefs.GetFloat(PlayerPrefDefines.wTarget, 0);
 
             MIData = ConfigModule.Instance.Tables.TBMoneyInterval.DataMap;
             TargetInterval = new List<float>();
@@ -376,7 +152,6 @@ namespace XrCode
             wName = SPlayerPrefs.GetString(PlayerPrefDefines.wName, "");
             wPhoneOrEmail = SPlayerPrefs.GetString(PlayerPrefDefines.wPhoneOrEmail, "");
             poeType = (EPayType)SPlayerPrefs.GetInt(PlayerPrefDefines.poeType, (int)EPayType.None);
-            curWithdrawTarget = (WithdrawTarget)SPlayerPrefs.GetInt(PlayerPrefDefines.curWithdrawTarget, (int)WithdrawTarget.PassLevel);
             List<string> wrisTemp = SPlayerPrefs.GetList<string>(PlayerPrefDefines.wrisTemp, new List<string>());
             foreach (string wri in wrisTemp)
             {
@@ -388,28 +163,8 @@ namespace XrCode
                     CreatedDate = values[2],
                     WRState = (EWithRecordState)int.Parse(values[3]),
                     WRMoney = float.Parse(values[4]),
-                    TargetType = (WithdrawTarget)int.Parse(values[5]),
                 };
                 withdrawalRecordItems.Add(item.OrderId, item);
-            }
-
-            //ifAfterCreate = true;
-            ifOpenUIDateShow = false;
-
-            curCheckInDay = SPlayerPrefs.GetInt(PlayerPrefDefines.curCheckInDay, 0);
-            curCheckInLevel = SPlayerPrefs.GetInt(PlayerPrefDefines.curCheckInLevel, 0);
-            ifDailyChecked = SPlayerPrefs.GetBool(PlayerPrefDefines.ifDailyChecked, true);
-            if (curWithdrawTarget == WithdrawTarget.CheckIn && SCheckDateTime.Instance.IfNextDay(GameDefines.CheckInDayKey))
-            {
-                SetIfDailyChecked(true);
-                SetCurCheckLevel(0);
-            }
-
-            curCehckInBankDay = SPlayerPrefs.GetInt(PlayerPrefDefines.curCehckInBankDay, 0);
-            if(curCheckInDay == GameDefines.CheckInDay && SCheckDateTime.Instance.IfNextDay(GameDefines.CheckInBankKey))
-            {
-                curCehckInBankDay += 1;
-                SetCurCheckInBankDay(curCehckInBankDay);
             }
         }
 
@@ -423,9 +178,8 @@ namespace XrCode
                 OrderId = withdrawalRecordItems.Count,
                 LevelId = level,
                 CreatedDate = DateTime.Now.ToString("yyyy-MM-dd"),
-                WRState = EWithRecordState.GoWithdrawal,
+                WRState = EWithRecordState.State1,
                 WRMoney = money,
-                TargetType = curWithdrawTarget,
             };
 
             withdrawalRecordItems.Add(recordItem.OrderId, recordItem);
@@ -444,7 +198,7 @@ namespace XrCode
 
             foreach (WithdrawalRecordItem item in withdrawalRecordItems.Values)
             {
-                string str = $"{item.OrderId}_{item.LevelId}_{item.CreatedDate}_{(int)item.WRState}_{item.WRMoney}_{(int)item.TargetType}";
+                string str = $"{item.OrderId}_{item.LevelId}_{item.CreatedDate}_{(int)item.WRState}_{item.WRMoney}";
                 wrisTemp.Add(str);
             }
 
@@ -474,48 +228,12 @@ namespace XrCode
         {
             if (string.IsNullOrEmpty(wPhoneOrEmail))
             {
-                UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIWithdrawEnterInfo);
+                //UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIWithdrawEnterInfo);
             }
             else
             {
-                UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIWithdrawConfirm, UIOpenType.None, null, b, item);
+                //UIManager.Instance.OpenAsync<UIWithdrawConfirm>(EUIType.EUIWithdrawConfirm, UIOpenType.None, null, b, item);
             }
-        }
-
-        /// <summary>
-        /// 根据当前兑现目标执行不同的方法
-        /// </summary>
-        /// <param name="PL_Action">当目标为“指定关卡”时的方法</param>
-        /// <param name="AOM_Action">当目标为“指定金额”时的方法</param>
-        /// <param name="CI_Action">当目标为“签到”时的方法</param>
-        private void ActionByCurWTarget(Action<int> PL_Action, Action<double> AOM_Action, Action<int> CI_Action)
-        {
-            switch(curWithdrawTarget)
-            {
-                case WithdrawTarget.PassLevel:
-                    int curLevel = FacadePlayer.GetLevel();
-                    PL_Action?.Invoke(curLevel);
-                    break;
-                case WithdrawTarget.AmountOfMoney:
-                    double curMoney = FacadePlayer.GetMoney();
-                    AOM_Action?.Invoke(curMoney);
-                    break;
-                case WithdrawTarget.CheckIn:
-                    CI_Action?.Invoke(curCheckInDay);
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// 得到距离目标的剩余金额
-        /// </summary>
-        /// <returns>剩余目标金额</returns>
-        private float GetRemainTarget()
-        {
-            float remain = wTarget - (float)FacadePlayer.GetMoney();
-            if (remain < 0)
-                remain = 0;
-            return remain;
         }
 
         /// <summary>
@@ -544,17 +262,7 @@ namespace XrCode
             }
             else
             {
-                ActionByCurWTarget((v) =>
-                {
-                    reward = GameDefines.RewardCoe;
-                }, (v) =>
-                {
-                    int id = GetMoneyIntervalSn(GetRemainTarget());
-                    reward = MIData[id].LSReward;
-                }, (v) =>
-                {
-                    reward = MIData[MIData.Count - 1].LSReward;
-                });
+                reward = GameDefines.RewardCoe;
             }
 
             return reward;
@@ -574,18 +282,7 @@ namespace XrCode
             }
             else
             {
-                ActionByCurWTarget((v) =>
-                {
-                    reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
-                }, (v) =>
-                {
-                    int id = GetMoneyIntervalSn(GetRemainTarget());
-                    reward = UnityEngine.Random.Range(MIData[id].LRMin, MIData[id].LRMax);
-                }, (v) =>
-                {
-                    int id = MIData.Count - 1;
-                    reward = UnityEngine.Random.Range(MIData[id].LRMin, MIData[id].LRMax);
-                });
+                reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
             }
 
             return reward;
@@ -605,74 +302,11 @@ namespace XrCode
             }
             else
             {
-                ActionByCurWTarget((v) =>
-                {
-                    reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
-                }, (v) =>
-                {
-                    int id = GetMoneyIntervalSn(GetRemainTarget());
-
-                    if (id < 0)
-                    {
-                        reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
-                    }
-                    else
-                    {
-                        reward = UnityEngine.Random.Range(MIData[id].LSMin, MIData[id].LSMax);
-                    }
-                }, (v) =>
-                {
-                    int id = MIData.Count - 1;
-                    reward = UnityEngine.Random.Range(MIData[id].LSMin, MIData[id].LSMax);
-                });
+                reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
             }
             return reward;
         }
-
-        /// <summary>
-        /// 在关闭兑现步骤的某一界面时，应该继续往下走的步骤
-        /// </summary>
-        private void AfterCloseWUI()
-        {
-            if(ifAfterCreate)
-            {
-                ifAfterCreate = false;
-
-                ActionByCurWTarget((level) =>
-                {
-                    switch (level)
-                    {
-                        case 2:
-                            UIManager.Instance.OpenAsync<UIWithdrawKeepEarn>(EUIType.EUIWithdrawKeepEarn);
-                            break;
-                        case 3:
-                            UIManager.Instance.OpenAsync<UIWithdrawKeepEarn>(EUIType.EUIWithdrawKeepEarn);
-                            break;
-                        case 4:
-                            FacadeGamePlay.CreateLevel();
-                            break;
-                    }
-                }, (money) =>
-                {
-                    if(!ifOpenUIDateShow && FacadePlayer.GetMoney() + GameDefines.DiffVal <= wTarget - 0.01f)
-                    {
-                        UIManager.Instance.OpenAsync<UIWithdrawLuckyPlayer>(EUIType.EUIWithdrawLuckyPlayer);
-                        ifOpenUIDateShow = true;
-                        ifAfterCreate = true;
-                    }
-                    else
-                    {
-                        UIManager.Instance.OpenAsync<UIDateShow>(EUIType.EUIDateShow);
-                        ifOpenUIDateShow = false;
-                    }
-                    //FacadeGamePlay.CreateLevel();
-                }, (day) =>
-                {
-                    FacadeGamePlay.CreateLevel();
-                });
-            }       
-        }
-
+        
         /// <summary>
         /// 获得兑现提示区间文本
         /// </summary>
@@ -682,55 +316,6 @@ namespace XrCode
             string v1 = FacadePayType.RegionalChange(GameDefines.HighValue.x).Split('.')[0];
             string v2 = FacadePayType.RegionalChange(GameDefines.HighValue.y).Split('.')[0];
             return $"{v1}-{v2}";
-        }
-
-        /// <summary>
-        /// 获取当前签到目标关卡文本
-        /// </summary>
-        /// <returns>签到目标关卡文本</returns>
-        private string GetWCheckInLevelText()
-        {
-            if(curCheckInLevel >= GameDefines.CheckInLevel)
-            {
-                return FacadeLanguage.GetText("10008");
-            }
-            else
-            {
-                return string.Format(FacadeLanguage.GetText("10007"), GameDefines.CheckInLevel - curCheckInLevel);
-            }
-        }
-
-        /// <summary>
-        /// 获取当前签到目标日文本
-        /// </summary>
-        /// <returns>签到目标日文本</returns>
-        private string GetWCheckInDayText()
-        {
-            if(curCheckInDay >= GameDefines.CheckInDay)
-            {
-                return string.Format(FacadeLanguage.GetText("10128"));
-            }
-            else
-            {
-                return string.Format(FacadeLanguage.GetText("10083"), GameDefines.CheckInDay, GameDefines.CheckInDay - curCheckInDay);
-            }
-        }
-
-        /// <summary>
-        /// 重置签到数据
-        /// </summary>
-        private void ReSetCheckInData()
-        {
-            FacadePlayer.SetMoney(0);
-            FacadeGamePlay.SetCurMoneyShow();
-
-            FacadeWithdraw.SetCurCheckInDay(0);
-            if (FacadeWithdraw.GetCurCheckLevel() >= GameDefines.CheckInLevel)
-            {
-                FacadeWithdraw.AddCurCheckInDay(1);
-            }
-
-            FacadeGamePlay.SetLevelShow();
         }
 
         protected override void OnDispose()

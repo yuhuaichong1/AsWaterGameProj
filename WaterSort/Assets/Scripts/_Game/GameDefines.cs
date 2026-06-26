@@ -255,20 +255,10 @@ public enum EUIType
     EUISetting = 12,
     EUITask = 13,
     EUIUserLevel = 14,
-    EUIWithdrawConfirm = 15,
-    EUIWithdrawEnterInfo = 16,
-    EUIWithdrawFeedback = 17,
-    EUIWithdrawGoal = 18,
-    EUIWithdrawLuckyPlayer = 19,
-    EUIWithdrawProgress = 20,
-    EUIWithdrawRecords = 21,
-    EUIWithdrawContinue = 22,
-    EUIWithdrawKeepEarn = 23,
-    EUIWithdrawTarget = 24,
-    EUINewGamePlay = 25,
-    EUIDateShow = 26,
-    EUIWithdrawGoal2 = 27,
-    EUIWithdrawTip = 28,
+    EUINewGamePlay = 15,
+    EUIWithdrawTip = 16,
+    EUIWithdrawGoal2 = 17,
+
 }
 
 /// <summary>
@@ -419,8 +409,13 @@ public enum ERewardType
 /// </summary>
 public enum EWithRecordState : int
 {
-    GoWithdrawal = 0,//去提款
-    UnderReview = 1,//审核中
+    State1,
+    State2,
+    State3,
+    State4,
+    State5,
+    State6,
+    State7,
 }
 
 /// <summary>
@@ -431,16 +426,6 @@ public enum EShowEnergyType
     Energy,
     Time,
     All,
-}
-
-/// <summary>
-/// 兑现目标类型
-/// </summary>
-public enum WithdrawTarget : int
-{
-    PassLevel,//通过第X关
-    AmountOfMoney,//目标金额
-    CheckIn,//签到
 }
 
 /// <summary>

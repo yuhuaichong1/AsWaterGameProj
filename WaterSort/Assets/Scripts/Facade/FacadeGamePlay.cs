@@ -22,7 +22,6 @@ namespace XrCode
         public static Action ReStartLRTimer;                                            //重启幸运奖励计时器
         public static Func<string> GetLevelProgress;                                    //获取当前关卡进度
 
-        public static Action IfLevelGuide;//为了适配GM而写，不需请删
         #endregion
 
         #region UIGamePlay

@@ -1,4 +1,5 @@
-﻿using AsGame.Data;
+﻿
+using AsGame.Data;
 using AsGame.UI;
 using AsGame.Water;
 using Newtonsoft.Json;
@@ -88,7 +89,6 @@ namespace XrCode
             FacadeGamePlay.RePlay += RePlay;
             FacadeGamePlay.GetStatus += GetStatus;
             FacadeGamePlay.EndPorp1 += EndShuffleMode;
-            FacadeGamePlay.IfLevelGuide += IfLevelGuide;
             FacadeGamePlay.ReStartLRTimer += ReStartLRTimer;
             FacadeGamePlay.GetLevelProgress += GetLevelProgress;
         }
@@ -106,7 +106,6 @@ namespace XrCode
             FacadeGamePlay.RePlay -= RePlay;
             FacadeGamePlay.GetStatus -= GetStatus;
             FacadeGamePlay.EndPorp1 -= EndShuffleMode;
-            FacadeGamePlay.IfLevelGuide -= IfLevelGuide;
             FacadeGamePlay.ReStartLRTimer += ReStartLRTimer;
             FacadeGamePlay.GetLevelProgress -= GetLevelProgress;
         }
@@ -149,37 +148,7 @@ namespace XrCode
             }
             else
             {
-                if(GameDefines.ifIAA)
-                {
-                    CreateLevel();
-                    return;
-                }
-
-                FacadeWithdraw.ActionByCurWTarget((level) =>
-                {
-                    switch(level)
-                    {
-                        case 1:
-                            UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.AVPTarget, (Action)CreateLevel);
-                            break;
-                        case 2:
-                            UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.VPTarget, (Action)CreateLevel);
-                            break;
-                        default:
-                            UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.SVPTarget, (Action)CreateLevel);
-                            break;
-                    }
-                    
-                }, (money) => 
-                {
-                    UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.SVPMoneyTarget, (Action)CreateLevel);
-                }, (day) =>
-                {
-                    UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.SVPCheckInTarget, (Action)CreateLevel);
-                });
-
-                
-                //CreateLevel();
+                CreateLevel();
             }
         }
         private void CreateLevel()
@@ -787,7 +756,6 @@ namespace XrCode
 
             yield return new WaitForSeconds(0.4f);
 
-            IfLevelGuide();
             LRTimer.Stop();
 
             NetworkModule.Instance.GetNetworkInitInfo2(() => 
@@ -801,22 +769,6 @@ namespace XrCode
                 Game.Instance.UILoadingWaiting.gameObject.SetActive(true);
                 Game.Instance.UILoadingWaiting.StartTextAnim();
             });
-        }
-
-        private void IfLevelGuide()
-        {
-            if(FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.PassLevel && !GameDefines.ifIAA)
-            {
-                if (curLevelIndex == 1 || curLevelIndex == 2 || curLevelIndex == GameDefines.miniLevel_End)
-                {
-                    FacadeGuide.SetIfTutorial(true);
-                    if (curLevelIndex == GameDefines.miniLevel_End)
-                    {
-                        FacadeWithdraw.SetCurWithdrawTarget(WithdrawTarget.AmountOfMoney);
-                        FacadeWithdraw.SetWTarget();
-                    }
-                }
-            }
         }
 
         /// <summary>任意水瓶倒满（4 层同色）时减少锁瓶次数；与口袋装袋无关。</summary>

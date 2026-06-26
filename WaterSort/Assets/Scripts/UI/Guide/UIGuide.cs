@@ -254,12 +254,6 @@ namespace XrCode
                     case "handC":
                         handCorrection = bool.Parse(kvp.Value) ? -0.5f : 0;
                         break;
-                    case "canWithdraw":
-                        FacadeWithdraw.SetCanWithdraw(true);
-                        break;
-                    case "iac":
-                        FacadeWithdraw.SetIfAfterCreate(true);
-                        break;
                 }
             }
         }
