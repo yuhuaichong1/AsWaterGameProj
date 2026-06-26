@@ -261,6 +261,8 @@ public enum EUIType
     EUINewGamePlay = 15,
     EUIWithdrawTip = 16,
     EUIWithdrawGoal2 = 17,
+    EUIWithdrawAccount = 18,
+    EUIWithdrawConfirm2 = 19,
  EUIProgressPanel = 29,
 }
 
