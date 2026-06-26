@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using XrCode;
 
@@ -24,10 +23,11 @@ public class GM : MonoBehaviour
     [Space]
     public Button TestFunctionBtn;
     [Space]
-    public Button SkipCheckInBtn;
-    public Button SkipBankReviewBtn;
+    public Button SimulateAdBtn;
     [Space]
-    public Button PayoutAdvanceStepBtn;
+    public InputField SkipTime;
+    public Button BtnSkipStepTime;
+    public Button BtnJumpToFirstStep;
 
     public bool GMbool;
 
@@ -46,51 +46,33 @@ public class GM : MonoBehaviour
             GMPlane.gameObject.SetActive(GMbool);
             GMBtn.onClick.AddListener(OnGMBtnClick);
         }
-            
-        if (MoneyBtn != null && MoneyField != null)
-        {
-            MoneyBtn.onClick.AddListener(OnMoneyBtnClick);
-        }
 
-        if(EnergyBtn != null && EnergyField != null)
-        {
+        if (MoneyBtn != null && MoneyField != null)
+            MoneyBtn.onClick.AddListener(OnMoneyBtnClick);
+
+        if (EnergyBtn != null && EnergyField != null)
             EnergyBtn.onClick.AddListener(OnEnergyBtnClick);
-        }
 
         if (PropBtn != null && PropDropdown != null)
-        {
             PropBtn.onClick.AddListener(OnPropBtnClick);
-        }
 
-        if(SkipLevelBtn != null && SkipLevelField != null)
-        {
+        if (SkipLevelBtn != null && SkipLevelField != null)
             SkipLevelBtn.onClick.AddListener(OnSkipLevelBtnClick);
-        }
 
-        if(PassLevelBtn != null)
-        {
+        if (PassLevelBtn != null)
             PassLevelBtn.onClick.AddListener(OnPassLevelBtnClick);
-        }
 
-        if(TestFunctionBtn != null)
-        {
+        if (TestFunctionBtn != null)
             TestFunctionBtn.onClick.AddListener(OnTestFunctionBtnClick);
-        }
 
-        if (SkipCheckInBtn != null)
-        {
-            SkipCheckInBtn.onClick.AddListener(OnSkipCheckInBtnClick);
-        }
+        if (SimulateAdBtn != null)
+            SimulateAdBtn.onClick.AddListener(OnSimulateAdBtnClick);
 
-        if (SkipBankReviewBtn != null)
-        {
-            SkipBankReviewBtn.onClick.AddListener(OnSkipBankReviewBtnClick);
-        }
+        if (BtnSkipStepTime != null)
+            BtnSkipStepTime.onClick.AddListener(OnBtnSkipStepTimeClick);
 
-        if (PayoutAdvanceStepBtn != null)
-        {
-            PayoutAdvanceStepBtn.onClick.AddListener(OnPayoutAdvanceStepBtnClick);
-        }
+        if (BtnJumpToFirstStep != null)
+            BtnJumpToFirstStep.onClick.AddListener(OnBtnJumpToFirstStepClick);
     }
 
     void Update()
@@ -98,27 +80,8 @@ public class GM : MonoBehaviour
         if (!IsGmPanelOpen())
             return;
 
-        // GM 面板打开时可用快捷键
-        if (Input.GetKeyDown(KeyCode.F1))
-        {
-            if (GameDefines.UsePayoutV2)
-                FacadePayout.GM_SkipCountdown?.Invoke();
-            else
-                GmSkipCheckInStep();
-        }
-        if (Input.GetKeyDown(KeyCode.F2))
-        {
-            if (GameDefines.UsePayoutV2)
-                FacadePayout.GM_CompleteDailyTask?.Invoke();
-            else
-                GmSkipBankReviewStep();
-        }
-        if (GameDefines.UsePayoutV2 && Input.GetKeyDown(KeyCode.F3))
-            FacadePayout.GM_JumpToStep?.Invoke(1);
-        if (GameDefines.UsePayoutV2 && Input.GetKeyDown(KeyCode.F4))
-            FacadePayout.GM_CompleteCurrentStep?.Invoke();
-        if (GameDefines.UsePayoutV2 && Input.GetKeyDown(KeyCode.C))
-            FacadePayout.GM_AdvanceToNextStep?.Invoke();
+        if (GameDefines.UsePayoutV2 && Input.GetKeyDown(KeyCode.N))
+            FacadePayout.GM_SkipCountdown?.Invoke();
     }
 
     private bool IsGmPanelOpen()
@@ -134,8 +97,7 @@ public class GM : MonoBehaviour
 
     private void OnMoneyBtnClick()
     {
-        double money;
-        if(double.TryParse(MoneyField.text, out money))
+        if (double.TryParse(MoneyField.text, out double money))
         {
             FacadePlayer.AddMoney(money);
             FacadeGamePlay.SetCurMoneyShow();
@@ -144,17 +106,13 @@ public class GM : MonoBehaviour
 
     private void OnEnergyBtnClick()
     {
-        int energy;
-        if(int.TryParse(EnergyField.text, out energy))
-        {
+        if (int.TryParse(EnergyField.text, out int energy))
             FacadePlayer.AddEnergy(energy);
-            //FacadeGamePlay.SetCurEnergyShow(EShowEnergyType.All);
-        }
     }
 
     private void OnPropBtnClick()
     {
-        switch(PropDropdown.value) 
+        switch (PropDropdown.value)
         {
             case 0:
                 FacadeGamePlay.SetProp1CountShow();
@@ -180,115 +138,49 @@ public class GM : MonoBehaviour
         FacadePlayer.AddLevel(1);
     }
 
-    private void OnSkipCheckInBtnClick()
+    private void OnSimulateAdBtnClick()
     {
-        GmSkipCheckInStep();
+        GmSimulateAdComplete();
     }
 
-    private void OnSkipBankReviewBtnClick()
-    {
-        GmSkipBankReviewStep();
-    }
-
-    private void OnPayoutAdvanceStepBtnClick()
-    {
-        GmPayoutAdvanceStep();
-    }
-
-    /// <summary>
-    /// GM：完成当前打款步骤并进入下一步（测试用）
-    /// </summary>
-    private void GmPayoutAdvanceStep()
+    private void OnBtnSkipStepTimeClick()
     {
         if (!GameDefines.ifDebug || !GameDefines.UsePayoutV2)
             return;
 
-        FacadePayout.GM_AdvanceToNextStep?.Invoke();
-        FacadeGamePlay.SetCurMoneyShow();
+        if (SkipTime == null || !int.TryParse(SkipTime.text, out int minutes) || minutes <= 0)
+        {
+            D.Log("[GM] 请输入有效的缩短分钟数");
+            return;
+        }
+
+        FacadePayout.GM_ShortenStepTimeMinutes?.Invoke(minutes);
     }
 
-    /// <summary>
-    /// GM：跳过签到阶段（满签 + 今日关卡完成）
-    /// </summary>
-    private void GmSkipCheckInStep()
+    private void OnBtnJumpToFirstStepClick()
     {
-        Debug.LogError("该方法已注释");
-        //if (!GameDefines.ifDebug)
-        //    return;
+        if (!GameDefines.ifDebug || !GameDefines.UsePayoutV2)
+            return;
 
-        //if (FacadeWithdraw.GetCurWithdrawTarget() != WithdrawTarget.CheckIn)
-        //{
-        //    D.Log("[GM] 当前不是签到提现阶段，已跳过操作");
-        //    return;
-        //}
-
-        //FacadeWithdraw.SetCurCheckInDay(GameDefines.CheckInDay);
-        //FacadeWithdraw.SetCurCheckLevel(GameDefines.CheckInLevel);
-        //RefreshWithdrawGmUI();
-        //D.Log($"[GM] 已跳过签到：{GameDefines.CheckInDay}/{GameDefines.CheckInDay} 天");
+        FacadePayout.GM_JumpToStep?.Invoke(1);
+        D.Log("[GM] 已还原到提现步骤第一步");
     }
 
-    /// <summary>
-    /// GM：跳过银行审核阶段（满审核天数 + 今日关卡完成）
-    /// </summary>
-    private void GmSkipBankReviewStep()
+    private void GmSimulateAdComplete()
     {
-        Debug.LogError("该方法已注释");
+        if (!GameDefines.ifDebug || !GameDefines.UsePayoutV2)
+            return;
 
-        //if (!GameDefines.ifDebug)
-        //    return;
-
-        //if (FacadeWithdraw.GetCurWithdrawTarget() != WithdrawTarget.CheckIn)
-        //{
-        //    D.Log("[GM] 当前不是签到提现阶段，已跳过操作");
-        //    return;
-        //}
-
-        //if (FacadeWithdraw.GetCurCheckInDay() < GameDefines.CheckInDay)
-        //{
-        //    D.Log("[GM] 签到未满，请先跳过签到或完成签到");
-        //    return;
-        //}
-
-        //FacadeWithdraw.SetCurCheckInBankDay(GameDefines.CheckInBankDay);
-        //FacadeWithdraw.SetCurCheckLevel(GameDefines.CheckInLevel);
-        //RefreshWithdrawGmUI();
-        //D.Log($"[GM] 已跳过银行审核：{GameDefines.CheckInBankDay}/{GameDefines.CheckInBankDay} 天");
-    }
-
-    private void RefreshWithdrawGmUI()
-    {
-        FacadeGamePlay.SetLevelShow();
-        FacadeGamePlay.SetCurMoneyShow();
+        FacadeAd.OnRewardAdReceivedReward?.Invoke("gm", 0, 0, string.Empty, 1);
+        D.Log("[GM] 已模拟激励广告完成");
     }
 
     private void OnTestFunctionBtnClick()
     {
-        //WithdrawalRecordItem wItem = new WithdrawalRecordItem()
-        //{
-        //    LevelId = 0,
-        //    CreatedDate = "2026/5/28",
-        //    WRState = EWithRecordState.UnderReview,
-        //    WRMoney = 1000.12f,
-        //};
-        //UIManager.Instance.OpenAsync<UIWithdrawProgress>(EUIType.EUIWithdrawalProgress, UIOpenType.None, null, wItem);
-
-        //WithdrawalRecordItem testItem = new WithdrawalRecordItem();
-        //testItem.OrderId = 999;
-        //testItem.LevelId = 999;
-        //testItem.CreatedDate = "9999-99-99";
-        //testItem.WRState = EWithRecordState.UnderReview;
-        //testItem.WRMoney = 999;
-        //testItem.TargetType = WithdrawTarget.AmountOfMoney;
-        //FacadeWithdraw.SetCurWithdrawTarget(WithdrawTarget.AmountOfMoney);
-
-        //UIManager.Instance.OpenAsync<UIWithdrawProgress>(EUIType.EUIWithdrawProgress, UIOpenType.None, null, testItem);
-
-        FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct 
-        { 
+        FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct
+        {
             Type = ERewardType.Prop1,
             Count = 1f,
         }, null);
     }
-
 }

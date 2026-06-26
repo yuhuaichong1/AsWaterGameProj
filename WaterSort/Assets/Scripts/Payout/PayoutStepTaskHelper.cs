@@ -301,9 +301,31 @@ public static class PayoutStepTaskHelper
 
     public static string FormatRemainTime(long seconds)
     {
-        var span = TimeSpan.FromSeconds(seconds);
+        var span = TimeSpan.FromSeconds(Math.Max(0, seconds));
         if (span.TotalHours >= 1)
             return $"{(int)span.TotalHours:D2}:{span.Minutes:D2}:{span.Seconds:D2}";
         return $"{span.Minutes:D2}:{span.Seconds:D2}";
+    }
+
+    /// <summary>
+    /// 列表项倒计时：大于 24 小时显示「n Day HH:MM:SS」，否则仅显示「HH:MM:SS」。
+    /// </summary>
+    public static string FormatListCountdown(long seconds)
+    {
+        seconds = Math.Max(0, seconds);
+        const long daySeconds = 86400;
+
+        if (seconds > daySeconds)
+        {
+            long days = seconds / daySeconds;
+            long remainder = seconds % daySeconds;
+            int hours = (int)(remainder / 3600);
+            int minutes = (int)((remainder % 3600) / 60);
+            int secs = (int)(remainder % 60);
+            return $"{days} Day {hours:D2}:{minutes:D2}:{secs:D2}";
+        }
+
+        var span = TimeSpan.FromSeconds(seconds);
+        return $"{(int)span.TotalHours:D2}:{span.Minutes:D2}:{span.Seconds:D2}";
     }
 }

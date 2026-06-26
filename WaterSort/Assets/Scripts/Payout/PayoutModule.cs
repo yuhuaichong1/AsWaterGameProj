@@ -61,13 +61,12 @@ namespace XrCode
             FacadePayout.GetTierList = GetTierList;
             FacadePayout.OpenProgressPanel = OpenProgressPanel;
             FacadePayout.EnsureStartedAndOpen = EnsureStartedAndOpen;
+            FacadePayout.MarkPanelAcknowledged = MarkPanelAcknowledged;
             FacadePayout.HasBoundAccount = HasBoundAccount;
             FacadePayout.NotifyMoneyUpdated = NotifyMoneyUpdated;
             FacadePayout.GM_SkipCountdown = GM_SkipCountdown;
-            FacadePayout.GM_CompleteDailyTask = GM_CompleteDailyTask;
+            FacadePayout.GM_ShortenStepTimeMinutes = GM_ShortenStepTimeMinutes;
             FacadePayout.GM_JumpToStep = GM_JumpToStep;
-            FacadePayout.GM_CompleteCurrentStep = GM_CompleteCurrentStep;
-            FacadePayout.GM_AdvanceToNextStep = GM_AdvanceToNextStep;
         }
 
         private void UnregisterFacade()
@@ -84,13 +83,12 @@ namespace XrCode
             FacadePayout.GetTierList = null;
             FacadePayout.OpenProgressPanel = null;
             FacadePayout.EnsureStartedAndOpen = null;
+            FacadePayout.MarkPanelAcknowledged = null;
             FacadePayout.HasBoundAccount = null;
             FacadePayout.NotifyMoneyUpdated = null;
             FacadePayout.GM_SkipCountdown = null;
-            FacadePayout.GM_CompleteDailyTask = null;
+            FacadePayout.GM_ShortenStepTimeMinutes = null;
             FacadePayout.GM_JumpToStep = null;
-            FacadePayout.GM_CompleteCurrentStep = null;
-            FacadePayout.GM_AdvanceToNextStep = null;
         }
 
         public void OnLevelPassed(int count = 1)
@@ -180,6 +178,13 @@ namespace XrCode
             var entry = GetOrCreateEntry(key);
             if (entry.IsStarted) return true;
 
+            if (!CanStart(key)) return false;
+
+            float amount = PayoutStepTaskHelper.GetTierAmount(key.TierId);
+            FacadePlayer.AddMoney(-amount);
+            FacadeGamePlay.SetCurMoneyShow?.Invoke();
+            NotifyMoneyUpdated();
+
             var firstStep = PayoutStepTaskHelper.GetStepConfig(1);
             if (firstStep == null) return false;
 
@@ -202,6 +207,15 @@ namespace XrCode
             SetGmFocusKey(key);
             OpenProgressPanel(key);
             return true;
+        }
+
+        private void MarkPanelAcknowledged(PayoutEntryKey key)
+        {
+            var entry = GetEntry(key);
+            if (entry == null || !entry.IsStarted || entry.panelAcknowledged) return;
+            entry.panelAcknowledged = true;
+            SaveData();
+            DispatchEntryUpdated();
         }
 
         private bool CanContinue(PayoutEntryKey key)
@@ -330,30 +344,19 @@ namespace XrCode
             DispatchEntryUpdated();
         }
 
-        private void GM_CompleteDailyTask()
+        private void GM_ShortenStepTimeMinutes(int minutes)
         {
+            if (minutes <= 0) return;
+
             var key = GetGmFocusKey();
             var entry = GetOrCreateEntry(key);
             if (!entry.IsStarted) return;
-            var step = PayoutStepTaskHelper.GetStepConfig(entry.curStepSn);
-            if (step == null) return;
-            if (step.TaskType == cfg.item.EPayoutTaskType.Ad)
-                entry.taskProgress = step.TaskTarget;
-            else if (step.TaskType == cfg.item.EPayoutTaskType.Level || step.TaskType == cfg.item.EPayoutTaskType.DailyLevel)
-                entry.taskProgress = step.TaskTarget;
-            else if (step.TaskType == cfg.item.EPayoutTaskType.Online)
-            {
-                entry.onlineSecondsToday = step.OnlineMinutes * 60;
-                entry.taskProgress = entry.onlineSecondsToday;
-            }
-            else if (step.TaskType == cfg.item.EPayoutTaskType.CheckIn || step.TaskType == cfg.item.EPayoutTaskType.BankReview || step.TaskType == cfg.item.EPayoutTaskType.Queue)
-                entry.accumProgress = step.TaskTarget;
 
-            if (step.DailyLevelTarget > 0)
-                entry.dailyLevelProgress = step.DailyLevelTarget;
-            entry.dailyCompletedCount = PayoutStepTaskHelper.GetStepDayCount(step);
+            long now = PayoutStepTaskHelper.GetNowTimestamp();
+            entry.stepEndTimestamp = Math.Max(now, entry.stepEndTimestamp - minutes * 60L);
             SaveData();
             DispatchEntryUpdated();
+            D.Log($"[GM] Payout 倒计时已缩短 {minutes} 分钟");
         }
 
         private void GM_JumpToStep(int stepSn)
@@ -365,41 +368,6 @@ namespace XrCode
             PayoutStepTaskHelper.BeginStep(entry, step);
             SaveData();
             DispatchStepChanged(key);
-        }
-
-        private void GM_CompleteCurrentStep()
-        {
-            GM_SkipCountdown();
-            GM_CompleteDailyTask();
-        }
-
-        private void GM_AdvanceToNextStep()
-        {
-            if (!GameDefines.ifDebug) return;
-
-            var key = GetGmFocusKey();
-            var entry = GetOrCreateEntry(key);
-            if (!entry.IsStarted && !StartEntry(key))
-                return;
-
-            entry = GetOrCreateEntry(key);
-            var step = PayoutStepTaskHelper.GetStepConfig(entry.curStepSn);
-            if (step == null) return;
-
-            if (step.IfTerminal)
-            {
-                PayoutStepTaskHelper.BeginStep(entry, step);
-            }
-            else
-            {
-                var next = PayoutStepTaskHelper.GetStepConfig(entry.curStepSn + 1);
-                if (next == null) return;
-                PayoutStepTaskHelper.BeginStep(entry, next);
-            }
-
-            SaveData();
-            DispatchStepChanged(key);
-            D.Log($"[GM] Payout 已进入步骤 {entry.curStepSn}");
         }
 
         public void SetGmFocusKey(PayoutEntryKey key)

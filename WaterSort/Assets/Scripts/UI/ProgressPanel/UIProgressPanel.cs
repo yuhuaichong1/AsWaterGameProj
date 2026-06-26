@@ -24,8 +24,13 @@ namespace XrCode
         protected override void OnEnable()
         {
             FacadeEvent.AddEventListener(PayoutEventTypes.ENTRY_UPDATED, OnEntryUpdated);
+            if (mLabContinue != null)
+            {
+                mLabContinue.languageId = "10235";
+                mLabContinue.UpdateLanguage();
+            }
             RefreshView();
-            ShowAnim(mPlane);
+            ShowAnim(mPayOutPanel);
         }
 
         protected override void OnDisable()
@@ -47,20 +52,12 @@ namespace XrCode
             mPreviousCondition.text = display.PrevTask;
             mNextCondition.text = display.CurTask;
             mRuleExplain.text = display.Explain;
-
-            bool canContinue = display.CanContinue && !display.IsTerminal;
-            mBtnContinue.interactable = canContinue;
-            if (!canContinue && !display.IsTerminal)
-                mLabContinue.text = FacadeLanguage.GetText("10234");
-            else
-                mLabContinue.text = FacadeLanguage.GetText("10235");
         }
 
         private void OnBtnContinueClickHandle()
         {
-            if (!FacadePayout.CanContinue(entryKey)) return;
-            FacadePayout.ContinueStep(entryKey);
-            RefreshView();
+            FacadePayout.MarkPanelAcknowledged?.Invoke(entryKey);
+            UIManager.Instance.CloseUI(EUIType.EUIProgressPanel);
         }
 
         protected override void OnDispose() { }

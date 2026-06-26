@@ -19,12 +19,11 @@ public static class FacadePayout
     public static Func<List<ConfPayoutTier>> GetTierList;
     public static Action<PayoutEntryKey> OpenProgressPanel;
     public static Func<PayoutEntryKey, bool> EnsureStartedAndOpen;
+    public static Action<PayoutEntryKey> MarkPanelAcknowledged;
     public static Func<bool> HasBoundAccount;
     public static Action NotifyMoneyUpdated;
 
     public static Action GM_SkipCountdown;
-    public static Action GM_CompleteDailyTask;
+    public static Action<int> GM_ShortenStepTimeMinutes;
     public static Action<int> GM_JumpToStep;
-    public static Action GM_CompleteCurrentStep;
-    public static Action GM_AdvanceToNextStep;
 }
