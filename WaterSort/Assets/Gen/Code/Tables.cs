@@ -31,6 +31,7 @@ namespace cfg
 		public TBLuckySpin TBLuckySpin {get; private set;}
 		public TBUserLevel TBUserLevel {get; private set;}
 		public TBMoneyInterval TBMoneyInterval {get; private set;}
+		public TBOrderStateInfo TBOrderStateInfo {get; private set;}
 
 		private Queue<string> configNames;
 		private Queue<System.Action<ByteBuf>> configCbFuncs;
@@ -66,6 +67,8 @@ namespace cfg
 			tables.Add("TBUserLevel", TBUserLevel);
 			TBMoneyInterval = new TBMoneyInterval(loader("tbmoneyinterval")); 
 			tables.Add("TBMoneyInterval", TBMoneyInterval);
+			TBOrderStateInfo = new TBOrderStateInfo(loader("tborderstateinfo")); 
+			tables.Add("TBOrderStateInfo", TBOrderStateInfo);
 	
 			PostInit();
 			ResolveAllTable();
@@ -100,6 +103,8 @@ namespace cfg
             configCbFuncs.Enqueue(OnTBUserLevelDataFinish);
 			configNames.Enqueue("tbmoneyinterval");
             configCbFuncs.Enqueue(OnTBMoneyIntervalDataFinish);
+			configNames.Enqueue("tborderstateinfo");
+            configCbFuncs.Enqueue(OnTBOrderStateInfoDataFinish);
 
             LoadAllConfig();
         }
@@ -153,6 +158,7 @@ namespace cfg
 			TBLuckySpin.TranslateText(translator); 
 			TBUserLevel.TranslateText(translator); 
 			TBMoneyInterval.TranslateText(translator); 
+			TBOrderStateInfo.TranslateText(translator); 
 		}
 		
 		partial void PostInit();
@@ -171,6 +177,7 @@ namespace cfg
 			TBLuckySpin.Resolve(tables);
 			TBUserLevel.Resolve(tables);
 			TBMoneyInterval.Resolve(tables);
+			TBOrderStateInfo.Resolve(tables);
 		}
 	
 		private void ReloadOneTable(string reloadTableName)
@@ -214,6 +221,9 @@ namespace cfg
 					break;
 				case "TBMoneyInterval":
 					TBMoneyInterval.Reload(_loader("TBMoneyInterval"));
+					break;
+				case "TBOrderStateInfo":
+					TBOrderStateInfo.Reload(_loader("TBOrderStateInfo"));
 					break;
 			}
 	
@@ -288,6 +298,11 @@ namespace cfg
 		{
 			TBMoneyInterval = new TBMoneyInterval(buf);
 			tables.Add("TBMoneyInterval", TBMoneyInterval);
+		}
+		public void OnTBOrderStateInfoDataFinish(ByteBuf buf)
+		{
+			TBOrderStateInfo = new TBOrderStateInfo(buf);
+			tables.Add("TBOrderStateInfo", TBOrderStateInfo);
 		}
 		//Finish Load all table 
 		public void OnLoadTbDataFinish()

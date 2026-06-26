@@ -9,6 +9,8 @@ namespace XrCode
 {
     public class WithdrawModule : BaseModule
     {
+        private Dictionary<EPayType, string> payTypeInfo;//不同兑现渠道对应的信息
+
         private string wName;//兑现姓名
         private string wPhoneOrEmail;//兑现信息
         private EPayType poeType;//兑现信息类型

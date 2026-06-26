@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: ab3ea091ae3e440459face6dfa8216b7
+guid: 9d04f0722a9ca63408af561ac37f1f45
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -49,7 +49,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
-  spriteBorder: {x: 46, y: 49, z: 46, w: 49}
+  spriteBorder: {x: 52, y: 41, z: 50, w: 49}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -121,7 +121,7 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
     buildTarget: Android
-    maxTextureSize: 256
+    maxTextureSize: 1024
     resizeAlgorithm: 0
     textureFormat: 51
     textureCompression: 1
@@ -149,5 +149,5 @@ TextureImporter:
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
-  assetBundleName: assets/assetbundlelocal/ui/withdrawtip/logo_bg.png.assetbundle
+  assetBundleName: assets/assetbundlelocal/ui/common/input.png.assetbundle
   assetBundleVariant: 
