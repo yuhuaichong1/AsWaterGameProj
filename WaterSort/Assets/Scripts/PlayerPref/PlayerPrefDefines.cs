@@ -56,6 +56,12 @@ public abstract class PlayerPrefDefines
 
     #endregion
 
+    #region PayoutModule
+
+    public static string payoutEntries => GetKey("WS_payoutEntries");            //PayoutModule_打款流程条目存档
+
+    #endregion
+
     #region GamePlayModule
 
     public static string ifContinue => GetKey("WS_ifContinue");                             //GamePlayModule_是否继续上一局游戏（数据持久化判断）

@@ -112,7 +112,7 @@ namespace XrCode
         {
             double money = FacadePlayer.GetMoney?.Invoke() ?? 0;
             mCurMoneyText.text = FacadePayType.RegionalChange?.Invoke(money);
-            if (FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.AmountOfMoney)
+            if (!GameDefines.UsePayoutV2 && FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.AmountOfMoney)
             {
                 SetWPMsg();
             }
@@ -241,7 +241,13 @@ namespace XrCode
 
             }
 
-            if (!GameDefines.ifIAA)
+
+            if (GameDefines.UsePayoutV2)
+            {
+                mWPrompt.gameObject.SetActive(false);
+                mCMDialog.gameObject.SetActive(false);
+            }
+            else if (!GameDefines.ifIAA)
             {
                 mCMDialog.gameObject.SetActive(!after8_10);
                 if (!after8_10)
@@ -428,7 +434,10 @@ namespace XrCode
 
 	    private void OnCMBtnClickHandle()
         {
-            UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal);
+            if (GameDefines.UsePayoutV2)
+                UIManager.Instance.OpenAsync<UIWithdrawGoal2>(EUIType.EUIWithdrawGoal2);
+            else
+                UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal);
         }
 
         private void OnTipExitBtnClickHandle()

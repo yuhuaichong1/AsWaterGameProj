@@ -31,6 +31,8 @@ namespace cfg
 		public TBLuckySpin TBLuckySpin {get; private set;}
 		public TBUserLevel TBUserLevel {get; private set;}
 		public TBMoneyInterval TBMoneyInterval {get; private set;}
+		public TBPayoutStep TBPayoutStep {get; private set;}
+		public TBPayoutTier TBPayoutTier {get; private set;}
 
 		private Queue<string> configNames;
 		private Queue<System.Action<ByteBuf>> configCbFuncs;
@@ -66,6 +68,10 @@ namespace cfg
 			tables.Add("TBUserLevel", TBUserLevel);
 			TBMoneyInterval = new TBMoneyInterval(loader("tbmoneyinterval")); 
 			tables.Add("TBMoneyInterval", TBMoneyInterval);
+			TBPayoutStep = new TBPayoutStep(loader("tbpayoutstep")); 
+			tables.Add("TBPayoutStep", TBPayoutStep);
+			TBPayoutTier = new TBPayoutTier(loader("tbpayouttier")); 
+			tables.Add("TBPayoutTier", TBPayoutTier);
 	
 			PostInit();
 			ResolveAllTable();
@@ -100,6 +106,10 @@ namespace cfg
             configCbFuncs.Enqueue(OnTBUserLevelDataFinish);
 			configNames.Enqueue("tbmoneyinterval");
             configCbFuncs.Enqueue(OnTBMoneyIntervalDataFinish);
+			configNames.Enqueue("tbpayoutstep");
+            configCbFuncs.Enqueue(OnTBPayoutStepDataFinish);
+			configNames.Enqueue("tbpayouttier");
+            configCbFuncs.Enqueue(OnTBPayoutTierDataFinish);
 
             LoadAllConfig();
         }
@@ -153,6 +163,8 @@ namespace cfg
 			TBLuckySpin.TranslateText(translator); 
 			TBUserLevel.TranslateText(translator); 
 			TBMoneyInterval.TranslateText(translator); 
+			TBPayoutStep.TranslateText(translator); 
+			TBPayoutTier.TranslateText(translator); 
 		}
 		
 		partial void PostInit();
@@ -171,6 +183,8 @@ namespace cfg
 			TBLuckySpin.Resolve(tables);
 			TBUserLevel.Resolve(tables);
 			TBMoneyInterval.Resolve(tables);
+			TBPayoutStep.Resolve(tables);
+			TBPayoutTier.Resolve(tables);
 		}
 	
 		private void ReloadOneTable(string reloadTableName)
@@ -214,6 +228,12 @@ namespace cfg
 					break;
 				case "TBMoneyInterval":
 					TBMoneyInterval.Reload(_loader("TBMoneyInterval"));
+					break;
+				case "TBPayoutStep":
+					TBPayoutStep.Reload(_loader("TBPayoutStep"));
+					break;
+				case "TBPayoutTier":
+					TBPayoutTier.Reload(_loader("TBPayoutTier"));
 					break;
 			}
 	
@@ -288,6 +308,16 @@ namespace cfg
 		{
 			TBMoneyInterval = new TBMoneyInterval(buf);
 			tables.Add("TBMoneyInterval", TBMoneyInterval);
+		}
+		public void OnTBPayoutStepDataFinish(ByteBuf buf)
+		{
+			TBPayoutStep = new TBPayoutStep(buf);
+			tables.Add("TBPayoutStep", TBPayoutStep);
+		}
+		public void OnTBPayoutTierDataFinish(ByteBuf buf)
+		{
+			TBPayoutTier = new TBPayoutTier(buf);
+			tables.Add("TBPayoutTier", TBPayoutTier);
 		}
 		//Finish Load all table 
 		public void OnLoadTbDataFinish()

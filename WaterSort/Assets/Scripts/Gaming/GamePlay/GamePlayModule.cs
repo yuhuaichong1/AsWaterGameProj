@@ -805,6 +805,7 @@ namespace XrCode
 
         private void IfLevelGuide()
         {
+            if (GameDefines.UsePayoutV2) return;
             if(FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.PassLevel && !GameDefines.ifIAA)
             {
                 if (curLevelIndex == 1 || curLevelIndex == 2 || curLevelIndex == GameDefines.miniLevel_End)

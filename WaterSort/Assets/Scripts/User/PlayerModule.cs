@@ -151,6 +151,12 @@ namespace XrCode
             SPlayerPrefs.SetDouble(PlayerPrefDefines.money, money);
             SPlayerPrefs.Save();
 
+            if (GameDefines.UsePayoutV2)
+            {
+                FacadePayout.NotifyMoneyUpdated?.Invoke();
+                return;
+            }
+
             if(money >= FacadeWithdraw.GetWTarget() && FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.AmountOfMoney)
             {
                 FacadeGuide.SetIfTutorial(true);
@@ -227,6 +233,12 @@ namespace XrCode
             level += value;
             SPlayerPrefs.SetInt(PlayerPrefDefines.level, level);
             SPlayerPrefs.Save();
+
+            if (GameDefines.UsePayoutV2)
+            {
+                ModuleMgr.Instance.PayoutModule?.OnLevelPassed(value);
+                return;
+            }
 
             if(FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.CheckIn)
             {

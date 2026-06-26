@@ -18,6 +18,7 @@ namespace XrCode
         private AdModule adModule;
         private PayTypeModule payTypeModule;
         private WithdrawModule withdrawalModule;
+        private PayoutModule payoutModule;
         public List<BaseModule> updateModList;
 
         public SceneMod SceneMod { get { return sceneMod; } }
@@ -35,6 +36,7 @@ namespace XrCode
         public EventModule EventModdule { get { return eventModdule; } }
         public PayTypeModule PayTypeModule { get { return payTypeModule; } }
         public WithdrawModule WithdrawalModule { get { return withdrawalModule; } }
+        public PayoutModule PayoutModule { get { return payoutModule; } }
 
 
         private bool isLoaded = false;
@@ -55,6 +57,7 @@ namespace XrCode
             adModule = new AdModule();
             payTypeModule = new PayTypeModule();
             withdrawalModule = new WithdrawModule();
+            payoutModule = new PayoutModule();
         }
         public void Dispose()
         {
@@ -72,6 +75,7 @@ namespace XrCode
             languageMod.Dispose();
             payTypeModule.Dispose();
             withdrawalModule.Dispose();
+            payoutModule.Dispose();
         }
 
         public void Start()
@@ -90,6 +94,7 @@ namespace XrCode
             sceneMod.Load();
             adModule.Load();
             withdrawalModule.Load();
+            payoutModule.Load();
             sceneMod.LoadScene(ESceneType.MainScene);
         }
 

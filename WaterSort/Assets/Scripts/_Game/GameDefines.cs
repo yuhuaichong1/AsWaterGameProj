@@ -114,6 +114,9 @@ public abstract class GameDefines
     public static int CheckInBankDay = 5;                                                                   //银行审核日期
     public static string CheckInBankKey = "CheckInBankKey";                                                 //判断银行审核日是否刷新的key
 
+    public static bool UsePayoutV2 = true;                                                                  //是否启用新版打款商业化流程（Payout V2）
+    public static bool PayoutSkipAmountCheck = true;                                                        //测试用：Cash Out 暂不校验余额门槛
+
     public static Vector2 HighValue = new Vector2(200, 1000);                                               //高价值提现区间
 
     #endregion
@@ -267,8 +270,9 @@ public enum EUIType
     EUIWithdrawTarget = 24,
     EUINewGamePlay = 25,
     EUIDateShow = 26,
-    EUIWithdrawGoal2 = 27,
-    EUIWithdrawTip = 28,
+    EUIWithdrawGoal2 = 28,
+    EUIWithdrawTip = 27,
+    EUIProgressPanel = 29,
 }
 
 /// <summary>

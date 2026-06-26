@@ -26,6 +26,8 @@ public class GM : MonoBehaviour
     [Space]
     public Button SkipCheckInBtn;
     public Button SkipBankReviewBtn;
+    [Space]
+    public Button PayoutAdvanceStepBtn;
 
     public bool GMbool;
 
@@ -84,6 +86,11 @@ public class GM : MonoBehaviour
         {
             SkipBankReviewBtn.onClick.AddListener(OnSkipBankReviewBtnClick);
         }
+
+        if (PayoutAdvanceStepBtn != null)
+        {
+            PayoutAdvanceStepBtn.onClick.AddListener(OnPayoutAdvanceStepBtnClick);
+        }
     }
 
     void Update()
@@ -91,11 +98,27 @@ public class GM : MonoBehaviour
         if (!IsGmPanelOpen())
             return;
 
-        // GM 面板打开时可用快捷键：F1 跳过签到，F2 跳过银行审核
+        // GM 面板打开时可用快捷键
         if (Input.GetKeyDown(KeyCode.F1))
-            GmSkipCheckInStep();
+        {
+            if (GameDefines.UsePayoutV2)
+                FacadePayout.GM_SkipCountdown?.Invoke();
+            else
+                GmSkipCheckInStep();
+        }
         if (Input.GetKeyDown(KeyCode.F2))
-            GmSkipBankReviewStep();
+        {
+            if (GameDefines.UsePayoutV2)
+                FacadePayout.GM_CompleteDailyTask?.Invoke();
+            else
+                GmSkipBankReviewStep();
+        }
+        if (GameDefines.UsePayoutV2 && Input.GetKeyDown(KeyCode.F3))
+            FacadePayout.GM_JumpToStep?.Invoke(1);
+        if (GameDefines.UsePayoutV2 && Input.GetKeyDown(KeyCode.F4))
+            FacadePayout.GM_CompleteCurrentStep?.Invoke();
+        if (GameDefines.UsePayoutV2 && Input.GetKeyDown(KeyCode.C))
+            FacadePayout.GM_AdvanceToNextStep?.Invoke();
     }
 
     private bool IsGmPanelOpen()
@@ -167,6 +190,23 @@ public class GM : MonoBehaviour
     private void OnSkipBankReviewBtnClick()
     {
         GmSkipBankReviewStep();
+    }
+
+    private void OnPayoutAdvanceStepBtnClick()
+    {
+        GmPayoutAdvanceStep();
+    }
+
+    /// <summary>
+    /// GM：完成当前打款步骤并进入下一步（测试用）
+    /// </summary>
+    private void GmPayoutAdvanceStep()
+    {
+        if (!GameDefines.ifDebug || !GameDefines.UsePayoutV2)
+            return;
+
+        FacadePayout.GM_AdvanceToNextStep?.Invoke();
+        FacadeGamePlay.SetCurMoneyShow();
     }
 
     /// <summary>
