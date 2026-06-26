@@ -170,14 +170,12 @@ public class GM : MonoBehaviour
 
     private void OnSkipLevelBtnClick()
     {
-        FacadeGamePlay.IfLevelGuide();
         UIManager.Instance.OpenAsync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, FacadePlayer.GetLevel());
         FacadePlayer.SetLevel(int.Parse(SkipLevelField.text));
     }
 
     private void OnPassLevelBtnClick()
     {
-        FacadeGamePlay.IfLevelGuide();
         UIManager.Instance.OpenAsync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, FacadePlayer.GetLevel());
         FacadePlayer.AddLevel(1);
     }
@@ -214,19 +212,20 @@ public class GM : MonoBehaviour
     /// </summary>
     private void GmSkipCheckInStep()
     {
-        if (!GameDefines.ifDebug)
-            return;
+        Debug.LogError("该方法已注释");
+        //if (!GameDefines.ifDebug)
+        //    return;
 
-        if (FacadeWithdraw.GetCurWithdrawTarget() != WithdrawTarget.CheckIn)
-        {
-            D.Log("[GM] 当前不是签到提现阶段，已跳过操作");
-            return;
-        }
+        //if (FacadeWithdraw.GetCurWithdrawTarget() != WithdrawTarget.CheckIn)
+        //{
+        //    D.Log("[GM] 当前不是签到提现阶段，已跳过操作");
+        //    return;
+        //}
 
-        FacadeWithdraw.SetCurCheckInDay(GameDefines.CheckInDay);
-        FacadeWithdraw.SetCurCheckLevel(GameDefines.CheckInLevel);
-        RefreshWithdrawGmUI();
-        D.Log($"[GM] 已跳过签到：{GameDefines.CheckInDay}/{GameDefines.CheckInDay} 天");
+        //FacadeWithdraw.SetCurCheckInDay(GameDefines.CheckInDay);
+        //FacadeWithdraw.SetCurCheckLevel(GameDefines.CheckInLevel);
+        //RefreshWithdrawGmUI();
+        //D.Log($"[GM] 已跳过签到：{GameDefines.CheckInDay}/{GameDefines.CheckInDay} 天");
     }
 
     /// <summary>
@@ -234,25 +233,27 @@ public class GM : MonoBehaviour
     /// </summary>
     private void GmSkipBankReviewStep()
     {
-        if (!GameDefines.ifDebug)
-            return;
+        Debug.LogError("该方法已注释");
 
-        if (FacadeWithdraw.GetCurWithdrawTarget() != WithdrawTarget.CheckIn)
-        {
-            D.Log("[GM] 当前不是签到提现阶段，已跳过操作");
-            return;
-        }
+        //if (!GameDefines.ifDebug)
+        //    return;
 
-        if (FacadeWithdraw.GetCurCheckInDay() < GameDefines.CheckInDay)
-        {
-            D.Log("[GM] 签到未满，请先跳过签到或完成签到");
-            return;
-        }
+        //if (FacadeWithdraw.GetCurWithdrawTarget() != WithdrawTarget.CheckIn)
+        //{
+        //    D.Log("[GM] 当前不是签到提现阶段，已跳过操作");
+        //    return;
+        //}
 
-        FacadeWithdraw.SetCurCheckInBankDay(GameDefines.CheckInBankDay);
-        FacadeWithdraw.SetCurCheckLevel(GameDefines.CheckInLevel);
-        RefreshWithdrawGmUI();
-        D.Log($"[GM] 已跳过银行审核：{GameDefines.CheckInBankDay}/{GameDefines.CheckInBankDay} 天");
+        //if (FacadeWithdraw.GetCurCheckInDay() < GameDefines.CheckInDay)
+        //{
+        //    D.Log("[GM] 签到未满，请先跳过签到或完成签到");
+        //    return;
+        //}
+
+        //FacadeWithdraw.SetCurCheckInBankDay(GameDefines.CheckInBankDay);
+        //FacadeWithdraw.SetCurCheckLevel(GameDefines.CheckInLevel);
+        //RefreshWithdrawGmUI();
+        //D.Log($"[GM] 已跳过银行审核：{GameDefines.CheckInBankDay}/{GameDefines.CheckInBankDay} 天");
     }
 
     private void RefreshWithdrawGmUI()

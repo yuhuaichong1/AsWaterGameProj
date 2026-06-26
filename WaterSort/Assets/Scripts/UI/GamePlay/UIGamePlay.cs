@@ -83,8 +83,9 @@ namespace XrCode
             mIAAMoneyIcon.gameObject.gameObject.SetActive(GameDefines.ifIAA);
             mCMBtn.gameObject.SetActive(!GameDefines.ifIAA);
             mCMDialog.gameObject.SetActive(!GameDefines.ifIAA);
-            mWLProgress.gameObject.SetActive(!GameDefines.ifIAA);
-            if(GameDefines.ifIAA) mReStartBtn.transform.position = mReStartBtnIAAPos.position;
+            mWLProgress.gameObject.SetActive(false);
+            mWPrompt.gameObject.SetActive(false);
+            if (GameDefines.ifIAA) mReStartBtn.transform.position = mReStartBtnIAAPos.position;
 
             string levelText = string.Format(FacadeLanguage.GetText?.Invoke("10016"), FacadePlayer.GetLevel());
             mLTCurLevelText.text = levelText;
@@ -112,10 +113,7 @@ namespace XrCode
         {
             double money = FacadePlayer.GetMoney?.Invoke() ?? 0;
             mCurMoneyText.text = FacadePayType.RegionalChange?.Invoke(money);
-            if (!GameDefines.UsePayoutV2 && FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.AmountOfMoney)
-            {
-                SetWPMsg();
-            }
+            //SetWPMsg();
         }
 
         /// <summary>
@@ -185,10 +183,10 @@ namespace XrCode
         /// </summary>
         private void SetLevelShow()
         {
-            if (GameDefines.ifIAA)
-                mCurLevel.gameObject.SetActive(true);
-            else
-                mCurLevel.gameObject.SetActive(FacadeWithdraw.GetCurWithdrawTarget() != WithdrawTarget.PassLevel);
+            mCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), FacadePlayer.GetLevel());
+            return;
+
+            mCurLevel.gameObject.SetActive(true);
 
             int curLevel = FacadePlayer.GetLevel();
 
@@ -282,50 +280,9 @@ namespace XrCode
         /// </summary>
         private void SetWPMsg()
         {
-            if(FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.AmountOfMoney)
-            {
-                float remainMoney = FacadeWithdraw.GetRemainTarget();
-                float wTargetMoney = FacadeWithdraw.GetWTarget();
-                mWPText.text = string.Format(FacadeLanguage.GetText("10005"), FacadePayType.RegionalChange(remainMoney), FacadePayType.RegionalChange(wTargetMoney));
-
-                mWPSText.text = $"{(int)(FacadePlayer.GetMoney())}/{(int)(wTargetMoney * FacadePayType.GetExchangeRate())}";
-                mWPSlider.value = (float)FacadePlayer.GetMoney() / wTargetMoney;
-            }
-            else if(FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.CheckIn)
-            {
-                int remainLevel = GameDefines.CheckInLevel - FacadeWithdraw.GetCurCheckLevel();
-                mWPText.text = FacadeWithdraw.GetWCheckInLevelText();
-                mWPSText.text = $"{FacadeWithdraw.GetCurCheckLevel()}/{GameDefines.CheckInLevel}";
-                mWPSlider.value = (float)FacadeWithdraw.GetCurCheckLevel() / GameDefines.CheckInLevel;
-
-                /*
-                if (FacadeWithdraw.GetCurCheckInDay() >= GameDefines.CheckInDay)
-                {
-                    mWPText.text = FacadeLanguage.GetText("10128");
-                    mWPSText.text = $"{GameDefines.CheckInDay}/{GameDefines.CheckInDay}";
-                    mWPSlider.value = 1;
-                }
-                else
-                {
-                    if(FacadeWithdraw.GetCurCheckLevel() >= GameDefines.CheckInLevel)
-                    {
-                        int remainDay = GameDefines.CheckInDay - FacadeWithdraw.GetCurCheckInDay();
-                        mWPText.text = string.Format(FacadeLanguage.GetText("10083"), GameDefines.CheckInDay, remainDay);
-                        mWPSText.text = $"{FacadeWithdraw.GetCurCheckInDay()}/{GameDefines.CheckInDay}";
-                        mWPSlider.value = (float)FacadeWithdraw.GetCurCheckInDay() / GameDefines.CheckInDay;
-
-                    }
-                    else
-                    {
-                        int remainLevel = GameDefines.CheckInLevel - FacadeWithdraw.GetCurCheckLevel();
-                        mWPText.text = string.Format(FacadeLanguage.GetText("10007"), remainLevel);
-                        mWPSText.text = $"{FacadeWithdraw.GetCurCheckLevel()}/{GameDefines.CheckInLevel}";
-                        mWPSlider.value = (float)FacadeWithdraw.GetCurCheckLevel() / GameDefines.CheckInLevel;
-                    }
-                }
-                */
-            }
-
+            mWPText.text = "";
+            mWPSText.text = $"{0}/{1}";
+            mWPSlider.value = 0;
         }
 
         #endregion
@@ -434,10 +391,7 @@ namespace XrCode
 
 	    private void OnCMBtnClickHandle()
         {
-            if (GameDefines.UsePayoutV2)
-                UIManager.Instance.OpenAsync<UIWithdrawGoal2>(EUIType.EUIWithdrawGoal2);
-            else
-                UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal);
+            UIManager.Instance.OpenAsync<UIWithdrawGoal2>(EUIType.EUIWithdrawGoal2);
         }
 
         private void OnTipExitBtnClickHandle()

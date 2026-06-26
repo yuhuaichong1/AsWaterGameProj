@@ -273,9 +273,6 @@ public class GuideModule : BaseModule
                 case "handC":
                     FacadeGuide.SetHandCorrection(bool.Parse(kvp.Value) ? -50 : 0);
                     break;
-                case "iac":
-                    FacadeWithdraw.SetIfAfterCreate(true);
-                    break;
             }
         }
     }
@@ -288,83 +285,8 @@ public class GuideModule : BaseModule
     /// </summary>
     private void PlayGuideByTargetType()
     {
-        FacadeWithdraw.ActionByCurWTarget((value) =>
-        {
-            if(value == 1)
-            {
-                if(!GameDefines.ifIAA)
-                {
-                    UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.FirstTarget, (Action)PlayGuideByTargetType2);
-                }
-                else
-                {
-                    FacadeGamePlay.CreateLevel();
-                    ShowIAAGuide();
-                }
-            }
-            else if (value == 2)
-            {
-                if (!GameDefines.ifIAA)
-                {
-                    UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.FinishTarget1, (Action)BeforeTarget_Level2);
-                }
-                else
-                {
-                    FacadeGamePlay.CreateLevel();
-                }
-
-            }
-            else if(value == 3)
-            {
-                if (!GameDefines.ifIAA)
-                {
-                    UIManager.Instance.OpenAsync<UIWithdrawTarget>(EUIType.EUIWithdrawTarget, UIOpenType.None, null, UIWTOpenType.FinishTarget1, (Action)BeforeTarget_Level3);
-                }
-                else
-                {
-                    FacadeGamePlay.CreateLevel();
-                }
-            }
-        }, (value) =>
-        {
-            if (!GameDefines.ifIAA)
-            {
-                if (GameDefines.UsePayoutV2)
-                {
-                    FacadeGamePlay.CreateLevel();
-                    return;
-                }
-                UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
-                {
-                    curStep = 10008;
-                    PlayGuideByTargetType3();
-                }, true, false);
-            }
-            else
-            {
-                FacadeGamePlay.CreateLevel();
-            }
-        }, (value) => 
-        {
-            if (!GameDefines.ifIAA)
-            {
-                if (GameDefines.UsePayoutV2)
-                {
-                    FacadeGamePlay.CreateLevel();
-                    return;
-                }
-                
-                UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
-                {
-                    curStep = 10009;
-                    PlayGuideByTargetType3();
-                }, true, false);
-            }
-            else
-            {
-                FacadeGamePlay.CreateLevel();
-            }
-        });
+        FacadeGamePlay.CreateLevel();
+        ShowIAAGuide();
     }
 
     private void ShowIAAGuide()
@@ -377,47 +299,6 @@ public class GuideModule : BaseModule
                 ShowIAAGuide();
             else
                 FacadeGuide.PlayGuide();
-        });
-    }
-
-    private void BeforeTarget_Level2()
-    {
-        if (GameDefines.UsePayoutV2)
-        {
-            FacadeGamePlay.CreateLevel();
-            return;
-        }
-        UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
-        {
-            curStep = 10006;
-            PlayGuideByTargetType3();
-
-        }, true, false);
-    }
-
-    private void BeforeTarget_Level3()
-    {
-        if (GameDefines.UsePayoutV2)
-        {
-            FacadeGamePlay.CreateLevel();
-            return;
-        }
-        UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal, UIOpenType.None, (BaseUI) =>
-        {
-            curStep = 10007;
-            PlayGuideByTargetType3();
-
-        }, true, false);
-    }
-
-    private void PlayGuideByTargetType2()
-    {
-        FacadeGamePlay.CreateLevel();
-        STimerManager.Instance.CreateSDelay(0.2f, () =>
-        {
-            curStep = 10001;
-            SetCurGuideItems(curStep);
-            FacadeGuide.PlayGuide();
         });
     }
 
