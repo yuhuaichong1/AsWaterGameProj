@@ -1,5 +1,7 @@
 ﻿
+using cfg;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,6 +10,8 @@ namespace XrCode
 
     public partial class UIWithdrawAccount : BaseUI
     {
+        EPayType curChannel;
+
         protected override void OnAwake()
         {
             mIIPlaceholder.text = FacadeLanguage.GetText("10147");
@@ -15,11 +19,20 @@ namespace XrCode
 
         protected override void OnSetParam(params object[] args)
         {
-            
+            curChannel = (EPayType)args[0];
         }
 
         protected override void OnEnable()
         {
+            mInfoInoutField.text = FacadeWithdraw.GetWPhoneOrEmail2(curChannel);
+            List<PayNode> nodes = FacadePayType.GetPayItems();
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                if (curChannel == nodes[i].payType)
+                {
+                    mIcon.sprite = nodes[i].picture;
+                }
+            }
             ShowAnim(mPlane);
         }
         	    private void OnSubmitBtnClickHandle()        {            if(string.IsNullOrEmpty(mInfoInoutField.text))
@@ -32,7 +45,7 @@ namespace XrCode
                     HideAnim(mPlane, () =>
                     {
                         UIManager.Instance.CloseUI(EUIType.EUIWithdrawAccount);
-                        //FacadeWithdraw.Set;
+                        FacadeWithdraw.SetWPhoneOrEmail2(curChannel, mInfoInoutField.text);
                     });
                 }
                 else

@@ -53,6 +53,9 @@ public abstract class PlayerPrefDefines
     public static string canWithdraw => GetKey("WS_canWithdraw");                //WithdrawModule_当前是否可兑现
     public static string ifDailyChecked => GetKey("WS_ifDailyChecked");          //WithdrawModule_当前是否可推进一个日期签到
     public static string curCehckInBankDay => GetKey("WS_curCehckInBankDay");    //WithdrawModule_当前是否可推进一个银行日期审核
+    public static string trWaitTime => GetKey("WS_trWaitTime");                  //WithdrawModule_当前已经过去的时间
+    public static string trStatus => GetKey("WS_trStatus");                      //WithdrawModule_当前状态
+    public static string payTypeInfo => GetKey("WS_payTypeInfo");                //WithdrawModule_支付渠道信息
 
     #endregion
 

@@ -93,8 +93,8 @@ namespace XrCode
             tDAnalyticsManager.Load();
             sceneMod.Load();
             adModule.Load();
-            withdrawalModule.Load();
             payoutModule.Load();
+            withdrawalModule.Load();
             sceneMod.LoadScene(ESceneType.MainScene);
         }
 

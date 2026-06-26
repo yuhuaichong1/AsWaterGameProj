@@ -125,14 +125,7 @@ namespace XrCode
 
         private void OnSetCurWInfoBtnClickHandle()
         {
-            if (!GameDefines.UsePayoutV2)
-            {
-                FacadeWithdraw.CheckOpenUI(false, null);
-                return;
-            }
-
-            if (!FacadePayout.HasBoundAccount())
-                UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10055"));
+            UIManager.Instance.OpenAsync<UIWithdrawAccount>(EUIType.EUIWithdrawAccount, UIOpenType.None, null, curChannelIndex);
         }
 
         protected override void OnDispose() { }

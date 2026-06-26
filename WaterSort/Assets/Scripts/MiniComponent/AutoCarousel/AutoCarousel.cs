@@ -97,7 +97,7 @@ public class AutoCarousel : MonoBehaviour
         int count = payItems.Count;
         obj.transform.GetChild(0).GetComponent<Image>().sprite = payItems[UnityEngine.Random.Range(0, count)].icon;
 
-        string name = FacadePlayer.GetRandomName();
+        string name = FacadePlayer.GetRandomName(false);
         int level = UnityEngine.Random.Range(1, 10);
         int times = UnityEngine.Random.Range(1, 50);
         float money = times * UnityEngine.Random.Range(8f, 12f);
