@@ -263,7 +263,7 @@ public enum EUIType
     EUIWithdrawGoal2 = 17,
     EUIWithdrawAccount = 18,
     EUIWithdrawConfirm2 = 19,
- EUIProgressPanel = 29,
+    EUIProgressPanel = 20,
 }
 
 /// <summary>

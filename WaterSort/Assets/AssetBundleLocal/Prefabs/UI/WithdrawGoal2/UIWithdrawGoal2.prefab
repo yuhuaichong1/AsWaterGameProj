@@ -290,7 +290,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 560, y: -233.86}
+  m_AnchoredPosition: {x: 560, y: -0}
   m_SizeDelta: {x: 1120, y: 220}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &2373565999157062739
@@ -507,9 +507,9 @@ RectTransform:
   - {fileID: 6412163671810515877}
   m_Father: {fileID: 8731653662953619673}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 423, y: -75}
   m_SizeDelta: {x: 274, y: 120}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &4000694766173756590
@@ -931,8 +931,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u914D\u7F6E\u9519\u8BEF\uFF1A\u591A\u8BED\u8A00\u8868\u4E2Did: 10143
-    \u4E0D\u5B58\u5728"
+  m_Text: Progressing
   m_languageId: 10143
   m_editorText: 
   isArabicText: 0
@@ -1734,8 +1733,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u914D\u7F6E\u9519\u8BEF\uFF1A\u591A\u8BED\u8A00\u8868\u4E2Did: 10139
-    \u4E0D\u5B58\u5728"
+  m_Text: Cash Out
   m_languageId: 10139
   m_editorText: 
   isArabicText: 0
@@ -3516,8 +3514,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u914D\u7F6E\u9519\u8BEF\uFF1A\u591A\u8BED\u8A00\u8868\u4E2Did: 10140
-    \u4E0D\u5B58\u5728"
+  m_Text: Redeem
   m_languageId: 10140
   m_editorText: 
   isArabicText: 0
@@ -3616,8 +3613,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u914D\u7F6E\u9519\u8BEF\uFF1A\u591A\u8BED\u8A00\u8868\u4E2Did: 10141
-    \u4E0D\u5B58\u5728"
+  m_Text: Total balance
   m_languageId: 10141
   m_editorText: 
   isArabicText: 0
@@ -3758,7 +3754,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8609298470100878454}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
   m_Name: 
