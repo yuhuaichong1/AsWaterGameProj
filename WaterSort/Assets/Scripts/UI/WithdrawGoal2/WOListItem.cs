@@ -18,7 +18,7 @@ public class WOListItem : MonoBehaviour
     private PayoutEntryKey entryKey;
     private float targetAmount;
     private System.Action onRefreshParent;
-
+    private Sprite icon;
     void Awake()
     {
         if (MSText == null && MoneySlider != null)
@@ -35,6 +35,8 @@ public class WOListItem : MonoBehaviour
         onRefreshParent = refreshParent;
         Icon.sprite = icon;
         TargetText.text = FacadePayType.RegionalChange(target);
+
+        this.icon = icon;
         CancelInvoke(nameof(Refresh));
         InvokeRepeating(nameof(Refresh), 0f, 1f);
         Refresh();
@@ -102,6 +104,13 @@ public class WOListItem : MonoBehaviour
         if (FacadePayout.CanStart != null && !FacadePayout.CanStart(entryKey))
             return;
 
+        if (!string.IsNullOrEmpty(FacadeWithdraw.GetWPhoneOrEmail2(entryKey.Channel)))
+            UIManager.Instance.OpenAsync<UIWithdrawConfirm2>(EUIType.EUIWithdrawConfirm2, UIOpenType.None, null, entryKey, onRefreshParent, targetAmount, icon);
+        else
+            UIManager.Instance.OpenNotice3(FacadeLanguage.GetText("10059"));
+    }
+    private void OnCashOutBtnClick2()
+    {
         if (FacadePayout.EnsureStartedAndOpen(entryKey))
             onRefreshParent?.Invoke();
     }

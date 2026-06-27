@@ -46,6 +46,7 @@ namespace XrCode
                     {
                         UIManager.Instance.CloseUI(EUIType.EUIWithdrawAccount);
                         FacadeWithdraw.SetWPhoneOrEmail2(curChannel, mInfoInoutField.text);
+                        FacadeWithdraw.RefreshHeader();
                     });
                 }
                 else

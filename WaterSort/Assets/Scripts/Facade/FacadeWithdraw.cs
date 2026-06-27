@@ -31,4 +31,6 @@ public static class FacadeWithdraw
 
     public static Action<EPayType, string> SetWPhoneOrEmail2;                           //设置兑现渠道的信息
     public static Func<EPayType, string> GetWPhoneOrEmail2;                             //获取兑现渠道的信息
+
+    public static Action RefreshHeader;                                                 //刷新兑现界面当前信息显示
 }

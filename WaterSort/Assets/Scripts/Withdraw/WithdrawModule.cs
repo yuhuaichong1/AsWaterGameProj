@@ -21,9 +21,11 @@ namespace XrCode
         private List<float> TargetInterval;
 
 
-        private int trWaitTime;
-        private DateTime lastMarkTime;
-        private TrStatus trStatus;
+        private int trWaitTime;//累计奖励的累计等待时间
+        private TrStatus trStatus;//累计奖励当前状态
+
+        private float curMaxTargetMoney;//当前最大目标金钱
+        private EPayType curMaxTargetType;//当前最大目标金钱的
 
         protected override void OnLoad()
         {
@@ -213,6 +215,9 @@ namespace XrCode
                 SPlayerPrefs.SetDictionary<int, string>(PlayerPrefDefines.payTypeInfo, payTypeInfo);
                 SPlayerPrefs.Save();
             }
+
+            //curMaxTargetMoney = SPlayerPrefs.GetFloat(PlayerPrefDefines.curMaxTargetMoney, 1000);
+            //curMaxTargetType = (EPayType)SPlayerPrefs.GetInt(PlayerPrefDefines.curMaxTargetType, (int)payNodes[0].payType);
         }
 
         /// <summary>
