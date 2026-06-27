@@ -168,9 +168,14 @@ namespace XrCode
 
         private bool CanStart(PayoutEntryKey key)
         {
-            if (GameDefines.PayoutSkipAmountCheck) return true;
             float amount = PayoutStepTaskHelper.GetTierAmount(key.TierId);
-            return FacadePlayer.GetMoney() >= amount && HasBoundAccount();
+            if (FacadePlayer.GetMoney() < amount)
+                return false;
+
+            if (GameDefines.PayoutSkipAmountCheck)
+                return true;
+
+            return HasBoundAccount();
         }
 
         private bool StartEntry(PayoutEntryKey key)
@@ -181,6 +186,9 @@ namespace XrCode
             if (!CanStart(key)) return false;
 
             float amount = PayoutStepTaskHelper.GetTierAmount(key.TierId);
+            if (FacadePlayer.GetMoney() < amount)
+                return false;
+
             FacadePlayer.AddMoney(-amount);
             FacadeGamePlay.SetCurMoneyShow?.Invoke();
             NotifyMoneyUpdated();
