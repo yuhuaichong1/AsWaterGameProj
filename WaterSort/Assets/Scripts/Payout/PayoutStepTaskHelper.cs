@@ -207,6 +207,9 @@ public static class PayoutStepTaskHelper
         display.PrevTask = FormatPrevTask(entry, prevStep, tierAmount, step);
         display.CurTask = FormatCurTask(entry, step, tierAmount);
         display.Explain = FormatExplain(entry, step, tierAmount);
+        display.CurStepDone = display.CanContinue;
+        display.PrevStepDone = true;
+        display.ShowFinishBanner = entry.IsStarted;
         return display;
     }
 

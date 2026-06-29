@@ -26,6 +26,7 @@ public class WOListItem : MonoBehaviour
 
         CashOutBtn.onClick.AddListener(OnCashOutBtnClick);
         ContinueBtn.onClick.AddListener(OnContinueBtnClick);
+        UnContinueBtn.onClick.AddListener(OnUnContinueBtnClick);
     }
 
     public void Init(PayoutEntryKey key, Sprite icon, float target, System.Action refreshParent)
@@ -104,13 +105,20 @@ public class WOListItem : MonoBehaviour
         if (FacadePayout.CanStart != null && !FacadePayout.CanStart(entryKey))
             return;
 
-        if (!string.IsNullOrEmpty(FacadeWithdraw.GetWPhoneOrEmail2(entryKey.Channel)))
-            UIManager.Instance.OpenAsync<UIWithdrawConfirm2>(EUIType.EUIWithdrawConfirm2, UIOpenType.None, null, entryKey, onRefreshParent, targetAmount, icon);
-        else
-            UIManager.Instance.OpenNotice3(FacadeLanguage.GetText("10059"));
-    }
-    private void OnCashOutBtnClick2()
-    {
+        if (!string.IsNullOrEmpty(FacadeWithdraw.GetWPhoneOrEmail2(entryKey.Channel)))
+
+            UIManager.Instance.OpenAsync<UIWithdrawConfirm2>(EUIType.EUIWithdrawConfirm2, UIOpenType.None, null, entryKey, onRefreshParent, targetAmount, icon);
+
+        else
+
+            UIManager.Instance.OpenNotice3(FacadeLanguage.GetText("10059"));
+
+    }
+
+    private void OnCashOutBtnClick2()
+
+    {
+
         if (FacadePayout.EnsureStartedAndOpen(entryKey))
             onRefreshParent?.Invoke();
     }
@@ -123,6 +131,15 @@ public class WOListItem : MonoBehaviour
         ModuleMgr.Instance.PayoutModule.SetGmFocusKey(entryKey);
         FacadePayout.OpenProgressPanel(entryKey);
         onRefreshParent?.Invoke();
+    }
+
+    private void OnUnContinueBtnClick()
+    {
+        var entry = FacadePayout.GetEntry?.Invoke(entryKey);
+        if (entry == null || !entry.IsStarted) return;
+
+        ModuleMgr.Instance.PayoutModule.SetGmFocusKey(entryKey);
+        FacadePayout.OpenProgressPanel(entryKey);
     }
 
     private void OnDestroy()
