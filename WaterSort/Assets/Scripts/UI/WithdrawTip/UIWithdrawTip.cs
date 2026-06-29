@@ -8,24 +8,30 @@ namespace XrCode
 
     public partial class UIWithdrawTip : BaseUI
     {
-        private PayoutEntryKey entryKey;
-        private Action onRefreshParent;
-        
+        //private PayoutEntryKey entryKey;
+        //private Action onRefreshParent;
+
+        private float money;
+        private Sprite icon;
+
 
         protected override void OnAwake() { }
         protected override void OnEnable()
         {
-            //mWTypeIcon.sprite = ;
-            //mTargetMoney.text = ;
+            mWTypeIcon.sprite = icon;
+            mTargetMoney.text = FacadePayType.RegionalChange(money);
             
             ShowAnim(mPlane);
         }
 
         protected override void OnSetParam(params object[] args)
         {
-            entryKey = (PayoutEntryKey)args[0];
-            onRefreshParent = (Action)args[1];
-            
+            //entryKey = (PayoutEntryKey)args[0];
+            //onRefreshParent = (Action)args[1];
+            money = (float)args[0];
+            icon = (Sprite)args[1];
+
+
         }
 
         private void OnExitBtnClickHandle()        {            HideAnim(mPlane, () =>             {                UIManager.Instance.CloseUI(EUIType.EUIWithdrawTip);            });        }	    private void OnCashOutBtnClickHandle()

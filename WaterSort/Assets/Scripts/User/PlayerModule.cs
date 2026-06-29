@@ -150,6 +150,8 @@ namespace XrCode
             money += value;
             SPlayerPrefs.SetDouble(PlayerPrefDefines.money, money);
             SPlayerPrefs.Save();
+
+            FacadePayout.IfShowTip(money);
         }
 
         #endregion
