@@ -192,10 +192,10 @@ namespace XrSDK
             //interstitialStatusText.text = "Load failed: " + errorInfo.Code + "\nRetrying in " + retryDelay + "s...";
             D.Log("Interstitial failed to load with error code: " + errorInfo.Code);
             //广播插屏广告加载失败事件
-            MonoInst.Instance.Invoke("LoadInterstitial", (float)retryDelay);
+            //MonoInst.Instance.Invoke("LoadInterstitial", (float)retryDelay);
 
             FacadeMaxSdkExtend.OnInterstitialAdLoadFailedEvent?.Invoke(adUnitId, errorInfo);
-            FacadeAd.InterstitialAdLoadFailed?.Invoke(errorInfo.Code.ToString(), errorInfo.Message);
+            //FacadeAd.InterstitialAdLoadFailed?.Invoke(errorInfo.Code.ToString(), errorInfo.Message);
         }
 
         private void InterstitialFailedToDisplayEvent(string adUnitId, MaxSdkBase.ErrorInfo errorInfo, MaxSdkBase.AdInfo adInfo)
@@ -344,11 +344,11 @@ namespace XrSDK
 
             D.Log("Rewarded ad failed to load with error code: " + errorInfo.Code);
 
-            MonoInst.Instance.Invoke("LoadRewardedAd", (float)retryDelay);
+            //MonoInst.Instance.Invoke("LoadRewardedAd", (float)retryDelay);
             //广播激励视频加载失败事件
             FacadeMaxSdkExtend.OnRewardedAdLoadFailEvent?.Invoke(adUnitId, errorInfo);
 
-            FacadeAd.RewardAdLoadFailed?.Invoke(errorInfo.Code.ToString(), errorInfo.Message);
+            //FacadeAd.RewardAdLoadFailed?.Invoke(errorInfo.Code.ToString(), errorInfo.Message);
         }
 
         private void OnRewardedAdFailedToDisplayEvent(string adUnitId, MaxSdkBase.ErrorInfo errorInfo, MaxSdkBase.AdInfo adInfo)
