@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using cfg;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace XrCode
 {
@@ -69,6 +70,7 @@ namespace XrCode
             FacadePayout.GM_ShortenStepTimeMinutes = GM_ShortenStepTimeMinutes;
             FacadePayout.GM_JumpToStep = GM_JumpToStep;
             FacadePayout.IfShowTip = IfShowTip;
+            FacadePayout.SetCMDText = SetCMDText;
         }
 
         private void UnregisterFacade()
@@ -92,6 +94,7 @@ namespace XrCode
             FacadePayout.GM_ShortenStepTimeMinutes = null;
             FacadePayout.GM_JumpToStep = null;
             FacadePayout.IfShowTip = null;
+            FacadePayout.SetCMDText = null;
         }
 
         public void OnLevelPassed(int count = 1)
@@ -358,6 +361,23 @@ namespace XrCode
 
                 UIManager.Instance.OpenAsync<UIWithdrawTip>(EUIType.EUIWithdrawTip, UIOpenType.None, null, tempTarget, icon);
             }
+        }
+
+        private void SetCMDText()
+        {
+            List<PayoutEntryData> peds = entries.Values.ToList();
+            peds.Reverse();
+            for(int i = 0; i < peds.Count; i++)
+            {
+                PayoutEntryKey entryKey = peds[i].Key;
+                if (!CanContinue(entryKey))
+                {
+                    FacadeGamePlay.SetWithdrawalTip(GetStepDisplay(entryKey).CurTask);
+                    return;
+                }
+            }
+
+            FacadeGamePlay.SetWithdrawalTip(string.Format(FacadeLanguage.GetText("10236"), curTipTarget - (float)FacadePlayer.GetMoney(), curTipTarget));
         }
 
 

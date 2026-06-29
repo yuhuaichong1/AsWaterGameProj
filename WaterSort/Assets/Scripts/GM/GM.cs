@@ -177,10 +177,12 @@ public class GM : MonoBehaviour
 
     private void OnTestFunctionBtnClick()
     {
-        FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct
-        {
-            Type = ERewardType.Prop1,
-            Count = 1f,
-        }, null);
+        UIManager.Instance.OpenAsync<UILuckyReward>(EUIType.EUILuckyReward);
+
+        //FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct
+        //{
+        //    Type = ERewardType.Prop1,
+        //    Count = 1f,
+        //}, null);
     }
 }

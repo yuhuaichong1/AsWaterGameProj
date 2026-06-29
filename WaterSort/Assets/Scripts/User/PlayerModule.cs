@@ -152,6 +152,7 @@ namespace XrCode
             SPlayerPrefs.Save();
 
             FacadePayout.IfShowTip(money);
+            FacadePayout.SetCMDText();
         }
 
         #endregion
@@ -222,6 +223,7 @@ namespace XrCode
             level += value;
             SPlayerPrefs.SetInt(PlayerPrefDefines.level, level);
             SPlayerPrefs.Save();
+            FacadePayout.SetCMDText();
         }
 
         #endregion

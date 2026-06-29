@@ -164,9 +164,9 @@ namespace XrCode
         /// <summary>
         /// 设置提现目标显示
         /// </summary>
-        private void SetWithdrawalTip()
+        private void SetWithdrawalTip(string value)
         {
-            //mCMDialogText.text = string.Format(FacadeLanguage.GetText(), );
+            mCMDialogText.text = value;
         }
 
         /// <summary>

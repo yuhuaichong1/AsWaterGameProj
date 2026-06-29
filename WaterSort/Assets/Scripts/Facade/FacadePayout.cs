@@ -28,4 +28,5 @@ public static class FacadePayout
     public static Action<int> GM_JumpToStep;
 
     public static Action<double> IfShowTip;
+    public static Action SetCMDText;
 }
