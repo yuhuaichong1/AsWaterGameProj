@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using cfg;
 using UnityEngine;
-using XrCode;
-using static UnityEditor.Progress;
 
 namespace XrCode
 {
