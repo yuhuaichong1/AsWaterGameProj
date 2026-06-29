@@ -334,6 +334,8 @@ namespace XrCode
             wrapper.items = list.ToArray();
             SPlayerPrefs.SetString(PlayerPrefDefines.payoutEntries, JsonUtility.ToJson(wrapper));
             SPlayerPrefs.Save();
+
+            SetCMDText();
         }
 
         private void IfShowTip(double money)
