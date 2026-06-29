@@ -485,6 +485,7 @@ namespace XrCode
         {
             D.Log($"'{eAdType}' Ad '{eAdSource}' displayed successfully");
             FacadeAd.OnAdDisplayed?.Invoke(eAdType, eAdSource, platform, revenue, ecpm, precision);
+            FacadePayout.SetCMDText();
         }
 
         /// <summary>
