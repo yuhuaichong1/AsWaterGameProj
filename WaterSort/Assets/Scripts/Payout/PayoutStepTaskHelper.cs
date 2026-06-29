@@ -207,6 +207,7 @@ public static class PayoutStepTaskHelper
         display.PrevTask = FormatPrevTask(entry, prevStep, tierAmount, step);
         display.CurTask = FormatCurTask(entry, step, tierAmount);
         display.Explain = FormatExplain(entry, step, tierAmount);
+        display.Finish = FormatFinish(entry, step, tierAmount);
         display.CurStepDone = display.CanContinue;
         display.PrevStepDone = true;
         display.ShowFinishBanner = entry.IsStarted;
@@ -266,6 +267,33 @@ public static class PayoutStepTaskHelper
     private static string FormatExplain(PayoutEntryData entry, ConfPayoutStep step, float tierAmount)
     {
         string langKey = step.ExplainLangId.ToString();
+        switch (step.TaskType)
+        {
+            case EPayoutTaskType.Ad:
+                return string.Format(FacadeLanguage.GetText(langKey), step.TaskTarget);
+            case EPayoutTaskType.Level:
+            case EPayoutTaskType.DailyLevel:
+                return string.Format(FacadeLanguage.GetText(langKey), step.TaskTarget);
+            case EPayoutTaskType.CheckIn:
+                return string.Format(FacadeLanguage.GetText(langKey),
+                    Math.Max(0, step.DailyLevelTarget - entry.dailyLevelProgress));
+            case EPayoutTaskType.BankReview:
+                return string.Format(FacadeLanguage.GetText(langKey), step.TaskTarget,
+                    Math.Max(0, step.DailyLevelTarget - entry.dailyLevelProgress));
+            case EPayoutTaskType.Online:
+                return string.Format(FacadeLanguage.GetText(langKey), step.TaskTarget);
+            case EPayoutTaskType.Queue:
+                return string.Format(FacadeLanguage.GetText(langKey),
+                    Math.Max(0, step.DailyLevelTarget - entry.dailyLevelProgress));
+            default:
+                return FacadeLanguage.GetText(langKey);
+        }
+    }
+
+    private static string FormatFinish(PayoutEntryData entry, ConfPayoutStep step, float tierAmount)
+    {
+        string langKey = step.FinishLangId.ToString();
+        return string.Format(FacadeLanguage.GetText(langKey));
         switch (step.TaskType)
         {
             case EPayoutTaskType.Ad:

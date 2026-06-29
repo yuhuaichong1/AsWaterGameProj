@@ -28,6 +28,7 @@ public sealed partial class ConfPayoutStep :  Bright.Config.BeanBase
         PrevTaskLangId = _buf.ReadInt();
         CurTaskLangId = _buf.ReadInt();
         ExplainLangId = _buf.ReadInt();
+        FinishLangId = _buf.ReadInt();
         IfTerminal = _buf.ReadBool();
         PostInit();
     }
@@ -78,6 +79,10 @@ public sealed partial class ConfPayoutStep :  Bright.Config.BeanBase
     /// </summary>
     public int ExplainLangId { get; protected set; }
     /// <summary>
+    /// 完成语言id
+    /// </summary>
+    public int FinishLangId { get; protected set; }
+    /// <summary>
     /// 是否终态
     /// </summary>
     public bool IfTerminal { get; protected set; }
@@ -106,6 +111,7 @@ public sealed partial class ConfPayoutStep :  Bright.Config.BeanBase
         PrevTaskLangId = reloadData.PrevTaskLangId;
         CurTaskLangId = reloadData.CurTaskLangId;
         ExplainLangId = reloadData.ExplainLangId;
+        FinishLangId = reloadData.FinishLangId;
         IfTerminal = reloadData.IfTerminal;
     }
 
@@ -122,6 +128,7 @@ public sealed partial class ConfPayoutStep :  Bright.Config.BeanBase
         + "PrevTaskLangId:" + PrevTaskLangId + ","
         + "CurTaskLangId:" + CurTaskLangId + ","
         + "ExplainLangId:" + ExplainLangId + ","
+        + "FinishLangId:" + FinishLangId + ","
         + "IfTerminal:" + IfTerminal + ","
         + "}";
     }

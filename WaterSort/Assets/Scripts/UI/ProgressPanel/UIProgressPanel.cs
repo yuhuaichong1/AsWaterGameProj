@@ -52,7 +52,6 @@ namespace XrCode
 
 
         protected override void OnAwake()
-
         {
 
             if (mPayOutPanel != null)
@@ -96,7 +95,6 @@ namespace XrCode
 
 
         protected override void OnSetParam(params object[] args)
-
         {
 
             if (args.Length > 0)
@@ -108,27 +106,16 @@ namespace XrCode
 
 
         protected override void OnEnable()
-
         {
 
             FacadeEvent.AddEventListener(PayoutEventTypes.ENTRY_UPDATED, OnEntryUpdated);
-
-            if (mLabContinue != null)
-
-            {
-
-                mLabContinue.languageId = "10235";
-
-                mLabContinue.UpdateLanguage();
-
-            }
-
-            mPrevioursStepFinish.text = FacadePayout.GetStepDisplay(entryKey).CurTask;
+            PayoutStepDisplayData data = FacadePayout.GetStepDisplay(entryKey);
+            mPrevioursStepFinish.text = FacadePayout.GetStepDisplay(entryKey).Finish;
             RefreshView();
             //ShowAnim(mPayOutPanel);
             PlaneShowAnim();
 
-            PlayOpenAnim();
+            //PlayOpenAnim();
         }
 
 
@@ -453,19 +440,19 @@ namespace XrCode
 
 
 
-            if (mPrevioursStepFinish != null)
+            //if (mPrevioursStepFinish != null)
 
-            {
+            //{
 
-                mPrevioursStepFinish.gameObject.SetActive(showFinishText);
+            //    mPrevioursStepFinish.gameObject.SetActive(showFinishText);
 
-                if (showFinishText)
+            //    if (showFinishText)
 
-                {
-                    mPrevioursStepFinish.text = FacadeLanguage.GetText(FinishBannerLangId);
-                }
+            //    {
+            //        mPrevioursStepFinish.text = FacadeLanguage.GetText(FinishBannerLangId);
+            //    }
 
-            }
+            //}
 
 
 

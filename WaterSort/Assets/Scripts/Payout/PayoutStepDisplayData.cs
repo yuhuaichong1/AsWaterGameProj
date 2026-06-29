@@ -4,6 +4,7 @@ public class PayoutStepDisplayData
     public string PrevTask;
     public string CurTask;
     public string Explain;
+    public string Finish;
     public bool CanContinue;
     public bool IsTerminal;
     public long RemainSeconds;
