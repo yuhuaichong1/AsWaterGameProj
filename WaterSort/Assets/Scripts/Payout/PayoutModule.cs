@@ -374,12 +374,12 @@ namespace XrCode
                 PayoutEntryKey entryKey = peds[i].Key;
                 if (!CanContinue(entryKey))
                 {
-                    FacadeGamePlay.SetWithdrawalTip(GetStepDisplay(entryKey).CurTask);
+                    FacadeGamePlay.SetWithdrawalTip?.Invoke(GetStepDisplay(entryKey).CurTask);
                     return;
                 }
             }
 
-            FacadeGamePlay.SetWithdrawalTip(string.Format(FacadeLanguage.GetText("10236"), curTipTarget - (float)FacadePlayer.GetMoney(), curTipTarget));
+            FacadeGamePlay.SetWithdrawalTip?.Invoke(string.Format(FacadeLanguage.GetText("10236"), curTipTarget - (float)FacadePlayer.GetMoney(), curTipTarget));
         }
 
 
