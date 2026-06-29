@@ -62,6 +62,8 @@ public abstract class PlayerPrefDefines
     #region PayoutModule
 
     public static string payoutEntries => GetKey("WS_payoutEntries");            //PayoutModule_打款流程条目存档
+    public static string curTipTarget => GetKey("WS_curTipTarget");              //PayoutModule_当前Tip显示目标
+    public static string curTipTargetId => GetKey("WS_curTipTargetId");          //PayoutModule_当前Tip显示目标Id
 
     #endregion
 

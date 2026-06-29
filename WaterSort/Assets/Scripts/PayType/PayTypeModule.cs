@@ -9,6 +9,7 @@ namespace XrCode
     public class PayTypeModule : BaseModule
     {
         List<PayNode> payItems;//可用支付类型
+        Dictionary<EPayType, PayNode> payItemsDic;//可用支付类型（词典）
 
         private string mark;//货币单位
         private int decimals;//显示暴保留小数点
@@ -22,6 +23,7 @@ namespace XrCode
             base.OnLoad();
 
             payItems = new List<PayNode>();
+            payItemsDic = new Dictionary<EPayType, PayNode>();
 
             FacadePayType.GetPayItems += GetPayItems;
             FacadePayType.RegionalChange += RegionalChange;
@@ -29,6 +31,7 @@ namespace XrCode
             FacadePayType.GetCountryCode += GetCountryCode;
             FacadePayType.GetLanguage += GetLanguage;
             FacadePayType.GetExchangeRate += GetExchangeRate;
+            FacadePayType.GetPayItemPicture += GetPayItemPicture;
 
             CountryCodeToInfo();
         }
@@ -90,13 +93,17 @@ namespace XrCode
             foreach (string pay in pays) 
             {
                 ConfPayChannel pc = ConfigModule.Instance.Tables.TBPayChannel.Get(int.Parse(pay));
-                payItems.Add(new PayNode
+
+                PayNode payNode = new PayNode
                 {
                     payType = (EPayType)pc.Sn,
                     infoType = (EPOEType)pc.InfoType,
                     picture = ResourceMod.Instance.SyncLoad<Sprite>(pc.PicPath),
                     icon = ResourceMod.Instance.SyncLoad<Sprite>(pc.IconPath),
-                });
+                };
+
+                payItems.Add(payNode);
+                payItemsDic.Add((EPayType)pc.Sn, payNode);
             }
         }
 
@@ -107,6 +114,11 @@ namespace XrCode
         private List<PayNode> GetPayItems()
         {
             return payItems;
+        }
+
+        private Sprite GetPayItemPicture(EPayType type)
+        {
+            return payItemsDic[type].picture;
         }
 
         /// <summary>
@@ -164,6 +176,7 @@ namespace XrCode
         protected override void OnDispose()
         {
             payItems = null;
+            payItemsDic = null;
 
             FacadePayType.GetPayItems -= GetPayItems;
             FacadePayType.RegionalChange -= RegionalChange;
@@ -171,6 +184,7 @@ namespace XrCode
             FacadePayType.GetCountryCode -= GetCountryCode;
             FacadePayType.GetLanguage -= GetLanguage;
             FacadePayType.GetExchangeRate -= GetExchangeRate;
+            FacadePayType.GetPayItemPicture -= GetPayItemPicture;
 
             //GetDefinePayType();
         }

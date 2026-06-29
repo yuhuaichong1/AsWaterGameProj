@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using cfg;
 using UnityEngine;
-using XrCode;
+using UnityEngine.UI;
 
 namespace XrCode
 {
@@ -13,6 +12,9 @@ namespace XrCode
         private readonly Dictionary<string, PayoutEntryData> entries = new Dictionary<string, PayoutEntryData>();
         private float onlineTick;
         private PayoutEntryKey? gmFocusKey;
+
+        private float curTipTarget;
+        private int curTipTargetId;
 
         protected override void OnLoad()
         {
@@ -67,6 +69,8 @@ namespace XrCode
             FacadePayout.GM_SkipCountdown = GM_SkipCountdown;
             FacadePayout.GM_ShortenStepTimeMinutes = GM_ShortenStepTimeMinutes;
             FacadePayout.GM_JumpToStep = GM_JumpToStep;
+            FacadePayout.IfShowTip = IfShowTip;
+            FacadePayout.SetCMDText = SetCMDText;
         }
 
         private void UnregisterFacade()
@@ -89,6 +93,8 @@ namespace XrCode
             FacadePayout.GM_SkipCountdown = null;
             FacadePayout.GM_ShortenStepTimeMinutes = null;
             FacadePayout.GM_JumpToStep = null;
+            FacadePayout.IfShowTip = null;
+            FacadePayout.SetCMDText = null;
         }
 
         public void OnLevelPassed(int count = 1)
@@ -305,13 +311,16 @@ namespace XrCode
 
         private void LoadData()
         {
+            curTipTargetId = SPlayerPrefs.GetInt(PlayerPrefDefines.curTipTargetId, 1);
+            curTipTarget = SPlayerPrefs.GetFloat(PlayerPrefDefines.curTipTarget, PayoutStepTaskHelper.GetTierAmount(curTipTargetId));
+
             entries.Clear();
             string json = SPlayerPrefs.GetString(PlayerPrefDefines.payoutEntries, string.Empty);
             if (string.IsNullOrEmpty(json)) return;
 
-            var wrapper = JsonUtility.FromJson<PayoutEntryWrapper>(json);
+            PayoutEntryWrapper wrapper = JsonUtility.FromJson<PayoutEntryWrapper>(json);
             if (wrapper?.items == null || wrapper.items.Length == 0) return;
-            foreach (var item in wrapper.items)
+            foreach (PayoutEntryData item in wrapper.items)
             {
                 if (item == null) continue;
                 entries[item.Key.StorageKey] = item;
@@ -325,7 +334,54 @@ namespace XrCode
             wrapper.items = list.ToArray();
             SPlayerPrefs.SetString(PlayerPrefDefines.payoutEntries, JsonUtility.ToJson(wrapper));
             SPlayerPrefs.Save();
+
+            SetCMDText();
         }
+
+        private void IfShowTip(double money)
+        {
+            money = (float)money;
+            float tempTarget = curTipTarget;
+            if (money >= curTipTarget)
+            {
+                Sprite icon = FacadePayType.GetPayItems()[0].picture;
+                foreach (PayoutEntryData item in entries.Values)
+                {
+                    float itemTarget = PayoutStepTaskHelper.GetTierAmount(item.tierId);
+                    if (itemTarget == curTipTarget)
+                    {
+                        icon = FacadePayType.GetPayItemPicture((EPayType)item.channel);
+                        break;
+                    }
+                }
+
+                curTipTargetId += 1;
+                curTipTarget = PayoutStepTaskHelper.GetTierAmount(curTipTargetId);
+                SPlayerPrefs.SetInt(PlayerPrefDefines.curTipTargetId, curTipTargetId);
+                SPlayerPrefs.SetFloat(PlayerPrefDefines.curTipTarget, curTipTarget);
+                SPlayerPrefs.Save();
+
+                UIManager.Instance.OpenAsync<UIWithdrawTip>(EUIType.EUIWithdrawTip, UIOpenType.None, null, tempTarget, icon);
+            }
+        }
+
+        private void SetCMDText()
+        {
+            List<PayoutEntryData> peds = entries.Values.ToList();
+            peds.Reverse();
+            for(int i = 0; i < peds.Count; i++)
+            {
+                PayoutEntryKey entryKey = peds[i].Key;
+                if (!CanContinue(entryKey))
+                {
+                    FacadeGamePlay.SetWithdrawalTip(GetStepDisplay(entryKey).CurTask);
+                    return;
+                }
+            }
+
+            FacadeGamePlay.SetWithdrawalTip(string.Format(FacadeLanguage.GetText("10236"), curTipTarget - (float)FacadePlayer.GetMoney(), curTipTarget));
+        }
+
 
         #region GM
 

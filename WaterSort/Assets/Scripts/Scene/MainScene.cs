@@ -8,6 +8,7 @@
         {
             UIManager.Instance.OpenAsync<UIGamePlay>(EUIType.EUIGamePlay, UIOpenType.None, (BaseUI) =>
             {
+                FacadePayout.SetCMDText();
                 UIManager.Instance.OpenAsync<UIEffect>(EUIType.EUIEffect);
                 UIManager.Instance.OpenAsync<UIGuide>(EUIType.EUIGuide);
                 FacadeAudio.PlayBgm();

@@ -11,4 +11,6 @@ public static class FacadePayType
     public static Func<string> GetCountryCode;                      //获取国家码
     public static Func<string> GetLanguage;                         //获取语言
     public static Func<float> GetExchangeRate;                      //获取汇率
+
+    public static Func<EPayType, Sprite> GetPayItemPicture;                //根据付类型获取对应图片
 }

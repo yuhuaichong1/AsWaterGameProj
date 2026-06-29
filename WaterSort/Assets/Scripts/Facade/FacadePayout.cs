@@ -26,4 +26,7 @@ public static class FacadePayout
     public static Action GM_SkipCountdown;
     public static Action<int> GM_ShortenStepTimeMinutes;
     public static Action<int> GM_JumpToStep;
+
+    public static Action<double> IfShowTip;
+    public static Action SetCMDText;
 }

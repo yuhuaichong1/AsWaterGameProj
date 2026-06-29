@@ -32,7 +32,7 @@ namespace XrCode
         public static Action SetProp2CountShow;                                         //设置道具2“清理”的显示
         public static Action SetProp3CountShow;                                         //设置道具3“锤子”的显示
         public static Func<Dictionary<ERewardType, Vector3>> GetFlyObjGoalPos;          //获取飞行物体特效的终点
-        public static Action SetWithdrawalTip;                                          //设置当前兑现通知
+        public static Action<string> SetWithdrawalTip;                                  //设置当前兑现通知
         public static Action<bool> SetShuffleTipShow;                                   //设置刷新功能的提示的显影
 
         public static Func<Transform> GetCupPart;                                       //获取瓶子父物体
