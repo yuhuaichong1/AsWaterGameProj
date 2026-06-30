@@ -270,6 +270,10 @@ namespace XrCode
                 {
                     GameDefines.ClockTimeArr = Array.ConvertAll(cta.ToString().Split(','), float.Parse);
                 }
+                if(adDic.TryGetValue("SpinCount", out object sc2))
+                {
+                    GameDefines.SpinCount = int.Parse(sc2.ToString());
+                }
             }
         }
 
