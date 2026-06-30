@@ -66,7 +66,15 @@ namespace XrCode
 
         private void OnOnlyBtnClickHandle()
         {
-            FacadeAd.AdRefuse(EAdSource.Refuse_LevelComplate, (count) => { GetReward(); }, (errMsg) => { GetOnlyReward(); }, () => { GetOnlyReward(); });
+            FacadeAd.AdRefuse(EAdSource.Refuse_LevelComplate, (count) => { GetReward(); }, (errMsg) => 
+            {
+                TDAnalyticsManager.Instance.OnlyAdFailedCount();
+                GetOnlyReward(); 
+            }, () => 
+            {
+                TDAnalyticsManager.Instance.OnlyAdFailedCount();
+                GetOnlyReward(); 
+            });
         }
 
         private void GoNextLevel()

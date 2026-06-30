@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using ThinkingData.Analytics;
 using UnityEngine;
 
 namespace XrCode
 {
     public class TDAnalyticsManager : Singleton<TDAnalyticsManager>, ILoad, IDispose
     {
+        private DateTime lastCBTime;
+
         public void Load()
         {
             
@@ -424,6 +425,50 @@ namespace XrCode
             {
                 {"target_mn_sum", targetMoney}
             });
+        }
+
+        /// <summary>
+        /// only广告强制播放次数
+        /// </summary>
+        public void OnlyAdCount()
+        {
+            ThinkingDataDefines.UserAdd(new Dictionary<string, object>()
+            {
+                {"passiveAdAllCount", 1}
+            });
+        }
+
+        /// <summary>
+        /// only广告强制播放但失败
+        /// </summary>
+        public void OnlyAdFailedCount()
+        {
+            ThinkingDataDefines.UserAdd(new Dictionary<string, object>()
+            {
+                {"passiveAdFailCount", 1}
+            });
+        }
+
+        /// <summary>
+        /// 思考时间埋点
+        /// </summary>
+        public void OperateDelay()
+        {
+            if(lastCBTime == (DateTime)default)
+            {
+                lastCBTime = DateTime.Now;
+                return;
+            }
+
+            float time = (float)(DateTime.Now - lastCBTime).TotalSeconds;
+            lastCBTime = DateTime.Now;
+
+            if (time < 5)
+                return;
+            Dictionary<string, object> properties = new Dictionary<string, object>();
+            properties.Add("delayTime", Mathf.RoundToInt(time));
+
+            ThinkingDataDefines.Track("OperateDelay", properties);
         }
 
         #endregion
