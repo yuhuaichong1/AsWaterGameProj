@@ -30,6 +30,11 @@ public class OrderItem : MonoBehaviour
 
         Btn.onClick.RemoveAllListeners();
         Btn.onClick.AddListener(OnBtnClick);
+
+        if(item.TargetType != WithdrawTarget.PassLevel)
+        {
+            this.gameObject.SetActive(false);
+        }
     }
 
     public void OnBtnClick()

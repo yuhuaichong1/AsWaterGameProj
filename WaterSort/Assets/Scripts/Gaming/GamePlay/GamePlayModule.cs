@@ -523,6 +523,8 @@ namespace XrCode
             if (waterInRoutine != null)
                 yield return waterInRoutine;
 
+            if(from == null || to == null) yield break;
+
             if (to.IsCollect())
             {
                 pourAction = null;
