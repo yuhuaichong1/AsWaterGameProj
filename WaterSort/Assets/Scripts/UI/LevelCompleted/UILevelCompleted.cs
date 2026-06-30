@@ -68,11 +68,9 @@ namespace XrCode
         {
             FacadeAd.AdRefuse(EAdSource.Refuse_LevelComplate, (count) => { GetReward(); }, (errMsg) => 
             {
-                TDAnalyticsManager.Instance.OnlyAdFailedCount();
                 GetOnlyReward(); 
             }, () => 
             {
-                TDAnalyticsManager.Instance.OnlyAdFailedCount();
                 GetOnlyReward(); 
             });
         }

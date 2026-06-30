@@ -1156,11 +1156,18 @@ namespace XrCode
 
             if (curRefuseCount >= GameDefines.AdRefuseCount)
             {
+                TDAnalyticsManager.Instance.OnlyAdCount();
+
                 PlayROIAdByWeight(eAdSource, (count) =>
                 {
                     curRefuseCount = 0;
                     successAction?.Invoke(count);
-                }, failAction, () =>
+                }, (errMsg)=> 
+                {
+                    TDAnalyticsManager.Instance.OnlyAdFailedCount();
+                    failAction?.Invoke(errMsg); 
+                }, 
+                () =>
                 {
                     curRefuseCount = 0;
                     rewardHideAction?.Invoke();
