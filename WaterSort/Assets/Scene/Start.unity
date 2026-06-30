@@ -672,6 +672,9 @@ MonoBehaviour:
   SkipLevelField: {fileID: 152513564}
   PassLevelBtn: {fileID: 1514933287}
   TestFunctionBtn: {fileID: 292332433}
+  SkipCheckInBtn: {fileID: 0}
+  SkipBankReviewBtn: {fileID: 0}
+  GMbool: 0
 --- !u!1 &190238365
 GameObject:
   m_ObjectHideFlags: 0
@@ -2577,6 +2580,14 @@ PrefabInstance:
     - target: {fileID: 53000880115173994, guid: 27f8737195732c94fa2ca65ed979a56d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3079785150662720349, guid: 27f8737195732c94fa2ca65ed979a56d, type: 3}
+      propertyPath: enableLog
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3079785150662720349, guid: 27f8737195732c94fa2ca65ed979a56d, type: 3}
+      propertyPath: startManually
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6452142032020139993, guid: 27f8737195732c94fa2ca65ed979a56d, type: 3}
       propertyPath: m_Name
