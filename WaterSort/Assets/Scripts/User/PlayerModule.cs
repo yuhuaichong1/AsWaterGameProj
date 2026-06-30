@@ -151,7 +151,8 @@ namespace XrCode
             SPlayerPrefs.SetDouble(PlayerPrefDefines.money, money);
             SPlayerPrefs.Save();
 
-            FacadePayout.IfShowTip(money);
+            if(value > 0)
+                FacadePayout.IfShowTip(money);
             FacadePayout.SetCMDText();
         }
 

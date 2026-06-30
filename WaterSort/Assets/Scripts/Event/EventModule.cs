@@ -43,7 +43,7 @@ public class EventModule : BaseModule
     //取消监听（移除）事件
     private void RemoveEventListener(string eventType, EventListener.EventListenerDelegate callback)
     {
-        if (this.eventListenerDict.ContainsKey(eventType))
+        if (eventListenerDict != null && this.eventListenerDict.ContainsKey(eventType))
         {
             this.eventListenerDict[eventType].OnEvent -= callback;
         }
