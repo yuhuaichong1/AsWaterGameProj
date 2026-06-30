@@ -70,9 +70,9 @@ namespace XrCode
             LoadData();
             InitGame();
 
-            LRTimer = STimerManager.Instance.CreateSTimer(GameDefines.ClockTime1, 0, true, false, () => { Debug.LogError("这合理吗？"); LRBool = true; });
+            LRTimer = STimerManager.Instance.CreateSTimer(GameDefines.ClockTime1, 0, true, false, () => { LRBool = true; });
             LRTimer.Pause();
-            LRPauseTimer = STimerManager.Instance.CreateSTimer(GameDefines.HoldTime, 0, true, false, () =>{ Debug.LogError("这很合理。"); LRTimer.Pause(); });
+            LRPauseTimer = STimerManager.Instance.CreateSTimer(GameDefines.HoldTime, 0, true, false, () =>{ LRTimer.Pause(); });
             LRPauseTimer.Pause();
         }
 
@@ -200,7 +200,6 @@ namespace XrCode
             CheckNewPlayUnlock();
 
             curLevelIndex = FacadePlayer.GetLevel();
-            TDAnalyticsManager.Instance.SetLevel(curLevelIndex);
 
             FacadeGamePlay.SetLevelShow();
             GetLevelData(curLevelIndex);
@@ -653,13 +652,12 @@ namespace XrCode
             if(curLevelIndex > 3)
             {
                 LRPauseTimer.ReStart();
-                TDAnalyticsManager.Instance.OperateDelay();
+                if (LRTimer.STimerState == STimerState.Pause)
+                {
+                    LRTimer.Start();
+                }
             }
-                
-            if (LRTimer.STimerState == STimerState.Pause)
-            {
-                LRTimer.Start();
-            }
+
 
             if (LRBool)
             {
@@ -813,7 +811,6 @@ namespace XrCode
             NetworkModule.Instance.GetNetworkInitInfo2(() => 
             {
                 UIManager.Instance.OpenAsync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, curLevelIndex);
-                TDAnalyticsManager.Instance.LevelComplate(curLevelIndex);
                 FacadePlayer.AddLevel(1);
                 Game.Instance.UILoadingWaiting.gameObject.SetActive(false);
                 Game.Instance.UILoadingWaiting.StopTextAnim();
