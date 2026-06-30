@@ -51,7 +51,10 @@ namespace XrCode
             }
 
             if(ifCheckNetwork)
+            {
+                RegistPreloadFunc(out CompetitionManager.Instance.OnFinished);
                 RegistPreloadFunc(out NetworkModule.Instance.OnFinished);
+            }
             RegistPreloadFunc(out AssetBundleMod.Instance.OnFinished);
             RegistPreloadFunc(out ConfigModule.Instance.OnFinished);
 
