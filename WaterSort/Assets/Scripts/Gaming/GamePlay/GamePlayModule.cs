@@ -70,11 +70,9 @@ namespace XrCode
             LoadData();
             InitGame();
 
-            Debug.LogError(GameDefines.ClockTime1);
-
-            LRTimer = STimerManager.Instance.CreateSTimer(GameDefines.ClockTime1, 0, true, false, () => { Debug.LogError("这合理吗？"); LRBool = true; });
+            LRTimer = STimerManager.Instance.CreateSTimer(GameDefines.ClockTime1, 0, true, false, () => { LRBool = true; });
             LRTimer.Pause();
-            LRPauseTimer = STimerManager.Instance.CreateSTimer(GameDefines.HoldTime, 0, true, false, () =>{ Debug.LogError("这很合理。"); LRTimer.Pause(); });
+            LRPauseTimer = STimerManager.Instance.CreateSTimer(GameDefines.HoldTime, 0, true, false, () =>{ LRTimer.Pause(); });
             LRPauseTimer.Pause();
         }
 
@@ -652,11 +650,14 @@ namespace XrCode
         private void CheckOpenLuckyReward()
         {
             if(curLevelIndex > 3)
-                LRPauseTimer.ReStart();
-            if (LRTimer.STimerState == STimerState.Pause)
             {
-                LRTimer.Start();
+                LRPauseTimer.ReStart();
+                if (LRTimer.STimerState == STimerState.Pause)
+                {
+                    LRTimer.Start();
+                }
             }
+
 
             if (LRBool)
             {
