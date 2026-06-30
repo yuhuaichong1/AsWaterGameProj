@@ -195,6 +195,7 @@ public abstract class GameDefines
     public static int ClockLv = 17;                                                                         //当<=X关时，用ClockTime1，>X关后，用ClockTime2，
     public static int[] ClockLvArr = { 1, 7, 12, 20, 1000 };                                                //关卡区间
     public static float[] ClockTimeArr = { 20, 30, 35, 45 };                                                //关卡区间对应值
+    public static float HoldTime = 5;                                                                       //默认X秒内未操作，则暂停计时
 
     #endregion
 
@@ -213,8 +214,6 @@ public abstract class GameDefines
     public static Vector2 WeightAdRange = new Vector2(1, 101);                                              //权重广告随机区间
     public static int AdWeight = 50;                                                                        //权重广告随机分界（小于等于为激励，大于为插屏）
     public static int AdRefuseCount = 3;                                                                    //广告拒绝次数
-
-
 
     #endregion
 

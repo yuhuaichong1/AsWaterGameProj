@@ -274,6 +274,10 @@ namespace XrCode
                 {
                     GameDefines.SpinCount = int.Parse(sc2.ToString());
                 }
+                if(adDic.TryGetValue("HoldTime", out object ht))
+                {
+                    GameDefines.HoldTime = float.Parse(ht.ToString());
+                }
             }
         }
 

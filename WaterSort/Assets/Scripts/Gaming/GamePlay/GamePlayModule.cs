@@ -41,6 +41,7 @@ namespace XrCode
         private bool LRBool;
         private STimer LRTimer;
         private int LSCount;
+        private STimer LRPauseTimer;
 
         private STimer LCTime;
 
@@ -69,8 +70,12 @@ namespace XrCode
             LoadData();
             InitGame();
 
-            LRTimer = STimerManager.Instance.CreateSTimer(GameDefines.ClockTime1, 0, true, false, () => { LRBool = true; });
+            Debug.LogError(GameDefines.ClockTime1);
+
+            LRTimer = STimerManager.Instance.CreateSTimer(GameDefines.ClockTime1, 0, true, false, () => { Debug.LogError("这合理吗？"); LRBool = true; });
             LRTimer.Pause();
+            LRPauseTimer = STimerManager.Instance.CreateSTimer(GameDefines.HoldTime, 0, true, false, () =>{ Debug.LogError("这很合理。"); LRTimer.Pause(); });
+            LRPauseTimer.Pause();
         }
 
         #region Facade
@@ -221,6 +226,7 @@ namespace XrCode
                 int inarId = GameDefines.ClockLvArr.ToList().GetRangeIndex(curLevelIndex);
                 LRTimer.targetTime = GameDefines.ClockTimeArr[inarId];
                 LRTimer.ReStart();
+                LRPauseTimer.Stop();
                 LoopPlayCongratulationEffect(true);
             }
 
@@ -645,6 +651,13 @@ namespace XrCode
         /// </summary>
         private void CheckOpenLuckyReward()
         {
+            if(curLevelIndex > 3)
+                LRPauseTimer.ReStart();
+            if (LRTimer.STimerState == STimerState.Pause)
+            {
+                LRTimer.Start();
+            }
+
             if (LRBool)
             {
                 LRBool = false;
@@ -656,6 +669,7 @@ namespace XrCode
         private void ReStartLRTimer()
         {
             LRTimer.ReStart();
+            LRPauseTimer.Stop();
         }
 
         private List<PackPair2> BatchCheckPack()
@@ -791,6 +805,7 @@ namespace XrCode
 
             IfLevelGuide();
             LRTimer.Stop();
+            LRPauseTimer.Stop();
 
             NetworkModule.Instance.GetNetworkInitInfo2(() => 
             {
