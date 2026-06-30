@@ -240,8 +240,6 @@ namespace XrCode
                         CompetitionManager.Instance.CompetitionVariable(CompetitionKey.IfIAA, true, 1);
                     else
                         CompetitionManager.Instance.SkipCompetition(CompetitionKey.IfIAA);
-
-
                 }
                 if (adDic.TryGetValue("AdRefuseCount", out object arc))
                 {
@@ -267,11 +265,11 @@ namespace XrCode
                 {
                     GameDefines.SpinCount = int.Parse(sc.ToString());
                 }
-                if(adDic.TryGetValue("ClockLvArr", out object ckla))
+                if (adDic.TryGetValue("ClockLvArr", out object ckla))
                 {
                     GameDefines.ClockLvArr = Array.ConvertAll(ckla.ToString().Split(','), int.Parse);
                 }
-                if(adDic.TryGetValue("ClockTimeArr", out object cta))
+                if (adDic.TryGetValue("ClockTimeArr", out object cta))
                 {
                     GameDefines.ClockTimeArr = Array.ConvertAll(cta.ToString().Split(','), float.Parse);
                 }
@@ -279,11 +277,12 @@ namespace XrCode
                 {
                     bool b = bool.Parse(afjs.ToString());
                     CompetitionManager.Instance.CompetitionVariable(CompetitionKey.IFAF, b, 0);
-                if(adDic.TryGetValue("SpinCount", out object sc2))
+                }
+                if (adDic.TryGetValue("SpinCount", out object sc2))
                 {
                     GameDefines.SpinCount = int.Parse(sc2.ToString());
                 }
-                if(adDic.TryGetValue("HoldTime", out object ht))
+                if (adDic.TryGetValue("HoldTime", out object ht))
                 {
                     GameDefines.HoldTime = float.Parse(ht.ToString());
                 }
