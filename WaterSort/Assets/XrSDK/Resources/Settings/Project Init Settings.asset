@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-4560453302478801649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d6591f735cfa1540a4db2ea9157fc31, type: 3}
+  m_Name: XrSDK.AppsFlyerModConfig
+  m_EditorClassIdentifier: 
+  moduleName: 
+  MonoObjPath: ThirdSDK/AppsFlyer
+  DevKey: rCAkWyhU32238aa8CMeSAU
+  AppID: 
+  UWPAppID: 
+  MacOSAppID: 
+  IsDebug: 0
+  GetConversionData: 1
+--- !u!114 &-1506408566990958124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e111833c920ffbf45b3211bad711dae2, type: 3}
+  m_Name: XrSDK.MaxSdkFramePendant
+  m_EditorClassIdentifier: 
+  moduleName: 
+  MaxSdkKey: VvlRQ4IeOKUC3JgtZL_7syq_tWQH9lQSILr6a8_Ty7RB1WBeUKHamFlncRngr1s06NpyZkwlxCfqrI_AzWUDls
+  InterstitialAdUnitId_Android: 6ba116b268bd8769
+  RewardedAdUnitId_Android: 33fa3b892e6f9960
+  BannerAdUnitId_Android: 
+  MRecAdUnitId_Android: 
+  AppOpenAdId_Android: 
+  InterstitialAdUnitId_Ios: 
+  RewardedAdUnitId_Ios: 
+  BannerAdUnitId_Ios: 
+  MRecAdUnitId_Ios: 
+  AppOpenAdId_Ios: 
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c45cbe81504f4541ba8ed2afd07ee82, type: 3}
+  m_Name: Project Init Settings
+  m_EditorClassIdentifier: 
+  coreModules: []
+  modules:
+  - {fileID: -4560453302478801649}
+  - {fileID: -1506408566990958124}
+  - {fileID: 4365522358976772549}
+--- !u!114 &4365522358976772549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e54ab1a91f55f49abec055d88257dc, type: 3}
+  m_Name: XrSDK.ThinkingDataModulePendant
+  m_EditorClassIdentifier: 
+  moduleName: 
+  EnableLog: 0
+  NetworkType: 1
+  APPID: 3bbf919eaa514574929efe383639b6de
+  SERVERURL: https://shushu.xgame.xin:9991
+  MODE: 0
+  TimeZone: 1
+  AutoTrackType: 243
+  AutoRL: 1
