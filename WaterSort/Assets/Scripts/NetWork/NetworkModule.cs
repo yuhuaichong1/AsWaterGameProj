@@ -279,6 +279,13 @@ namespace XrCode
                 {
                     bool b = bool.Parse(afjs.ToString());
                     CompetitionManager.Instance.CompetitionVariable(CompetitionKey.IFAF, b, 0);
+                if(adDic.TryGetValue("SpinCount", out object sc2))
+                {
+                    GameDefines.SpinCount = int.Parse(sc2.ToString());
+                }
+                if(adDic.TryGetValue("HoldTime", out object ht))
+                {
+                    GameDefines.HoldTime = float.Parse(ht.ToString());
                 }
             }
         }

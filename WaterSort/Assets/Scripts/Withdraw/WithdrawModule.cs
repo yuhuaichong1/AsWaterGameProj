@@ -461,6 +461,7 @@ namespace XrCode
             double totalValue = 0;
             foreach(WithdrawalRecordItem item in withdrawalRecordItems.Values)
             {
+                if (item.TargetType != WithdrawTarget.PassLevel) continue;
                 totalValue += item.WRMoney;
             }
 
