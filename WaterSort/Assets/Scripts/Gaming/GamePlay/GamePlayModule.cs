@@ -657,6 +657,7 @@ namespace XrCode
                 {
                     LRTimer.Start();
                 }
+                TDAnalyticsManager.Instance.OperateDelay();
             }
 
 
