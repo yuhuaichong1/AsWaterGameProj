@@ -399,14 +399,17 @@ namespace XrCode
             curCheckInDay = SPlayerPrefs.GetInt(PlayerPrefDefines.curCheckInDay, 0);
             curCheckInLevel = SPlayerPrefs.GetInt(PlayerPrefDefines.curCheckInLevel, 0);
             ifDailyChecked = SPlayerPrefs.GetBool(PlayerPrefDefines.ifDailyChecked, true);
-            if (curWithdrawTarget == WithdrawTarget.CheckIn && SCheckDateTime.Instance.IfNextDay(GameDefines.CheckInDayKey))
+
+            bool b = SCheckDateTime.Instance.IfNextDay(GameDefines.CheckInDayKey);
+
+            if (curWithdrawTarget == WithdrawTarget.CheckIn && b)
             {
                 SetIfDailyChecked(true);
                 SetCurCheckLevel(0);
             }
 
             curCehckInBankDay = SPlayerPrefs.GetInt(PlayerPrefDefines.curCehckInBankDay, 0);
-            if(curCheckInDay == GameDefines.CheckInDay && SCheckDateTime.Instance.IfNextDay(GameDefines.CheckInBankKey))
+            if(curCheckInDay == GameDefines.CheckInDay && b)
             {
                 curCehckInBankDay += 1;
                 SetCurCheckInBankDay(curCehckInBankDay);
