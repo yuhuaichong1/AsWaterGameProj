@@ -335,7 +335,7 @@ namespace XrCode
         {
             for (var i = 0; i < 4; i++)
             {
-                bool locked = i > 1;
+                bool locked = i > 4;
                 int color = locked ? 0 : (_pocketColors.Count > 0 ? _pocketColors[0] : 0);
                 if (!locked && _pocketColors.Count > 0) _pocketColors.RemoveAt(0);
                 Pocket pocket = Pocket.Create(FacadeGamePlay.GetPockets(), locked);

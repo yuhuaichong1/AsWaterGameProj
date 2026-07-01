@@ -11,7 +11,7 @@ public abstract class GameDefines
     #region 常量
 
     #region 打包相关
-    public static string URL = "http://api.game1231.top:8080/xgame?appIndex=77";                            //后台链接网址
+    public static string URL = "http://api.game1153.xyz:8080/xgame?appIndex=86";                            //后台链接网址
     public static bool ifIAA = true;                                                                        //是否为IAA模式
     public static bool ifDebug = true;                                                                      //是否是debug模式
     public static bool ifSkipAD = true;                                                                     //是否跳过广告
@@ -217,6 +217,9 @@ public abstract class GameDefines
     public static Vector2 WeightAdRange = new Vector2(1, 101);                                              //权重广告随机区间
     public static int AdWeight = 50;                                                                        //权重广告随机分界（小于等于为激励，大于为插屏）
     public static int AdRefuseCount = 3;                                                                    //广告拒绝次数
+
+    public static int[] AdLvArr = { 1, 5, 12, 20, 1000 };                                                   //关卡区间
+    public static int[] AdWeightArr = { 40, 35, 40, 45 };                                                   //关卡区间对应值
 
     #endregion
 

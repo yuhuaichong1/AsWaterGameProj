@@ -45,6 +45,8 @@ namespace AsGame.Water
 
         IEnumerator FadeInPocket()
         {
+            if (pocketImage.sprite == null)
+                yield break;
             var c = pocketImage.color;
             c.a = 0f;
             pocketImage.color = c;
