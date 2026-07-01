@@ -16,6 +16,9 @@ namespace XrCode
         private float curTipTarget;
         private int curTipTargetId;
 
+        private Dictionary<int, ConfMoneyInterval> MIData;
+        private List<float> TargetInterval;
+
         protected override void OnLoad()
         {
             RegisterFacade();
@@ -23,6 +26,7 @@ namespace XrCode
             FacadeAd.OnRewardAdReceivedReward += OnRewardAdReceived;
             FacadeEvent.AddEventListener(PayoutEventTypes.MONEY_UPDATED, OnMoneyUpdatedEvent);
             RegisetUpdateObj();
+            MoneyIntervalInit();
         }
 
         protected override void OnDispose()
@@ -71,6 +75,9 @@ namespace XrCode
             FacadePayout.GM_JumpToStep = GM_JumpToStep;
             FacadePayout.IfShowTip = IfShowTip;
             FacadePayout.SetCMDText = SetCMDText;
+            FacadePayout.GetLuckyRewardAmount = GetLuckyRewardAmount;
+            FacadePayout.GetLevelComplatedAmount = GetLevelComplatedAmount;
+            FacadePayout.GetLuckySpinAmount = GetLuckySpinAmount;
         }
 
         private void UnregisterFacade()
@@ -95,6 +102,9 @@ namespace XrCode
             FacadePayout.GM_JumpToStep = null;
             FacadePayout.IfShowTip = null;
             FacadePayout.SetCMDText = null;
+            FacadePayout.GetLuckyRewardAmount = null;
+            FacadePayout.GetLevelComplatedAmount = null;
+            FacadePayout.GetLuckySpinAmount = null;
         }
 
         public void OnLevelPassed(int count = 1)
@@ -380,6 +390,47 @@ namespace XrCode
             }
 
             FacadeGamePlay.SetWithdrawalTip?.Invoke(string.Format(FacadeLanguage.GetText("10236"), curTipTarget - (float)FacadePlayer.GetMoney(), curTipTarget));
+        }
+
+        private void MoneyIntervalInit()
+        {
+            MIData = ConfigModule.Instance.Tables.TBMoneyInterval.DataMap;
+            TargetInterval = new List<float>();
+            foreach (ConfMoneyInterval item in MIData.Values)
+            {
+                TargetInterval.Add(item.MoneyMax);
+            }
+            TargetInterval.Add(0);
+        }
+
+        private float GetLuckyRewardAmount()
+        {
+            int id = GetMIDataId();
+            return UnityEngine.Random.Range(MIData[id].LRMin, MIData[id].LRMax);
+        }
+
+        private float GetLevelComplatedAmount()
+        {
+            int id = GetMIDataId();
+            return UnityEngine.Random.Range(MIData[id].LSMin, MIData[id].LSMin);
+        }
+
+        private float GetLuckySpinAmount()
+        {
+            int id = GetMIDataId();
+            return MIData[id].LSReward;
+        }
+
+        private int GetMIDataId()
+        {
+            float remain = curTipTarget - (float)FacadePlayer.GetMoney();
+            if (remain < 0)
+                remain = 0;
+            int id = TargetInterval.GetRangeIndex(remain);
+
+            //if(id == -1) id = MIData.Count - 1;
+            if (id == -1) id = 0;
+            return id;
         }
 
 

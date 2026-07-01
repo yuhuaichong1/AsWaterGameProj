@@ -29,4 +29,8 @@ public static class FacadePayout
 
     public static Action<double> IfShowTip;
     public static Action SetCMDText;
+
+    public static Func<float> GetLuckyRewardAmount;
+    public static Func<float> GetLevelComplatedAmount;
+    public static Func<float> GetLuckySpinAmount;
 }
