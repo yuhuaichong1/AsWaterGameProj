@@ -48,4 +48,6 @@ public static class FacadeWithdraw
 
     public static Func<int> GetCurCheckInBankDay;                                       //获取当前银行审核日
     public static Action<int> SetCurCheckInBankDay;                                     //设置当前银行审核日（GM测试用）
+
+    public static Func<float> GetEliminationReward;                                     //获得当次消除的金额
 }
