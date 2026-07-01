@@ -625,6 +625,7 @@ namespace XrCode
                 {
                     LRTimer.Start();
                 }
+                TDAnalyticsManager.Instance.OperateDelay();
             }
 
             if (LRBool)
