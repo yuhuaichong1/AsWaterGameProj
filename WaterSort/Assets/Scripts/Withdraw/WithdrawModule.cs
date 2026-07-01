@@ -314,7 +314,8 @@ namespace XrCode
             }
             else
             {
-                reward = GameDefines.RewardCoe;
+                //reward = GameDefines.RewardCoe;
+                reward = FacadePayout.GetLuckySpinAmount();
             }
 
             return reward;
@@ -334,7 +335,8 @@ namespace XrCode
             }
             else
             {
-                reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
+                //reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
+                reward = FacadePayout.GetLuckyRewardAmount();
             }
 
             return reward;
@@ -354,7 +356,8 @@ namespace XrCode
             }
             else
             {
-                reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
+                //reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
+                reward = FacadePayout.GetLevelComplatedAmount();
             }
             return reward;
         }

@@ -22,6 +22,7 @@ namespace AsGame.Water
         [SerializeField] Text lockNumLabel;
         [SerializeField] Image lockColorImage;
         [SerializeField] GameObject adNode;
+        [SerializeField] GameObject adNode2;
         [SerializeField] GameObject streamNode;
         [SerializeField] Image streamBody;
         [SerializeField] CanvasGroup shadowGroup;
@@ -113,6 +114,11 @@ namespace AsGame.Water
                 var adTr = content.Find("ad");
                 if (adTr != null) adNode = adTr.gameObject;
             }
+            if (adNode2 == null)
+            {
+                var adTr2 = content.Find("ad2");
+                if (adTr2 != null) adNode2 = adTr2.gameObject;
+            }
             if (lockNode == null)
             {
                 var lockTr = content.Find("clock");
@@ -141,10 +147,12 @@ namespace AsGame.Water
         /// <summary>对齐 Cocos Cup.ad/icon：广告图标挂在 ad/icon 上。</summary>
         void SetupVideoAdVisual()
         {
-            if (!IsVideo() || adNode == null) return;
+            if (!IsVideo() || adNode == null || adNode2 == null) return;
 
             adNode.SetActive(true);
             adNode.transform.SetAsLastSibling();
+
+            adNode2.SetActive(true);
         }
 
         public int GetId() => _data?.id ?? -1;
@@ -160,8 +168,17 @@ namespace AsGame.Water
             if (_data == null) return;
             _data.isVideo = 0;
             if (adNode != null) adNode.SetActive(false);
+            if (adNode2 != null) adNode2.SetActive(false);
             PlayProp3Effect();
             RefreshVisual();
+
+            float money = UnityEngine.Random.Range(20, 45);
+            FacadePlayer.AddMoney(money);
+            FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct() 
+            {
+                Type = ERewardType.Money,
+                Count = money,
+            }, null);
         }
 
         public int GetTopColorId() => _data.colors.Count > 0 ? _data.colors[^1] : 0;
@@ -1065,8 +1082,12 @@ namespace AsGame.Water
             RefreshLockVisual();
             if (IsVideo())
                 SetupVideoAdVisual();
-            else if (adNode != null)
+            else if (adNode != null && adNode2 != null)
+            {
                 adNode.SetActive(false);
+                adNode2.SetActive(false);
+            }
+                
 
             if (bottleBg != null)
             {
@@ -1413,6 +1434,12 @@ namespace AsGame.Water
             var adRt = ctrl.adNode.GetComponent<RectTransform>();
             adRt.anchoredPosition = new Vector2(0, -GameConstants.HalfBottleHeight);
             ctrl.adNode.SetActive(false);
+
+            ctrl.adNode2 = new GameObject("ad2", typeof(RectTransform), typeof(Image));
+            ctrl.adNode2.transform.SetParent(contentGo.transform, false);
+            var adRt2 = ctrl.adNode2.GetComponent<RectTransform>();
+            //adRt2.anchoredPosition = new Vector2(0, -GameConstants.HalfBottleHeight * 0.2f);
+            ctrl.adNode2.SetActive(false);
 
             var fxGo = new GameObject("selectFx", typeof(RectTransform));
             fxGo.transform.SetParent(ctrl.waterVisual.WaterParent, false);
