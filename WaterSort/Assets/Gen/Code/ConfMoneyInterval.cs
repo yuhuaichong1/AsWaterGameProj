@@ -27,6 +27,8 @@ public sealed partial class ConfMoneyInterval :  Bright.Config.BeanBase
         LRMax = _buf.ReadFloat();
         SEMin = _buf.ReadFloat();
         SEMax = _buf.ReadFloat();
+        AdBottleMin = _buf.ReadFloat();
+        AdBottleMax = _buf.ReadFloat();
         LSReward = _buf.ReadFloat();
         PostInit();
     }
@@ -73,6 +75,14 @@ public sealed partial class ConfMoneyInterval :  Bright.Config.BeanBase
     /// </summary>
     public float SEMax { get; protected set; }
     /// <summary>
+    /// 广告瓶解锁最小值
+    /// </summary>
+    public float AdBottleMin { get; protected set; }
+    /// <summary>
+    /// 广告瓶解锁最大值
+    /// </summary>
+    public float AdBottleMax { get; protected set; }
+    /// <summary>
     /// 转盘金额
     /// </summary>
     public float LSReward { get; protected set; }
@@ -100,6 +110,8 @@ public sealed partial class ConfMoneyInterval :  Bright.Config.BeanBase
         LRMax = reloadData.LRMax;
         SEMin = reloadData.SEMin;
         SEMax = reloadData.SEMax;
+        AdBottleMin = reloadData.AdBottleMin;
+        AdBottleMax = reloadData.AdBottleMax;
         LSReward = reloadData.LSReward;
     }
 
@@ -115,6 +127,8 @@ public sealed partial class ConfMoneyInterval :  Bright.Config.BeanBase
         + "LRMax:" + LRMax + ","
         + "SEMin:" + SEMin + ","
         + "SEMax:" + SEMax + ","
+        + "AdBottleMin:" + AdBottleMin + ","
+        + "AdBottleMax:" + AdBottleMax + ","
         + "LSReward:" + LSReward + ","
         + "}";
     }
