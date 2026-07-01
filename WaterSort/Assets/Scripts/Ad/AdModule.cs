@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -1147,6 +1148,9 @@ namespace XrCode
 
             if (curRefuseCount >= GameDefines.AdRefuseCount)
             {
+                int weightId = GameDefines.AdLvArr.ToList().GetRangeIndex(FacadePlayer.GetLevel());
+                int weight = GameDefines.AdWeightArr[weightId];
+
                 PlayROIAdByWeight(eAdSource, (count) =>
                 {
                     curRefuseCount = 0;
@@ -1155,7 +1159,7 @@ namespace XrCode
                 {
                     curRefuseCount = 0;
                     rewardHideAction?.Invoke();
-                }, GameDefines.WeightAdRange, GameDefines.AdWeight);
+                }, GameDefines.WeightAdRange, weight);
             }
             else
             {
