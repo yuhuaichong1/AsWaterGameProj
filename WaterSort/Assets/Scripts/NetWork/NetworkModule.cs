@@ -285,6 +285,7 @@ namespace XrCode
                 {
                     bool b = bool.Parse(afjs.ToString());
                     CompetitionManager.Instance.CompetitionVariable(CompetitionKey.IFAF, b, 0);
+                }
                 if (adDic.TryGetValue("AdLvArr", out object ala))
                 {
                     GameDefines.AdLvArr = Array.ConvertAll(ala.ToString().Split(','), int.Parse);
