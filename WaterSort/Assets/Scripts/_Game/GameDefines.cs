@@ -215,6 +215,9 @@ public abstract class GameDefines
     public static int AdWeight = 50;                                                                        //权重广告随机分界（小于等于为激励，大于为插屏）
     public static int AdRefuseCount = 3;                                                                    //广告拒绝次数
 
+    public static int[] AdLvArr = { 1, 5, 12, 20, 1000 };                                                   //关卡区间
+    public static int[] AdWeightArr = { 40, 35, 40, 45 };                                                 //关卡区间对应值
+
     #endregion
 
     #region 竞争组相关

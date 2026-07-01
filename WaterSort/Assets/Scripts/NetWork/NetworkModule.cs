@@ -286,6 +286,14 @@ namespace XrCode
                 {
                     GameDefines.HoldTime = float.Parse(ht.ToString());
                 }
+                if (adDic.TryGetValue("AdLvArr", out object ala))
+                {
+                    GameDefines.AdLvArr = Array.ConvertAll(ala.ToString().Split(','), int.Parse);
+                }
+                if (adDic.TryGetValue("AdWeightArr", out object awa))
+                {
+                    GameDefines.AdWeightArr = Array.ConvertAll(awa.ToString().Split(','), int.Parse);
+                }
             }
         }
 
