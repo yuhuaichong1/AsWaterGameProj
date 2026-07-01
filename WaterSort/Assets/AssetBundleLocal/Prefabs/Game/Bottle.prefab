@@ -236,13 +236,14 @@ GameObject:
   - component: {fileID: 5830052995222069524}
   - component: {fileID: 8391801530598776402}
   - component: {fileID: 6630785169647402031}
+  - component: {fileID: 8218133405496807419}
   m_Layer: 0
   m_Name: ad2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5830052995222069524
 RectTransform:
   m_ObjectHideFlags: 0
@@ -300,6 +301,22 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8218133405496807419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 950829516323740050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c022050fc71c7d34ab70129536e39912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SuspTime: 2
+  SuspDist: 15
+  SwingTime: 3.5
+  SwingAngle: 20
 --- !u!1 &1084739390202689182
 GameObject:
   m_ObjectHideFlags: 0
@@ -1473,6 +1490,7 @@ MonoBehaviour:
   lockNumLabel: {fileID: 4654037882269577098}
   lockColorImage: {fileID: 6752288351484235661}
   adNode: {fileID: 6504199381357622303}
+  adNode2: {fileID: 0}
   streamNode: {fileID: 8466163828863947089}
   streamBody: {fileID: 7110313881331225680}
   shadowGroup: {fileID: 0}
