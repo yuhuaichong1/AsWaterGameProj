@@ -745,7 +745,8 @@ namespace XrCode
 
         private void AddFlyMoney(Transform startPos)
         {
-            float moneyCount = GameDefines.ifIAA ? GameDefines.IAA_Elimination_Money : GameDefines.Elimination_Money;
+            //float moneyCount = GameDefines.ifIAA ? GameDefines.IAA_Elimination_Money : GameDefines.Elimination_Money;
+            float moneyCount = FacadeWithdraw.GetEliminationReward();
             FacadePlayer.AddMoney(moneyCount);
             FacadeEffect.PlayFlyMoney(startPos, GameDefines.FlyMoney_FlyMoneyCount, moneyCount, () => { FacadeGamePlay.SetCurMoneyShow(); });
         }

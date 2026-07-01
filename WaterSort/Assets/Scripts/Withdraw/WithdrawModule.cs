@@ -62,6 +62,7 @@ namespace XrCode
             FacadeWithdraw.RefushWaitDay += RefushWaitDay;
             FacadeWithdraw.SetWPhoneOrEmail2 += SetWPhoneOrEmail2;
             FacadeWithdraw.GetWPhoneOrEmail2 += GetWPhoneOrEmail2;
+            FacadeWithdraw.GetEliminationReward += GetEliminationReward;
         }
 
         private void FacadeRemove()
@@ -89,6 +90,7 @@ namespace XrCode
             FacadeWithdraw.RefushWaitDay -= RefushWaitDay;
             FacadeWithdraw.SetWPhoneOrEmail2 -= SetWPhoneOrEmail2;
             FacadeWithdraw.GetWPhoneOrEmail2 -= GetWPhoneOrEmail2;
+            FacadeWithdraw.GetEliminationReward -= GetEliminationReward;
         }
 
         #endregion
@@ -361,7 +363,23 @@ namespace XrCode
             }
             return reward;
         }
-        
+
+        private float GetEliminationReward()
+        {
+            float reward = 1;
+
+            if (GameDefines.ifIAA)
+            {
+                reward = GameDefines.IAA_Elimination_Money;
+            }
+            else
+            {
+                //reward = UnityEngine.Random.Range(GameDefines.LuckyReward_RandomRange.x, GameDefines.LuckyReward_RandomRange.y);
+                reward = FacadePayout.GetEliminationAmount();
+            }
+            return reward;
+        }
+
         /// <summary>
         /// 获得兑现提示区间文本
         /// </summary>

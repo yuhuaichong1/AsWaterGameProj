@@ -33,4 +33,5 @@ public static class FacadePayout
     public static Func<float> GetLuckyRewardAmount;
     public static Func<float> GetLevelComplatedAmount;
     public static Func<float> GetLuckySpinAmount;
+    public static Func<float> GetEliminationAmount;
 }
