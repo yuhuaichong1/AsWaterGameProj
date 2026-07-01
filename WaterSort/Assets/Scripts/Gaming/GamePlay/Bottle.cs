@@ -172,7 +172,7 @@ namespace AsGame.Water
             PlayProp3Effect();
             RefreshVisual();
 
-            float money = UnityEngine.Random.Range(20, 45);
+            float money = FacadePayout.GetAdBottleAmount();
             FacadePlayer.AddMoney(money);
             FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct() 
             {

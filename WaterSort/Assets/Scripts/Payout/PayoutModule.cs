@@ -79,6 +79,7 @@ namespace XrCode
             FacadePayout.GetLevelComplatedAmount = GetLevelComplatedAmount;
             FacadePayout.GetLuckySpinAmount = GetLuckySpinAmount;
             FacadePayout.GetEliminationAmount += GetEliminationAmount;
+            FacadePayout.GetAdBottleAmount += GetAdBottleAmount;
         }
 
         private void UnregisterFacade()
@@ -107,6 +108,7 @@ namespace XrCode
             FacadePayout.GetLevelComplatedAmount = null;
             FacadePayout.GetLuckySpinAmount = null;
             FacadePayout.GetEliminationAmount = null;
+            FacadePayout.GetAdBottleAmount = null;
         }
 
         public void OnLevelPassed(int count = 1)
@@ -428,6 +430,13 @@ namespace XrCode
             int id = GetMIDataId();
             return UnityEngine.Random.Range(MIData[id].SEMin, MIData[id].SEMax);
         }
+
+        private float GetAdBottleAmount()
+        {
+            int id = GetMIDataId();
+            return UnityEngine.Random.Range(MIData[id].AdBottleMin, MIData[id].AdBottleMax);
+        }
+
         private int GetMIDataId()
         {
             float remain = curTipTarget - (float)FacadePlayer.GetMoney();
