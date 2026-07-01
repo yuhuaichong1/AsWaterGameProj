@@ -80,6 +80,7 @@ namespace XrCode
             FacadeWithdraw.ReSetCheckInData += ReSetCheckInData;
             FacadeWithdraw.GetCurCheckInBankDay += GetCurCheckInBankDay;
             FacadeWithdraw.SetCurCheckInBankDay += SetCurCheckInBankDay;
+            FacadeWithdraw.GetEliminationReward += GetEliminationReward;
         }
 
         private void FacadeRemove()
@@ -120,6 +121,7 @@ namespace XrCode
             FacadeWithdraw.ReSetCheckInData -= ReSetCheckInData;
             FacadeWithdraw.GetCurCheckInBankDay -= GetCurCheckInBankDay;
             FacadeWithdraw.SetCurCheckInBankDay -= SetCurCheckInBankDay;
+            FacadeWithdraw.GetEliminationReward -= GetEliminationReward;
         }
 
         #endregion
@@ -628,6 +630,40 @@ namespace XrCode
                 {
                     int id = MIData.Count - 1;
                     reward = UnityEngine.Random.Range(MIData[id].LSMin, MIData[id].LSMax);
+                });
+            }
+            return reward;
+        }
+
+        private float GetEliminationReward()
+        {
+            float reward = 1;
+
+            if (GameDefines.ifIAA)
+            {
+                reward = GameDefines.IAA_Elimination_Money;
+            }
+            else
+            {
+                ActionByCurWTarget((v) =>
+                {
+                    reward = GameDefines.Elimination_Money;
+                }, (v) =>
+                {
+                    int id = GetMoneyIntervalSn(GetRemainTarget());
+
+                    if (id < 0)
+                    {
+                        reward = GameDefines.Elimination_Money;
+                    }
+                    else
+                    {
+                        reward = UnityEngine.Random.Range(MIData[id].SEMin, MIData[id].SEMax);
+                    }
+                }, (v) =>
+                {
+                    int id = MIData.Count - 1;
+                    reward = UnityEngine.Random.Range(MIData[id].SEMin, MIData[id].SEMax);
                 });
             }
             return reward;
