@@ -380,6 +380,9 @@ namespace XrCode
 
         private void IfShowTip(double money)
         {
+            if (curTipTarget == 0)
+                return;
+
             money = (float)money;
             float tempTarget = curTipTarget;
             if (money >= curTipTarget)
