@@ -14,7 +14,7 @@ public class PayoutEntryData
     public int onlineSecondsToday;
     public string lastDailyDate = string.Empty;
     public int dailyCompletedCount;
-    /// <summary>玩家已在步骤页点击 Continue 关闭过（列表切换为任务文案展示）。</summary>
+    /// <summary>列表项是否展示任务态（Cash Out / Continue 成功后立即为 true）。</summary>
     public bool panelAcknowledged;
 
     public PayoutEntryKey Key => new PayoutEntryKey((EPayType)channel, tierId);
