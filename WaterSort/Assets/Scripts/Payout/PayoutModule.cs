@@ -205,7 +205,11 @@ namespace XrCode
         private bool StartEntry(PayoutEntryKey key)
         {
             var entry = GetOrCreateEntry(key);
-            if (entry.IsStarted) return true;
+            if (entry.IsStarted)
+            {
+                AcknowledgeListItem(entry);
+                return true;
+            }
 
             if (!CanStart(key)) return false;
 
@@ -222,6 +226,7 @@ namespace XrCode
 
             FacadeWithdraw.SetPayType(key.Channel);
             PayoutStepTaskHelper.BeginStep(entry, firstStep);
+            entry.panelAcknowledged = true;
             SaveData();
             DispatchStepChanged(key);
             return true;
@@ -244,6 +249,13 @@ namespace XrCode
         private void MarkPanelAcknowledged(PayoutEntryKey key)
         {
             var entry = GetEntry(key);
+            if (entry == null || !entry.IsStarted) return;
+            AcknowledgeListItem(entry);
+        }
+
+        /// <summary>列表项进入任务展示态（Cash Out / Continue 后立即生效，不依赖关闭进度面板）。</summary>
+        private void AcknowledgeListItem(PayoutEntryData entry)
+        {
             if (entry == null || !entry.IsStarted || entry.panelAcknowledged) return;
             entry.panelAcknowledged = true;
             SaveData();
@@ -276,6 +288,7 @@ namespace XrCode
                 PayoutStepTaskHelper.BeginStep(entry, next);
             }
 
+            entry.panelAcknowledged = true;
             SaveData();
             DispatchStepChanged(key);
         }
@@ -338,11 +351,20 @@ namespace XrCode
 
             PayoutEntryWrapper wrapper = JsonUtility.FromJson<PayoutEntryWrapper>(json);
             if (wrapper?.items == null || wrapper.items.Length == 0) return;
+            bool repairedAck = false;
             foreach (PayoutEntryData item in wrapper.items)
             {
                 if (item == null) continue;
+                // 兼容旧存档：已开始但未确认面板的订单，直接视为列表已刷新
+                if (item.IsStarted && !item.panelAcknowledged)
+                {
+                    item.panelAcknowledged = true;
+                    repairedAck = true;
+                }
                 entries[item.Key.StorageKey] = item;
             }
+            if (repairedAck)
+                SaveData();
         }
 
         private void SaveData()

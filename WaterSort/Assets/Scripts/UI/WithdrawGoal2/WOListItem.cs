@@ -135,6 +135,7 @@ public class WOListItem : MonoBehaviour
         FacadePayout.ContinueStep(entryKey);
         ModuleMgr.Instance.PayoutModule.SetGmFocusKey(entryKey);
         FacadePayout.OpenProgressPanel(entryKey);
+        Refresh();
         onRefreshParent?.Invoke();
     }
 

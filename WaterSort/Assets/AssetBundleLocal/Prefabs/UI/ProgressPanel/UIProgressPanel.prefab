@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3158281410749399223}
   - component: {fileID: 3532912227095968856}
   - component: {fileID: 4676114497720038249}
+  - component: {fileID: 6905904639082009718}
   m_Layer: 5
   m_Name: PrevioursStepFinish
   m_TagString: Untagged
@@ -79,6 +80,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 
+--- !u!114 &6905904639082009718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 85735802306229973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0.06069775, g: 0.41509432, b: 0.20123428, a: 1}
+  m_EffectDistance: {x: 3, y: -3}
+  m_UseGraphicAlpha: 1
 --- !u!1 &155491758721804432
 GameObject:
   m_ObjectHideFlags: 0
@@ -715,8 +731,8 @@ RectTransform:
   m_Children:
   - {fileID: 2750200144768628939}
   - {fileID: 171410527183111376}
-  - {fileID: 3158281410749399223}
   - {fileID: 188886962134492414}
+  - {fileID: 3158281410749399223}
   - {fileID: 6431240660244116022}
   m_Father: {fileID: 6706610511557417088}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
