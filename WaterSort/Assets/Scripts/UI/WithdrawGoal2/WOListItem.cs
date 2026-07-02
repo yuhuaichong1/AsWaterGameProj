@@ -76,8 +76,8 @@ public class WOListItem : MonoBehaviour
         }
 
         CashOutBtn.gameObject.SetActive(!started);
-        if (!started)
-            CashOutBtn.interactable = canCashOut;
+        //if (!started)
+        //    CashOutBtn.interactable = canCashOut;
 
         ContinueBtn.gameObject.SetActive(showTaskUi && canContinue);
         UnContinueBtn.gameObject.SetActive(showTaskUi && !canContinue);
@@ -103,7 +103,13 @@ public class WOListItem : MonoBehaviour
     private void OnCashOutBtnClick()
     {
         if (FacadePayout.CanStart != null && !FacadePayout.CanStart(entryKey))
+        {
+            string s1 = FacadePayType.RegionalChange(targetAmount - FacadePlayer.GetMoney());
+            string s2 = FacadePayType.RegionalChange(targetAmount);
+
+            UIManager.Instance.OpenNotice3(string.Format(FacadeLanguage.GetText("10142"), s1, s2));
             return;
+        }
 
         if (!string.IsNullOrEmpty(FacadeWithdraw.GetWPhoneOrEmail2(entryKey.Channel)))
 
@@ -116,7 +122,6 @@ public class WOListItem : MonoBehaviour
     }
 
     private void OnCashOutBtnClick2()
-
     {
 
         if (FacadePayout.EnsureStartedAndOpen(entryKey))
@@ -135,6 +140,8 @@ public class WOListItem : MonoBehaviour
 
     private void OnUnContinueBtnClick()
     {
+        return;
+
         var entry = FacadePayout.GetEntry?.Invoke(entryKey);
         if (entry == null || !entry.IsStarted) return;
 
