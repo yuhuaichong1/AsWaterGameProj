@@ -35,4 +35,7 @@ public static class FacadePayout
     public static Func<float> GetLuckySpinAmount;
     public static Func<float> GetEliminationAmount;
     public static Func<float> GetAdBottleAmount;
+
+    public static Action AddWithdrawOrder_Ad;
+    public static Action<int> AddWithdrawOrder_Level;
 }

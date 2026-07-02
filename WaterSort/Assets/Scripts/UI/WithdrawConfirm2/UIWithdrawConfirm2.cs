@@ -20,6 +20,7 @@ namespace XrCode
             mIcon.sprite = icon;
             mO1Content.text = FacadeWithdraw.GetWPhoneOrEmail2(entryKey.Channel);
             mO2Content.text = FacadePayType.RegionalChange(amount);
+            mMoneyText.text = mO2Content.text;
             mO3Content.text = "2%";
             mO4Content.text = DateTime.Now.ToString("M/d/yyyy h:mm:ss tt");
         }

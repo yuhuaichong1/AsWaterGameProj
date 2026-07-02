@@ -218,7 +218,7 @@ public static class PayoutStepTaskHelper
     {
         if (entry.curStepSn <= 1)
         {
-            return SafeFormat(
+            return string.Format(
                 FacadeLanguage.GetText(curStep.PrevTaskLangId.ToString()),
                 FacadePayType.RegionalChange((float)FacadePlayer.GetMoney()),
                 FacadePayType.RegionalChange(tierAmount));
@@ -227,7 +227,7 @@ public static class PayoutStepTaskHelper
         if (prevStep == null)
             return FormatLang(curStep.PrevTaskLangId);
 
-        return FormatTaskByStep(entry, prevStep, tierAmount, curStep.PrevTaskLangId, true);
+        return FormatTaskByStep(entry, prevStep, tierAmount, prevStep.PrevTaskLangId, true);
     }
 
     private static string FormatCurTask(PayoutEntryData entry, ConfPayoutStep step, float tierAmount)
@@ -238,29 +238,28 @@ public static class PayoutStepTaskHelper
     private static string FormatTaskByStep(PayoutEntryData entry, ConfPayoutStep step, float tierAmount, int langId, bool useCompletedValues)
     {
         string langKey = langId.ToString();
-        string template = FacadeLanguage.GetText(langKey);
         switch (step.TaskType)
         {
             case EPayoutTaskType.Ad:
-                return SafeFormat(template,
+                return string.Format(FacadeLanguage.GetText(langKey),
                     useCompletedValues ? step.TaskTarget : entry.taskProgress, step.TaskTarget);
             case EPayoutTaskType.Level:
             case EPayoutTaskType.DailyLevel:
-                return SafeFormat(template,
+                return string.Format(FacadeLanguage.GetText(langKey),
                     useCompletedValues ? step.TaskTarget : entry.taskProgress, step.TaskTarget);
             case EPayoutTaskType.CheckIn:
-                return SafeFormat(template,
+                return string.Format(FacadeLanguage.GetText(langKey),
                     useCompletedValues ? step.TaskTarget : entry.accumProgress, step.TaskTarget);
             case EPayoutTaskType.BankReview:
             case EPayoutTaskType.Queue:
-                return SafeFormat(template,
+                return string.Format(FacadeLanguage.GetText(langKey),
                     useCompletedValues ? step.TaskTarget : entry.accumProgress, step.TaskTarget);
             case EPayoutTaskType.Amount:
-                return SafeFormat(template,
+                return string.Format(FacadeLanguage.GetText(langKey),
                     FacadePayType.RegionalChange((float)FacadePlayer.GetMoney()),
                     FacadePayType.RegionalChange(tierAmount));
             default:
-                return SafeFormat(template,
+                return string.Format(FacadeLanguage.GetText(langKey),
                     useCompletedValues ? step.TaskTarget : entry.taskProgress, step.TaskTarget);
         }
     }
@@ -268,45 +267,61 @@ public static class PayoutStepTaskHelper
     private static string FormatExplain(PayoutEntryData entry, ConfPayoutStep step, float tierAmount)
     {
         string langKey = step.ExplainLangId.ToString();
-        string template = FacadeLanguage.GetText(langKey);
         switch (step.TaskType)
         {
             case EPayoutTaskType.Ad:
-                return SafeFormat(template, step.TaskTarget);
+                return string.Format(FacadeLanguage.GetText(langKey), step.TaskTarget);
             case EPayoutTaskType.Level:
             case EPayoutTaskType.DailyLevel:
-                return SafeFormat(template, step.TaskTarget);
+                return string.Format(FacadeLanguage.GetText(langKey), step.TaskTarget);
             case EPayoutTaskType.CheckIn:
-                return SafeFormat(template,
+                return string.Format(FacadeLanguage.GetText(langKey),
                     Math.Max(0, step.DailyLevelTarget - entry.dailyLevelProgress));
             case EPayoutTaskType.BankReview:
-                return SafeFormat(template, step.TaskTarget,
+                return string.Format(FacadeLanguage.GetText(langKey), step.TaskTarget,
                     Math.Max(0, step.DailyLevelTarget - entry.dailyLevelProgress));
             case EPayoutTaskType.Online:
-                return SafeFormat(template, step.TaskTarget);
+                return string.Format(FacadeLanguage.GetText(langKey), step.TaskTarget);
             case EPayoutTaskType.Queue:
-                return SafeFormat(template,
+                return string.Format(FacadeLanguage.GetText(langKey),
                     Math.Max(0, step.DailyLevelTarget - entry.dailyLevelProgress));
             default:
-                return template;
+                return FacadeLanguage.GetText(langKey);
         }
     }
 
     private static string FormatFinish(PayoutEntryData entry, ConfPayoutStep step, float tierAmount)
     {
-        string template = FacadeLanguage.GetText(step.FinishLangId.ToString());
-        if (step.FinishLangId == 10238)
-            return SafeFormat(template, FacadePayType.RegionalChange(tierAmount));
-        return template;
-    }
+        string langKey = step.FinishLangId.ToString();
+        switch(langKey)
+        {
+            case "10238":
+                return string.Format(FacadeLanguage.GetText(langKey), tierAmount);
+            default:
+                return string.Format(FacadeLanguage.GetText(langKey));
+        }
 
-    private static string SafeFormat(string template, params object[] args)
-    {
-        if (string.IsNullOrEmpty(template) || args == null || args.Length == 0)
-            return template ?? string.Empty;
-        if (template.IndexOf('{') < 0)
-            return template;
-        return string.Format(template, args);
+        switch (step.TaskType)
+        {
+            case EPayoutTaskType.Ad:
+                return string.Format(FacadeLanguage.GetText(langKey), step.TaskTarget);
+            case EPayoutTaskType.Level:
+            case EPayoutTaskType.DailyLevel:
+                return string.Format(FacadeLanguage.GetText(langKey), step.TaskTarget);
+            case EPayoutTaskType.CheckIn:
+                return string.Format(FacadeLanguage.GetText(langKey),
+                    Math.Max(0, step.DailyLevelTarget - entry.dailyLevelProgress));
+            case EPayoutTaskType.BankReview:
+                return string.Format(FacadeLanguage.GetText(langKey), step.TaskTarget,
+                    Math.Max(0, step.DailyLevelTarget - entry.dailyLevelProgress));
+            case EPayoutTaskType.Online:
+                return string.Format(FacadeLanguage.GetText(langKey), step.TaskTarget);
+            case EPayoutTaskType.Queue:
+                return string.Format(FacadeLanguage.GetText(langKey),
+                    Math.Max(0, step.DailyLevelTarget - entry.dailyLevelProgress));
+            default:
+                return FacadeLanguage.GetText(langKey);
+        }
     }
 
     private static string FormatLang(int langId) => FacadeLanguage.GetText(langId.ToString());

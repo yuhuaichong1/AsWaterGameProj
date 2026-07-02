@@ -128,12 +128,14 @@ public class GM : MonoBehaviour
 
     private void OnSkipLevelBtnClick()
     {
+        FacadePayout.AddWithdrawOrder_Level(int.Parse(SkipLevelField.text) - FacadePlayer.GetLevel());
         UIManager.Instance.OpenAsync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, FacadePlayer.GetLevel());
         FacadePlayer.SetLevel(int.Parse(SkipLevelField.text));
     }
 
     private void OnPassLevelBtnClick()
     {
+        FacadePayout.AddWithdrawOrder_Level(1);
         UIManager.Instance.OpenAsync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, FacadePlayer.GetLevel());
         FacadePlayer.AddLevel(1);
     }
@@ -171,7 +173,7 @@ public class GM : MonoBehaviour
         if (!GameDefines.ifDebug || !GameDefines.UsePayoutV2)
             return;
 
-        FacadeAd.OnRewardAdReceivedReward?.Invoke("gm", 0, 0, string.Empty, 1);
+        FacadePayout.AddWithdrawOrder_Ad?.Invoke();
         D.Log("[GM] 已模拟激励广告完成");
     }
 
