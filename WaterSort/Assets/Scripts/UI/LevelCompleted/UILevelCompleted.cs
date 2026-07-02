@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace XrCode
@@ -44,7 +45,10 @@ namespace XrCode
         
 	    private void OnAdBtnClickHandle()
         {
-            FacadeAd.PlayROIAdByWeight(EAdSource.LevelCompleted, (count) => { GetReward(); }, (errMsg) => { GetOnlyReward(); }, ()=> { GetOnlyReward(); }, GameDefines.WeightAdRange, GameDefines.AdWeight);
+            int weightId = GameDefines.AdLvArr.ToList().GetRangeIndex(FacadePlayer.GetLevel());
+            int weight = GameDefines.AdWeightArr[weightId];
+
+            FacadeAd.PlayROIAdByWeight(EAdSource.LevelCompleted, (count) => { GetReward(); }, (errMsg) => { GetOnlyReward(); }, ()=> { GetOnlyReward(); }, GameDefines.WeightAdRange, weight);
         }
 
         private void OnWithdrawBtnClickHandle()
