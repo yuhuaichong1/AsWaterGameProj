@@ -784,6 +784,8 @@ namespace XrCode
             {
                 UIManager.Instance.OpenAsync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, curLevelIndex);
                 FacadePlayer.AddLevel(1);
+                if (GameDefines.UsePayoutV2)
+                    ModuleMgr.Instance.PayoutModule.OnLevelPassed();
                 Game.Instance.UILoadingWaiting.gameObject.SetActive(false);
                 Game.Instance.UILoadingWaiting.StopTextAnim();
             }, () =>
