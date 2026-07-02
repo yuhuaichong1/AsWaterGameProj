@@ -26,7 +26,7 @@ namespace XrCode
             RefreshHeader();
             BuildChannelTabs();
             RefreshTierList();
-            ShowAnim(mPlane);
+            //ShowAnim(mPlane);
 
             FacadeWithdraw.RefreshHeader += RefreshHeader;
         }

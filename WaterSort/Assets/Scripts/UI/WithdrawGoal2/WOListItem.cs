@@ -140,6 +140,8 @@ public class WOListItem : MonoBehaviour
 
     private void OnUnContinueBtnClick()
     {
+        return;
+
         var entry = FacadePayout.GetEntry?.Invoke(entryKey);
         if (entry == null || !entry.IsStarted) return;
 
