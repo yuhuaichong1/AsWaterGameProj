@@ -610,7 +610,6 @@ namespace XrCode
                 LSCount = 0;
             }
 
-            
         }
 
         /// <summary>
