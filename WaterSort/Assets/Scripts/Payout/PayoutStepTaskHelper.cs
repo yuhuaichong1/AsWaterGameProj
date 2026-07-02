@@ -216,15 +216,16 @@ public static class PayoutStepTaskHelper
 
     private static string FormatPrevTask(PayoutEntryData entry, ConfPayoutStep prevStep, float tierAmount, ConfPayoutStep curStep)
     {
-        string template = FacadeLanguage.GetText(curStep.PrevTaskLangId.ToString());
-        // 步骤 1：上一步为达成档位提现金额（仅显示档位金额）
+        // 10202：达成当前档位提现金额（仅显示档位金额，非余额）
+        if (curStep.PrevTaskLangId == 10202)
+            return FormatTierAmountLang(curStep.PrevTaskLangId, entry.tierId);
+
         if (entry.curStepSn <= 1)
-            return SafeFormat(template, FacadePayType.RegionalChange(tierAmount));
+            return FormatTierAmountLang(curStep.PrevTaskLangId, entry.tierId);
 
         if (prevStep == null)
-            return template;
+            return FacadeLanguage.GetText(curStep.PrevTaskLangId.ToString());
 
-        // 步骤 2+：上一步展示「上一步骤已完成的主任务」，文案取当前步 prevTaskLangId，数值取上一步配置
         return FormatTaskByStep(entry, prevStep, tierAmount, curStep.PrevTaskLangId, true);
     }
 
@@ -290,10 +291,21 @@ public static class PayoutStepTaskHelper
 
     private static string FormatFinish(PayoutEntryData entry, ConfPayoutStep step, float tierAmount)
     {
-        string template = FacadeLanguage.GetText(step.FinishLangId.ToString());
         if (step.FinishLangId == 10238)
-            return SafeFormat(template, FacadePayType.RegionalChange(tierAmount));
-        return template;
+            return FormatTierAmountLang(10238, entry.tierId);
+        return FacadeLanguage.GetText(step.FinishLangId.ToString());
+    }
+
+    private static string FormatTierAmountLang(int langId, int tierId)
+    {
+        return FormatTierAmountLang(langId, GetTierAmount(tierId));
+    }
+
+    private static string FormatTierAmountLang(int langId, float tierAmount)
+    {
+        string template = FacadeLanguage.GetText(langId.ToString());
+        string amountText = FacadePayType.RegionalChange(tierAmount);
+        return SafeFormat(template, amountText);
     }
 
     private static string SafeFormat(string template, params object[] args)

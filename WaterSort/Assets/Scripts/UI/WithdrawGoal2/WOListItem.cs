@@ -19,6 +19,7 @@ public class WOListItem : MonoBehaviour
     private float targetAmount;
     private System.Action onRefreshParent;
     private Sprite icon;
+    private float refreshTick;
     void Awake()
     {
         if (MSText == null && MoneySlider != null)
@@ -38,8 +39,15 @@ public class WOListItem : MonoBehaviour
         TargetText.text = FacadePayType.RegionalChange(target);
 
         this.icon = icon;
-        CancelInvoke(nameof(Refresh));
-        InvokeRepeating(nameof(Refresh), 0f, 1f);
+        refreshTick = 0f;
+        Refresh();
+    }
+
+    private void Update()
+    {
+        refreshTick += Time.unscaledDeltaTime;
+        if (refreshTick < 1f) return;
+        refreshTick = 0f;
         Refresh();
     }
 
@@ -47,11 +55,9 @@ public class WOListItem : MonoBehaviour
     {
         var entry = FacadePayout.GetEntry?.Invoke(entryKey);
         bool started = entry != null && entry.IsStarted;
-        bool showTaskUi = started && entry.panelAcknowledged;
-        bool awaitingPanelClose = started && !entry.panelAcknowledged;
-        bool showBalanceProgress = !started || awaitingPanelClose;
-        bool canContinue = started && FacadePayout.CanContinue(entryKey);
-        bool canCashOut = !started && FacadePayout.CanStart != null && FacadePayout.CanStart(entryKey);
+        bool showTaskUi = started;
+        bool showBalanceProgress = !started;
+        bool canContinue = started && FacadePayout.CanContinue != null && FacadePayout.CanContinue(entryKey);
 
         double curMoney = FacadePlayer.GetMoney();
         string balanceProgressText =
@@ -76,11 +82,8 @@ public class WOListItem : MonoBehaviour
         }
 
         CashOutBtn.gameObject.SetActive(!started);
-        //if (!started)
-        //    CashOutBtn.interactable = canCashOut;
-
-        ContinueBtn.gameObject.SetActive(showTaskUi && canContinue);
-        UnContinueBtn.gameObject.SetActive(showTaskUi && !canContinue);
+        ContinueBtn.gameObject.SetActive(started && canContinue);
+        UnContinueBtn.gameObject.SetActive(started && !canContinue);
         ProgressObj.SetActive(showTaskUi);
 
         if (PTime != null)
@@ -148,10 +151,5 @@ public class WOListItem : MonoBehaviour
 
         ModuleMgr.Instance.PayoutModule.SetGmFocusKey(entryKey);
         FacadePayout.OpenProgressPanel(entryKey);
-    }
-
-    private void OnDestroy()
-    {
-        CancelInvoke(nameof(Refresh));
     }
 }

@@ -49,7 +49,11 @@ namespace XrCode
         private void OnPayoutUpdated(EventStruct evt)
         {
             RefreshHeader();
-            RefreshTierList();
+            foreach (var item in listItems)
+            {
+                if (item != null)
+                    item.Refresh();
+            }
         }
 
         private void RefreshHeader()

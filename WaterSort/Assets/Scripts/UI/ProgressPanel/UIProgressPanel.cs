@@ -479,6 +479,12 @@ namespace XrCode
 
 
 
+            if (mPrevioursStepFinish != null)
+
+                mPrevioursStepFinish.text = display.Finish ?? string.Empty;
+
+
+
             if (mNextCondition != null)
 
             {
