@@ -1,8 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Data.SqlTypes;
-using System.Linq;
-using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 namespace XrCode
@@ -154,6 +150,8 @@ namespace XrCode
             if(value > 0)
                 FacadePayout.IfShowTip(money);
             FacadePayout.SetCMDText();
+
+            FacadeWithdraw.RefreshHeader?.Invoke();
         }
 
         #endregion

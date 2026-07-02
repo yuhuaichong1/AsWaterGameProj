@@ -293,7 +293,14 @@ public static class PayoutStepTaskHelper
     private static string FormatFinish(PayoutEntryData entry, ConfPayoutStep step, float tierAmount)
     {
         string langKey = step.FinishLangId.ToString();
-        return string.Format(FacadeLanguage.GetText(langKey));
+        switch(langKey)
+        {
+            case "10238":
+                return string.Format(FacadeLanguage.GetText(langKey), tierAmount);
+            default:
+                return string.Format(FacadeLanguage.GetText(langKey));
+        }
+
         switch (step.TaskType)
         {
             case EPayoutTaskType.Ad:
