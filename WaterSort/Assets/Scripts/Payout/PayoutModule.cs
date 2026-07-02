@@ -443,6 +443,9 @@ namespace XrCode
             if (remain < 0)
                 remain = 0;
             int id = TargetInterval.GetRangeIndex(remain);
+            id = MIData.Count - id - 1;
+
+            Debug.LogError(remain + "  " + id);
 
             if(id == -1) id = MIData.Count - 1;
             //if (id == -1) id = 0;
