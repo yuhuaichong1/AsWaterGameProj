@@ -27,6 +27,8 @@ namespace XrCode
             BuildChannelTabs();
             RefreshTierList();
             ShowAnim(mPlane);
+
+            FacadeWithdraw.RefreshHeader += RefreshHeader;
         }
 
         protected override void OnDisable()
@@ -58,7 +60,7 @@ namespace XrCode
             var payType = payItems[Mathf.Clamp(curChannelIndex, 0, payItems.Count - 1)].payType;
             PayNode node = payItems.Find(p => p.payType == payType) ?? payItems[curChannelIndex];
             mCurWIcon.sprite = node.picture;
-            mCurWInfo.text = FacadeWithdraw.GetWPhoneOrEmail();
+            mCurWInfo.text = FacadeWithdraw.GetWPhoneOrEmail2(node.payType);
         }
 
         private void BuildChannelTabs()
@@ -128,6 +130,9 @@ namespace XrCode
             UIManager.Instance.OpenAsync<UIWithdrawAccount>(EUIType.EUIWithdrawAccount, UIOpenType.None, null, curChannelIndex);
         }
 
-        protected override void OnDispose() { }
+        protected override void OnDispose()
+        {
+            FacadeWithdraw.RefreshHeader += RefreshHeader;
+        }
     }
 }

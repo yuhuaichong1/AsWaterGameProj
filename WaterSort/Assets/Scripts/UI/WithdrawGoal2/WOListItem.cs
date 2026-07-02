@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using XrCode;
 
-public class WOListItem : MonoBehaviour
+public class WOListItem : MonoBehaviour
 {
     public Image Icon;
     public Text TargetText;
@@ -18,7 +18,7 @@ public class WOListItem : MonoBehaviour
     private PayoutEntryKey entryKey;
     private float targetAmount;
     private System.Action onRefreshParent;
-
+    private Sprite icon;
     void Awake()
     {
         if (MSText == null && MoneySlider != null)
@@ -34,7 +34,7 @@ public class WOListItem : MonoBehaviour
         targetAmount = target;
         onRefreshParent = refreshParent;
         Icon.sprite = icon;
-        TargetText.text = FacadePayType.RegionalChange(target);
+        TargetText.text = FacadePayType.RegionalChange(target);        this.icon = icon;
         CancelInvoke(nameof(Refresh));
         InvokeRepeating(nameof(Refresh), 0f, 1f);
         Refresh();
@@ -96,11 +96,16 @@ public class WOListItem : MonoBehaviour
         }
     }
 
-    private void OnCashOutBtnClick()
-    {
-        if (FacadePayout.EnsureStartedAndOpen(entryKey))
-            onRefreshParent?.Invoke();
+    private void OnCashOutBtnClick()
+    {        if (!string.IsNullOrEmpty(FacadeWithdraw.GetWPhoneOrEmail2(entryKey.Channel)))            UIManager.Instance.OpenAsync<UIWithdrawConfirm2>(EUIType.EUIWithdrawConfirm2, UIOpenType.None, null, entryKey, onRefreshParent, targetAmount, icon);
+        else
+            UIManager.Instance.OpenNotice3(FacadeLanguage.GetText("10059"));
     }
+    private void OnCashOutBtnClick2()
+    {
+        if (FacadePayout.EnsureStartedAndOpen(entryKey))
+            onRefreshParent?.Invoke();
+    }
 
     private void OnContinueBtnClick()
     {
