@@ -70,7 +70,7 @@ namespace XrCode
             LoadData();
             InitGame();
 
-            LRTimer = STimerManager.Instance.CreateSTimer(GameDefines.ClockTime1, 0, true, false, () => { LRBool = true; });
+            LRTimer = STimerManager.Instance.CreateSTimer(GameDefines.ClockTime1, 0, true, false, () => { LRBool = true;});
             LRTimer.Pause();
             LRPauseTimer = STimerManager.Instance.CreateSTimer(GameDefines.HoldTime, 0, true, false, () =>{ LRTimer.Pause(); });
             LRPauseTimer.Pause();
@@ -223,6 +223,7 @@ namespace XrCode
                 LRBool = false;
                 //LRTimer.targetTime = curLevelIndex <= GameDefines.ClockLv ? GameDefines.ClockTime1 : GameDefines.ClockTime2;
                 int inarId = GameDefines.ClockLvArr.ToList().GetRangeIndex(curLevelIndex);
+                float aaa = GameDefines.ClockTimeArr[inarId];
                 LRTimer.targetTime = GameDefines.ClockTimeArr[inarId];
                 LRTimer.ReStart();
                 LRPauseTimer.Stop();
@@ -657,7 +658,10 @@ namespace XrCode
                 {
                     LRTimer.Start();
                 }
-                TDAnalyticsManager.Instance.OperateDelay();
+                if (curLevelIndex > 12)
+                {
+                    TDAnalyticsManager.Instance.OperateDelay();
+                }
             }
 
 

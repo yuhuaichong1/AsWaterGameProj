@@ -416,7 +416,10 @@ namespace XrCode
 
             int randomValue = (int)UnityEngine.Random.Range(WeightAdRange.x, WeightAdRange.y);
 
-            if (randomValue <= WeightAdBoundary)
+            int weightId = GameDefines.AdLvArr.ToList().GetRangeIndex(FacadePlayer.GetLevel());
+            int LvWeight = GameDefines.AdWeightArr[weightId];
+
+            if (randomValue <= LvWeight)
             {
                 if (FacadeAd.GetRewardAdReady())
                 {
