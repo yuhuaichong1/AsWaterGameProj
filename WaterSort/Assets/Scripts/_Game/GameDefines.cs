@@ -14,7 +14,7 @@ public abstract class GameDefines
     public static string URL = "http://api.game1153.xyz:8080/xgame?appIndex=86";                            //后台链接网址
     public static bool ifIAA = true;                                                                        //是否为IAA模式
     public static bool ifDebug = true;                                                                      //是否是debug模式
-    public static bool ifSkipAD = true;                                                                     //是否跳过广告
+    public static bool ifSkipAD = false;                                                                     //是否跳过广告
     #endregion
 
     #region 加载延后提示UI相关
