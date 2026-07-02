@@ -21,4 +21,11 @@ public static class FacadeWithdraw
     public static Func<float> GetLevelComplateReward;                                   //获取通关奖励金额奖励值
 
     public static Func<string> GetWithdrawHighValueStr;                                 //获得兑现提示区间文本
+
+    public static Action OpenTotalRewardUI;                                             //决定现在应该打开哪个TotalReward界面UI
+    public static Func<int> GetCurTRDay;                                                //获取当前总奖励时间
+    public static Func<int> GetRemainTRDay;                                             //获取剩余总奖励时间
+    public static Action<int> SetCurTRDay;                                              //设置当前总奖励时间
+    public static Action<TrStatus> SetTrStatus;                                         //设置当前总奖励的类型
+    public static Action<bool> RefushWaitDay;                                           //刷新等待时间
 }

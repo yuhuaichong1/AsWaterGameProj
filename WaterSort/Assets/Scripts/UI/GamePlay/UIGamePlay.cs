@@ -400,6 +400,11 @@ namespace XrCode
             SetShuffleTipShow(false);
         }
 
+        private void OnTRewardBtnClickHandle()
+        {
+            FacadeWithdraw.OpenTotalRewardUI();
+        }
+
         #endregion
 
         /// <summary>

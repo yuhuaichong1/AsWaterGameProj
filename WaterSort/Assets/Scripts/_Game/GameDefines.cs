@@ -226,7 +226,10 @@ public abstract class GameDefines
     public static float totalRewardMoney = 50000;                                                           //最高奖励值
     public static int totalRewardLevel = 60;                                                                //总需通关次数
     public static int totalRewardTime = 3;                                                                  //抽奖等待时间
+    public static int totalRewardNextTime = 7;                                                              //下次抽奖等待时间
     public static float totalRewardMoney2 = 1000;                                                           //安慰奖值
+
+    public static string totalRewardKey = "totalRewardKey";                                                 //刷新等待时间的key
 
     #endregion
 
@@ -273,6 +276,9 @@ public enum EUIType
     EUIWithdrawAccount = 18,
     EUIWithdrawConfirm2 = 19,
     EUIProgressPanel = 20,
+    EUITotalReward = 21,
+    EUITotalReward2 = 22,
+    EUITotalReward3 = 23,
 }
 
 /// <summary>
@@ -482,6 +488,17 @@ public enum UIWTOpenType : int
     SVPCheckInTarget,
     FinishTarget1,
     FinishTarget2,
+}
+
+/// <summary>
+/// 兑奖UI相关
+/// </summary>
+public enum TrStatus
+{
+    PassLevel = 1,//通过关卡
+    WaitResults,//等待开奖
+    ViewResults,//可查看奖
+    WaitNext,//等待下一次开奖
 }
 
 #endregion
