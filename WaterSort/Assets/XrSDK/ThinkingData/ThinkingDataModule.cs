@@ -38,9 +38,9 @@ namespace XrSDK
             TDConfig config = new TDConfig(appID, serverURL);
             config.mode = mode;
             config.timeZone = timeZone;
-            TDAnalytics.EnableLog(enableLog);
             TDAnalytics.SetNetworkType(networkType);
             TDAnalytics.Init(config);
+            TDAnalytics.EnableLog(enableLog);
 
             AutoTrack(autoTrackType);
 

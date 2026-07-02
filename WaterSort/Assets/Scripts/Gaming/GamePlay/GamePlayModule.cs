@@ -625,7 +625,11 @@ namespace XrCode
                 {
                     LRTimer.Start();
                 }
-                TDAnalyticsManager.Instance.OperateDelay();
+
+                if (curLevelIndex > 12)
+                {
+                    TDAnalyticsManager.Instance.OperateDelay();
+                }
             }
 
             if (LRBool)
