@@ -7,6 +7,7 @@ public static class FacadePayType
 {
     public static Func<List<PayNode>> GetPayItems;                  //获取支付类型
     public static Func<double, string> RegionalChange;              //将值以汇率的方式显示
+    public static Func<double, string> RegionalChangeNoDecimal;     //将值以汇率的方式显示（不保留小数）
     public static Func<int> GetNANP;                                //获取国际长途电话区号
     public static Func<string> GetCountryCode;                      //获取国家码
     public static Func<string> GetLanguage;                         //获取语言

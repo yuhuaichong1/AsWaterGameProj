@@ -12,6 +12,8 @@ public class PayoutEntryData
     public int accumProgress;
     public int dailyLevelProgress;
     public int onlineSecondsToday;
+    /// <summary>当前步骤累计在线秒数（跨天不清零，仅换步时重置）。</summary>
+    public int stepOnlineSeconds;
     public string lastDailyDate = string.Empty;
     public int dailyCompletedCount;
     /// <summary>列表项是否展示任务态（Cash Out / Continue 成功后立即为 true）。</summary>

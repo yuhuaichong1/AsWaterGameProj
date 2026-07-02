@@ -69,17 +69,13 @@ public static class PayoutStepTaskHelper
             case EPayoutTaskType.Ad:
                 return entry.taskProgress >= step.TaskTarget;
             case EPayoutTaskType.Level:
-            {
-                bool levelDone = entry.taskProgress >= step.TaskTarget;
-                bool onlineDone = step.OnlineMinutes <= 0 || entry.onlineSecondsToday >= step.OnlineMinutes * 60;
-                return levelDone && onlineDone;
-            }
+                return entry.taskProgress >= step.TaskTarget;
             case EPayoutTaskType.CheckIn:
                 return entry.accumProgress >= step.TaskTarget && IsDailyLevelDone(entry, step);
             case EPayoutTaskType.BankReview:
                 return entry.accumProgress >= step.TaskTarget;
             case EPayoutTaskType.Online:
-                return entry.taskProgress >= step.TaskTarget && entry.onlineSecondsToday >= step.OnlineMinutes * 60;
+                return entry.taskProgress >= step.TaskTarget;
             case EPayoutTaskType.Queue:
                 return entry.accumProgress >= step.TaskTarget;
             case EPayoutTaskType.DailyLevel:
@@ -143,9 +139,10 @@ public static class PayoutStepTaskHelper
     {
         EnsureDailyReset(entry);
         entry.onlineSecondsToday += seconds;
+        entry.stepOnlineSeconds += seconds;
         if (step.TaskType == EPayoutTaskType.Online)
         {
-            entry.taskProgress = entry.onlineSecondsToday;
+            entry.taskProgress = entry.stepOnlineSeconds;
         }
     }
 
@@ -178,6 +175,7 @@ public static class PayoutStepTaskHelper
         entry.taskProgress = 0;
         entry.dailyCompletedCount = 0;
         entry.onlineSecondsToday = 0;
+        entry.stepOnlineSeconds = 0;
         EnsureDailyReset(entry);
         entry.dailyLevelProgress = 0;
     }
@@ -304,7 +302,7 @@ public static class PayoutStepTaskHelper
     private static string FormatTierAmountLang(int langId, float tierAmount)
     {
         string template = FacadeLanguage.GetText(langId.ToString());
-        string amountText = FacadePayType.RegionalChange(tierAmount);
+        string amountText = FacadePayType.RegionalChangeNoDecimal(tierAmount);
         return SafeFormat(template, amountText);
     }
 

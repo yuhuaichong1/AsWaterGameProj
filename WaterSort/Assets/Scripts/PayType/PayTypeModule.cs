@@ -27,6 +27,7 @@ namespace XrCode
 
             FacadePayType.GetPayItems += GetPayItems;
             FacadePayType.RegionalChange += RegionalChange;
+            FacadePayType.RegionalChangeNoDecimal += RegionalChangeNoDecimal;
             FacadePayType.GetNANP += GetNANP;
             FacadePayType.GetCountryCode += GetCountryCode;
             FacadePayType.GetLanguage += GetLanguage;
@@ -127,13 +128,23 @@ namespace XrCode
         /// <returns>更新或的值</returns>
         private string RegionalChange(double value)
         {
+            return RegionalChangeInternal(value, decimals);
+        }
+
+        private string RegionalChangeNoDecimal(double value)
+        {
+            return RegionalChangeInternal(value, 0);
+        }
+
+        private string RegionalChangeInternal(double value, int decimalDigits)
+        {
             if (!GameDefines.ifIAA)
             {
                 value *= exchangeRate;
-                return value.CurrencyConvertV2(mark, ",", 3, decimals);
+                return value.CurrencyConvertV2(mark, ",", 3, decimalDigits);
             }
-            else
-                return $"{(int)value}";
+
+            return $"{(int)value}";
         }
 
         /// <summary>
@@ -179,6 +190,7 @@ namespace XrCode
 
             FacadePayType.GetPayItems -= GetPayItems;
             FacadePayType.RegionalChange -= RegionalChange;
+            FacadePayType.RegionalChangeNoDecimal -= RegionalChangeNoDecimal;
             FacadePayType.GetNANP -= GetNANP;
             FacadePayType.GetCountryCode -= GetCountryCode;
             FacadePayType.GetLanguage -= GetLanguage;

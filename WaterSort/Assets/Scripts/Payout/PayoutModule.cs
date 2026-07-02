@@ -11,6 +11,7 @@ namespace XrCode
     {
         private readonly Dictionary<string, PayoutEntryData> entries = new Dictionary<string, PayoutEntryData>();
         private readonly Dictionary<string, bool> continueStateCache = new Dictionary<string, bool>();
+        private readonly Dictionary<string, long> remainSecondsCache = new Dictionary<string, long>();
         private float onlineTick;
         private PayoutEntryKey? gmFocusKey;
 
@@ -61,7 +62,14 @@ namespace XrCode
                 float tierAmount = PayoutStepTaskHelper.GetTierAmount(entry.tierId);
                 bool nowCanContinue = PayoutStepTaskHelper.CanContinue(entry, tierAmount);
                 continueStateCache[pair.Key] = nowCanContinue;
-                if (wasCanContinue != nowCanContinue)
+
+                long remain = PayoutStepTaskHelper.GetRemainSeconds(entry);
+                bool countdownJustEnded = remainSecondsCache.TryGetValue(pair.Key, out long prevRemain)
+                    && prevRemain > 0
+                    && remain <= 0;
+                remainSecondsCache[pair.Key] = remain;
+
+                if (wasCanContinue != nowCanContinue || countdownJustEnded)
                     continueStateChanged = true;
             }
 
@@ -148,7 +156,7 @@ namespace XrCode
             if (changed)
             {
                 SaveData();
-                RefreshContinueStateCache();
+                RefreshStepCaches();
                 DispatchEntryUpdated();
             }
         }
@@ -168,7 +176,7 @@ namespace XrCode
             if (changed)
             {
                 SaveData();
-                RefreshContinueStateCache();
+                RefreshStepCaches();
                 DispatchEntryUpdated();
             }
         }
@@ -356,7 +364,7 @@ namespace XrCode
 
         private void DispatchStepChanged(PayoutEntryKey key)
         {
-            RefreshContinueStateCache();
+            RefreshStepCaches();
             FacadeEvent.DispatchEvent(PayoutEventTypes.STEP_CHANGED, key);
             DispatchEntryUpdated();
         }
@@ -382,11 +390,23 @@ namespace XrCode
                     item.panelAcknowledged = true;
                     repairedAck = true;
                 }
+
                 entries[item.Key.StorageKey] = item;
             }
             if (repairedAck)
                 SaveData();
-            RefreshContinueStateCache();
+            RefreshStepCaches();
+        }
+
+        private void RefreshRemainSecondsCache()
+        {
+            remainSecondsCache.Clear();
+            foreach (var pair in entries)
+            {
+                var entry = pair.Value;
+                if (!entry.IsStarted) continue;
+                remainSecondsCache[pair.Key] = PayoutStepTaskHelper.GetRemainSeconds(entry);
+            }
         }
 
         private void RefreshContinueStateCache()
@@ -399,6 +419,12 @@ namespace XrCode
                 float tierAmount = PayoutStepTaskHelper.GetTierAmount(entry.tierId);
                 continueStateCache[pair.Key] = PayoutStepTaskHelper.CanContinue(entry, tierAmount);
             }
+        }
+
+        private void RefreshStepCaches()
+        {
+            RefreshContinueStateCache();
+            RefreshRemainSecondsCache();
         }
 
         private void SaveData()
@@ -536,7 +562,7 @@ namespace XrCode
             if (!entry.IsStarted) return;
             entry.stepEndTimestamp = PayoutStepTaskHelper.GetNowTimestamp();
             SaveData();
-            RefreshContinueStateCache();
+            RefreshStepCaches();
             DispatchEntryUpdated();
         }
 
@@ -551,7 +577,7 @@ namespace XrCode
             long now = PayoutStepTaskHelper.GetNowTimestamp();
             entry.stepEndTimestamp = Math.Max(now, entry.stepEndTimestamp - minutes * 60L);
             SaveData();
-            RefreshContinueStateCache();
+            RefreshStepCaches();
             DispatchEntryUpdated();
             D.Log($"[GM] Payout 倒计时已缩短 {minutes} 分钟");
         }
