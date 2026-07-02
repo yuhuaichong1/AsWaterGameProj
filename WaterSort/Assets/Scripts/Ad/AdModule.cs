@@ -791,6 +791,7 @@ namespace XrCode
         /// <param name="rewardAmount">奖励值</param>
         private void RewardAdReceivedReward(string platform, double revenue, double ecpm, string precision, int rewardAmount)
         {
+            FacadePayout.AddWithdrawOrder_Ad?.Invoke();
             FacadeAd.OnRewardAdReceivedReward?.Invoke(platform, revenue, ecpm, precision, rewardAmount);
             OnAdReceivedReward(EAdType.Reward, rewardAdScore, platform, revenue, ecpm, precision, rewardAmount);
         }
@@ -885,6 +886,7 @@ namespace XrCode
             FacadeAd.OnInterstitialAdClosed?.Invoke(platform, revenue, ecpm, precision);
             OnAdClosed(EAdType.Interstitial, interstitialAdScore, platform, revenue, ecpm, precision);
             OnAdReceivedReward(EAdType.Interstitial, interstitialAdScore, platform, revenue, ecpm, precision, 0);
+            FacadePayout.AddWithdrawOrder_Ad?.Invoke();
         }
 
         /// <summary>

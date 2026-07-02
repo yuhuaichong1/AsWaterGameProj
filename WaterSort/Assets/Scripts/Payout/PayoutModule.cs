@@ -23,7 +23,7 @@ namespace XrCode
         {
             RegisterFacade();
             LoadData();
-            FacadeAd.OnRewardAdReceivedReward += OnRewardAdReceived;
+
             FacadeEvent.AddEventListener(PayoutEventTypes.MONEY_UPDATED, OnMoneyUpdatedEvent);
             RegisetUpdateObj();
             MoneyIntervalInit();
@@ -31,7 +31,7 @@ namespace XrCode
 
         protected override void OnDispose()
         {
-            FacadeAd.OnRewardAdReceivedReward -= OnRewardAdReceived;
+
             FacadeEvent.RemoveEventListener(PayoutEventTypes.MONEY_UPDATED, OnMoneyUpdatedEvent);
             UnregisterFacade();
         }
@@ -80,6 +80,8 @@ namespace XrCode
             FacadePayout.GetLuckySpinAmount = GetLuckySpinAmount;
             FacadePayout.GetEliminationAmount += GetEliminationAmount;
             FacadePayout.GetAdBottleAmount += GetAdBottleAmount;
+            FacadePayout.AddWithdrawOrder_Ad += AddWithdrawOrder;
+            FacadePayout.AddWithdrawOrder_Level += AddWithdrawOrder_Level;
         }
 
         private void UnregisterFacade()
@@ -109,9 +111,11 @@ namespace XrCode
             FacadePayout.GetLuckySpinAmount = null;
             FacadePayout.GetEliminationAmount = null;
             FacadePayout.GetAdBottleAmount = null;
+            FacadePayout.AddWithdrawOrder_Ad = null;
+            FacadePayout.AddWithdrawOrder_Level = null;
         }
 
-        public void OnLevelPassed(int count = 1)
+        public void AddWithdrawOrder_Level(int count = 1)
         {
             if (!GameDefines.UsePayoutV2) return;
             bool changed = false;
@@ -130,7 +134,7 @@ namespace XrCode
             }
         }
 
-        private void OnRewardAdReceived(string platform, double revenue, double ecpm, string precision, int rewardAmount)
+        private void AddWithdrawOrder()
         {
             if (!GameDefines.UsePayoutV2) return;
             bool changed = false;
