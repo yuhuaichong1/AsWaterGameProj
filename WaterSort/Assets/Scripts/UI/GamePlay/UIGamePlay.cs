@@ -195,7 +195,7 @@ namespace XrCode
             string levelText;
             if (curLevel < GameDefines.miniLevel_Start)
                 levelText = $"{curLevel}";
-            else if (curLevel >= GameDefines.miniLevel_Start && curLevel <= GameDefines.miniLevel_Start)
+            else if (curLevel >= GameDefines.miniLevel_Start && curLevel <= GameDefines.miniLevel_End)
                 levelText = $"{GameDefines.miniLevel_Start - 1}-{curLevel - GameDefines.miniLevel_Start + 2}";
             else
                 levelText = $"{curLevel - GameDefines.miniLevel_Start}";
