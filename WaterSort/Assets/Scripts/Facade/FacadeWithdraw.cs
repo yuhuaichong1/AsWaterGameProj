@@ -28,4 +28,7 @@ public static class FacadeWithdraw
     public static Action<int> SetCurTRDay;                                              //设置当前总奖励时间
     public static Action<TrStatus> SetTrStatus;                                         //设置当前总奖励的类型
     public static Action<bool> RefushWaitDay;                                           //刷新等待时间
+
+    public static Action<EPayType, string> SetWPhoneOrEmail2;                           //设置兑现渠道的信息
+    public static Func<EPayType, string> GetWPhoneOrEmail2;                             //获取兑现渠道的信息
 }

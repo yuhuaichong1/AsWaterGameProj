@@ -9,7 +9,7 @@ namespace XrCode
 {
     public class WithdrawModule : BaseModule
     {
-        private Dictionary<EPayType, string> payTypeInfo;//不同兑现渠道对应的信息
+        private Dictionary<int, string> payTypeInfo;//不同兑现渠道对应的信息
 
         private string wName;//兑现姓名
         private string wPhoneOrEmail;//兑现信息
@@ -58,6 +58,8 @@ namespace XrCode
             FacadeWithdraw.SetCurTRDay += SetCurTRDay;
             FacadeWithdraw.SetTrStatus += SetTrStatus;
             FacadeWithdraw.RefushWaitDay += RefushWaitDay;
+            FacadeWithdraw.SetWPhoneOrEmail2 += SetWPhoneOrEmail2;
+            FacadeWithdraw.GetWPhoneOrEmail2 += GetWPhoneOrEmail2;
         }
 
         private void FacadeRemove()
@@ -83,6 +85,8 @@ namespace XrCode
             FacadeWithdraw.SetCurTRDay -= SetCurTRDay;
             FacadeWithdraw.SetTrStatus -= SetTrStatus;
             FacadeWithdraw.RefushWaitDay -= RefushWaitDay;
+            FacadeWithdraw.SetWPhoneOrEmail2 -= SetWPhoneOrEmail2;
+            FacadeWithdraw.GetWPhoneOrEmail2 -= GetWPhoneOrEmail2;
         }
 
         #endregion
@@ -186,9 +190,29 @@ namespace XrCode
                 withdrawalRecordItems.Add(item.OrderId, item);
             }
 
+
+
             trStatus = (TrStatus)SPlayerPrefs.GetInt(PlayerPrefDefines.trStatus, 1);
             if(trStatus == TrStatus.WaitResults || trStatus == TrStatus.WaitNext)
                 RefushWaitDay(false);
+
+            payTypeInfo = SPlayerPrefs.GetDictionary<int, string>(PlayerPrefDefines.payTypeInfo, new Dictionary<int, string>());
+            List<PayNode> payNodes = FacadePayType.GetPayItems();
+            bool ifSave = false;
+            foreach(PayNode payNode in payNodes)
+            {
+                int typeInt = (int)(payNode.payType);
+                if (!payTypeInfo.ContainsKey(typeInt))
+                {
+                    ifSave = true;
+                    payTypeInfo.Add(typeInt, "");
+                }
+            }
+            if(ifSave)
+            {
+                SPlayerPrefs.SetDictionary<int, string>(PlayerPrefDefines.payTypeInfo, payTypeInfo);
+                SPlayerPrefs.Save();
+            }
         }
 
         /// <summary>
@@ -415,6 +439,22 @@ namespace XrCode
         {
             trStatus = value;
             SPlayerPrefs.SetInt(PlayerPrefDefines.trStatus, (int)trStatus);
+            SPlayerPrefs.Save();
+        }
+
+        #endregion
+
+        #region Account相关
+
+        private string GetWPhoneOrEmail2(EPayType type)
+        {
+            return payTypeInfo[(int)type];
+        }
+
+        private void SetWPhoneOrEmail2(EPayType type, string value)
+        {
+            payTypeInfo[(int)type] = value;
+            SPlayerPrefs.SetDictionary<int, string>(PlayerPrefDefines.payTypeInfo, payTypeInfo);
             SPlayerPrefs.Save();
         }
 
