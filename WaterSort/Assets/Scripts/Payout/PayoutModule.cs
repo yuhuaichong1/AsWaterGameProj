@@ -373,6 +373,7 @@ namespace XrCode
         {
             curTipTargetId = SPlayerPrefs.GetInt(PlayerPrefDefines.curTipTargetId, 1);
             curTipTarget = SPlayerPrefs.GetFloat(PlayerPrefDefines.curTipTarget, PayoutStepTaskHelper.GetTierAmount(curTipTargetId));
+            TDAnalyticsManager.Instance.CurTargetsCoins(curTipTarget);
 
             entries.Clear();
             string json = SPlayerPrefs.GetString(PlayerPrefDefines.payoutEntries, string.Empty);
@@ -463,7 +464,7 @@ namespace XrCode
                 SPlayerPrefs.SetInt(PlayerPrefDefines.curTipTargetId, curTipTargetId);
                 SPlayerPrefs.SetFloat(PlayerPrefDefines.curTipTarget, curTipTarget);
                 SPlayerPrefs.Save();
-
+                TDAnalyticsManager.Instance.CurTargetsCoins(curTipTarget);
                 UIManager.Instance.OpenAsync<UIWithdrawTip>(EUIType.EUIWithdrawTip, UIOpenType.None, null, tempTarget, icon);
             }
         }

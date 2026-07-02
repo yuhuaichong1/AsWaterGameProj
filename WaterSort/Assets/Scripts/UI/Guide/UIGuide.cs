@@ -265,7 +265,7 @@ namespace XrCode
             if (!FacadeGuide.GetIfTutorial())
                 return;
 
-            //TDAnalyticsManager.GuideStep(FacadeGuide.GetCurStep());
+            TDAnalyticsManager.Instance.GuideStep(FacadeGuide.GetCurStep());
 
             mGuidePlane.gameObject.SetActive(true);
 

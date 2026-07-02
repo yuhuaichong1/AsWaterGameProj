@@ -92,8 +92,23 @@ namespace XrCode
                 // 自己实现的一个计时器
                 TimerManager.Instance.CreateTimer(mCoolDownDur, () => { enableBtn = true; }, 0);
 
-                //ModuleMgr.Instance.TDAnalyticsManager.ButtonClick(eventData.selectedObject);
+                TDAnalyticsManager.Instance.ButtonClick(GetObjPath(eventData.selectedObject));
             }
+        }
+
+        private string GetObjPath(GameObject selectedObject)
+        {
+            if (selectedObject == null) return "";
+            List<string> pathList = new List<string>();
+            pathList.Add(selectedObject.name);
+            Transform trans = selectedObject.transform.parent;
+            while (trans.parent != null)
+            {
+                pathList.Add(trans.gameObject.name);
+                trans = trans.parent;
+            }
+            pathList.Reverse();
+            return string.Join("/", pathList);
         }
 
         public void OnPointerDown(IPointerDownHandler handler, BaseEventData eventData)
