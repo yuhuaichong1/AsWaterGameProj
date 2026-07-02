@@ -18,6 +18,13 @@ namespace XrCode
             FacadePlayer.AddMoney(GameDefines.totalRewardMoney2);
             FacadeWithdraw.SetTrStatus(TrStatus.WaitNext);
             FacadeWithdraw.RefushWaitDay(true);
+
+            string randomName = FacadePlayer.GetRandomName();
+            while (randomName == FacadePlayer.GetPlayerName())
+            {
+                randomName = FacadePlayer.GetRandomName();
+            }
+            mCPText.text = randomName;
         }
         	    private void OnClaimBtnClickHandle()
         {
