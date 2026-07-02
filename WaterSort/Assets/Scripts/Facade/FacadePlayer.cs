@@ -45,7 +45,7 @@ namespace XrCode
         public static Action<int> AddPlayerExp;         //增加经验
         public static Func<int> GetPlayerExp;           //获取当前经验
 
-        public static Func<string> GetRandomName;       //获取玩家随机姓名
+        public static Func<bool, string> GetRandomName; //获取玩家随机姓名
     }
 
 }

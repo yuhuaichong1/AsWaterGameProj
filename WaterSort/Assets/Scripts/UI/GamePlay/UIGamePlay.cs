@@ -470,8 +470,8 @@ namespace XrCode
             mMarque1.transform.position = mM1StartPos.transform.position;
             mMarque2.transform.position = mM2StartPos.transform.position;
 
-            string name1 = FacadePlayer.GetRandomName();
-            string name2 = FacadePlayer.GetRandomName();
+            string name1 = FacadePlayer.GetRandomName(false);
+            string name2 = FacadePlayer.GetRandomName(false);
             string money1 = FacadePayType.RegionalChange(UnityEngine.Random.Range(GameDefines.ScollingTipAnimMoney.x, GameDefines.ScollingTipAnimMoney.y));
             string money2 = FacadePayType.RegionalChange(UnityEngine.Random.Range(GameDefines.ScollingTipAnimMoney.x, GameDefines.ScollingTipAnimMoney.y));
             List<PayNode> payNodes = FacadePayType.GetPayItems();

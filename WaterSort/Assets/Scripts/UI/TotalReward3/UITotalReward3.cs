@@ -19,10 +19,10 @@ namespace XrCode
             FacadeWithdraw.SetTrStatus(TrStatus.WaitNext);
             FacadeWithdraw.RefushWaitDay(true);
 
-            string randomName = FacadePlayer.GetRandomName();
+            string randomName = FacadePlayer.GetRandomName(false);
             while (randomName == FacadePlayer.GetPlayerName())
             {
-                randomName = FacadePlayer.GetRandomName();
+                randomName = FacadePlayer.GetRandomName(false);
             }
             mCPText.text = randomName;
         }

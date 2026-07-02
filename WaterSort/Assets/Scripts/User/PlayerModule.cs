@@ -359,7 +359,7 @@ namespace XrCode
             prop1Num = SPlayerPrefs.GetInt(PlayerPrefDefines.prop1Num, GameDefines.Default_Prop1_Count);
             prop2Num = SPlayerPrefs.GetInt(PlayerPrefDefines.prop2Num, GameDefines.Default_Prop2_Count);
             prop3Num = SPlayerPrefs.GetInt(PlayerPrefDefines.prop3Num, GameDefines.Default_Prop3_Count);
-            userName = SPlayerPrefs.HasKey(PlayerPrefDefines.userName) ? SPlayerPrefs.GetString(PlayerPrefDefines.userName) : GetRandomName();
+            userName = SPlayerPrefs.HasKey(PlayerPrefDefines.userName) ? SPlayerPrefs.GetString(PlayerPrefDefines.userName) : GetRandomName(true);
             userID = SPlayerPrefs.HasKey(PlayerPrefDefines.userID) ? SPlayerPrefs.GetString(PlayerPrefDefines.userID) : GetRandomID();
             userLevel = SPlayerPrefs.GetInt(PlayerPrefDefines.userLevel, 0);
             userExp = SPlayerPrefs.GetInt(PlayerPrefDefines.userExp, 0);
@@ -369,7 +369,7 @@ namespace XrCode
         /// 获取随机玩家姓名
         /// </summary>
         /// <returns>随机玩家姓名</returns>
-        private string GetRandomName()
+        private string GetRandomName(bool ifMyself)
         {
             char[] nameChars = GameDefines.NameString.ToCharArray();
             int length = nameChars.Length;
