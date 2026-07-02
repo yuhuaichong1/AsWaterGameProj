@@ -445,8 +445,6 @@ namespace XrCode
             int id = TargetInterval.GetRangeIndex(remain);
             id = MIData.Count - id - 1;
 
-            Debug.LogError(remain + "  " + id);
-
             if(id == -1) id = MIData.Count - 1;
             //if (id == -1) id = 0;
             return id;
