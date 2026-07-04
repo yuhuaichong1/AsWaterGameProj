@@ -107,7 +107,6 @@ namespace XrCode
 
         protected override void OnEnable()
         {
-
             FacadeEvent.AddEventListener(PayoutEventTypes.ENTRY_UPDATED, OnEntryUpdated);
             PayoutStepDisplayData data = FacadePayout.GetStepDisplay(entryKey);
             mPrevioursStepFinish.text = FacadePayout.GetStepDisplay(entryKey).Finish;
