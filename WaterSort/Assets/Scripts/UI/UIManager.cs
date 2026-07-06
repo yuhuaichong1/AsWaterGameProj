@@ -217,14 +217,13 @@ namespace XrCode
             if (conf != null)
             {
                 Debug.Log($"[ConfUI]: 加载ui {conf.Sn}");
-#if UNITY_EDITOR
                 var obj = ResourceMod.Instance.SyncLoad<GameObject>(conf.UiPath);
                 GameObject go = InitUITransform(obj, conf.UiLevel);
                 if (go == null) return; // 空值检查
                 T t = LoadUI<T>(uType, go, conf, data);
                 cb?.Invoke(t);
                 ChildOpen(t, uOpenType);
-#elif UNITY_WEBGL
+#if UNITY_WEBGL
             //webgl平台同步加载也为异步加载
             ResourceMod.Instance.AsyncLoad<UnityEngine.Object>(conf.UiPath, (obj)=>
             {
