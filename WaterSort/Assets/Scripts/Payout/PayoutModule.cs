@@ -483,7 +483,7 @@ namespace XrCode
                 }
             }
 
-            FacadeGamePlay.SetWithdrawalTip?.Invoke(string.Format(FacadeLanguage.GetText("10236"), curTipTarget - (float)FacadePlayer.GetMoney(), curTipTarget));
+            FacadeGamePlay.SetWithdrawalTip?.Invoke(string.Format(FacadeLanguage.GetText("10236"), FacadePayType.RegionalChange(curTipTarget - (float)FacadePlayer.GetMoney()), FacadePayType.RegionalChange(curTipTarget)));
         }
 
         private void MoneyIntervalInit()

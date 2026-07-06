@@ -237,6 +237,8 @@ namespace XrCode
                     FacadePlayer.AddProp3Num((int)item.Count);
                     break;
             }
+
+            FacadeAudio.PlayEffect(EAudioType.EReward);
         }
 
         private void GetRewardEffectAfterFly2(ERewardItemStruct item)
@@ -349,6 +351,7 @@ namespace XrCode
                         successAction?.Invoke();
                         flyMoneyPool.Push(flyObj);
                         flyObj.gameObject.SetActive(false);
+                        FacadeAudio.PlayEffect(EAudioType.EMoney);
                     });
             }
             STimerManager.Instance.CreateSDelay(GameDefines.FlyMoneyTip_DelayTime, () => 
@@ -377,6 +380,7 @@ namespace XrCode
                         successAction?.Invoke();
                         flyMoneyPool2.Push(flyObj);
                         flyObj.gameObject.SetActive(false);
+                        FacadeAudio.PlayEffect(EAudioType.EMoney);
                     });
             }
             STimerManager.Instance.CreateSDelay(GameDefines.FlyMoneyTip_DelayTime, () =>
