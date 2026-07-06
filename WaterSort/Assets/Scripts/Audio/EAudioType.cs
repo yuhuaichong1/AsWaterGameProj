@@ -12,4 +12,6 @@
     EPourWater3 = 10,                   //倒水3
     EPourWater4 = 11,                   //倒水4
     EWin = 12,                          //关卡通过
+    EReward = 13,                       //获取奖励特效
+    EMoney = 14,                        //飞钱特效
 }
