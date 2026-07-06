@@ -25,22 +25,33 @@ namespace XrCode
 
         protected override void OnEnable()
         {
-            InitShow();
-            FacadeAudio.PlayEffect(EAudioType.EWin);
-
             mAdBtn.gameObject.SetActive(true);
             mOnlyText.gameObject.SetActive(true);
             mWithdrawBtn.gameObject.SetActive(false);
+
+            InitShow();
+            FacadeAudio.PlayEffect(EAudioType.EWin);
 
             ShowAnim(mPlane);
         }
 
         private void InitShow()
         {
-            curCompletedMoney = FacadeWithdraw.GetLevelComplateReward();
-            curOnlyMoney = curCompletedMoney / 10;
-            mMoneyText.text = $"+{FacadePayType.RegionalChange(curCompletedMoney)}";
-            mOnlyText.text = string.Format(FacadeLanguage.GetText("10019"), FacadePayType.RegionalChange(curOnlyMoney));
+            if(curCompletedLevel != 1)
+            {
+                curCompletedMoney = FacadeWithdraw.GetLevelComplateReward();
+                curOnlyMoney = curCompletedMoney / 10;
+                mMoneyText.text = $"+{FacadePayType.RegionalChange(curCompletedMoney)}";
+                mOnlyText.text = string.Format(FacadeLanguage.GetText("10019"), FacadePayType.RegionalChange(curOnlyMoney));
+            }
+            else
+            {
+                curCompletedMoney = GameDefines.Level1ComplatedMoney;
+                mMoneyText.text = $"+{FacadePayType.RegionalChange(curCompletedMoney)}";
+
+                mOnlyText.gameObject.SetActive(false);
+                mWithdrawBtn.gameObject.SetActive(true);
+            }
         }
         
 	    private void OnAdBtnClickHandle()
@@ -53,7 +64,7 @@ namespace XrCode
 
         private void OnWithdrawBtnClickHandle()
         {
-            GoNextLevel();
+            GetReward();
         }
 
         private void OnOnlyBtnClickHandle()

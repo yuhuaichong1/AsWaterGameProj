@@ -64,6 +64,8 @@ public abstract class GameDefines
 
     public static float LPCETime = 30;                                                                      //祝贺特效间隔时间
 
+    public static float Level1ComplatedMoney = 167.65f;                                                     //第一关通过固定金额
+
     #endregion
 
     #region 特效相关

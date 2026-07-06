@@ -186,7 +186,7 @@ namespace XrCode
 
             status = GameStatus.Gaming;
 
-            if (curLevelIndex > 3)
+            if (curLevelIndex > 1)
             {
                 LRBool = false;
                 //LRTimer.targetTime = curLevelIndex <= GameDefines.ClockLv ? GameDefines.ClockTime1 : GameDefines.ClockTime2;
@@ -617,7 +617,7 @@ namespace XrCode
         /// </summary>
         private void CheckOpenLuckyReward()
         {
-            if (curLevelIndex > 3)
+            if (curLevelIndex > 1)
             {
                 LRPauseTimer.ReStart();
                 if (LRTimer.STimerState == STimerState.Pause)
