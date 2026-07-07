@@ -298,7 +298,7 @@ namespace XrCode
             mGRE2_PorpIcon.gameObject.SetActive(item.Type != ERewardType.Money);
             if(item.Type != ERewardType.Money)
             {
-                ConfProp prop = ConfigModule.Instance.Tables.TBProp.GetOrDefault((int)ERewardType.Prop1 - 1);
+                ConfProp prop = ConfigModule.Instance.Tables.TBProp.GetOrDefault((int)item.Type - 1);
                 Sprite icon = ResourceMod.Instance.SyncLoad<Sprite>(prop.IconPath);
                 mGRE2_PorpIcon.sprite = icon;
                 mGRE2_PorpIcon.SetNativeSize();

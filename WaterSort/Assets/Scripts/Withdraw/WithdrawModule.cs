@@ -540,19 +540,19 @@ namespace XrCode
         /// 获得幸运转盘金额奖励的奖励值
         /// </summary>
         /// <returns>幸运转盘金额奖励的奖励值</returns>
-        private float GetLuckySpinReward()
+        private float GetLuckySpinReward(float count)
         {
             float reward = 1;
 
             if(GameDefines.ifIAA)
             {
-                reward = 1;
+                reward = count;
             }
             else
             {
                 ActionByCurWTarget((v) =>
                 {
-                    reward = GameDefines.RewardCoe;
+                    reward = count;
                 }, (v) =>
                 {
                     int id = GetMoneyIntervalSn(GetRemainTarget());

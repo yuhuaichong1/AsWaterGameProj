@@ -191,7 +191,7 @@ public abstract class GameDefines
 
     public static float ClockTime1 = 30;                                                                    //每经过X秒，在点击水瓶后弹一次弹窗
     public static float ClockTime2 = 60;                                                                    //每经过X秒，在点击水瓶后弹一次弹窗
-    public static Vector2 LuckyReward_RandomRange = new Vector2(20f, 45f);                                  //奖励区间
+    public static Vector2 LuckyReward_RandomRange = new Vector2(20f, 60f);                                  //奖励区间
     public static int ClockLv = 17;                                                                         //当<=X关时，用ClockTime1，>X关后，用ClockTime2，
     public static int[] ClockLvArr = { 1, 7, 12, 20, 1000 };                                                //关卡区间
     public static float[] ClockTimeArr = { 20, 30, 35, 45 };                                                //关卡区间对应值
