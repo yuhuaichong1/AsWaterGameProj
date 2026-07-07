@@ -138,7 +138,7 @@ namespace XrCode
             mLevelStatsText.text = string.Format(FacadeLanguage.GetText("10068"), DateTime.Now.ToString("dd/MM/yyyy"));
             //mTCValue.text = "";
             //mAAValue.text = "";
-            mAWValue.text = FacadePayType.RegionalChange(638);
+            mAWValue.text = FacadePayType.RegionalChange(4000);
         }
 
         /// <summary>
