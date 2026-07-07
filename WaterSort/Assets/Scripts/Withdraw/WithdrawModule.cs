@@ -16,13 +16,13 @@ namespace XrCode
         private Dictionary<int, WithdrawalRecordItem> withdrawalRecordItems;//兑现记录数据
 
         private WithdrawTarget curWithdrawTarget;//当前兑现目标
-        private float wTarget;//目标兑现金额
+        private double wTarget;//目标兑现金额
         private int curCheckInDay;//当前累计兑现签到天数
         private int curCheckInLevel;//当前累计兑现签到关卡
         private bool canWithdraw;//是否能够兑现
 
         private Dictionary<int, ConfMoneyInterval> MIData;
-        private List<float> TargetInterval;
+        private List<double> TargetInterval;
 
         private bool ifAfterCreate;//是否在关闭界面后走下一步
 
@@ -278,7 +278,7 @@ namespace XrCode
 
         #region wTarget
 
-        private float GetWTarget()
+        private double GetWTarget()
         {
             return wTarget;
         }
@@ -295,7 +295,7 @@ namespace XrCode
 
             wTarget = target;
 
-            SPlayerPrefs.SetFloat(PlayerPrefDefines.wTarget, wTarget);
+            SPlayerPrefs.SetDouble(PlayerPrefDefines.wTarget, wTarget);
             SPlayerPrefs.Save();
 
             //ModuleMgr.Instance.TDAnalyticsManager.CurTargetsCoins(wTarget);
@@ -364,10 +364,10 @@ namespace XrCode
         {
             withdrawalRecordItems = new Dictionary<int, WithdrawalRecordItem>();
 
-            wTarget = SPlayerPrefs.GetFloat(PlayerPrefDefines.wTarget, 0);
+            wTarget = SPlayerPrefs.GetDouble(PlayerPrefDefines.wTarget, 0);
 
             MIData = ConfigModule.Instance.Tables.TBMoneyInterval.DataMap;
-            TargetInterval = new List<float>();
+            TargetInterval = new List<double>();
             foreach (ConfMoneyInterval item in MIData.Values)
             {
                 TargetInterval.Add(item.MoneyMax);
@@ -516,9 +516,9 @@ namespace XrCode
         /// 得到距离目标的剩余金额
         /// </summary>
         /// <returns>剩余目标金额</returns>
-        private float GetRemainTarget()
+        private double GetRemainTarget()
         {
-            float remain = wTarget - (float)FacadePlayer.GetMoney();
+            double remain = wTarget - FacadePlayer.GetMoney();
             if (remain < 0)
                 remain = 0;
             return remain;
@@ -528,7 +528,7 @@ namespace XrCode
         /// 根据剩余目标金额查找 MoneyInterval 配置的 sn。
         /// TargetInterval 升序断点对应 sn 从大到小，不能用 TargetInterval.Count 做反转。
         /// </summary>
-        private int GetMoneyIntervalSn(float remainTarget)
+        private int GetMoneyIntervalSn(double remainTarget)
         {
             int intervalId = TargetInterval.GetRangeIndex(remainTarget);
             if (intervalId < 0)

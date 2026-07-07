@@ -278,12 +278,12 @@ namespace XrCode
         {
             if(FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.AmountOfMoney)
             {
-                float remainMoney = FacadeWithdraw.GetRemainTarget();
-                float wTargetMoney = FacadeWithdraw.GetWTarget();
+                double remainMoney = FacadeWithdraw.GetRemainTarget();
+                double wTargetMoney = FacadeWithdraw.GetWTarget();
                 mWPText.text = string.Format(FacadeLanguage.GetText("10005"), FacadePayType.RegionalChange(remainMoney), FacadePayType.RegionalChange(wTargetMoney));
 
                 mWPSText.text = $"{(int)(FacadePlayer.GetMoney())}/{(int)(wTargetMoney * FacadePayType.GetExchangeRate())}";
-                mWPSlider.value = (float)FacadePlayer.GetMoney() / wTargetMoney;
+                mWPSlider.value = (float)(FacadePlayer.GetMoney() / wTargetMoney);
             }
             else if(FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.CheckIn)
             {

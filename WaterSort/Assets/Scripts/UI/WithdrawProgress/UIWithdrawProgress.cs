@@ -41,7 +41,7 @@ namespace XrCode
                 {
                     mProgress2.gameObject.SetActive(true);
 
-                    float targetMoney = FacadeWithdraw.GetWTarget();
+                    double targetMoney = FacadeWithdraw.GetWTarget();
                     bool b = value >= targetMoney;
                     mP2_3_Title.text = string.Format(FacadeLanguage.GetText("10080"), FacadePayType.RegionalChange(FacadePlayer.GetMoney()));
                     mP2_4_Content.gameObject.SetActive(b);

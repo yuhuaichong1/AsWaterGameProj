@@ -110,17 +110,17 @@ namespace XrCode
                 }
                 else
                 {
-                    float wTargetMoney = FacadeWithdraw.GetWTarget();
+                    double wTargetMoney = FacadeWithdraw.GetWTarget();
                     mGoldSliderText.text = $"{(int)(FacadePlayer.GetMoney() * FacadePayType.GetExchangeRate())}/{(int)(wTargetMoney * FacadePayType.GetExchangeRate())}";
-                    mGoalSlider.value = (float)FacadePlayer.GetMoney() / wTargetMoney;
+                    mGoalSlider.value = (float)(FacadePlayer.GetMoney() / wTargetMoney);
                 }
             }, (day) =>
             {
                 if (ifFromGuide)
                 {
-                    float wTargetMoney = FacadeWithdraw.GetWTarget();
+                    double wTargetMoney = FacadeWithdraw.GetWTarget();
                     mGoldSliderText.text = $"{(int)(FacadePlayer.GetMoney() * FacadePayType.GetExchangeRate())}/{(int)(wTargetMoney * FacadePayType.GetExchangeRate())}";
-                    mGoalSlider.value = (float)FacadePlayer.GetMoney() / wTargetMoney;
+                    mGoalSlider.value = (float)(FacadePlayer.GetMoney() / wTargetMoney);
                 }
                 else
                 {

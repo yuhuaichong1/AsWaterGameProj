@@ -8,7 +8,7 @@ namespace XrCode
 
     public partial class UIWithdrawLuckyPlayer : BaseUI
     {
-        private float luckyMoney;
+        private double luckyMoney;
 
         protected override void OnAwake()
         {

@@ -495,7 +495,7 @@ public enum UIWTOpenType : int
 public struct ERewardItemStruct
 {
     public ERewardType Type;
-    public float Count;
+    public double Count;
 }
 
 #endregion
