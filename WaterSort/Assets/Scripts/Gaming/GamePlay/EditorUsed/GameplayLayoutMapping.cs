@@ -4,7 +4,7 @@ namespace AsGame.Core
 {
     /// <summary>
     /// 关卡 JSON 坐标与运行时一致：直接作为 CupPart 内的 localPosition（1:1，无缩放）。
-    /// 运行时 GamePlayModule 摆放公式为 瓶底 = CupPart中心 + (x, y)（中心由预制体决定）。
+    /// 运行时 pivot=(0.5,0.5) 时，坐标表示瓶身中心，与 GameConstants.CupCenterPosition 一致。
     /// 编辑器预览以「局内区域(绿框)」中心为原点，按同样的 1:1 偏移摆放，使预览与游戏一致。
     /// 绿框（GameplayScreenLayoutData 的边距）需对齐游戏 CupPart 区域，必要时在编辑器里微调上下边距。
     /// </summary>

@@ -249,7 +249,7 @@ public class GM : MonoBehaviour
         //    Count = 1f,
         //}, null);
 
-        UIManager.Instance.OpenAsync<UILuckyReward>(EUIType.EUILuckyReward);
+        UIManager.Instance.OpenAsync<UILuckySpin>(EUIType.EUILuckySpin);
     }
 
 }

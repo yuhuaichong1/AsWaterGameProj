@@ -41,13 +41,13 @@ namespace XrCode
                 {
                     mProgress2.gameObject.SetActive(true);
 
-                    float targetMoney = FacadeWithdraw.GetWTarget();
+                    double targetMoney = FacadeWithdraw.GetWTarget();
                     bool b = value >= targetMoney;
                     mP2_3_Title.text = string.Format(FacadeLanguage.GetText("10080"), FacadePayType.RegionalChange(FacadePlayer.GetMoney()));
                     mP2_4_Content.gameObject.SetActive(b);
                     mP2_4_ErrorContent.gameObject.SetActive(!b);
                     if (!b)
-                        mP2_4_ErrorContent.text = string.Format(FacadeLanguage.GetText("10082"), FacadePayType.RegionalChange(value), FacadePayType.RegionalChange(FacadeWithdraw.GetRemainTarget()));
+                        mP2_4_ErrorContent.text = string.Format(FacadeLanguage.GetText("10082"), FacadePayType.RegionalChange(targetMoney), FacadePayType.RegionalChange(FacadeWithdraw.GetRemainTarget()));
                     //mProgress2.PlayAnim(ShowBtn, b, 3);
                     mProgress2.SetOrderTime(item.CreatedDate);
                     mProgress2.PlayAnim(ShowBtn, 3);

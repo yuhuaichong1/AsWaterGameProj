@@ -11,14 +11,14 @@ public class EffectRewardItem : MonoBehaviour
     [HideInInspector]
     public ERewardType ErType;//奖励类型
     [HideInInspector]
-    public float Count; //奖励数量
+    public double Count; //奖励数量
 
     /// <summary>
     /// 展示奖励项每日
     /// </summary>
     /// <param name="erType">奖励图片</param>
     /// <param name="count">奖励数量</param>
-    public void Show(ERewardType erType, float count)
+    public void Show(ERewardType erType, double count)
     {
         ErType = erType;
         Count = count;

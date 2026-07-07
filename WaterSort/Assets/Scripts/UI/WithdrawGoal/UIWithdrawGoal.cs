@@ -110,17 +110,17 @@ namespace XrCode
                 }
                 else
                 {
-                    float wTargetMoney = FacadeWithdraw.GetWTarget();
+                    double wTargetMoney = FacadeWithdraw.GetWTarget();
                     mGoldSliderText.text = $"{(int)(FacadePlayer.GetMoney() * FacadePayType.GetExchangeRate())}/{(int)(wTargetMoney * FacadePayType.GetExchangeRate())}";
-                    mGoalSlider.value = (float)FacadePlayer.GetMoney() / wTargetMoney;
+                    mGoalSlider.value = (float)(FacadePlayer.GetMoney() / wTargetMoney);
                 }
             }, (day) =>
             {
                 if (ifFromGuide)
                 {
-                    float wTargetMoney = FacadeWithdraw.GetWTarget();
+                    double wTargetMoney = FacadeWithdraw.GetWTarget();
                     mGoldSliderText.text = $"{(int)(FacadePlayer.GetMoney() * FacadePayType.GetExchangeRate())}/{(int)(wTargetMoney * FacadePayType.GetExchangeRate())}";
-                    mGoalSlider.value = (float)FacadePlayer.GetMoney() / wTargetMoney;
+                    mGoalSlider.value = (float)(FacadePlayer.GetMoney() / wTargetMoney);
                 }
                 else
                 {
@@ -138,7 +138,7 @@ namespace XrCode
             mLevelStatsText.text = string.Format(FacadeLanguage.GetText("10068"), DateTime.Now.ToString("dd/MM/yyyy"));
             //mTCValue.text = "";
             //mAAValue.text = "";
-            mAWValue.text = FacadePayType.RegionalChange(638);
+            mAWValue.text = FacadePayType.RegionalChange(4000);
         }
 
         /// <summary>

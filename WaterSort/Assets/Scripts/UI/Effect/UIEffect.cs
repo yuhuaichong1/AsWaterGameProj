@@ -298,7 +298,7 @@ namespace XrCode
             mGRE2_PorpIcon.gameObject.SetActive(item.Type != ERewardType.Money);
             if(item.Type != ERewardType.Money)
             {
-                ConfProp prop = ConfigModule.Instance.Tables.TBProp.GetOrDefault((int)ERewardType.Prop1 - 1);
+                ConfProp prop = ConfigModule.Instance.Tables.TBProp.GetOrDefault((int)item.Type - 1);
                 Sprite icon = ResourceMod.Instance.SyncLoad<Sprite>(prop.IconPath);
                 mGRE2_PorpIcon.sprite = icon;
                 mGRE2_PorpIcon.SetNativeSize();
@@ -435,7 +435,7 @@ namespace XrCode
         /// </summary>
         /// <param name="startPoint">起始点</param>
         /// <param name="count">数量</param>
-        private void PlayFlyMoney(Transform startPoint, int count, float money, Action successAction)
+        private void PlayFlyMoney(Transform startPoint, int count, double money, Action successAction)
         {
             for (int i = 0; i < count; i++) 
             {
@@ -464,7 +464,7 @@ namespace XrCode
             
         }
 
-        private void PlayFlyMoney2(Transform startPoint, int count, float money, Action successAction)
+        private void PlayFlyMoney2(Transform startPoint, int count, double money, Action successAction)
         {
             for (int i = 0; i < count; i++)
             {
@@ -497,7 +497,7 @@ namespace XrCode
         /// 播放飞行钱提示特效
         /// </summary>
         /// <param name="money">获得金额</param>
-        private void PlayFlyMoneyTip(float money)
+        private void PlayFlyMoneyTip(double money)
         {
             GameObject flyObj = flyMoneyTipPool.Count > 0 ? flyMoneyTipPool.Pop() : GameObject.Instantiate(GameDefines.ifIAA ? mFlyIAAMoneyTip.gameObject : mFlyMoneyTip.gameObject, mFlyEffectParent);
             flyObj.gameObject.SetActive(true);
