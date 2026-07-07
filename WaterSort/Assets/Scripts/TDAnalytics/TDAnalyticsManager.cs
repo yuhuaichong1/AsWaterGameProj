@@ -419,7 +419,7 @@ namespace XrCode
 
         #region 额外扩充
 
-        public void CurTargetsCoins(float targetMoney)
+        public void CurTargetsCoins(double targetMoney)
         {
             ThinkingDataDefines.UserSet(new Dictionary<string, object>()
             {
