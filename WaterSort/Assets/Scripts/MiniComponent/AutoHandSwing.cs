@@ -11,7 +11,7 @@ public class AutoHandSwing : MonoBehaviour
 
     void Awake()
     {
-        scaleVec3 = new Vector3(1.1f, 1.1f, 1.1f);
+        scaleVec3 = new Vector3(1.25f, 1.25f, 1.25f);
         rect = this.GetComponent<RectTransform>();
 
         if (ifAwake)

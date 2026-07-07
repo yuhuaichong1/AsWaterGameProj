@@ -18,7 +18,7 @@ namespace XrCode
         private Dictionary<int, WithdrawalRecordItem> withdrawalRecordItems;//兑现记录数据
 
         private Dictionary<int, ConfMoneyInterval> MIData;
-        private List<float> TargetInterval;
+        private List<double> TargetInterval;
 
 
         private int trWaitTime;//累计奖励的累计等待时间
@@ -168,7 +168,7 @@ namespace XrCode
             withdrawalRecordItems = new Dictionary<int, WithdrawalRecordItem>();
 
             MIData = ConfigModule.Instance.Tables.TBMoneyInterval.DataMap;
-            TargetInterval = new List<float>();
+            TargetInterval = new List<double>();
             foreach (ConfMoneyInterval item in MIData.Values)
             {
                 TargetInterval.Add(item.MoneyMax);
@@ -225,7 +225,7 @@ namespace XrCode
         /// <summary>
         /// 创建订单
         /// </summary>
-        private WithdrawalRecordItem CreateOrder(int level, float money)
+        private WithdrawalRecordItem CreateOrder(int level, double money)
         {
             WithdrawalRecordItem recordItem = new WithdrawalRecordItem()
             {
@@ -264,7 +264,7 @@ namespace XrCode
         /// 获得总可兑现金额
         /// </summary>
         /// <returns>总可兑现金额</returns>
-        private float GetTotalRecordMoney()
+        private double GetTotalRecordMoney()
         {
             double totalValue = 0;
             foreach(WithdrawalRecordItem item in withdrawalRecordItems.Values)
@@ -272,7 +272,7 @@ namespace XrCode
                 totalValue += item.WRMoney;
             }
 
-            return (float)totalValue;
+            return totalValue;
         }
 
         /// <summary>
@@ -306,13 +306,13 @@ namespace XrCode
         /// 获得幸运转盘金额奖励的奖励值
         /// </summary>
         /// <returns>幸运转盘金额奖励的奖励值</returns>
-        private float GetLuckySpinReward()
+        private float GetLuckySpinReward(float count)
         {
             float reward = 1;
 
             if(GameDefines.ifIAA)
             {
-                reward = 1;
+                reward = count;
             }
             else
             {
