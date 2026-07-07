@@ -19,7 +19,7 @@ namespace XrCode
 
         protected override void OnAwake()
         {
-
+            mContentText1.text = string.Format(FacadeLanguage.GetText("10118"),$"{FacadePayType.RegionalChange(200)}-{FacadePayType.RegionalChange(1000)}");
         }
 
         protected override void OnEnable()
@@ -142,7 +142,7 @@ namespace XrCode
             ShowWaiterAndName(2);
             ShowContent(2);
 
-            mContentText2.text = string.Format(FacadeLanguage.GetText("10006"), FacadeWithdraw.GetRemainTarget(), FacadeWithdraw.GetWTarget());
+            mContentText2.text = string.Format(FacadeLanguage.GetText("10006"), FacadePayType.RegionalChange(FacadeWithdraw.GetRemainTarget()));
         }
 
         private void ShowFinishTarget()
