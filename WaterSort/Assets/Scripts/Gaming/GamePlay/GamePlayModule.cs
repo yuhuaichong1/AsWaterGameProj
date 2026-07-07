@@ -312,16 +312,14 @@ namespace XrCode
                     continue;
                 }
 
-                Vector3 pos = new Vector3(data.position.x, data.position.y + GameConstants.HalfBottleHeight, 0);
+                Vector3 pos = GameConstants.CupCenterPosition(data.position);
                 Bottle bottle = Bottle.Create(FacadeGamePlay.GetCupPart());
                 bottle.name = $"Bottle_{i}";
                 bottle.transform.localPosition = pos;
                 bottle.Init(data, OnCupClick);
 
                 var shadow = Bottle.CreateShadow(FacadeGamePlay.GetCupPartShadow());
-                shadow.transform.localPosition = pos + new Vector3(
-                GameConstants.BottleShadowDiffX,
-                -GameConstants.BottleHeight + GameConstants.BottleShadowDiffY, 0);
+                shadow.transform.localPosition = pos + GameConstants.CupShadowOffsetFromCenter;
                 bottle.BindShadow(shadow);
 
                 cups[data.id] = bottle;
@@ -1073,7 +1071,7 @@ namespace XrCode
             if (id == null) return;
             var slot = curLevelData[id.Value];
             ResetSlotAsEmptyCup(slot);
-            var pos = new Vector3(slot.position.x, slot.position.y + GameConstants.HalfBottleHeight, 0);
+            var pos = GameConstants.CupCenterPosition(slot.position);
             var bottle = Bottle.Create(FacadeGamePlay.GetCupPart());
             if (bottle == null) return;
             bottle.transform.localPosition = pos;
@@ -1083,9 +1081,7 @@ namespace XrCode
             {
                 GameObject.Destroy(bottle.gameObject);
             }
-            shadow.transform.localPosition = pos + new Vector3(
-                GameConstants.BottleShadowDiffX,
-                -GameConstants.BottleHeight + GameConstants.BottleShadowDiffY, 0);
+            shadow.transform.localPosition = pos + GameConstants.CupShadowOffsetFromCenter;
             bottle.BindShadow(shadow);
             cups[slot.id] = bottle;
             shadows[slot.id] = shadow;

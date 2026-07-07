@@ -243,11 +243,13 @@ public class GM : MonoBehaviour
 
         //UIManager.Instance.OpenAsync<UIWithdrawProgress>(EUIType.EUIWithdrawProgress, UIOpenType.None, null, testItem);
 
-        FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct 
-        { 
-            Type = ERewardType.Prop1,
-            Count = 1f,
-        }, null);
+        //FacadeEffect.PlayGetRewardEffect2(new ERewardItemStruct 
+        //{ 
+        //    Type = ERewardType.Prop1,
+        //    Count = 1f,
+        //}, null);
+
+        UIManager.Instance.OpenAsync<UILuckySpin>(EUIType.EUILuckySpin);
     }
 
 }
