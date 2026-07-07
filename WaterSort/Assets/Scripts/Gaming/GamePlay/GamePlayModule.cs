@@ -224,7 +224,7 @@ namespace XrCode
                 int inarId = GameDefines.ClockLvArr.ToList().GetRangeIndex(curLevelIndex);
                 LRTimer.targetTime = GameDefines.ClockTimeArr[inarId];
                 LRTimer.ReStart();
-                LRPauseTimer.Stop();
+                LRPauseTimer.ReStart();
                 LoopPlayCongratulationEffect(true);
             }
 
