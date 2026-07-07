@@ -282,7 +282,7 @@ namespace XrCode
                 double wTargetMoney = FacadeWithdraw.GetWTarget();
                 mWPText.text = string.Format(FacadeLanguage.GetText("10005"), FacadePayType.RegionalChange(remainMoney), FacadePayType.RegionalChange(wTargetMoney));
 
-                mWPSText.text = $"{(int)(FacadePlayer.GetMoney())}/{(int)(wTargetMoney * FacadePayType.GetExchangeRate())}";
+                mWPSText.text = $"{(int)(FacadePlayer.GetMoney() * FacadePayType.GetExchangeRate())}/{(int)(wTargetMoney * FacadePayType.GetExchangeRate())}";
                 mWPSlider.value = (float)(FacadePlayer.GetMoney() / wTargetMoney);
             }
             else if(FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.CheckIn)

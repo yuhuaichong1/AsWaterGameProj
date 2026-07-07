@@ -49,7 +49,7 @@ public abstract class GameDefines
 
     public static float ScollingTipAnimTime = 10;                                                           //滑动提示持续时间
     public static float ScollingTipAnimInterval = 20;                                                       //滑动提示显示间隔时间
-    public static Vector2 ScollingTipAnimMoney = new Vector2(100, 1000);                                    //滑动提示金额
+    public static Vector2 ScollingTipAnimMoney = new Vector2(3000, 5000);                                   //滑动提示金额
 
     public static int NGPLevel1 = 7;                                                                        //玩法提示1关卡
     public static int NGPLevel2 = 15;                                                                       //玩法提示2关卡

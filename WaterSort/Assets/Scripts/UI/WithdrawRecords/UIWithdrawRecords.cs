@@ -1,5 +1,6 @@
 ﻿using SuperScrollView;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace XrCode
 {
@@ -21,6 +22,7 @@ namespace XrCode
             ShowAnim(mPlane);
 
             mCurMoneyText.text = FacadePayType.RegionalChange(FacadeWithdraw.GetTotalRecordMoney());
+            withdrawalRecordItems = FacadeWithdraw.GetWithdrawalRecordItems();
             int wriLength = withdrawalRecordItems.Count;
             mOrderScrollView.SetListItemCount(wriLength);
             mOrderScrollView.RefreshAllShownItem();
