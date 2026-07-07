@@ -13,6 +13,18 @@ namespace XrCode
         public const float BottleShadowDiffX = -12f;
         public const float BottleShadowDiffY = 47f;
         public const float GridHeight = 47f;
+
+        /// <summary>
+        /// 关卡 JSON 中 (x,y) 为瓶身中心；Bottle pivot 为 (0.5, 0.5) 时直接作为 localPosition。
+        /// </summary>
+        public static Vector3 CupCenterPosition(Vector2 levelPosition) =>
+            new Vector3(levelPosition.x, levelPosition.y, 0f);
+
+        /// <summary>阴影相对瓶身中心的偏移（与旧 top-pivot 摆放视觉一致）。</summary>
+        public static Vector3 CupShadowOffsetFromCenter =>
+            new Vector3(BottleShadowDiffX, -HalfBottleHeight + BottleShadowDiffY, 0f);
+
+
         // 底层无向下溢出，需比 GridHeight 多 UpperOverflow(24) 才能与上层视觉等高。
         public const float GridOneHeight = 71f;
         public static readonly float[] BottleAngles = { 95f, 78f, 66f, 54f, 42f };

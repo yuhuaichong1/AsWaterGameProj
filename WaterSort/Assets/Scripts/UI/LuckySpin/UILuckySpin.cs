@@ -124,14 +124,7 @@ namespace XrCode
             mBlockMask.gameObject.SetActive(true);
 
             int target = 0;
-            if (FacadePlayer.GetLevel() <= 2)
-            {
-                target = UnityEngine.Random.Range(0, 2) == 1 ? 0 : 5;
-            }
-            else
-            {
-                target = GetProbability.GatValue<int>(weight);
-            }
+            target = GetProbability.GatValue<int>(weight);
 
             ELuckySpinRewardType type = (ELuckySpinRewardType)spinData[target].Type;
 
@@ -165,7 +158,7 @@ namespace XrCode
             switch (type)
             {
                 case ELuckySpinRewardType.Money:
-                    count = FacadeWithdraw.GetLuckySpinReward();
+                    count = FacadeWithdraw.GetLuckySpinReward(count);
                     FacadePlayer.AddMoney(count);
                     //FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
                     //{

@@ -1258,7 +1258,7 @@ namespace AsGame.Water
             if (rt != null)
             {
                 rt.sizeDelta = new Vector2(GameConstants.BottleWidth, GameConstants.BottleHeight);
-                rt.pivot = new Vector2(0.5f, 1f);
+                rt.pivot = new Vector2(0.5f, 0.5f);
             }
 
             var ctrl = go.GetComponent<Bottle>();

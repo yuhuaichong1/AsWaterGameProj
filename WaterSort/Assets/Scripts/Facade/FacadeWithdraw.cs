@@ -9,14 +9,14 @@ public static class FacadeWithdraw
     public static Action<string> SetWPhoneOrEmail;                                      //设置兑现信息
     public static Func<EPayType> GetPayType;                                            //获取兑现信息类型
     public static Action<EPayType> SetPayType;                                          //设置兑现信息类型
-    public static Func<int, float, WithdrawalRecordItem> CreateOrder;                   //创建订单
+    public static Func<int, double, WithdrawalRecordItem> CreateOrder;                  //创建订单
     public static Action SaveCurWithdrawalRecordItems;                                  //保存单当前订单数据
-    public static Func<float> GetTotalRecordMoney;                                      //获得总可兑现金额
+    public static Func<double> GetTotalRecordMoney;                                     //获得总可兑现金额
     public static Func<List<WithdrawalRecordItem>> GetWithdrawalRecordItems;            //获取所有兑现记录数据
     public static Func<int, WithdrawalRecordItem> GetWithdrawalRecordItemById;          //获得某条兑现记录数据
     public static Action<bool, WithdrawalRecordItem> CheckOpenUI;                       //检测应该打开UIEnterInfo还是UIConfirm
 
-    public static Func<float> GetLuckySpinReward;                                       //获取幸运转盘金额奖励值
+    public static Func<float, float> GetLuckySpinReward;                                //获取幸运转盘金额奖励值
     public static Func<float> GetLuckyReward;                                           //获取幸运奖励金额奖励值
     public static Func<float> GetLevelComplateReward;                                   //获取通关奖励金额奖励值
 
