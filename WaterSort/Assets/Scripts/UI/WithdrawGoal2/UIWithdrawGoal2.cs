@@ -127,7 +127,7 @@ namespace XrCode
 
         private void OnSetCurWInfoBtnClickHandle()
         {
-            UIManager.Instance.OpenAsync<UIWithdrawAccount>(EUIType.EUIWithdrawAccount, UIOpenType.None, null, curChannelIndex);
+            UIManager.Instance.OpenAsync<UIWithdrawAccount>(EUIType.EUIWithdrawAccount, UIOpenType.None, null, payItems[curChannelIndex].payType);
         }
 
         protected override void OnDispose()
