@@ -14,7 +14,7 @@ namespace XrCode
         }
         protected override void OnEnable() 
         {
-            mGameTitle.sprite = ResourceMod.Instance.SyncLoad<Sprite>($"UI/Logo/{FacadePayType.GetLanguage()}_Logo.png");
+            //mGameTitle.sprite = ResourceMod.Instance.SyncLoad<Sprite>($"UI/Logo/{FacadePayType.GetLanguage()}_Logo.png");
             mGameTitle.SetNativeSize();
         }
 
