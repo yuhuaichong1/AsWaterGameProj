@@ -296,7 +296,7 @@ public static class PayoutStepTaskHelper
         switch(langKey)
         {
             case "10238":
-                return string.Format(FacadeLanguage.GetText(langKey), tierAmount);
+                return string.Format(FacadeLanguage.GetText(langKey), FacadePayType.RegionalChange(tierAmount));
             default:
                 return string.Format(FacadeLanguage.GetText(langKey));
         }
