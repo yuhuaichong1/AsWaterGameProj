@@ -175,7 +175,7 @@ namespace XrCode
                     }, null);
                     break;
                 case ELuckySpinRewardType.Refresh:
-                    FacadePlayer.AddProp1Num((int)count);
+                    //FacadePlayer.AddProp1Num((int)count);
                     //FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
                     //{
                     //    new ERewardItemStruct()
@@ -191,7 +191,7 @@ namespace XrCode
                     }, null);
                     break;
                 case ELuckySpinRewardType.Undo:
-                    FacadePlayer.AddProp2Num((int)count);
+                    //FacadePlayer.AddProp2Num((int)count);
                     //FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
                     //{
                     //    new ERewardItemStruct()
@@ -207,7 +207,7 @@ namespace XrCode
                     }, null);
                     break;
                 case ELuckySpinRewardType.AddBottle:
-                    FacadePlayer.AddProp3Num((int)count);
+                    //FacadePlayer.AddProp3Num((int)count);
                     //FacadeEffect.PlayGetRewardEffect(new ERewardItemStruct[]
                     //{
                     //    new ERewardItemStruct()
