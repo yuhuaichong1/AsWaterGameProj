@@ -379,7 +379,7 @@ namespace XrCode
             wPhoneOrEmail = SPlayerPrefs.GetString(PlayerPrefDefines.wPhoneOrEmail, "");
             poeType = (EPayType)SPlayerPrefs.GetInt(PlayerPrefDefines.poeType, (int)EPayType.None);
             curWithdrawTarget = (WithdrawTarget)SPlayerPrefs.GetInt(PlayerPrefDefines.curWithdrawTarget, (int)WithdrawTarget.PassLevel);
-            List<string> wrisTemp = SPlayerPrefs.GetList<string>(PlayerPrefDefines.wrisTemp, new List<string>());
+            List<string> wrisTemp = SPlayerPrefs.GetList<string>(PlayerPrefDefines.wrisTemp, new List<string>(), "\\");
             foreach (string wri in wrisTemp)
             {
                 string[] values = wri.Split("_");
@@ -453,7 +453,7 @@ namespace XrCode
                 wrisTemp.Add(str);
             }
 
-            SPlayerPrefs.SetList<string>(PlayerPrefDefines.wrisTemp, wrisTemp);
+            SPlayerPrefs.SetList<string>(PlayerPrefDefines.wrisTemp, wrisTemp, "\\");
             SPlayerPrefs.Save();
         }
 
