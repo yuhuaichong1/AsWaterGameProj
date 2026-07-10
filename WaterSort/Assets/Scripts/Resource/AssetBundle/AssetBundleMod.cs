@@ -130,7 +130,8 @@ namespace XrCode
                                 mPathBundleDict[s] = info.AssetBundleName;
                             }
                             D.Log("[AssetBundleManifest] 加载完成 {0}", path);
-                            OnFinished?.Invoke();
+                            //OnFinished?.Invoke();
+                            CompetitionManager.Instance.SkipCompetition(CompetitionKey.START);
                         }
                         else D.Error($"[AssetBundleManifest] --- AssetBundleManifest 加载失败  ");
                     }
@@ -146,7 +147,8 @@ namespace XrCode
         {
             if (AppConfig.LoadAssetWithResources)//资源直接resources加载，不处理ab资源
             {
-                OnFinished?.Invoke();
+                //OnFinished?.Invoke();
+                CompetitionManager.Instance.SkipCompetition(CompetitionKey.START);
                 return;
             }
             AssetBundle manifestBundle = AssetBundle.LoadFromFile(PathUtil.GetLocalAssetBundleFilePath("AssetBundles"));
@@ -158,7 +160,8 @@ namespace XrCode
             {
                 mPathBundleDict[info.Path] = info.AssetBundleName;
             }
-            OnFinished?.Invoke();
+            //OnFinished?.Invoke();
+            CompetitionManager.Instance.SkipCompetition(CompetitionKey.START);
         }
         /// <summary>
         /// 同步加载

@@ -181,6 +181,8 @@ namespace XrCode
                         Debug.LogError(":::::: 获取到服务器数据 :::::: ");
                         ReciveveMessage(webReq.downloadHandler.text);
                         OnFinished?.Invoke();
+                        Game.Instance.curPreLoadCount += 1;
+                        FacadeGamePlay.LoadingSilderMoveAnim?.Invoke();
                     }
                     else
                     {

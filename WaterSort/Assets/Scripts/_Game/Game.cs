@@ -28,6 +28,9 @@ namespace XrCode
 
         public UILoadingWaiting UILoadingWaiting;
 
+        public int curPreLoadCount = 0;
+        public int maxPreLoadCount = 3;
+
         void Awake()
         {
             Instance = this;
@@ -50,16 +53,18 @@ namespace XrCode
                 AppConfig.LoadAssetWithServer = false;
             }
 
-            if(ifCheckNetwork)
-            {
-                RegistPreloadFunc(out CompetitionManager.Instance.OnFinished);
-                RegistPreloadFunc(out NetworkModule.Instance.OnFinished);
-            }
-            RegistPreloadFunc(out AssetBundleMod.Instance.OnFinished);
-            RegistPreloadFunc(out ConfigModule.Instance.OnFinished);
+            //if (ifCheckNetwork)
+            //{
+            //    RegistPreloadFunc(out CompetitionManager.Instance.OnFinished);
+            //    RegistPreloadFunc(out NetworkModule.Instance.OnFinished);
+            //}
+            //RegistPreloadFunc(out AssetBundleMod.Instance.OnFinished);
+            //RegistPreloadFunc(out ConfigModule.Instance.OnFinished);
 
-            startup.Enqueue(AssetBundleMod.Instance.StartUp);//加入队列，保证热更新资源完毕后，再开始。获取资源路径
-            startup.Enqueue(ConfigModule.Instance.StartUp);//获取配置表信息
+            //startup.Enqueue(AssetBundleMod.Instance.StartUp);//加入队列，保证热更新资源完毕后，再开始。获取资源路径
+            //startup.Enqueue(ConfigModule.Instance.StartUp);//获取配置表信息
+            AssetBundleMod.Instance.StartUp();
+            ConfigModule.Instance.StartUp();
             if (ifCheckNetwork)
                 NetworkModule.Instance.GetNetworkInitInfo();
             GameSDKManger.Instance.StartUp();//各个平台的文件系统，初始化提前。因为热更新需要用
@@ -102,7 +107,7 @@ namespace XrCode
             if (preloadCount == 0)
             {
                 D.Error("[Game]: 资源加载完成");
-                UILoadingWaiting.StopTextAnim();
+                //UILoadingWaiting.StopTextAnim();
                 ModuleMgr.Instance.Start();
                 gameState = EGameState.Run;
             }

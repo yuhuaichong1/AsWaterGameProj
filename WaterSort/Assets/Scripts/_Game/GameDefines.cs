@@ -499,6 +499,7 @@ public enum CompetitionKey
 {
     IfIAA,
     IFAF,
+    START,
 }
 
 #endregion

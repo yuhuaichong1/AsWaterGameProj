@@ -94,7 +94,7 @@ namespace XrCode
 
             // 加载Loading场景
             SceneManager.LoadScene(LOADING_SCENE);
-            progressController.SetTargetProgress(10f); // 设置初始进度
+            progressController.SetTargetProgress(20f); // 设置初始进度
 
             while (progressController.UpdateProgress())
                 yield return null;

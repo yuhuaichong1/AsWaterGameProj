@@ -48,6 +48,8 @@ namespace XrCode
 
         public static Action ScrollingTipAnim;                                          //显示滑动动画
 
+        public static Action LoadingSilderMoveAnim;                                     //设置loading界面进度条的显示
+
         #endregion
     }
 }

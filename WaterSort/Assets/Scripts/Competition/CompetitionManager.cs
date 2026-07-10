@@ -32,6 +32,11 @@ namespace XrCode
 #if UNITY_EDITOR
             SkipCompetition(CompetitionKey.IFAF);
 #endif
+
+            CompetitionItem START = new CompetitionItem();
+            START.ReSet();
+            START.SetInfo(2, OnSTARTFinal);
+            competitionValues.Add(CompetitionKey.START, START);
         }
 
         /// <summary>
@@ -72,6 +77,8 @@ namespace XrCode
         {
             GameDefines.ifIAA = (bool)obj;
             OnFinished?.Invoke();
+            Game.Instance.curPreLoadCount += 1;
+            FacadeGamePlay.LoadingSilderMoveAnim?.Invoke();
         }
 
         private void OnAFFinal(object obj)
@@ -79,6 +86,15 @@ namespace XrCode
             GameDefines.AFJustState = (bool)obj;
             if (attributionData == null) attributionData = new Dictionary<string, object>();
             TDAnalyticsManager.Instance.SetAttributionData(attributionData);
+        }
+
+        private void OnSTARTFinal(object obj)
+        {
+            UIManager.Instance.OpenAsync<UILoading>(EUIType.EUILoading, UIOpenType.None, (BaseUI) => 
+            {
+                Game.Instance.curPreLoadCount += 1;
+                FacadeGamePlay.LoadingSilderMoveAnim();
+            });
         }
 
         #region ∆‰À˚ƒ⁄»›

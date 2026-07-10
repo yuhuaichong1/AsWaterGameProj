@@ -39,6 +39,8 @@ public class UILoadingWaiting : MonoBehaviour
 
     public void StartTextAnim()
     {
+        return;
+
         if(!ifInit)
         {
             ifInit = true;

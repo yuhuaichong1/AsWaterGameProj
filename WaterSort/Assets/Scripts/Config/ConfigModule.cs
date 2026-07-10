@@ -53,7 +53,8 @@ namespace XrCode
 
         private void OnFinish()
         {
-            OnFinished?.Invoke();
+            //OnFinished?.Invoke();
+            CompetitionManager.Instance.SkipCompetition(CompetitionKey.START);
         }
 
 
