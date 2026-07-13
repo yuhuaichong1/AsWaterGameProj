@@ -1,5 +1,18 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7739932827720790821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a63d77ee89ffb1243b0c3a7c98e06d17, type: 3}
+  m_Name: XrSDK.TenjinModConfig
+  m_EditorClassIdentifier: 
+  moduleName: 
 --- !u!114 &-2925520760120835995
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37,6 +50,7 @@ MonoBehaviour:
   - {fileID: 7997446465353116629}
   - {fileID: -2925520760120835995}
   - {fileID: 5520880820735433615}
+  - {fileID: -7739932827720790821}
 --- !u!114 &5520880820735433615
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -71,9 +85,9 @@ MonoBehaviour:
   m_Name: XrSDK.MaxSdkFramePendant
   m_EditorClassIdentifier: 
   moduleName: 
-  MaxSdkKey: 2kl8NbEnx_AKcCe2f71QqawvLuED3eB3tofiyF9BnXX25PSNKTnTfL1Zk1aM_aA_GBK5rTudKtIvH6kTkOyI8m
-  InterstitialAdUnitId_Android: 519982d502970ddf
-  RewardedAdUnitId_Android: 05bcfc657742fe46
+  MaxSdkKey: T2zCVLGybGVqThQqT46q2Phft7rEHbH_7OGi_d2tnCtguip0wwRcd7eZPuHTlZmucs1_RxEUvnT7Zg_7AXBkpT
+  InterstitialAdUnitId_Android: 66205aba02b5817a
+  RewardedAdUnitId_Android: d46f09b3c15c0d00
   BannerAdUnitId_Android: 
   MRecAdUnitId_Android: 
   AppOpenAdId_Android: 
