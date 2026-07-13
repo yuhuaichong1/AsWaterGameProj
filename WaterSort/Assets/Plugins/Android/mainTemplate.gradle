@@ -26,8 +26,10 @@ dependencies {
     implementation 'com.appsflyer:af-android-sdk:6.17.3' // Assets/AppsFlyer/Editor/AppsFlyerDependencies.xml:5
     implementation 'com.appsflyer:purchase-connector:2.1.0' // Assets/AppsFlyer/Editor/AppsFlyerDependencies.xml:8
     implementation 'com.appsflyer:unity-wrapper:6.17.3' // Assets/AppsFlyer/Editor/AppsFlyerDependencies.xml:6
+    implementation 'com.google.android.gms:play-services-ads-identifier:18.1.0' // Assets/Editor/Dependencies.xml:7
     implementation 'com.google.android.gms:play-services-base:16.1.0' // Assets/MaxSdk/Mediation/Chartboost/Editor/Dependencies.xml:9
     implementation 'com.squareup.picasso:picasso:2.71828' // Assets/MaxSdk/Mediation/InMobi/Editor/Dependencies.xml:5
+    implementation 'com.tenjin:android-sdk:1.16.7' // Assets/Editor/Dependencies.xml:4
 // Android Resolver Dependencies End
 **DEPS**}
 

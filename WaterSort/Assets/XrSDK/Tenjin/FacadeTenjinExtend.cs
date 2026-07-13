@@ -7,6 +7,8 @@ namespace XrSDK
 {
     public static class FacadeTenjinExtend
     {
-        public static Action A;
+        public static Action<string> SetEvent;
+        public static Action<string, string> SetEvent2;
+        public static Action<TenjinAdImpressionJson> AppLovinImpressionFromJSON;
     }
 }

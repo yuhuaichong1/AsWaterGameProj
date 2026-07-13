@@ -309,7 +309,7 @@ namespace XrCode
         /// <param name="data">归因信息</param>
         public void SetAttributionData(Dictionary<string, object> data)
         {
-            Dictionary<string, object> BAP = BuildAttributionParameters(data);
+            Dictionary<string, object> BAP = BuildAttributionParameters_Tenjin(data);
             ThinkingDataDefines.UserSetOnce(BAP);
         }
 
@@ -402,6 +402,13 @@ namespace XrCode
             }
 
             D.Log($" 最终用户类型: {parameters["user_type"]}, is_organic: {parameters["is_organic_user"]}");
+            return parameters;
+        }
+
+        public Dictionary<string, object> BuildAttributionParameters_Tenjin(Dictionary<string, object> data)
+        {
+            var parameters = new Dictionary<string, object>();
+
             return parameters;
         }
 

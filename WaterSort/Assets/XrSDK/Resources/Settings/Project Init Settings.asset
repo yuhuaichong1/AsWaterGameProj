@@ -13,26 +13,12 @@ MonoBehaviour:
   m_Name: XrSDK.TenjinModConfig
   m_EditorClassIdentifier: 
   moduleName: 
---- !u!114 &-2925520760120835995
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d6591f735cfa1540a4db2ea9157fc31, type: 3}
-  m_Name: XrSDK.AppsFlyerModConfig
-  m_EditorClassIdentifier: 
-  moduleName: 
-  MonoObjPath: ThirdSDK/AppsFlyer
-  DevKey: z5iWExTFofzSdHj2NQbgrR
-  AppID: 
-  UWPAppID: 
-  MacOSAppID: 
-  IsDebug: 0
-  GetConversionData: 1
+  AppSubversioin: 0
+  SDK: WLMROBTCZJKPNHBX51IEG1TIGXBJ6ZWR
+  appStoreType: 1
+  ifDebug: 0
+  ifOptIn: 1
+  ifUseCMP: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48,7 +34,6 @@ MonoBehaviour:
   coreModules: []
   modules:
   - {fileID: 7997446465353116629}
-  - {fileID: -2925520760120835995}
   - {fileID: 5520880820735433615}
   - {fileID: -7739932827720790821}
 --- !u!114 &5520880820735433615

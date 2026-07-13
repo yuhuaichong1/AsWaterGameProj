@@ -143,6 +143,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: AppsFlyer
       objectReference: {fileID: 0}
+    - target: {fileID: 9110900628411940610, guid: 80746f8ff0eb7064e8a42d924a999d0b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
