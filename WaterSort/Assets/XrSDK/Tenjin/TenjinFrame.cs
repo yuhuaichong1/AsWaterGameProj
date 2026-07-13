@@ -78,6 +78,7 @@ namespace XrSDK
                 instance.SetAppStoreType(appStoreType);
             }
             GetAttributionInfo();
+            CompetitionManager.Instance.SkipCompetition(CompetitionKey.IfIAA);
 #else
             instance.Connect();
             GetAttributionInfo();
