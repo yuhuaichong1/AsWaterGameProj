@@ -1,4 +1,4 @@
-/* 
+﻿/* 
  * 游戏定义脚本
  * 游戏中常量、枚举等内容请在这里统一定义
  */
@@ -13,7 +13,7 @@ public abstract class GameDefines
     #region 打包相关
     public static string URL = "http://api.game1231.top:8080/xgame?appIndex=77";                            //后台链接网址
     public static bool ifIAA = true;                                                                        //是否为IAA模式
-    public static bool ifDebug = true;                                                                      //是否是debug模式
+    public static bool ifDebug = false;                                                                      //是否是debug模式
     public static bool ifSkipAD = false;                                                                     //是否跳过广告
     #endregion
 
