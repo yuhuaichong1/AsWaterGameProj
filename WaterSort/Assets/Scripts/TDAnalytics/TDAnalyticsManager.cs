@@ -407,7 +407,20 @@ namespace XrCode
 
         public Dictionary<string, object> BuildAttributionParameters_Tenjin(Dictionary<string, object> data)
         {
-            var parameters = new Dictionary<string, object>();
+            //var parameters = new Dictionary<string, object>();
+            var parameters = data;
+            if ((string)data["ad_network"] == "organic")
+            {
+                D.Log($" 判断为: 自然用户");
+                if (GameDefines.AFJustState)
+                    CompetitionManager.Instance.CompetitionVariable(CompetitionKey.IfIAA, true, 3);
+                else
+                    CompetitionManager.Instance.SkipCompetition(CompetitionKey.IfIAA);
+            }
+            else
+            {
+                CompetitionManager.Instance.SkipCompetition(CompetitionKey.IfIAA);
+            }
 
             return parameters;
         }

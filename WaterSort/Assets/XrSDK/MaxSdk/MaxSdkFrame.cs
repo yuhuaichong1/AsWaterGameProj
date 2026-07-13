@@ -252,6 +252,8 @@ namespace XrSDK
             FacadeAppsFlyerExtend.SendAdRevenue?.Invoke(EAppsFlyerAdType.EInterstitial, adInfo.AdUnitIdentifier, adInfo.Placement, "monetizationNetworkEx", MediationNetwork.ApplovinMax, "USD", adInfo.Revenue);
             FacadeAd.InterstitialAdRevenuePaid?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.RevenuePrecision);
             FacadeAd.InterstitialAdCompleted?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.RevenuePrecision);
+
+            SetTenjinAppLovinImpressionFromJSON(adInfo);
         }
 
         #endregion
@@ -424,6 +426,8 @@ namespace XrSDK
 
             FacadeAd.RewardAdRevenuePaid?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.RevenuePrecision);
             FacadeAd.RewardAdCompleted?.Invoke(adInfo.NetworkName, adInfo.Revenue, adInfo.Revenue * 1000, adInfo.RevenuePrecision);
+
+            SetTenjinAppLovinImpressionFromJSON(adInfo);
         }
 
         #endregion
@@ -715,6 +719,24 @@ namespace XrSDK
         private bool GetRewardAdReady()
         {
             return MaxSdk.IsRewardedAdReady(rewardedAdUnitId);
+        }
+
+        private void SetTenjinAppLovinImpressionFromJSON(MaxSdkBase.AdInfo adInfo)
+        {
+            TenjinAdImpressionJson tenjinAdImpressionJson = new TenjinAdImpressionJson()
+            {
+                revenue = adInfo.Revenue,
+                ad_revenue_currency = "USD",
+                country = MaxSdk.GetSdkConfiguration()?.CountryCode ?? "Unknown",
+                network_name = adInfo.NetworkName,
+                ad_unit_id = adInfo.AdUnitIdentifier,
+                format = adInfo.AdFormat,
+                placement = adInfo.Placement,
+                network_placement = adInfo.NetworkPlacement,
+                creative_id = adInfo.CreativeIdentifier,
+                revenue_precision = adInfo.RevenuePrecision,
+            };
+            FacadeTenjinExtend.AppLovinImpressionFromJSON(tenjinAdImpressionJson);
         }
     }
 }

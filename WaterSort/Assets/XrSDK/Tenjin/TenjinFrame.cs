@@ -99,20 +99,11 @@ namespace XrSDK
         {
             instance.GetAttributionInfo((Dictionary<string, string> data) => 
             {
-                foreach(var item in data)
-                {
-                    Debug.Log("Tenjin ==============> " + item.Key + ": " + item.Value);
-                }
-
                 if (data.ContainsKey("ad_network"))
                 {
-                    string networkMsg = data["ad_network"];
-                    bool b = networkMsg == "organic" || networkMsg == "Organic" || networkMsg == "ORGANIC";
-
                     Dictionary<string, object> arrtMsg = new Dictionary<string, object>();
                     foreach (string key in data.Keys)
                     {
-                        Debug.LogError($"Tenjin({key}: {data[key]})");
                         arrtMsg.Add(key, data[key]);
                     }
                     TDAnalyticsManager.Instance.SetAttributionData(arrtMsg);
