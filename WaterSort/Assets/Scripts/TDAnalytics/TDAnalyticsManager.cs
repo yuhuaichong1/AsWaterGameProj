@@ -409,7 +409,8 @@ namespace XrCode
         {
             //var parameters = new Dictionary<string, object>();
             var parameters = data;
-            if ((string)data["ad_network"] == "organic")
+
+            if (data.ContainsKey("ad_network") && (string)data["ad_network"] == "organic")
             {
                 D.Log($" 判断为: 自然用户");
                 if (GameDefines.AFJustState)

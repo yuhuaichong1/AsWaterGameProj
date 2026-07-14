@@ -107,7 +107,8 @@ namespace XrSDK
                     {
                         arrtMsg.Add(key, data[key]);
                     }
-                    TDAnalyticsManager.Instance.SetAttributionData(arrtMsg);
+                    CompetitionManager.Instance.attributionData = arrtMsg;
+                    CompetitionManager.Instance.SkipCompetition(CompetitionKey.IFAF);
                 }
                 else
                 {

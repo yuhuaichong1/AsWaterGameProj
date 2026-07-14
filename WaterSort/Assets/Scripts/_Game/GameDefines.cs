@@ -11,7 +11,7 @@ public abstract class GameDefines
     #region 常量
 
     #region 打包相关
-    public static string URL = "http://api.game1231.top:8080/xgame?appIndex=77";                            //后台链接网址
+    public static string URL = "http://api.game1923.xyz:8080/xgame?appIndex=99";                            //后台链接网址
     public static bool ifIAA = true;                                                                        //是否为IAA模式
     public static bool ifDebug = false;                                                                      //是否是debug模式
     public static bool ifSkipAD = false;                                                                     //是否跳过广告

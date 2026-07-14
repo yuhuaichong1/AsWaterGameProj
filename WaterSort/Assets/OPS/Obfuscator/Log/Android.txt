@@ -2417,6 +2417,12 @@
 [Debug][OPS.OBF][OnAnalyse_Component_Prefabs] Found unity event methods in component 'UIGamePlay' (1):
   - OnProp
 
+[Debug][OPS.OBF][OnAnalyse_Component_Prefabs] Found unity event methods in component 'UIGamePlay' (1):
+  - OnProp
+
+[Debug][OPS.OBF][OnAnalyse_Component_Prefabs] Found unity event methods in component 'UIGamePlay' (1):
+  - OnProp
+
 [Debug][OPS.OBF][OnAnalyse_Component_Prefabs] Find unity event methods in component 'UIGamePlay' of type 'UnityEngine.CanvasGroup'.
 [Debug][OPS.OBF][OnAnalyse_Component_Prefabs] Find unity event methods in component 'Bg' of type 'UnityEngine.RectTransform'.
 [Debug][OPS.OBF][OnAnalyse_Component_Prefabs] Find unity event methods in component 'Bg' of type 'UnityEngine.CanvasRenderer'.
@@ -2706,9 +2712,6 @@
 [Debug][OPS.OBF][OnAnalyse_Component_Prefabs] Find unity event methods in component 'Btn_Prop1' of type 'UnityEngine.CanvasRenderer'.
 [Debug][OPS.OBF][OnAnalyse_Component_Prefabs] Find unity event methods in component 'Btn_Prop1' of type 'UnityEngine.UI.Image'.
 [Debug][OPS.OBF][OnAnalyse_Component_Prefabs] Find unity event methods in component 'Btn_Prop1' of type 'UnityEngine.UI.Button'.
-[Debug][OPS.OBF][OnAnalyse_Component_Prefabs] Found unity event methods in component 'Btn_Prop1' (1):
-  - OnProp
-
 [Debug][OPS.OBF][OnAnalyse_Component_Prefabs] Find unity event methods in component 'prop1_count_icon' of type 'UnityEngine.RectTransform'.
 [Debug][OPS.OBF][OnAnalyse_Component_Prefabs] Find unity event methods in component 'prop1_count_icon' of type 'UnityEngine.CanvasRenderer'.
 [Debug][OPS.OBF][OnAnalyse_Component_Prefabs] Find unity event methods in component 'prop1_count_icon' of type 'UnityEngine.UI.Image'.
@@ -20197,7 +20200,6 @@
 [Info][OPS.OBF][OnObfuscate_Assemblies] Update Reference Method [[Assembly-CSharp] T XrCode.Singleton`1::get_Instance()]
 [Info][OPS.OBF][OnObfuscate_Assemblies] Update Reference Method [[Assembly-CSharp] T XrCode.Singleton`1::get_Instance()]
 [Info][OPS.OBF][OnObfuscate_Assemblies] Update Reference Method [[Assembly-CSharp] T XrCode.Singleton`1::get_Instance()]
-[Info][OPS.OBF][OnObfuscate_Assemblies] Update Reference Method [[Assembly-CSharp] T XrCode.Singleton`1::get_Instance()]
 [Info][OPS.OBF][OnObfuscate_Assemblies] Rename Method [[Assembly-CSharp] T XrCode.Singleton`1::get_Instance()] to bqr
 [Info][OPS.OBF][OnObfuscate_Assemblies] Rename Method [[Assembly-CSharp] System.Void XrCode.Singleton`1::DestroyInstance()] to bqs
 [Info][OPS.OBF][OnObfuscate_Assemblies] Rename Method [[Assembly-CSharp] cfg.ConfAudio cfg.ConfAudio::DeserializeConfAudio(Bright.Serialization.ByteBuf)] to bqt
@@ -23047,30 +23049,7 @@
 [Debug][OPS.OBF][Setup] Load Pipeline
 [Info][OPS.OBF][OnPostAssetsBuild] Process component Post Process Unity MonoBehaviour Assets
 [Info][OPS.OBF][OnPostAssetsBuild] Assets are bundled. Obfuscating data.unity3d file.
-[Info][OPS.OBF][OnPostAssetsBuild] Obfuscating data.unity3d file 'D:\WaterSort\WaterSort\Temp\StagingArea\Data\data.unity3d'.
-[Debug][OPS.OBF][OnPostAssetsBuild] Loaded bundle file successfully.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscating resource 'globalgamemanagers' in bundle file.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscated '0' MonoScripts in assets file 'globalgamemanagers'.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscating resource 'Resources/unity_builtin_extra' in bundle file.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscated '0' MonoScripts in assets file 'unity_builtin_extra'.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscating resource 'globalgamemanagers.assets' in bundle file.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscated '0' MonoScripts in assets file 'globalgamemanagers.assets'.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscating resource 'sharedassets0.assets' in bundle file.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscated '0' MonoScripts in assets file 'sharedassets0.assets'.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscating resource 'level0' in bundle file.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscated '0' MonoScripts in assets file 'level0'.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscating resource 'sharedassets1.assets' in bundle file.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscated '0' MonoScripts in assets file 'sharedassets1.assets'.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscating resource 'level1' in bundle file.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscated '0' MonoScripts in assets file 'level1'.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscating resource 'sharedassets2.assets' in bundle file.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscated '0' MonoScripts in assets file 'sharedassets2.assets'.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscating resource 'level2' in bundle file.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscated '0' MonoScripts in assets file 'level2'.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscating resource 'resources.assets' in bundle file.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscated '0' MonoScripts in assets file 'resources.assets'.
-[Debug][OPS.OBF][OnPostAssetsBuild] Updated bundle file successfully.
-[Debug][OPS.OBF][OnPostAssetsBuild] Saved bundle file successfully.
+[Warning][OPS.OBF][OnPostAssetsBuild] Could not obfuscate data.unity3d file in tmp directory.
 [Info][OPS.OBF][OnPostAssetsBuild] Obfuscating data.unity3d file 'D:\WaterSort\WaterSort\Library\PlayerDataCache\Android\Data\data.unity3d'.
 [Debug][OPS.OBF][OnPostAssetsBuild] Loaded bundle file successfully.
 [Debug][OPS.OBF][OnPostAssetsBuild] Obfuscating resource 'globalgamemanagers' in bundle file.
@@ -23078,7 +23057,7 @@
 [Debug][OPS.OBF][OnPostAssetsBuild] Obfuscating resource 'Resources/unity_builtin_extra' in bundle file.
 [Debug][OPS.OBF][OnPostAssetsBuild] Obfuscated '0' MonoScripts in assets file 'unity_builtin_extra'.
 [Debug][OPS.OBF][OnPostAssetsBuild] Obfuscating resource 'globalgamemanagers.assets' in bundle file.
-[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscated '0' MonoScripts in assets file 'globalgamemanagers.assets'.
+[Debug][OPS.OBF][OnPostAssetsBuild] Obfuscated '5' MonoScripts in assets file 'globalgamemanagers.assets'.
 [Debug][OPS.OBF][OnPostAssetsBuild] Obfuscating resource 'sharedassets0.assets' in bundle file.
 [Debug][OPS.OBF][OnPostAssetsBuild] Obfuscated '0' MonoScripts in assets file 'sharedassets0.assets'.
 [Debug][OPS.OBF][OnPostAssetsBuild] Obfuscating resource 'level0' in bundle file.
