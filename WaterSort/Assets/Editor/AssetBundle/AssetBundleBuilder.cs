@@ -36,7 +36,7 @@ namespace Assets.Editor.AssetBundle
         {
             if (!IncrementalBuildCache.CanIncrementalBuild())
             {
-                D.Error("[AssetBundle] Incremental build requires a previous successful full build. Please run Tools/AssetBundle/Build first.");
+                UnityEngine.Debug.LogError("[AssetBundle] Incremental build requires a previous successful full build. Please run Tools/AssetBundle/Build first.");
                 return;
             }
 
@@ -68,12 +68,12 @@ namespace Assets.Editor.AssetBundle
                     var dirtyBundles = IncrementalBuildCache.GetDirtyBundleNames(mAssetItemDict);
                     if (dirtyBundles.Count == 0)
                     {
-                        D.Log("[AssetBundle] Incremental build: no changes detected, skipped.");
+                        UnityEngine.Debug.Log("[AssetBundle] Incremental build: no changes detected, skipped.");
                         buildSucceeded = true;
                         return;
                     }
 
-                    D.Log("[AssetBundle] Incremental build: {0} bundle(s) need rebuild.", dirtyBundles.Count);
+                    UnityEngine.Debug.LogError($"[AssetBundle] Build failed: {dirtyBundles.Count}");
                 }
 
                 CreateAssetBundleConfig();
@@ -85,16 +85,16 @@ namespace Assets.Editor.AssetBundle
 
                 if (fullBuild)
                 {
-                    D.Log("AssetBundle Build Success!");
+                    UnityEngine.Debug.Log("AssetBundle Build Success!");
                 }
                 else
                 {
-                    D.Log("AssetBundle Incremental Build Success!");
+                    UnityEngine.Debug.Log("AssetBundle Incremental Build Success!");
                 }
             }
             catch (Exception ex)
             {
-                D.Error("[AssetBundle] Build failed: {0}", ex.Message);
+                UnityEngine.Debug.LogError($"[AssetBundle] Build failed: {ex.Message}");
                 throw;
             }
             finally
@@ -106,7 +106,7 @@ namespace Assets.Editor.AssetBundle
 
                 if (!buildSucceeded)
                 {
-                    D.Log("[AssetBundle] Build cache was not updated due to failure.");
+                    UnityEngine.Debug.Log("[AssetBundle] Build cache was not updated due to failure.");
                 }
             }
         }
@@ -117,7 +117,7 @@ namespace Assets.Editor.AssetBundle
             ClearAssetBundleNames();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            D.Log("[AssetBundle] All asset bundle names cleared.");
+            UnityEngine.Debug.Log("[AssetBundle] All asset bundle names cleared.");
         }
 
         /// <summary>
@@ -416,7 +416,7 @@ namespace Assets.Editor.AssetBundle
                     var isCompa = assetItem.BeDepends.Contains(path);
                     if (assetItem.BeDepends.Count != 1 || isCompa)
                     {
-                        D.Log(isCompa, $"[ABMod]: {assetItem.AssetBundleName} ___ {path}");
+                        UnityEngine.Debug.Log($"[ABMod]:isCompa:{isCompa} {assetItem.AssetBundleName} ___ {path}");
                         if (isCompa)
                         {
                             break;

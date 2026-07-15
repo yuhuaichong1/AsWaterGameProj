@@ -1,6 +1,10 @@
 pluginManagement {
     repositories {
         **ARTIFACTORYREPOSITORY**
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/central' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
         gradlePluginPortal()
         google()
         mavenCentral()
@@ -14,6 +18,11 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         **ARTIFACTORYREPOSITORY**
+        // Prefer Aliyun mirrors when Maven Central (repo.maven.apache.org) DNS is unreachable
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/central' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
         google()
         mavenCentral()
 // Android Resolver Repos Start
