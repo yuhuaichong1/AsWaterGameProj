@@ -20,7 +20,8 @@ namespace XrCode
         }
         protected override void OnEnable()
         {
-            if (WaterSortWZBridge.HostDriven)
+            // WZ 入口/HostDriven：宿主原生 LuckyReward 关闭，改走 WZ。
+            if (WaterSortWZBridge.HostDriven || WaterSortWZBridge.IsWzEntryScene())
             {
                 UIManager.Instance.CloseUI(EUIType.EUILuckyReward);
                 return;

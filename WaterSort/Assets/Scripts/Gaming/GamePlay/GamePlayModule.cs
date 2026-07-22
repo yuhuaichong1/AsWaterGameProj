@@ -267,7 +267,9 @@ namespace XrCode
             status = GameStatus.Gaming;
             WaterSortWZBridge.ReportSessionStart(curLevelIndex);
 
-            if (curLevelIndex > 3)
+            if (curLevelIndex > 3
+                && !WaterSortWZBridge.HostDriven
+                && !WaterSortWZBridge.IsWzEntryScene())
             {
                 LRBool = false;
                 //LRTimer.targetTime = curLevelIndex <= GameDefines.ClockLv ? GameDefines.ClockTime1 : GameDefines.ClockTime2;
@@ -701,8 +703,8 @@ namespace XrCode
         /// </summary>
         private void CheckOpenLuckyReward()
         {
-            // 以 WZ 为准：关闭宿主幸运奖励
-            if (WaterSortWZBridge.HostDriven)
+            // WZ 入口/HostDriven：幸运奖励走 WZ，关闭宿主原生 LuckyReward。
+            if (WaterSortWZBridge.HostDriven || WaterSortWZBridge.IsWzEntryScene())
                 return;
 
             if(curLevelIndex > 3)

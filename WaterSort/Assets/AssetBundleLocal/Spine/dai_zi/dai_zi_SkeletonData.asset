@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9ae200fb12be1043880b41688a26a38, type: 3}
+  m_Script: {fileID: 11500000, guid: f1b3b4b945939a54ea0b23d3396115fb, type: 3}
   m_Name: dai_zi_SkeletonData
   m_EditorClassIdentifier: 
   atlasAssets:
@@ -27,5 +27,5 @@ MonoBehaviour:
   fromAnimation: []
   toAnimation: []
   duration: []
-  defaultMix: 0
+  defaultMix: 0.2
   controller: {fileID: 0}

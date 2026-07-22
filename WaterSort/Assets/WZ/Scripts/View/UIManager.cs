@@ -616,6 +616,18 @@ namespace WZSDK
 
         public bool IsGameplayOnlyUIActive()
         {
+            if (HasBlockingNonGameplayOverlay())
+                return false;
+
+            return HasVisibleView(EUIType.GameView) || HasVisibleView(EUIType.GamePlayerView);
+        }
+
+        /// <summary>
+        /// 是否存在非局内常驻的可见弹层。
+        /// Game2 宿主局内没有 GamePlayerView 时，用此判断是否应延迟进度条刷新。
+        /// </summary>
+        public bool HasBlockingNonGameplayOverlay()
+        {
             foreach (var kvp in activeViews)
             {
                 EUIType viewType = kvp.Key;
@@ -627,14 +639,11 @@ namespace WZSDK
                         continue;
 
                     if (!gameplayPersistentViews.Contains(viewType))
-                        return false;
+                        return true;
                 }
             }
 
-            if (HasActiveLegacyView())
-                return false;
-
-            return HasVisibleView(EUIType.GameView) || HasVisibleView(EUIType.GamePlayerView);
+            return HasActiveLegacyView();
         }
 
         public bool PrintActiveViews()

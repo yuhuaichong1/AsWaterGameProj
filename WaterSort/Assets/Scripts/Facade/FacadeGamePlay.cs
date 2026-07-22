@@ -46,6 +46,7 @@ namespace XrCode
         public static Action<bool> AbleProp3Btn;                                        //是否启用功能3的按钮
 
         public static Action SetLevelShow;                                              //设置关卡目标
+        public static Action RefreshWzStageHud;                                         //刷新 WZ LuckyRoot/Stage3Root（宿主 UIGamePlay）
 
         public static Action ScrollingTipAnim;                                          //显示滑动动画
 

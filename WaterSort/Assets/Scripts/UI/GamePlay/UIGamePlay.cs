@@ -46,6 +46,7 @@ namespace XrCode
             FacadeGamePlay.SetLevelShow += SetLevelShow;
 
             FacadeGamePlay.ScrollingTipAnim += ScrollingTipAnim;
+            FacadeGamePlay.RefreshWzStageHud += RefreshWzStageHud;
         }
 
         /// <summary>
@@ -75,6 +76,7 @@ namespace XrCode
             FacadeGamePlay.SetLevelShow -= SetLevelShow;
 
             FacadeGamePlay.ScrollingTipAnim -= ScrollingTipAnim;
+            FacadeGamePlay.RefreshWzStageHud -= RefreshWzStageHud;
         }
 
         #endregion
@@ -85,17 +87,25 @@ namespace XrCode
             mIAAMoneyIcon.gameObject.gameObject.SetActive(GameDefines.ifIAA);
             mCMBtn.gameObject.SetActive(!GameDefines.ifIAA);
             mCMDialog.gameObject.SetActive(!GameDefines.ifIAA);
-            mWLProgress.gameObject.SetActive(!GameDefines.ifIAA);
+            // WLProgress 已停用，改用 WZ LuckyRoot / Stage3Root。
+            // mWLProgress.gameObject.SetActive(!GameDefines.ifIAA);
+            if (mWLProgress != null)
+                mWLProgress.gameObject.SetActive(false);
+            if (mWPrompt != null)
+                mWPrompt.gameObject.SetActive(false);
             if(GameDefines.ifIAA) mReStartBtn.transform.position = mReStartBtnIAAPos.position;
 
             string levelText = string.Format(FacadeLanguage.GetText?.Invoke("10016"), FacadePlayer.GetLevel());
-            mLTCurLevelText.text = levelText;
+            // mLTCurLevelText 挂在 WLProgress 下，一并停用。
+            // mLTCurLevelText.text = levelText;
             mCurLevelText.text = levelText;
 
             SetCurMoneyShow();
             SetProp1CountShow();
             SetProp2CountShow();
             SetProp3CountShow();
+            EnsureWzStageHud();
+            RefreshWzStageHud();
         }
 
         protected override void OnEnable()
@@ -114,10 +124,12 @@ namespace XrCode
         {
             double money = FacadePlayer.GetMoney?.Invoke() ?? 0;
             mCurMoneyText.text = FacadePayType.RegionalChange?.Invoke(money);
-            if (FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.AmountOfMoney)
-            {
-                SetWPMsg();
-            }
+            // WLProgress / WPrompt 已停用。
+            // if (FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.AmountOfMoney)
+            // {
+            //     SetWPMsg();
+            // }
+            RefreshWzStageHud();
         }
 
         /// <summary>
@@ -187,14 +199,25 @@ namespace XrCode
         /// </summary>
         private void SetLevelShow()
         {
+            // 宿主 WLProgress / WPrompt 已注销，仅保留关卡文本；阶段进度改走 LuckyRoot/Stage3Root。
+            mCurLevel.gameObject.SetActive(true);
+
+            int curLevel = FacadePlayer.GetLevel();
+            mCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), curLevel);
+            mCMDialog.gameObject.SetActive(false);
+
+            if (mWLProgress != null)
+                mWLProgress.gameObject.SetActive(false);
+            if (mWPrompt != null)
+                mWPrompt.gameObject.SetActive(false);
+
+            /*
             bool hostWithdrawUi = !WaterSortWZBridge.HostDriven && !GameDefines.ifIAA;
 
             if (!hostWithdrawUi)
                 mCurLevel.gameObject.SetActive(true);
             else
                 mCurLevel.gameObject.SetActive(FacadeWithdraw.GetCurWithdrawTarget() != WithdrawTarget.PassLevel);
-
-            int curLevel = FacadePlayer.GetLevel();
 
             string levelText;
             if (curLevel < GameDefines.miniLevel_Start)
@@ -208,122 +231,24 @@ namespace XrCode
             bool after8_10 = curLevel > GameDefines.miniLevel_End;
 
             mWLProgress.gameObject.SetActive(!after8_10 && hostWithdrawUi);
-            if (!after8_10 && hostWithdrawUi)
-            {
-                UIGP_LP_Item uIGP_LP_Item;
-                int startLevel;
-                if (curLevel <= 4)
-                {
-                    startLevel = 1;
-                }
-                else
-                {
-                    startLevel = 4;
-                }
+            ... WLProgress / WPrompt 原逻辑已停用 ...
+            */
 
-                for (int i = startLevel; i <= startLevel + 3; i++)
-                {
-                    uIGP_LP_Item = mWLProgress.Items[i - startLevel];
-                    uIGP_LP_Item.CurSign.SetActive(curLevel == i);
-                    uIGP_LP_Item.FinishSign.SetActive(curLevel > i);
-                    uIGP_LP_Item.levelText.text = i.ToString();
-                    uIGP_LP_Item.WTip.gameObject.SetActive((i == 1 || i == 2) && curLevel <= i);
-                    if (uIGP_LP_Item.Arrow != null)
-                        uIGP_LP_Item.Arrow.gameObject.SetActive(curLevel >= i);
-                }
-
-                uIGP_LP_Item = mWLProgress.Items[mWLProgress.Items.Count - 1];
-                uIGP_LP_Item.levelText.text = (GameDefines.miniLevel_Start - 1).ToString();
-                uIGP_LP_Item.CurSign.SetActive(curLevel >= (GameDefines.miniLevel_Start - 1));
-                uIGP_LP_Item.Arrow.gameObject.SetActive(curLevel >= (GameDefines.miniLevel_Start - 1));
-                bool showMiniText = curLevel >= GameDefines.miniLevel_Start;
-                mWLProgress.miniLevels.SetActive(showMiniText);
-                if (showMiniText)
-                    mWLProgress.miniLevelText.text = $"{curLevel - GameDefines.miniLevel_Start + 2}/{GameDefines.miniLevel_End - GameDefines.miniLevel_Start + 2}";
-
-
-            }
-
-            if (hostWithdrawUi)
-            {
-                mCMDialog.gameObject.SetActive(!after8_10);
-                if (!after8_10)
-                {
-                    int targetlevel = 0;
-                    if (curLevel <= 2)
-                        targetlevel = curLevel;
-                    else
-                        targetlevel = GameDefines.miniLevel_Start - 1;
-
-                    mCMDialogText.text = string.Format(FacadeLanguage.GetText("10005"), targetlevel);
-                }
-
-                mWPrompt.gameObject.SetActive(after8_10);
-                if (after8_10)
-                {
-                    SetWPMsg();
-                }
-
-                mCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), curLevel - GameDefines.miniLevel_Start);
-            }
-            else
-            {
-                mCMDialog.gameObject.SetActive(false);
-                mWPrompt.gameObject.SetActive(false);
-                mCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), curLevel);
-            }
-
+            RefreshWzStageHud();
         }
 
         /// <summary>
-        /// 设置目标金额/签到提示文本
+        /// 设置目标金额/签到提示文本（WLProgress 相关，已停用）
         /// </summary>
         private void SetWPMsg()
         {
+            // WLProgress / WPrompt 已停用。
+            /*
             if(FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.AmountOfMoney)
             {
-                double remainMoney = FacadeWithdraw.GetRemainTarget();
-                double wTargetMoney = FacadeWithdraw.GetWTarget();
-                mWPText.text = string.Format(FacadeLanguage.GetText("10005"), FacadePayType.RegionalChange(remainMoney), FacadePayType.RegionalChange(wTargetMoney));
-
-                mWPSText.text = $"{(int)(FacadePlayer.GetMoney() * FacadePayType.GetExchangeRate())}/{(int)(wTargetMoney * FacadePayType.GetExchangeRate())}";
-                mWPSlider.value = (float)(FacadePlayer.GetMoney() / wTargetMoney);
+                ...
             }
-            else if(FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.CheckIn)
-            {
-                int remainLevel = GameDefines.CheckInLevel - FacadeWithdraw.GetCurCheckLevel();
-                mWPText.text = FacadeWithdraw.GetWCheckInLevelText();
-                mWPSText.text = $"{FacadeWithdraw.GetCurCheckLevel()}/{GameDefines.CheckInLevel}";
-                mWPSlider.value = (float)FacadeWithdraw.GetCurCheckLevel() / GameDefines.CheckInLevel;
-
-                /*
-                if (FacadeWithdraw.GetCurCheckInDay() >= GameDefines.CheckInDay)
-                {
-                    mWPText.text = FacadeLanguage.GetText("10128");
-                    mWPSText.text = $"{GameDefines.CheckInDay}/{GameDefines.CheckInDay}";
-                    mWPSlider.value = 1;
-                }
-                else
-                {
-                    if(FacadeWithdraw.GetCurCheckLevel() >= GameDefines.CheckInLevel)
-                    {
-                        int remainDay = GameDefines.CheckInDay - FacadeWithdraw.GetCurCheckInDay();
-                        mWPText.text = string.Format(FacadeLanguage.GetText("10083"), GameDefines.CheckInDay, remainDay);
-                        mWPSText.text = $"{FacadeWithdraw.GetCurCheckInDay()}/{GameDefines.CheckInDay}";
-                        mWPSlider.value = (float)FacadeWithdraw.GetCurCheckInDay() / GameDefines.CheckInDay;
-
-                    }
-                    else
-                    {
-                        int remainLevel = GameDefines.CheckInLevel - FacadeWithdraw.GetCurCheckLevel();
-                        mWPText.text = string.Format(FacadeLanguage.GetText("10007"), remainLevel);
-                        mWPSText.text = $"{FacadeWithdraw.GetCurCheckLevel()}/{GameDefines.CheckInLevel}";
-                        mWPSlider.value = (float)FacadeWithdraw.GetCurCheckLevel() / GameDefines.CheckInLevel;
-                    }
-                }
-                */
-            }
-
+            */
         }
 
         #endregion

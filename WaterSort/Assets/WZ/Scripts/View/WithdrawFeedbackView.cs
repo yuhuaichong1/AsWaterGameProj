@@ -135,7 +135,13 @@ namespace WZSDK
 
         private void RefreshGameplayWithdrawPrompt()
         {
-            if (GameDefines.ifIAA || UIManager.instance == null)
+            if (GameDefines.ifIAA)
+                return;
+
+            // Game2 / 宿主 HUD：刷新移植到 UIGamePlay 的 Stage3Root。
+            XrCode.FacadeGamePlay.RefreshWzStageHud?.Invoke();
+
+            if (UIManager.instance == null)
                 return;
 
             UIManager.instance.GetView<GamePlayerView>(EUIType.GamePlayerView)?.UpdateWithdrawPrompt();

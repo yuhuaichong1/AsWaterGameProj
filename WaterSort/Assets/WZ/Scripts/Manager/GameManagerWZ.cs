@@ -743,6 +743,9 @@ namespace WZSDK
 
         void RefreshStageUI()
         {
+            // Game2 / 宿主 HUD：刷新移植到 UIGamePlay 的 LuckyRoot/Stage3Root。
+            XrCode.FacadeGamePlay.RefreshWzStageHud?.Invoke();
+
             if (uiManager == null)
                 return;
 
