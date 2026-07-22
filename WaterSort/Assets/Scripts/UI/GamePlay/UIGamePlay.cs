@@ -32,6 +32,7 @@ namespace XrCode
             FacadeGamePlay.SetShuffleTipShow += SetShuffleTipShow;
 
             FacadeGamePlay.GetCMDialogTextPos += GetCMDialogTextPos;
+            FacadeGamePlay.GetCashOutBtnRect += GetCashOutBtnRect;
             FacadeGamePlay.GetFlyObjGoalPos += GetFlyObjGoalPos;
 
             FacadeGamePlay.GetCupPart += GetCupPart;
@@ -60,6 +61,7 @@ namespace XrCode
             FacadeGamePlay.SetShuffleTipShow -= SetShuffleTipShow;
 
             FacadeGamePlay.GetCMDialogTextPos -= GetCMDialogTextPos;
+            FacadeGamePlay.GetCashOutBtnRect -= GetCashOutBtnRect;
             FacadeGamePlay.GetFlyObjGoalPos -= GetFlyObjGoalPos;
 
             FacadeGamePlay.GetCupPart -= GetCupPart;
@@ -185,7 +187,9 @@ namespace XrCode
         /// </summary>
         private void SetLevelShow()
         {
-            if (GameDefines.ifIAA)
+            bool hostWithdrawUi = !WaterSortWZBridge.HostDriven && !GameDefines.ifIAA;
+
+            if (!hostWithdrawUi)
                 mCurLevel.gameObject.SetActive(true);
             else
                 mCurLevel.gameObject.SetActive(FacadeWithdraw.GetCurWithdrawTarget() != WithdrawTarget.PassLevel);
@@ -203,8 +207,8 @@ namespace XrCode
             mLTCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), levelText);
             bool after8_10 = curLevel > GameDefines.miniLevel_End;
 
-            mWLProgress.gameObject.SetActive(!after8_10 && !GameDefines.ifIAA);
-            if (!after8_10)
+            mWLProgress.gameObject.SetActive(!after8_10 && hostWithdrawUi);
+            if (!after8_10 && hostWithdrawUi)
             {
                 UIGP_LP_Item uIGP_LP_Item;
                 int startLevel;
@@ -223,8 +227,7 @@ namespace XrCode
                     uIGP_LP_Item.CurSign.SetActive(curLevel == i);
                     uIGP_LP_Item.FinishSign.SetActive(curLevel > i);
                     uIGP_LP_Item.levelText.text = i.ToString();
-                    if (!GameDefines.ifIAA)
-                        uIGP_LP_Item.WTip.gameObject.SetActive((i == 1 || i == 2) && curLevel <= i);
+                    uIGP_LP_Item.WTip.gameObject.SetActive((i == 1 || i == 2) && curLevel <= i);
                     if (uIGP_LP_Item.Arrow != null)
                         uIGP_LP_Item.Arrow.gameObject.SetActive(curLevel >= i);
                 }
@@ -241,7 +244,7 @@ namespace XrCode
 
             }
 
-            if (!GameDefines.ifIAA)
+            if (hostWithdrawUi)
             {
                 mCMDialog.gameObject.SetActive(!after8_10);
                 if (!after8_10)
@@ -265,6 +268,7 @@ namespace XrCode
             }
             else
             {
+                mCMDialog.gameObject.SetActive(false);
                 mWPrompt.gameObject.SetActive(false);
                 mCurLevelText.text = string.Format(FacadeLanguage.GetText("10016"), curLevel);
             }
@@ -333,6 +337,26 @@ namespace XrCode
         private Vector3 GetCMDialogTextPos()
         {
             return mCMDialogText.transform.position;
+        }
+
+        private RectTransform GetCashOutBtnRect()
+        {
+            if (mCMBtn == null)
+                return null;
+
+            var btnRect = mCMBtn.transform as RectTransform;
+            if (btnRect == null)
+                return null;
+
+            // CMBtn 热区过小时，用父节点 CurMoney 作为高亮区域（整块 Cash Out）。
+            if (btnRect.rect.width < 100f || btnRect.rect.height < 36f)
+            {
+                var parent = mCMBtn.transform.parent as RectTransform;
+                if (parent != null)
+                    return parent;
+            }
+
+            return btnRect;
         }
 
         /// <summary>
@@ -428,7 +452,7 @@ namespace XrCode
 
 	    private void OnCMBtnClickHandle()
         {
-            UIManager.Instance.OpenAsync<UIWithdrawGoal>(EUIType.EUIWithdrawGoal);
+            WaterSortWZBridge.OpenWithdraw();
         }
 
         private void OnTipExitBtnClickHandle()

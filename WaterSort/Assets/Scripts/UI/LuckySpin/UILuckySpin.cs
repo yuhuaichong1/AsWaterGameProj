@@ -107,6 +107,12 @@ namespace XrCode
 
         protected override void OnEnable()
         {
+            if (WaterSortWZBridge.HostDriven)
+            {
+                UIManager.Instance.CloseUI(EUIType.EUILuckySpin);
+                return;
+            }
+
             mSpinBg.rotation = Quaternion.identity;
             mBlockMask.gameObject.SetActive(false);
 

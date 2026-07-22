@@ -230,7 +230,7 @@ namespace XrCode
             {
                 curCheckInDay = GameDefines.CheckInDay;
             }
-            if(curCheckInDay == GameDefines.CheckInDay)
+            if (!WaterSortWZBridge.HostDriven && curCheckInDay == GameDefines.CheckInDay)
             {
                 FacadeGuide.SetIfTutorial(true);
             }
@@ -478,6 +478,13 @@ namespace XrCode
         /// </summary>
         private void CheckOpenUI(bool b, WithdrawalRecordItem item)
         {
+            // HostDriven：宿主提现录入/确认 UI 关闭，改走 WZ。
+            if (WaterSortWZBridge.HostDriven)
+            {
+                WaterSortWZBridge.OpenWithdraw();
+                return;
+            }
+
             if (string.IsNullOrEmpty(wPhoneOrEmail))
             {
                 UIManager.Instance.OpenAsync<UIWithdrawEnterInfo>(EUIType.EUIWithdrawEnterInfo);
@@ -674,6 +681,14 @@ namespace XrCode
         /// </summary>
         private void AfterCloseWUI()
         {
+            // HostDriven：宿主兑现后续弹窗链（KeepEarn/LuckyPlayer/DateShow）全部关闭。
+            if (WaterSortWZBridge.HostDriven)
+            {
+                ifAfterCreate = false;
+                FacadeGamePlay.CreateLevel?.Invoke();
+                return;
+            }
+
             if(ifAfterCreate)
             {
                 ifAfterCreate = false;

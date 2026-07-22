@@ -9,7 +9,8 @@
             UIManager.Instance.OpenAsync<UIGamePlay>(EUIType.EUIGamePlay, UIOpenType.None, (BaseUI) =>
             {
                 UIManager.Instance.OpenAsync<UIEffect>(EUIType.EUIEffect);
-                UIManager.Instance.OpenAsync<UIGuide>(EUIType.EUIGuide);
+                if (!WaterSortWZBridge.HostDriven)
+                    UIManager.Instance.OpenAsync<UIGuide>(EUIType.EUIGuide);
                 FacadeAudio.PlayBgm();
             });
         }

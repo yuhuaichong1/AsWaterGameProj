@@ -48,6 +48,11 @@ namespace XrCode
         {
             HideAnim(mPlane, () => {
                 UIManager.Instance.CloseUI(EUIType.EUISetting);
+                if (WaterSortWZBridge.HostDriven)
+                {
+                    WaterSortWZBridge.OpenWithdrawHistory();
+                    return;
+                }
                 UIManager.Instance.OpenAsync<UIWithdrawRecords>(EUIType.EUIWithdrawRecords);
             });
         }

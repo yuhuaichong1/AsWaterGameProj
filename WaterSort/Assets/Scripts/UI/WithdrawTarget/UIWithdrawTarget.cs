@@ -24,6 +24,13 @@ namespace XrCode
 
         protected override void OnEnable()
         {
+            if (WaterSortWZBridge.HostDriven)
+            {
+                UIManager.Instance.CloseUI(EUIType.EUIWithdrawTarget);
+                clickAction?.Invoke();
+                return;
+            }
+
             switch (curOpenType)
             {
                 case UIWTOpenType.FirstTarget:

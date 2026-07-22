@@ -76,6 +76,21 @@ namespace XrCode
 
         public void Start()
         {
+            LoadAllModules();
+            sceneMod.LoadScene(ESceneType.MainScene);
+        }
+
+        /// <summary>
+        /// 在当前场景就地启动（用于 WZ Game2 入口），不卸载当前场景去加载宿主 Game.unity。
+        /// </summary>
+        public void StartInPlace()
+        {
+            LoadAllModules();
+            OpenHostGameplayUi();
+        }
+
+        private void LoadAllModules()
+        {
             languageMod.Load();
             isLoaded = true;
             notifyMod.Load();
@@ -90,7 +105,18 @@ namespace XrCode
             sceneMod.Load();
             adModule.Load();
             withdrawalModule.Load();
-            sceneMod.LoadScene(ESceneType.MainScene);
+        }
+
+        private void OpenHostGameplayUi()
+        {
+            UIManager.Instance.OpenAsync<UIGamePlay>(EUIType.EUIGamePlay, UIOpenType.None, (BaseUI) =>
+            {
+                UIManager.Instance.OpenAsync<UIEffect>(EUIType.EUIEffect);
+                // HostDriven：宿主 UIGuide 不用加载，引导由 WZ Tutorial 接管。
+                if (!WaterSortWZBridge.HostDriven)
+                    UIManager.Instance.OpenAsync<UIGuide>(EUIType.EUIGuide);
+                FacadeAudio.PlayBgm();
+            });
         }
 
         public void Update()

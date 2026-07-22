@@ -11,30 +11,31 @@ public class SGuidePenetrate : MonoBehaviour, IPointerClickHandler, IPointerDown
 
     void Awake()
     {
-        penetrateObjs = new List<RectTransform>();
+        // Keep prefab-serialized penetrate targets (WZ Tutorial relies on them).
+        if (penetrateObjs == null)
+            penetrateObjs = new List<RectTransform>();
         mask = GetComponent<Image>();
     }
-
 
     public void OnPointerClick(PointerEventData eventData)
     {
         foreach (var penetrateObj in penetrateObjs)
         {
+            if (penetrateObj == null)
+                continue;
+
             if (RectTransformUtility.RectangleContainsScreenPoint(penetrateObj, eventData.position, eventData.pressEventCamera))
             {
-                // 如果点击在目标区域内，则传递事件
                 ExecuteEvents.Execute(penetrateObj.gameObject, eventData, ExecuteEvents.pointerClickHandler);
-
-                FacadeGuide.NextStep();
-
+                AdvanceGuide();
                 return;
             }
         }
 
-        // 其他区域保持原有行为
+        // Other areas keep original behavior
         if (mask != null && mask.raycastTarget)
         {
-            // 这里可以添加A被点击时的逻辑
+            // Mask click absorbed; no advance.
         }
     }
 
@@ -42,18 +43,23 @@ public class SGuidePenetrate : MonoBehaviour, IPointerClickHandler, IPointerDown
     {
         foreach (var penetrateObj in penetrateObjs)
         {
+            if (penetrateObj == null)
+                continue;
+
             if (RectTransformUtility.RectangleContainsScreenPoint(penetrateObj, eventData.position, eventData.pressEventCamera))
             {
                 ExecuteEvents.Execute(penetrateObj.gameObject, eventData, ExecuteEvents.pointerDownHandler);
             }
         }
-        
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
         foreach (var penetrateObj in penetrateObjs)
         {
+            if (penetrateObj == null)
+                continue;
+
             if (RectTransformUtility.RectangleContainsScreenPoint(penetrateObj, eventData.position, eventData.pressEventCamera))
             {
                 ExecuteEvents.Execute(penetrateObj.gameObject, eventData, ExecuteEvents.pointerUpHandler);
@@ -61,4 +67,16 @@ public class SGuidePenetrate : MonoBehaviour, IPointerClickHandler, IPointerDown
         }
     }
 
+    private static void AdvanceGuide()
+    {
+        // WZ Goal/Withdraw tutorial owns the click when active.
+        var wzTutorial = WZSDK.Tutorial.instance;
+        if (wzTutorial != null && wzTutorial.isActiveAndEnabled)
+        {
+            wzTutorial.ExecuteCurrentStepCallback();
+            return;
+        }
+
+        FacadeGuide.NextStep?.Invoke();
+    }
 }

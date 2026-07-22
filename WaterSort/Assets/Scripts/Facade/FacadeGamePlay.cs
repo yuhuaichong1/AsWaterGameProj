@@ -29,6 +29,7 @@ namespace XrCode
 
         public static Action SetCurMoneyShow;                                           //设置当前金钱数的显示
         public static Func<Vector3> GetCMDialogTextPos;                                 //获取关卡目标提示框位置
+        public static Func<RectTransform> GetCashOutBtnRect;                            //获取 Cash Out(CMBtn) 区域
         public static Action SetProp1CountShow;                                         //设置道具1“添加额外格子”的显示
         public static Action SetProp2CountShow;                                         //设置道具2“清理”的显示
         public static Action SetProp3CountShow;                                         //设置道具3“锤子”的显示

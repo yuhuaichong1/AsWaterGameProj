@@ -20,6 +20,12 @@ namespace XrCode
         }
         protected override void OnEnable()
         {
+            if (WaterSortWZBridge.HostDriven)
+            {
+                UIManager.Instance.CloseUI(EUIType.EUILuckyReward);
+                return;
+            }
+
             curCompletedMoney = FacadeWithdraw.GetLuckyReward();
             curOnlyMoney = curCompletedMoney / 10;
             mMoneyText.text = $"+{FacadePayType.RegionalChange(curCompletedMoney)}";

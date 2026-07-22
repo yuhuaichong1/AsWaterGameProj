@@ -1,0 +1,16 @@
+﻿<Project>
+  <PropertyGroup>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+  </PropertyGroup>
+  <!-- Firebase net472 DLLs are dropped under Unity's netstandard csproj profile; force them back for compile checks. -->
+  <Target Name="ForceIncludeFirebaseAssemblies" AfterTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <_FirebaseForce Include="$(MSBuildProjectDirectory)\Assets\WZ\Firebase\Plugins\Google.MiniJson.dll" />
+      <_FirebaseForce Include="$(MSBuildProjectDirectory)\Assets\WZ\Firebase\Plugins\Firebase.Platform.dll" />
+      <_FirebaseForce Include="$(MSBuildProjectDirectory)\Assets\WZ\Firebase\Plugins\Firebase.App.dll" />
+      <_FirebaseForce Include="$(MSBuildProjectDirectory)\Assets\WZ\Firebase\Plugins\Firebase.TaskExtension.dll" />
+      <_FirebaseForce Include="$(MSBuildProjectDirectory)\Assets\WZ\Firebase\Plugins\Firebase.Messaging.dll" />
+      <ReferencePath Include="@(_FirebaseForce)" Condition="Exists('%(Identity)')" />
+    </ItemGroup>
+  </Target>
+</Project>

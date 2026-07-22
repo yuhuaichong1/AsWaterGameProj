@@ -27,6 +27,13 @@ namespace XrCode
 
         protected override void OnEnable()
         {
+            // 宿主兑现目标页已弃用：优先跳转 WZ WithDraw。
+            if (WaterSortWZBridge.TryOpenWithdraw())
+            {
+                UIManager.Instance.CloseUI(EUIType.EUIWithdrawGoal);
+                return;
+            }
+
             mBlanceMoney.text = FacadePayType.RegionalChange(FacadePlayer.GetMoney());
 
             FacadeWithdraw.ActionByCurWTarget((value) => 

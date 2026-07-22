@@ -36,6 +36,7 @@ public class GuideModule : BaseModule
         FacadeGuide.GetIfTutorial += GetIfTutorial;
         FacadeGuide.SetIfTutorial += SetIfTutorial;
         FacadeGuide.PlayGuideByTargetType += PlayGuideByTargetType;
+        FacadeGuide.PlayLevel1PourTutorial += PlayLevel1PourTutorial;
     }
 
     private void FacadeRemove()
@@ -47,6 +48,7 @@ public class GuideModule : BaseModule
         FacadeGuide.GetIfTutorial -= GetIfTutorial;
         FacadeGuide.SetIfTutorial -= SetIfTutorial;
         FacadeGuide.PlayGuideByTargetType -= PlayGuideByTargetType;
+        FacadeGuide.PlayLevel1PourTutorial -= PlayLevel1PourTutorial;
     }
 
     #endregion
@@ -56,6 +58,16 @@ public class GuideModule : BaseModule
     /// </summary>
     private void GetData()
     {
+        // HostDriven：强制关闭宿主引导，旧存档 ifTutorial 也不再生效。
+        if (WaterSortWZBridge.HostDriven)
+        {
+            ifTutorial = false;
+            curStep = GameDefines.firstGuideId;
+            SPlayerPrefs.SetBool(PlayerPrefDefines.ifTutorial, false);
+            SPlayerPrefs.Save();
+            return;
+        }
+
         ifTutorial = SPlayerPrefs.GetBool(PlayerPrefDefines.ifTutorial, true);    
         curStep = SPlayerPrefs.GetInt(PlayerPrefDefines.curStep);
         if (curStep == 0) curStep = GameDefines.firstGuideId;
@@ -109,6 +121,9 @@ public class GuideModule : BaseModule
     /// </summary>
     private void NextStep()
     {
+        if (WaterSortWZBridge.HostDriven)
+            return;
+
         if (curGuideItems.ifNextStep && !CheckGuideEnd())
         {
             FacadeGuide.RestorePreOnMaskObjs?.Invoke();
@@ -228,6 +243,8 @@ public class GuideModule : BaseModule
     /// <returns>当前是否处于引导状态</returns>
     private bool GetIfTutorial()
     {
+        if (WaterSortWZBridge.HostDriven)
+            return false;
         return ifTutorial;
     }
 
@@ -237,6 +254,8 @@ public class GuideModule : BaseModule
     /// <param name="b">当前是否处于引导状态</param>
     private void SetIfTutorial(bool b)
     {
+        if (WaterSortWZBridge.HostDriven)
+            b = false;
         ifTutorial = b;
         SPlayerPrefs.SetBool(PlayerPrefDefines.ifTutorial, ifTutorial);
         SPlayerPrefs.Save();
@@ -288,6 +307,13 @@ public class GuideModule : BaseModule
     /// </summary>
     private void PlayGuideByTargetType()
     {
+        // HostDriven：宿主兑现引导链关闭，直接进入关卡。
+        if (WaterSortWZBridge.HostDriven)
+        {
+            FacadeGamePlay.CreateLevel?.Invoke();
+            return;
+        }
+
         FacadeWithdraw.ActionByCurWTarget((value) =>
         {
             if(value == 1)
@@ -393,12 +419,77 @@ public class GuideModule : BaseModule
     private void PlayGuideByTargetType2()
     {
         FacadeGamePlay.CreateLevel();
+        PlayLevel1PourTutorial();
+    }
+
+    private int _level1PourTutorialWaitAttempts;
+
+    /// <summary>
+    /// 只播第1关倒水引导（10001），不打开宿主兑现目标/Goal 页。
+    /// </summary>
+    private void PlayLevel1PourTutorial()
+    {
+        // 开场 Welcome / kaiju 未关时不播，避免指到空白文案上。
+        if (IsLevel1IntroBlocking())
+        {
+            FacadeGuide.CloseGuide?.Invoke();
+            if (++_level1PourTutorialWaitAttempts > 240) // ~60s
+            {
+                _level1PourTutorialWaitAttempts = 0;
+                FacadeGuide.CloseGuide?.Invoke();
+                return; // 等用户点 Start Game，不再自动放行
+            }
+            STimerManager.Instance.CreateSDelay(0.25f, PlayLevel1PourTutorial);
+            return;
+        }
+
+        _level1PourTutorialWaitAttempts = 0;
+
+        var cupPart = FacadeGamePlay.GetCupPart?.Invoke();
+        if (cupPart == null || cupPart.childCount == 0)
+        {
+            STimerManager.Instance.CreateSDelay(0.25f, PlayLevel1PourTutorial);
+            return;
+        }
+
+        ifTutorial = true;
+        SPlayerPrefs.SetBool(PlayerPrefDefines.ifTutorial, true);
+        SPlayerPrefs.Save();
+
         STimerManager.Instance.CreateSDelay(0.2f, () =>
         {
+            if (IsLevel1IntroBlocking())
+            {
+                PlayLevel1PourTutorial();
+                return;
+            }
+
             curStep = 10001;
             SetCurGuideItems(curStep);
-            FacadeGuide.PlayGuide();
+            if (FacadeGuide.PlayGuide == null)
+            {
+                STimerManager.Instance.CreateSDelay(0.2f, () =>
+                {
+                    curStep = 10001;
+                    SetCurGuideItems(curStep);
+                    FacadeGuide.PlayGuide?.Invoke();
+                });
+            }
+            else
+            {
+                FacadeGuide.PlayGuide();
+            }
         });
+    }
+
+    private static bool IsLevel1IntroBlocking()
+    {
+        // 第1关：没点 Start Game 前一律拦截（含 GM/开场页尚未创建的窗口期）。
+        int level = FacadePlayer.GetLevel?.Invoke() ?? 1;
+        if (level <= 1 && !WaterSortWZBridge.Level1IntroDismissed && !GameDefines.ifIAA)
+            return true;
+
+        return WaterSortWZBridge.IsLevel1IntroUiOpen();
     }
 
     private void PlayGuideByTargetType3()

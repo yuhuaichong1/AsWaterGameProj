@@ -146,13 +146,40 @@ namespace XrCode
         /// </summary>
         private void StartLevel()
         {
+            // 第2关后：先引导 + Mission，CreateLevel 延后到 Mission Continue。
+            if (WaterSortWZBridge.ShouldDeferHostLevelCreate())
+            {
+                return;
+            }
+
+            // HostDriven：WZ 接管全部引导，直接开局。
+            if (WaterSortWZBridge.HostDriven)
+            {
+                if (FacadeGuide.GetIfTutorial?.Invoke() == true)
+                    FacadeGuide.SetIfTutorial?.Invoke(false);
+                CreateLevel();
+                return;
+            }
+
+            // Game2：兑现引导走 WZ；第1关倒水教程必须等 Start Game。
+            if (WaterSortWZBridge.IsWzEntryScene())
+            {
+                CreateLevel();
+                // 仅在已点过 Start Game 后才允许播倒水引导；否则完全交给 kaiju 关闭回调。
+                if (ShouldStartLevel1PlayTutorial() && WaterSortWZBridge.Level1IntroDismissed)
+                    StartLevel1PlayTutorial();
+                else
+                    FacadeGuide.CloseGuide?.Invoke();
+                return;
+            }
+
             if(FacadeGuide.GetIfTutorial())
             {
                 FacadeGuide.PlayGuideByTargetType();
             }
             else
             {
-                if(GameDefines.ifIAA)
+                if (GameDefines.ifIAA)
                 {
                     CreateLevel();
                     return;
@@ -185,6 +212,28 @@ namespace XrCode
                 //CreateLevel();
             }
         }
+
+        private bool ShouldStartLevel1PlayTutorial()
+        {
+            int level = FacadePlayer.GetLevel?.Invoke() ?? 1;
+            if (level > 1)
+                return false;
+
+            if (FacadeGuide.GetIfTutorial?.Invoke() == true)
+                return true;
+
+            int step = FacadeGuide.GetCurStep?.Invoke() ?? 0;
+            return step == 0 || step == GameDefines.firstGuideId || step == 10001;
+        }
+
+        /// <summary>
+        /// 仅启动第1关倒水游玩引导（不走宿主 FirstTarget / WithdrawGoal 兑现链）。
+        /// </summary>
+        private void StartLevel1PlayTutorial()
+        {
+            FacadeGuide.PlayLevel1PourTutorial?.Invoke();
+        }
+
         private void CreateLevel()
         {
 
@@ -216,6 +265,7 @@ namespace XrCode
             BeginCheckPack();
 
             status = GameStatus.Gaming;
+            WaterSortWZBridge.ReportSessionStart(curLevelIndex);
 
             if (curLevelIndex > 3)
             {
@@ -627,6 +677,10 @@ namespace XrCode
         /// </summary>
         private void CheckOpenLuckySpin()
         {
+            // 以 WZ 为准：关闭宿主转盘
+            if (WaterSortWZBridge.HostDriven)
+                return;
+
             if (curLevelIndex > 3)
                 LSCount++;
 
@@ -647,6 +701,10 @@ namespace XrCode
         /// </summary>
         private void CheckOpenLuckyReward()
         {
+            // 以 WZ 为准：关闭宿主幸运奖励
+            if (WaterSortWZBridge.HostDriven)
+                return;
+
             if(curLevelIndex > 3)
             {
                 LRPauseTimer.ReStart();
@@ -742,6 +800,7 @@ namespace XrCode
 
             AddFlyMoney(pocket.transform);
             _collected++;
+            WaterSortWZBridge.ReportBottlePacked();
             FacadeGamePlay.AbleProp3Btn(GetEmptySlotId() != null);
             SchedulePocketPack(pocket, packedColor);
         }
@@ -775,6 +834,10 @@ namespace XrCode
 
         private void AddFlyMoney(Transform startPos)
         {
+            // HostDriven：货币/兑现由 WZ 接管，宿主不再加钱、不飞宿主余额。
+            if (WaterSortWZBridge.HostDriven)
+                return;
+
             //float moneyCount = GameDefines.ifIAA ? GameDefines.IAA_Elimination_Money : GameDefines.Elimination_Money;
             float moneyCount = FacadeWithdraw.GetEliminationReward();
             FacadePlayer.AddMoney(moneyCount);
@@ -809,19 +872,29 @@ namespace XrCode
 
             NetworkModule.Instance.GetNetworkInitInfo2(() => 
             {
-                UIManager.Instance.OpenAsync<UILevelCompleted>(EUIType.EUILevelCompleted, UIOpenType.None, null, curLevelIndex);
-                FacadePlayer.AddLevel(1);
-                Game.Instance.UILoadingWaiting.gameObject.SetActive(false);
-                Game.Instance.UILoadingWaiting.StopTextAnim();
+                WaterSortWZBridge.ReportSessionComplete(curLevelIndex, true);
+                if (Game.Instance != null && Game.Instance.UILoadingWaiting != null)
+                {
+                    Game.Instance.UILoadingWaiting.gameObject.SetActive(false);
+                    Game.Instance.UILoadingWaiting.StopTextAnim();
+                }
             }, () =>
             {
-                Game.Instance.UILoadingWaiting.gameObject.SetActive(true);
-                Game.Instance.UILoadingWaiting.StartTextAnim();
+                if (Game.Instance != null && Game.Instance.UILoadingWaiting != null)
+                {
+                    Game.Instance.UILoadingWaiting.gameObject.SetActive(true);
+                    Game.Instance.UILoadingWaiting.StartTextAnim();
+                }
             });
         }
 
         private void IfLevelGuide()
         {
+            // HostDriven / Game2：过关后的兑现引导由 WZ 负责，勿再打开宿主 ifTutorial，
+            // 否则第1关 Goal1 结束后 StartLevel 会误走宿主链弹出 Goal2。
+            if (WaterSortWZBridge.HostDriven || WaterSortWZBridge.IsWzEntryScene())
+                return;
+
             if(FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.PassLevel && !GameDefines.ifIAA)
             {
                 if (curLevelIndex == 1 || curLevelIndex == 2 || curLevelIndex == GameDefines.miniLevel_End)

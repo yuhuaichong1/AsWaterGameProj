@@ -75,7 +75,7 @@ namespace XrCode
             }
             gameState = EGameState.Start;
 
-            UILoadingWaiting.StartTextAnim();
+            UILoadingWaiting?.StartTextAnim();
         }
 
         private void RegistPreloadFunc(out System.Action ac)
@@ -99,8 +99,11 @@ namespace XrCode
             if (preloadCount == 0)
             {
                 D.Error("[Game]: 资源加载完成");
-                UILoadingWaiting.StopTextAnim();
-                ModuleMgr.Instance.Start();
+                UILoadingWaiting?.StopTextAnim();
+                if (WaterSortWZBridge.IsWzEntryScene())
+                    ModuleMgr.Instance.StartInPlace();
+                else
+                    ModuleMgr.Instance.Start();
                 gameState = EGameState.Run;
             }
         }

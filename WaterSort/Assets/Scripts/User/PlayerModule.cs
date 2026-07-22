@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
+using WZSDK;
 namespace XrCode
 {
     // 用户模块
@@ -150,6 +151,10 @@ namespace XrCode
             money += value;
             SPlayerPrefs.SetDouble(PlayerPrefDefines.money, money);
             SPlayerPrefs.Save();
+
+            // HostDriven：宿主兑现引导关闭，金额目标由 WZ 阶段推进。
+            if (WaterSortWZBridge.HostDriven)
+                return;
 
             if(money >= FacadeWithdraw.GetWTarget() && FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.AmountOfMoney)
             {

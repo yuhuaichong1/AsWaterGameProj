@@ -121,7 +121,7 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
     buildTarget: Android
-    maxTextureSize: 1024
+    maxTextureSize: 512
     resizeAlgorithm: 0
     textureFormat: 51
     textureCompression: 1
@@ -162,5 +162,5 @@ TextureImporter:
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
-  assetBundleName: assets/assetbundlelocal/sprites/ui/money/big/img_coins.png.assetbundle
+  assetBundleName: assets/assetbundlelocal/prefabs/ui/luckyreward/uiluckyreward.prefab.assetbundle
   assetBundleVariant: 

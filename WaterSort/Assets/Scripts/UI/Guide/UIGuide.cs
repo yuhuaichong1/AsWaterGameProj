@@ -271,6 +271,16 @@ namespace XrCode
             if (!FacadeGuide.GetIfTutorial())
                 return;
 
+            // 开场 Welcome 未点 Start Game 前，禁止弹出倒水引导。
+            if (!WaterSortWZBridge.Level1IntroDismissed
+                && !GameDefines.ifIAA
+                && (FacadePlayer.GetLevel?.Invoke() ?? 1) <= 1
+                && WaterSortWZBridge.IsWzEntryScene())
+            {
+                CloseGuide();
+                return;
+            }
+
             //TDAnalyticsManager.GuideStep(FacadeGuide.GetCurStep());
 
             mGuidePlane.gameObject.SetActive(true);

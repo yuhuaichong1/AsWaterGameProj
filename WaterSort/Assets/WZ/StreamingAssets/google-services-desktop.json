@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "111117125121",
+    "firebase_url": "https://line-master-pro-default-rtdb.firebaseio.com",
+    "project_id": "line-master-pro",
+    "storage_bucket": "line-master-pro.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:111117125121:android:a134c66bc3f5b7f8c6e200",
+        "android_client_info": {
+          "package_name": "com.arrowout.linemasterpro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBc6CucuaYCdorim4UD_nWLCaPRhUCuHI0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
