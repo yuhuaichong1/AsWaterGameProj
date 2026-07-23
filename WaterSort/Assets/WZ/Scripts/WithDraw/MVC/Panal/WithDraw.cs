@@ -192,7 +192,9 @@ namespace WZSDK
 
             GameManagerWZ.instance.TrySyncStageProgress(num);
 
-            // Goal2：引导结束后进 WithdrawMissionView，不进 Process1；关卡等 Mission Continue 再加载。
+            // Goal2：
+            // - 第一关已填邮箱 → 点 WithDraw 应出 Process1，Continue 后再进 Mission
+            // - 第一关未填邮箱 → 先绑邮箱（Method），再进 Mission（不进 Process1）
             if (num == 2 || (GameManagerWZ.instance != null && GameManagerWZ.instance.Stage2CashGuidePending))
             {
                 GameManagerWZ.instance?.CloseActiveTutorial();
@@ -207,8 +209,8 @@ namespace WZSDK
                     return;
                 }
 
+                GameApp.viewManager.Open(ViewType.WithDrawProcess1, dataModel);
                 GameApp.viewManager.Close(ViewId);
-                GameManagerWZ.instance?.FinishStage2CashGuideAndShowMission();
                 return;
             }
 

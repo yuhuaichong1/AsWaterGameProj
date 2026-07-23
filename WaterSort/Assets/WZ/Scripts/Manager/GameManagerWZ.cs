@@ -101,6 +101,28 @@ namespace WZSDK
         public bool DeferHostLevelLoad => deferHostLevelLoad;
 
         /// <summary>
+        /// Stage3 广告次数达标后：先弹 LuckyWallet，确认后再弹 WithdrawMissionView。
+        /// </summary>
+        private bool pendingStage3WithdrawMissionAfterLuckyWallet;
+
+        /// <summary>
+        /// Stage3 达标链路进行中（LuckyWallet→Mission→Feedback→Slot），禁止自动进 Stage4 / 抢弹。
+        /// </summary>
+        private bool stage3CompletionFlowActive;
+
+        /// <summary>
+        /// Stage3 达标广告是否来自通关激励视频；Slot 流程结束后若为 true 则 NextLevel。
+        /// </summary>
+        private bool stage3CompletionFromLevelClearAd;
+
+        public bool PendingStage3WithdrawMissionAfterLuckyWallet => pendingStage3WithdrawMissionAfterLuckyWallet;
+        public bool Stage3CompletionFromLevelClearAd => stage3CompletionFromLevelClearAd;
+        public bool IsStage3CompletionFlowActive =>
+            stage3CompletionFlowActive
+            || pendingStage3WithdrawMissionAfterLuckyWallet
+            || stage3CompletionFromLevelClearAd;
+
+        /// <summary>
         /// 阶段兑现（如 Goal1 WithDraw）已接管过关表现时，跳过紧随其后的通关成功页。
         /// </summary>
         private bool replaceSuccessWithWithdraw;
@@ -559,6 +581,10 @@ namespace WZSDK
                 return;
             }
 
+            // Stage3（看广告）达标后必须走 LuckyWallet→Mission→Feedback→Slot，禁止自动进 Stage4。
+            if (stageId == Stage3Id || IsAdWatchStage(stageId))
+                return;
+
             TryEnterNextStage();
         }
 
@@ -802,6 +828,10 @@ namespace WZSDK
 
         void CheckCoinStageProgress()
         {
+            // Slot/Progress 流程中不要因金币已达标立刻跳过 Stage4。
+            if (isProcessingStage4SlotFlow)
+                return;
+
             while (IsCoinStage(currentStage)
                 && ShouldAutoEnterNextStage(currentStage)
                 && IsStageCompleted(currentStage))
@@ -931,13 +961,24 @@ namespace WZSDK
             if (GameDefines.ifIAA
                 || stageId != Stage4Id
                 || UIManager.instance == null
-                || IsStageCompleted(stageId)
                 || PlayerPrefs.GetInt(FacadePlayerPrefExtend.HasShownStage4, 0) != 0
                 || UIManager.instance.HasActiveView(EUIType.TargetWithdrawView)
-                || UIManager.instance.HasActiveView(EUIType.SlotView))
+                || UIManager.instance.HasActiveView(EUIType.SlotView)
+                || stage3CompletionFlowActive
+                || pendingStage3WithdrawMissionAfterLuckyWallet
+                || UIManager.instance.HasActiveView(EUIType.LuckyWalletView)
+                || UIManager.instance.HasActiveView(EUIType.WithdrawMissionView))
             {
                 return;
             }
+
+            ShowStage4SlotView();
+        }
+
+        void ShowStage4SlotView()
+        {
+            if (UIManager.instance == null || UIManager.instance.HasActiveView(EUIType.SlotView))
+                return;
 
             PlayerPrefs.SetInt(FacadePlayerPrefExtend.HasShownStage4, 1);
             PlayerPrefs.Save();
@@ -953,12 +994,124 @@ namespace WZSDK
             isProcessingStage4SlotFlow = true;
         }
 
+        /// <summary>
+        /// WithdrawFeedbackView 关闭后：进 Stage4 并强制弹出 SlotView。
+        /// </summary>
+        public void CompleteStage3FeedbackAndShowSlot()
+        {
+            stage3CompletionFlowActive = false;
+            pendingStage3WithdrawMissionAfterLuckyWallet = false;
+
+            // 先占住 Slot 流程，避免进 Stage4 后因金币已达标被 CheckCoin 立刻推到 Stage5。
+            BeginStage4SlotFlow();
+
+            if (currentStage == Stage3Id && IsStageCompleted(Stage3Id))
+                TryEnterNextStage();
+
+            if (currentStage != Stage4Id)
+            {
+                isProcessingStage4SlotFlow = false;
+                return;
+            }
+
+            // Feedback 路径必须出 Slot；忽略可能因旧逻辑误写的 HasShownStage4。
+            ShowStage4SlotView();
+        }
+
+        /// <summary>
+        /// WithdrawFeedbackView 关闭后：解除 Slot 拦截（兼容旧调用）。
+        /// </summary>
+        public void AllowStage4SlotAfterStage3Feedback()
+        {
+            stage3CompletionFlowActive = false;
+            pendingStage3WithdrawMissionAfterLuckyWallet = false;
+        }
+
         public void CompleteStage4SlotFlow()
         {
             isProcessingStage4SlotFlow = false;
+            stage3CompletionFlowActive = false;
 
             if (currentStage == Stage5Id)
                 TryShowStage5CompensationLuckySpin(Stage5Id);
+
+            // Stage3 达标链路结束：通关广告则进下一关，否则留在当前关继续玩。
+            if (stage3CompletionFromLevelClearAd)
+            {
+                stage3CompletionFromLevelClearAd = false;
+                NextLevel();
+            }
+            else
+            {
+                // Slot 结束后若 Stage4 金币已达标，再允许自动推进。
+                CheckCoinStageProgress();
+            }
+        }
+
+        /// <summary>
+        /// 通关成功页：Stage3 达标链路未走完时，暂不 NextLevel（等 Slot 结束后再进）。
+        /// </summary>
+        public bool ShouldDeferNextLevelForStage3CompletionFlow()
+        {
+            return !GameDefines.ifIAA
+                   && (IsStage3CompletionFlowActive
+                       || (currentStage == Stage3Id && IsStageCompleted(Stage3Id)));
+        }
+
+        /// <summary>
+        /// Stage3 广告次数刚达标：弹出 LuckyWalletView，玩家确认后再进 Mission。
+        /// </summary>
+        public void NotifyStage3AdTargetReached(bool fromLevelClearAd)
+        {
+            if (GameDefines.ifIAA || currentStage != Stage3Id || !IsStageCompleted(Stage3Id))
+                return;
+
+            if (fromLevelClearAd)
+                stage3CompletionFromLevelClearAd = true;
+
+            stage3CompletionFlowActive = true;
+
+            if (UIManager.instance == null)
+                return;
+
+            // 已进入 Feedback / Slot 链路后半段，不再重弹 LuckyWallet。
+            if (UIManager.instance.HasActiveView(EUIType.WithdrawFeedbackView)
+                || UIManager.instance.HasActiveView(EUIType.SlotView)
+                || UIManager.instance.HasActiveView(EUIType.ProgressView))
+            {
+                return;
+            }
+
+            if (UIManager.instance.HasActiveView(EUIType.LuckyWalletView)
+                || pendingStage3WithdrawMissionAfterLuckyWallet)
+            {
+                return;
+            }
+
+            // 达标前可能已开着 Mission：先关掉，确保 LuckyWallet 优先。
+            if (UIManager.instance.HasActiveView(EUIType.WithdrawMissionView))
+                UIManager.instance.CloseView(EUIType.WithdrawMissionView);
+
+            pendingStage3WithdrawMissionAfterLuckyWallet = true;
+            UIManager.instance.ShowView(EUIType.LuckyWalletView);
+        }
+
+        /// <summary>
+        /// LuckyWallet 确认/关闭后：打开 WithdrawMissionView。
+        /// </summary>
+        public void OpenWithdrawMissionAfterLuckyWalletIfPending()
+        {
+            if (!pendingStage3WithdrawMissionAfterLuckyWallet)
+                return;
+
+            pendingStage3WithdrawMissionAfterLuckyWallet = false;
+            stage3CompletionFlowActive = true;
+
+            if (UIManager.instance == null)
+                return;
+
+            if (!UIManager.instance.HasActiveView(EUIType.WithdrawMissionView))
+                UIManager.instance.ShowView(EUIType.WithdrawMissionView);
         }
 
         void OnCoinResourceChanged()

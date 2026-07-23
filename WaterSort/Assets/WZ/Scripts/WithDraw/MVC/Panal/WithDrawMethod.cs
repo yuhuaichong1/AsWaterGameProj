@@ -52,9 +52,15 @@ namespace WZSDK
             money = dataModel.Money;
             num = dataModel.Num;
 
-            string savedName = string.IsNullOrEmpty(dataModel.Name) ? GameManagerWZ.instance.getPlayerName() : dataModel.Name;
-            string savedPhone = string.IsNullOrEmpty(dataModel.Phone) ? GameManagerWZ.instance.getPlayerPhone() : dataModel.Phone;
-            string savedEmail = string.IsNullOrEmpty(dataModel.Email) ? GameManagerWZ.instance.getPlayerEmail() : dataModel.Email;
+            string savedName = string.IsNullOrEmpty(dataModel.Name)
+                ? (GameManagerWZ.instance != null ? GameManagerWZ.instance.getPlayerName() : string.Empty)
+                : dataModel.Name;
+            string savedPhone = string.IsNullOrEmpty(dataModel.Phone)
+                ? (GameManagerWZ.instance != null ? GameManagerWZ.instance.getPlayerPhone() : string.Empty)
+                : dataModel.Phone;
+            string savedEmail = string.IsNullOrEmpty(dataModel.Email)
+                ? (GameManagerWZ.instance != null ? GameManagerWZ.instance.getPlayerEmail() : string.Empty)
+                : dataModel.Email;
             int savedIndex = 3;
 
             playerName = savedName ?? string.Empty;
@@ -271,8 +277,11 @@ namespace WZSDK
         {
             if (string.IsNullOrEmpty(emailAddr))
             {
-                panelE.SetActive(true);
-                StartCoroutine(DelayedAction());
+                if (panelE != null)
+                {
+                    panelE.SetActive(true);
+                    StartCoroutine(DelayedAction());
+                }
                 Debug.Log("邮件为空！");
                 return;
             }
@@ -280,8 +289,11 @@ namespace WZSDK
             string cleanEmail = SanitizeEmailInput(emailAddr);
             if (!IsValidComEmail(cleanEmail))
             {
-                panelE.SetActive(true);
-                StartCoroutine(DelayedAction());
+                if (panelE != null)
+                {
+                    panelE.SetActive(true);
+                    StartCoroutine(DelayedAction());
+                }
                 Debug.Log("邮箱格式错误！");
                 return;
             }
@@ -292,11 +304,14 @@ namespace WZSDK
                 emailInputField.SetTextWithoutNotify(cleanEmail);
             }
 
+            if (dataModel == null)
+                dataModel = new DataModel();
+
             dataModel.Email = emailAddr;
             dataModel.Phone = string.Empty;
             dataModel.Index = 3;
-            GameManagerWZ.instance.SavePlayerEmail(emailAddr);
-            GameManagerWZ.instance.SavePlayerIndex(3);
+            GameManagerWZ.instance?.SavePlayerEmail(emailAddr);
+            GameManagerWZ.instance?.SavePlayerIndex(3);
 
             if (ShouldSubmitRetryWithdrawOnExit())
             {
@@ -327,7 +342,8 @@ namespace WZSDK
         IEnumerator DelayedAction()
         {
             yield return new WaitForSeconds(2.0f); // 等待2秒
-            panelE.SetActive(false);
+            if (panelE != null)
+                panelE.SetActive(false);
         }
 
         public void OnButtonClickQues()
@@ -364,6 +380,13 @@ namespace WZSDK
             if (ShouldCloseWithoutAdvance())
             {
                 GameApp.viewManager.Close(ViewId);
+                // Stage3 Mission 绑邮箱中途关闭：回到 Mission，再次点击可继续。
+                if (dataModel != null && dataModel.Special == DataModel.SpecialWithdrawMissionBindEmail
+                    && UIManager.instance != null
+                    && !UIManager.instance.HasActiveView(EUIType.WithdrawMissionView))
+                {
+                    UIManager.instance.ShowView(EUIType.WithdrawMissionView);
+                }
                 return;
             }
 

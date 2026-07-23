@@ -470,10 +470,11 @@
             if (gameManager != null
                 && gameManager.currentStage == 3
                 && UIManager.instance != null
-                && currentRewardShouldAutoShowWithdrawMissionView
-                && !UIManager.instance.HasActiveView(EUIType.WithdrawMissionView))
+                && gameManager.IsStageCompleted(3))
             {
-                UIManager.instance.ShowView(EUIType.WithdrawMissionView);
+                bool fromClearAd = currentRewardType == "challenge_success_reward"
+                                   || currentRewardType == "reward_success_reward";
+                gameManager.NotifyStage3AdTargetReached(fromClearAd);
             }
 
             currentRewardedCallback?.Invoke(true);
@@ -577,10 +578,10 @@
             if (gameManager != null
                 && gameManager.currentStage == 3
                 && UIManager.instance != null
-                && currentRefuseShouldAutoShowWithdrawMissionView
-                && !UIManager.instance.HasActiveView(EUIType.WithdrawMissionView))
+                && gameManager.IsStageCompleted(3))
             {
-                UIManager.instance.ShowView(EUIType.WithdrawMissionView);
+                // 插屏一般不是通关广告，达标后继续当前关。
+                gameManager.NotifyStage3AdTargetReached(fromLevelClearAd: false);
             }
 
             refuseSuccessCallback?.Invoke();

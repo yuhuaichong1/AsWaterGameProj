@@ -131,11 +131,32 @@ namespace AsGame.Water
                 streamBody = streamNode.transform.Find("body")?.GetComponent<Image>();
             if (selectFxAnchor == null)
             {
-                var fxTr = content.Find("selectFx");
+                var fxTr = content != null ? content.Find("selectFx") : null;
+                if (fxTr == null)
+                    fxTr = transform.Find("content/selectFx") ?? transform.Find("selectFx");
                 if (fxTr != null) selectFxAnchor = fxTr;
             }
+            EnsureSelectEffect();
             if (waterVisual == null)
                 waterVisual = content.GetComponentInChildren<BottleWaterVisual>(true);
+        }
+
+        /// <summary>运行时补齐选中水面特效引用（AB 旧预制体或 CreateLegacy 可能未序列化）。</summary>
+        void EnsureSelectEffect()
+        {
+            if (selectEffect != null)
+                return;
+
+            if (selectFxAnchor != null)
+                selectEffect = selectFxAnchor.GetComponentInChildren<SkeletonGraphic>(true);
+
+            if (selectEffect == null)
+            {
+                var selectTr = transform.Find("content/selectFx/SelectEffect")
+                               ?? transform.Find("selectFx/SelectEffect");
+                if (selectTr != null)
+                    selectEffect = selectTr.GetComponent<SkeletonGraphic>();
+            }
         }
 
         /// <summary>对齐 Cocos Cup.ad/icon：广告图标挂在 ad/icon 上。</summary>
@@ -258,7 +279,7 @@ namespace AsGame.Water
         IEnumerator UnlockLockRoutine()
         {
             if (lockNode == null) yield break;
-            FacadeAudio.PlayEffect(EAudioType.EBottleUnlock);
+            FacadeAudio.PlayEffect?.Invoke(EAudioType.EBottleUnlock);
             var rt = lockNode.GetComponent<RectTransform>();
             if (rt != null)
                 yield return TweenHelper.ToVector3(rt.anchoredPosition3D,
@@ -299,25 +320,44 @@ namespace AsGame.Water
         public void DoSelect()
         {
             StopAllCoroutines();
+            // 先启动上移，避免后续特效/音效异常（Console Error Pause）卡住协程导致“瓶子不飞”。
             StartCoroutine(TweenHelper.MoveLocal(transform, _baseLocalPos + Vector3.up * 20f, 0.2f));
-            if (lightBg != null) lightBg.gameObject.SetActive(true);
-            PlaySelectWaterFx();
+            if (lightBg != null)
+                lightBg.gameObject.SetActive(true);
+
+            try
+            {
+                PlaySelectWaterFx();
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[Bottle] PlaySelectWaterFx failed: {e.Message}");
+            }
+
             if (_shadow != null)
                 StartCoroutine(_shadow.FadeShadow(0.7f, Vector3.right * 60f, 0.08f));
-            FacadeAudio.PlayEffect(EAudioType.EBottleUp);
+            FacadeAudio.PlayEffect?.Invoke(EAudioType.EBottleUp);
         }
 
         public void DoUnSelect()
         {
             StopAllCoroutines();
             StartCoroutine(TweenHelper.MoveLocal(transform, _baseLocalPos, 0.2f));
-            if (lightBg != null) lightBg.gameObject.SetActive(false);
-            if (selectFxAnchor != null)
-                //SpineService.ClearEffects(selectFxAnchor);
-            selectEffect.gameObject.SetActive(false);
+            if (lightBg != null)
+                lightBg.gameObject.SetActive(false);
+            try
+            {
+                EnsureSelectEffect();
+                if (selectEffect != null)
+                    selectEffect.gameObject.SetActive(false);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[Bottle] Hide selectEffect failed: {e.Message}");
+            }
             if (_shadow != null)
                 StartCoroutine(_shadow.ResetShadow(0.2f));
-            FacadeAudio.PlayEffect(EAudioType.EBottleUp);
+            FacadeAudio.PlayEffect?.Invoke(EAudioType.EBottleUp);
         }
 
         IEnumerator FadeShadow(float alpha, Vector3 offset, float duration)
@@ -347,9 +387,16 @@ namespace AsGame.Water
             SetPourWaterMask(true);
             HideAllMeniscuses();
             if (lightBg != null) lightBg.gameObject.SetActive(false);
-            if (selectFxAnchor != null)
-                //SpineService.ClearEffects(selectFxAnchor);
-                selectEffect.gameObject.SetActive(false);
+            try
+            {
+                EnsureSelectEffect();
+                if (selectEffect != null)
+                    selectEffect.gameObject.SetActive(false);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[Bottle] Hide selectEffect on pour failed: {e.Message}");
+            }
             if (streamNode != null) streamNode.SetActive(false);
 
             ApplyPourFlip(dir);
@@ -366,8 +413,9 @@ namespace AsGame.Water
             var moveDuration = Vector3.Distance(transform.localPosition, BottlePourMath.PourPosition(pourAnchor, midAngle, dir)) / 1200f;
             moveDuration = Mathf.Clamp(moveDuration, 0.15f, 1.2f);
 
-            FacadeAudio.PlayEffect(EAudioType.EBottleMove);
-            GetComponent<CanvasGroup>().blocksRaycasts = false;
+            FacadeAudio.PlayEffect?.Invoke(EAudioType.EBottleMove);
+            var canvasGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
+            canvasGroup.blocksRaycasts = false;
             yield return TweenHelper.MoveLocal(transform, BottlePourMath.PourPosition(pourAnchor, midAngle, dir), moveDuration);
 
             yield return AnimateAngle(0f, midAngle, moveDuration * 0.5f, dir, pourAnchor, color, false);
@@ -472,7 +520,7 @@ namespace AsGame.Water
             var duration = 0.2f * num;
 
             yield return new WaitForSeconds(0.1f);
-            FacadeAudio.PlayEffect(EAudioType.EPourWater1);
+            FacadeAudio.PlayEffect?.Invoke(EAudioType.EPourWater1);
             var splashHost = CreateSplashHost(color, startHeight);
             yield return TweenHelper.ToFloat(startHeight, endHeight, duration, h =>
             {
@@ -984,15 +1032,27 @@ namespace AsGame.Water
         /// <summary>选中时在水面播放 shui/huang 晃动特效（对齐 Cocos zdEff）。</summary>
         void PlaySelectWaterFx()
         {
-            if (selectFxAnchor == null || _data == null || _data.colors.Count == 0) return;
-            SyncSelectFxAnchorPosition();
-            if (!TryGetTopWaterSurfaceColor(out var color)) return;
-            //SpineService.ClearEffects(selectFxAnchor);
-            //SpineService.PlayEffect(selectFxAnchor, Vector3.zero, "shui", "huang", loop: false, tint: color,
-            //    duration: SelectWaterFxDuration);
-            selectEffect.gameObject.SetActive(true);
-            selectEffect.AnimationState.SetAnimation(0, "huang", false);
+            if (selectFxAnchor == null || _data == null || _data.colors.Count == 0)
+                return;
 
+            SyncSelectFxAnchorPosition();
+            EnsureSelectEffect();
+            if (selectEffect == null || selectEffect.skeletonDataAsset == null)
+                return;
+
+            selectEffect.gameObject.SetActive(true);
+            if (selectEffect.AnimationState == null)
+                selectEffect.Initialize(true);
+
+            var state = selectEffect.AnimationState;
+            if (state == null)
+                return;
+
+            // 缺动画名时 SetAnimation 可能抛错，不影响瓶子上移。
+            if (state.Data?.SkeletonData?.FindAnimation("huang") != null)
+                state.SetAnimation(0, "huang", false);
+
+            SyncSelectFxTint();
         }
 
         void SyncSelectFxAnchorPosition()
@@ -1175,14 +1235,41 @@ namespace AsGame.Water
         /// <summary>满瓶收集：Cocos Spine_Collection = he_cheng_2 / guang（双轨交叉流光）。</summary>
         public IEnumerator DoCollected()
         {
-            FacadeAudio.PlayEffect(EAudioType.EBottleCollected);
-            //SpineService.ClearEffects(transform);
-            var fxPos = new Vector3(0f, -GameConstants.HalfBottleHeight, 0f);
+            try
+            {
+                FacadeAudio.PlayEffect?.Invoke(EAudioType.EBottleCollected);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[Bottle] DoCollected audio failed: {e.Message}");
+            }
+
             var finished = false;
-            //SpineService.PlayEffect(transform, fxPos, "he_cheng_2", "guang", loop: false, onComplete: () => finished = true);
-            finishEffect.gameObject.SetActive(true);
-            TrackEntry trackEntry = finishEffect.AnimationState.SetAnimation(0, "guang", false);
-            trackEntry.Complete += (trackEntry) => { finished = true; };
+            EnsureFinishEffect();
+
+            if (finishEffect != null && finishEffect.skeletonDataAsset != null)
+            {
+                try
+                {
+                    finishEffect.gameObject.SetActive(true);
+                    if (finishEffect.AnimationState == null)
+                        finishEffect.Initialize(true);
+                    TrackEntry trackEntry = finishEffect.AnimationState?.SetAnimation(0, "guang", false);
+                    if (trackEntry != null)
+                        trackEntry.Complete += _ => { finished = true; };
+                    else
+                        finished = true;
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"[Bottle] DoCollected effect failed: {e.Message}");
+                    finished = true;
+                }
+            }
+            else
+            {
+                finished = true;
+            }
 
             var elapsed = 0f;
             while (!finished && elapsed < 2f)
@@ -1192,7 +1279,19 @@ namespace AsGame.Water
             }
 
             yield return new WaitForSeconds(0.2f);
-            //SpineService.ClearEffects(transform);
+        }
+
+        void EnsureFinishEffect()
+        {
+            if (finishEffect != null)
+                return;
+
+            var finishTr = transform.Find("content/finishEffect")
+                            ?? transform.Find("finishEffect");
+            if (finishTr == null)
+                finishTr = FindChildUtility.FindChild(transform, "finishEffect")?.transform;
+            if (finishTr != null)
+                finishEffect = finishTr.GetComponent<SkeletonGraphic>();
         }
 
         public IEnumerator DisappearEmpty()
@@ -1497,9 +1596,28 @@ namespace AsGame.Water
 
         public void PlayProp3Effect()
         {
-            unlockEffect.gameObject.SetActive(true);
-            unlockEffect.AnimationState.SetAnimation(0, "bao", false);
-            unlockEffect.AnimationState.Complete += (AnimationState) => { unlockEffect.gameObject.SetActive(false); };
+            if (unlockEffect == null || unlockEffect.skeletonDataAsset == null)
+                return;
+
+            try
+            {
+                unlockEffect.gameObject.SetActive(true);
+                if (unlockEffect.AnimationState == null)
+                    unlockEffect.Initialize(true);
+                if (unlockEffect.AnimationState == null)
+                    return;
+
+                unlockEffect.AnimationState.SetAnimation(0, "bao", false);
+                unlockEffect.AnimationState.Complete += _ =>
+                {
+                    if (unlockEffect != null)
+                        unlockEffect.gameObject.SetActive(false);
+                };
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[Bottle] PlayProp3Effect failed: {e.Message}");
+            }
         }
     }
 }

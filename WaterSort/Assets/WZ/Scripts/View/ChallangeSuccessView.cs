@@ -365,6 +365,11 @@ namespace WZSDK
                 externalContinueAction = null;
                 callback.Invoke();
             }
+            else if (GameManagerWZ.instance != null
+                     && GameManagerWZ.instance.ShouldDeferNextLevelForStage3CompletionFlow())
+            {
+                // Stage3 达标链路进行中：先弹 LuckyWallet→…→Slot，结束后再 NextLevel。
+            }
             else
             {
                 GameManagerWZ.instance.NextLevel();
@@ -376,7 +381,9 @@ namespace WZSDK
                 FacadeEffectExtend.PlayFlyMoneyHandle(transform, GameDefines.Elimination_FlyMoneyCount, rewards[0].amount / 10f, null, ERewardType.Money);
             }
 
-            if (shouldShowLuckySpin && !WaterSortWZBridge.HostDriven)
+            if (shouldShowLuckySpin && !WaterSortWZBridge.HostDriven
+                && (GameManagerWZ.instance == null
+                    || !GameManagerWZ.instance.ShouldDeferNextLevelForStage3CompletionFlow()))
             {
                 shouldShowLuckySpin = false;
                 ConsumePendingLuckySpin();

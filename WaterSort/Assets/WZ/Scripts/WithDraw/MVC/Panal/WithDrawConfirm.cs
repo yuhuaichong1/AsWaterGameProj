@@ -67,6 +67,8 @@ namespace WZSDK
             if (ShouldCloseWithoutAdvance())
             {
                 GameApp.viewManager.Close(ViewId);
+                // Stage3 Mission 绑邮箱：确认后回到 Mission，再次点击才进 Feedback。
+                EnsureWithdrawMissionVisibleAfterStage3Bind();
                 return;
             }
 
@@ -86,6 +88,15 @@ namespace WZSDK
                 GameApp.viewManager.Close(ViewId);
                 GameApp.viewManager.Open(ViewType.WithDrawContinue, dataModel);
             }
+        }
+
+        private static void EnsureWithdrawMissionVisibleAfterStage3Bind()
+        {
+            if (UIManager.instance == null)
+                return;
+
+            if (!UIManager.instance.HasActiveView(EUIType.WithdrawMissionView))
+                UIManager.instance.ShowView(EUIType.WithdrawMissionView);
         }
 
         private bool ShouldOpenProcessView()

@@ -96,41 +96,20 @@ namespace WZSDK
         private void OnGenerateMoreClick()
         {
             SoundManager.Instance?.PlayUIClickSFX();
-            CloseCurrentView();
-            AdvanceToStage4IfNeeded();
+            CloseAndAdvanceToStage4Slot();
         }
 
         private void OnCloseClick()
         {
             SoundManager.Instance?.PlayUIClickSFX();
-            CloseCurrentView();
-            AdvanceToStage4IfNeeded();
+            CloseAndAdvanceToStage4Slot();
         }
 
-        private void CloseCurrentView()
+        private void CloseAndAdvanceToStage4Slot()
         {
-            if (canvasGroup != null)
-            {
-                HideView();
-            }
-            else
-            {
-                gameObject.SetActive(false);
-            }
-        }
-
-        private void AdvanceToStage4IfNeeded()
-        {
-            GameManagerWZ gm = GameManagerWZ.instance;
-            if (GameDefines.ifIAA
-                || gm == null
-                || gm.currentStage != Stage3Id
-                || !gm.IsStageCompleted(Stage3Id))
-            {
-                return;
-            }
-
-            gm.TrySyncStageProgress(Stage3Id);
+            // 必须走 UIManager.CloseView，避免 HideView 动画期间仍被判定为可见而拦 Slot。
+            UIManager.instance?.CloseView(EUIType.WithdrawFeedbackView);
+            GameManagerWZ.instance?.CompleteStage3FeedbackAndShowSlot();
         }
 
         private void RefreshGameplayWithdrawPrompt()

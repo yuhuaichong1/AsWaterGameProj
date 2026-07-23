@@ -1084,7 +1084,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4969284558945515906}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0131542ddcc56b14f843ae2b69b56d6b, type: 3}
+  m_Script: {fileID: 11500000, guid: d85b887af7e6c3f45a2e2d2920d641bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 2100000, guid: b8d9e0f1a2b3438695c7d8e9f0a1b2c4, type: 2}
@@ -1096,11 +1096,11 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   skeletonDataAsset: {fileID: 11400000, guid: 4005506bf191e78499f10b4055c687b9, type: 2}
-  additiveMaterial: {fileID: 2100000, guid: 2e8245019faeb8c43b75f9ca3ac8ee34, type: 2}
-  multiplyMaterial: {fileID: 2100000, guid: e74a1f8978a7da348a721508d0d58834, type: 2}
-  screenMaterial: {fileID: 2100000, guid: bab24c479f34eec45be6ea8595891569, type: 2}
+  additiveMaterial: {fileID: 0}
+  multiplyMaterial: {fileID: 0}
+  screenMaterial: {fileID: 0}
   m_SkeletonColor: {r: 1, g: 1, b: 1, a: 1}
-  initialSkinName: default
+  initialSkinName: 
   initialFlipX: 0
   initialFlipY: 0
   startingAnimation: bao
@@ -1108,11 +1108,11 @@ MonoBehaviour:
   timeScale: 1
   freeze: 0
   layoutScaleMode: 0
-  referenceSize: {x: 100, y: 100}
+  referenceSize: {x: 1, y: 1}
   pivotOffset: {x: 0, y: 0}
   referenceScale: 1
   layoutScale: 1
-  rectTransformSize: {x: 100, y: 100}
+  rectTransformSize: {x: 0, y: 0}
   editReferenceRect: 0
   updateWhenInvisible: 3
   allowMultipleCanvasRenderers: 0
@@ -1223,7 +1223,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4431437044404047698}
   - component: {fileID: 1146297931686672613}
-  - component: {fileID: 56633374113276884}
+  - component: {fileID: 2808202024712961496}
   m_Layer: 0
   m_Name: SelectEffect
   m_TagString: Untagged
@@ -1258,7 +1258,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5035830929001085878}
   m_CullTransparentMesh: 0
---- !u!114 &56633374113276884
+--- !u!114 &2808202024712961496
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1267,7 +1267,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5035830929001085878}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0131542ddcc56b14f843ae2b69b56d6b, type: 3}
+  m_Script: {fileID: 11500000, guid: d85b887af7e6c3f45a2e2d2920d641bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 2100000, guid: 3fcf7d45eb43bf14e8c3cef3c7ed9644, type: 2}
@@ -1279,11 +1279,11 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   skeletonDataAsset: {fileID: 11400000, guid: a22af9e15addabe45b8df95b4a7dcdc7, type: 2}
-  additiveMaterial: {fileID: 2100000, guid: 2e8245019faeb8c43b75f9ca3ac8ee34, type: 2}
-  multiplyMaterial: {fileID: 2100000, guid: e74a1f8978a7da348a721508d0d58834, type: 2}
-  screenMaterial: {fileID: 2100000, guid: bab24c479f34eec45be6ea8595891569, type: 2}
+  additiveMaterial: {fileID: 0}
+  multiplyMaterial: {fileID: 0}
+  screenMaterial: {fileID: 0}
   m_SkeletonColor: {r: 1, g: 1, b: 1, a: 1}
-  initialSkinName: shang
+  initialSkinName: 
   initialFlipX: 0
   initialFlipY: 0
   startingAnimation: huang
@@ -1291,11 +1291,11 @@ MonoBehaviour:
   timeScale: 1
   freeze: 0
   layoutScaleMode: 0
-  referenceSize: {x: 76.00252, y: 43.00135}
+  referenceSize: {x: 1, y: 1}
   pivotOffset: {x: 0, y: 0}
   referenceScale: 1
   layoutScale: 1
-  rectTransformSize: {x: 76.00252, y: 43.00135}
+  rectTransformSize: {x: 0, y: 0}
   editReferenceRect: 0
   updateWhenInvisible: 3
   allowMultipleCanvasRenderers: 0
@@ -1402,7 +1402,7 @@ MonoBehaviour:
   shadowGroup: {fileID: 0}
   selectFxAnchor: {fileID: 6679315650406667828}
   finishEffect: {fileID: 2988351540014113242}
-  selectEffect: {fileID: 56633374113276884}
+  selectEffect: {fileID: 0}
   unlockEffect: {fileID: 3570301504601231343}
 --- !u!222 &4708422710369603411
 CanvasRenderer:
@@ -1540,7 +1540,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5653345116068366581}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0131542ddcc56b14f843ae2b69b56d6b, type: 3}
+  m_Script: {fileID: 11500000, guid: d85b887af7e6c3f45a2e2d2920d641bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 2100000, guid: e9f0a1b2438695a7b8c9d0e1f2a3b4c5, type: 2}
@@ -1552,11 +1552,11 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   skeletonDataAsset: {fileID: 11400000, guid: c0cd4898f01c0ed4a9f01fd250b1afbc, type: 2}
-  additiveMaterial: {fileID: 2100000, guid: 2e8245019faeb8c43b75f9ca3ac8ee34, type: 2}
-  multiplyMaterial: {fileID: 2100000, guid: e74a1f8978a7da348a721508d0d58834, type: 2}
-  screenMaterial: {fileID: 2100000, guid: bab24c479f34eec45be6ea8595891569, type: 2}
+  additiveMaterial: {fileID: 0}
+  multiplyMaterial: {fileID: 0}
+  screenMaterial: {fileID: 0}
   m_SkeletonColor: {r: 1, g: 1, b: 1, a: 1}
-  initialSkinName: default
+  initialSkinName: 
   initialFlipX: 0
   initialFlipY: 0
   startingAnimation: guang
@@ -1564,11 +1564,11 @@ MonoBehaviour:
   timeScale: 1
   freeze: 0
   layoutScaleMode: 0
-  referenceSize: {x: 100, y: 100}
+  referenceSize: {x: 1, y: 1}
   pivotOffset: {x: 0, y: 0}
   referenceScale: 1
   layoutScale: 1
-  rectTransformSize: {x: 100, y: 100}
+  rectTransformSize: {x: 0, y: 0}
   editReferenceRect: 0
   updateWhenInvisible: 3
   allowMultipleCanvasRenderers: 0

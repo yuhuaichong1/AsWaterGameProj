@@ -161,9 +161,12 @@ namespace WZSDK
             UIManager.instance?.CloseView(EUIType.LuckySuccessView);
             yield return null;
 
-            GameManagerWZ.instance?.NextLevel();
+            bool deferNextLevel = GameManagerWZ.instance != null
+                                  && GameManagerWZ.instance.ShouldDeferNextLevelForStage3CompletionFlow();
+            if (!deferNextLevel)
+                GameManagerWZ.instance?.NextLevel();
 
-            if (!shouldShowLuckySpin)
+            if (!shouldShowLuckySpin || deferNextLevel)
                 yield break;
 
             ChallangeSuccessView.ConsumePendingLuckySpinReward();

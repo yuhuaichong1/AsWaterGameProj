@@ -73,7 +73,8 @@ public class GuideModule : BaseModule
         if (curStep == 0) curStep = GameDefines.firstGuideId;
         else
         {
-            var backStep = ConfigModule.Instance.Tables.TBGuides.Get(curStep).BackStep;
+            var guide = ConfigModule.Instance?.Tables?.TBGuides?.GetOrDefault(curStep);
+            var backStep = guide != null ? guide.BackStep : 0;
             curStep = backStep != 0 ? backStep : curStep;
         }
 
@@ -87,7 +88,13 @@ public class GuideModule : BaseModule
     private void SetCurGuideItems(int step)
     {
         curStep = step;
-        ConfGuides guideData = ConfigModule.Instance.Tables.TBGuides.Get(step);
+        ConfGuides guideData = ConfigModule.Instance?.Tables?.TBGuides?.GetOrDefault(step);
+        if (guideData == null)
+        {
+            Debug.LogWarning($"[GuideModule] 引导配置缺失 step={step}，跳过本次引导数据绑定。");
+            return;
+        }
+
         curGuideItems.step = step;
         curGuideItems.nextStep = guideData.NextStep;
         curGuideItems.note = guideData.Notes;
@@ -267,7 +274,7 @@ public class GuideModule : BaseModule
     /// <returns>引导是否结束</returns>
     private bool CheckGuideEnd()
     {
-        var nextStep = ConfigModule.Instance.Tables.TBGuides.Get(curStep)?.NextStep ?? 0;
+        var nextStep = ConfigModule.Instance?.Tables?.TBGuides?.GetOrDefault(curStep)?.NextStep ?? 0;
         var isEnd = nextStep == 0;
         if (isEnd)
         {
@@ -494,6 +501,13 @@ public class GuideModule : BaseModule
 
     private void PlayGuideByTargetType3()
     {
+        ConfGuides guideData = ConfigModule.Instance?.Tables?.TBGuides?.GetOrDefault(curStep);
+        if (guideData == null)
+        {
+            Debug.LogWarning($"[GuideModule] PlayGuideByTargetType3 跳过：无配置 step={curStep}");
+            return;
+        }
+
         SetCurGuideItems(curStep);
         if (FacadeGuide.PlayGuide == null)
         {

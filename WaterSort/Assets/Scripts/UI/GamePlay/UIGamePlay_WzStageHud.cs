@@ -217,7 +217,22 @@ namespace XrCode
         {
             Transform t = FindChildByPath(root, path);
             if (t == null && !string.IsNullOrEmpty(fallbackName))
-                t = FindChildUtility.FindChild(root, fallbackName)?.transform;
+            {
+                // 仅在目标路径下按名查找，避免命中 ProgressState 等其它同名节点。
+                Transform pathParent = root;
+                int slash = path.LastIndexOf('/');
+                if (slash >= 0)
+                {
+                    Transform parent = FindChildByPath(root, path.Substring(0, slash));
+                    if (parent != null)
+                        pathParent = parent;
+                }
+
+                t = pathParent.Find(fallbackName);
+                if (t == null)
+                    t = FindChildUtility.FindChild(pathParent, fallbackName)?.transform;
+            }
+
             return t != null ? t.GetComponent<Image>() : null;
         }
 
@@ -407,88 +422,51 @@ namespace XrCode
             float safeProgressValue = Mathf.Clamp01(progressValue);
             int safeProgressStateTargetCount = Mathf.Max(progressStateTargetCount, 0);
 
+            EnsureStage3VisualRefsBound();
+
             deferredStage3StageId = safeStageId;
             deferredStage3TargetProgressValue = safeProgressValue;
             deferredStage3ShowProgressStates = showProgressStates;
             deferredStage3ProgressStateTargetCount = safeProgressStateTargetCount;
 
-            if (!hasDisplayedStage3ProgressValue)
-            {
-                ApplyStage3ProgressVisualState(safeStageId, safeProgressValue, showProgressStates, safeProgressStateTargetCount);
-                RememberDisplayedStage3ProgressState(safeStageId, safeProgressValue, showProgressStates, safeProgressStateTargetCount);
-                hasDeferredStage3ProgressUpdate = false;
-                return;
-            }
-
-            bool hasStageChanged = displayedStage3StageId != safeStageId;
-            bool hasDisplayModeChanged = displayedStage3ShowProgressStates != showProgressStates
-                || displayedStage3ProgressStateTargetCount != safeProgressStateTargetCount;
-
-            if (hasStageChanged || hasDisplayModeChanged)
-            {
-                hasDeferredStage3ProgressUpdate = false;
-                ApplyStage3ProgressVisualState(safeStageId, safeProgressValue, showProgressStates, safeProgressStateTargetCount);
-                RememberDisplayedStage3ProgressState(safeStageId, safeProgressValue, showProgressStates, safeProgressStateTargetCount);
-                return;
-            }
-
-            if (ShouldDeferStage3ProgressUpdate())
-            {
-                hasDeferredStage3ProgressUpdate = !Mathf.Approximately(displayedStage3ProgressValue, deferredStage3TargetProgressValue);
-                return;
-            }
-
-            if (hasDeferredStage3ProgressUpdate)
-                return;
-
+            // 宿主 UIGamePlay：ProgressTxT 已即时更新，进度条/描述必须同步立即生效。
+            // 不再依赖 WZ 弹层延迟（Game2 常有 Legacy/Tutorial 层导致永远 defer）。
+            hasDeferredStage3ProgressUpdate = false;
             ApplyStage3ProgressVisualState(safeStageId, safeProgressValue, showProgressStates, safeProgressStateTargetCount);
             RememberDisplayedStage3ProgressState(safeStageId, safeProgressValue, showProgressStates, safeProgressStateTargetCount);
         }
 
+        private void EnsureStage3VisualRefsBound()
+        {
+            if (Stage3Root == null)
+                return;
+
+            if (Stage3Progress == null)
+                Stage3Progress = FindHudImage(Stage3Root, "BG/Progress", "Progress");
+            if (Stage3Fill == null)
+                Stage3Fill = FindHudImage(Stage3Root, "OverallProgress/Fill", null);
+            if (OverallCount == null)
+                OverallCount = FindHudText(Stage3Root, "OverallProgress/OverallCount", "OverallCount");
+            if (Stage3Dec == null)
+                Stage3Dec = FindHudText(Stage3Root, "bg/Stage3Dec", "Stage3Dec");
+            if (ProgressTxT == null)
+                ProgressTxT = FindHudText(Stage3Root, "BG/ProgressTxT", "ProgressTxT");
+
+            // 克隆预制体偶发 Type=Simple，fillAmount 不产生可见变化。
+            if (Stage3Progress != null && Stage3Progress.type != Image.Type.Filled)
+                Stage3Progress.type = Image.Type.Filled;
+            if (Stage3Fill != null && Stage3Fill.type != Image.Type.Filled)
+                Stage3Fill.type = Image.Type.Filled;
+        }
+
         private void UpdateDeferredStage3ProgressAnimation()
         {
-            if (!hasDisplayedStage3ProgressValue || !hasDeferredStage3ProgressUpdate)
-                return;
-
-            if (Stage3Root == null || !Stage3Root.gameObject.activeInHierarchy)
-            {
-                ResetDeferredStage3ProgressState();
-                return;
-            }
-
-            if (ShouldDeferStage3ProgressUpdate())
-                return;
-
-            displayedStage3ProgressValue = Mathf.MoveTowards(
-                displayedStage3ProgressValue,
-                deferredStage3TargetProgressValue,
-                DeferredStage3ProgressAnimationSpeed * Time.unscaledDeltaTime);
-
-            ApplyStage3ProgressVisualState(
-                deferredStage3StageId,
-                displayedStage3ProgressValue,
-                deferredStage3ShowProgressStates,
-                deferredStage3ProgressStateTargetCount);
-
-            if (!Mathf.Approximately(displayedStage3ProgressValue, deferredStage3TargetProgressValue))
-                return;
-
-            displayedStage3ProgressValue = deferredStage3TargetProgressValue;
-            ApplyStage3ProgressVisualState(
-                deferredStage3StageId,
-                displayedStage3ProgressValue,
-                deferredStage3ShowProgressStates,
-                deferredStage3ProgressStateTargetCount);
-            RememberDisplayedStage3ProgressState(
-                deferredStage3StageId,
-                displayedStage3ProgressValue,
-                deferredStage3ShowProgressStates,
-                deferredStage3ProgressStateTargetCount);
-            hasDeferredStage3ProgressUpdate = false;
+            // 宿主侧已改为即时刷新，保留空实现以免 OnUpdate 调用报错。
         }
 
         private void ApplyStage3ProgressVisualState(int stageId, float progressValue, bool showProgressStates, int progressStateTargetCount)
         {
+            EnsureStage3VisualRefsBound();
             float safeProgressValue = Mathf.Clamp01(progressValue);
 
             if (Stage3Dec != null)
@@ -518,13 +496,7 @@ namespace XrCode
 
         private bool ShouldDeferStage3ProgressUpdate()
         {
-            if (WzUIManager.instance == null)
-                return false;
-
-            // Game2 宿主局内没有 GamePlayerView/GameView，IsGameplayOnlyUIActive() 恒为 false，
-            // 会导致 Progress / OverallCount / Stage3Dec 一直卡在延迟刷新、永远不同步。
-            // 宿主 HUD 仅在存在挡住局内的 WZ 弹层时延迟进度动画。
-            return WzUIManager.instance.HasBlockingNonGameplayOverlay();
+            return false;
         }
 
         private void RememberDisplayedStage3ProgressState(int stageId, float progressValue, bool showProgressStates, int progressStateTargetCount)

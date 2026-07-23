@@ -89,13 +89,26 @@ namespace WZSDK
         }
         private void CloseClick()
         {
-            UIManager.instance.CloseView(EUIType.LuckyWalletView);
+            SoundManager.Instance?.PlayUIClickSFX();
+            CloseAndContinueStage3FlowIfNeeded();
         }
+
         private void OnWithdrawClick()
         {
             SoundManager.Instance?.PlayUIClickSFX();
-            //UIManager.instance?.ShowView(EUIType.GameBalancView);
+            CloseAndContinueStage3FlowIfNeeded();
+        }
+
+        private void CloseAndContinueStage3FlowIfNeeded()
+        {
+            bool pendingMission = GameManagerWZ.instance != null
+                                 && GameManagerWZ.instance.PendingStage3WithdrawMissionAfterLuckyWallet;
+
             CloseCurrentView();
+            UIManager.instance?.CloseView(EUIType.LuckyWalletView);
+
+            if (pendingMission)
+                GameManagerWZ.instance.OpenWithdrawMissionAfterLuckyWalletIfPending();
         }
 
         private void CloseCurrentView()
