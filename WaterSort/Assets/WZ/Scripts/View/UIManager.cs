@@ -619,6 +619,10 @@ namespace WZSDK
             if (HasBlockingNonGameplayOverlay())
                 return false;
 
+            // 宿主 UIGamePlay 作为主 HUD 时，没有 WZ GameView/GamePlayerView 也算局内。
+            if (WaterSortWZBridge.UseHostGameplayHud || WaterSortWZBridge.HostDriven)
+                return true;
+
             return HasVisibleView(EUIType.GameView) || HasVisibleView(EUIType.GamePlayerView);
         }
 

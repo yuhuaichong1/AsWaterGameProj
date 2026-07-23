@@ -8,11 +8,21 @@ using HostERewardType = ERewardType;
 /// <summary>
 /// WaterSort 宿主与 WZSDK 的项目专属桥接。
 /// 以 WZ 为准：广告/成功页/提现走 WZ；玩法关卡由宿主创建。
+/// HostDriven=false + UseHostGameplayHud=true：走 WZ 玩法壳，主界面 HUD 用 UIGamePlay。
 /// Game2 场景可作为入口直接开玩。
 /// </summary>
 public static class WaterSortWZBridge
 {
     public const bool HostDriven = false;
+
+    /// <summary>
+    /// 主界面 HUD 使用宿主 UIGamePlay，不打开 WZ GamePlayerView / GameView。
+    /// 与 HostDriven 独立：HostDriven=false 时仍走 WZ Loading / 成功页 / 提现等玩法壳。
+    /// </summary>
+    public const bool UseHostGameplayHud = true;
+
+    /// <summary>是否仍打开 WZ 侧 GamePlayerView/GameView 作为主 HUD。</summary>
+    public static bool UsesWzGameplayHud => !HostDriven && !UseHostGameplayHud;
 
     private static bool _wired;
     private static bool _pendingHostContinue;

@@ -193,9 +193,9 @@ namespace WZSDK
         public static string ERIAAMoneyIconPath = "UI/LuckySpinIcons/icon_qianbi_IAA";                      //一叠硬币
         public static string ERMultCoinIconPath = "UI/Money/Multiple/coin_big_us";                          //成功页/奖励项钱堆
         public static string ERFlyMoneyIconPath = "UI/LuckySpinView/icon_qianbi";                           //飞币小图标
-        public static string ERAddSpaceIconPath = "UI/FuncIcon/Bottle";                         //添加瓶子
-        public static string ERClearIconPath = "UI/FuncIcon/icon_mofab";                               //清除道具
-        public static string ERHammerIconPath = "UI/FuncIcon/icon_shuaxin";                             //回退道具
+        public static string ERAddSpaceIconPath = "UI/FuncIcon/SFuncIcon_Prop1";                         //添加瓶子
+        public static string ERClearIconPath = "UI/FuncIcon/SFuncIcon_Prop2";                               //清除道具
+        public static string ERHammerIconPath = "UI/FuncIcon/SFuncIcon_Prop3";                             //回退道具
         public static string ERAddPromptIconPath = "UINew/dengpao";
         public static string ERAddGuidIconPath = "UINew/chizi";
         public static string Default_SingleGem = "UI/Money/gem";                                            //默认钻石路径

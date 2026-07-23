@@ -117,10 +117,10 @@ namespace WZSDK
             if (GameDefines.ifIAA)
                 return;
 
-            // Game2 / 宿主 HUD：刷新移植到 UIGamePlay 的 Stage3Root。
+            // 宿主 UIGamePlay Stage3Root。
             XrCode.FacadeGamePlay.RefreshWzStageHud?.Invoke();
 
-            if (UIManager.instance == null)
+            if (!WaterSortWZBridge.UsesWzGameplayHud || UIManager.instance == null)
                 return;
 
             UIManager.instance.GetView<GamePlayerView>(EUIType.GamePlayerView)?.UpdateWithdrawPrompt();

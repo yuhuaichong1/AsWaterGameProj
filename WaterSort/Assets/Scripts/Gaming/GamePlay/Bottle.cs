@@ -1244,41 +1244,103 @@ namespace AsGame.Water
                 Debug.LogWarning($"[Bottle] DoCollected audio failed: {e.Message}");
             }
 
-            var finished = false;
             EnsureFinishEffect();
+            EnsureRootVisible();
+
+            bool played = false;
+            bool finished = false;
+            float waitSeconds = 0.2f;
 
             if (finishEffect != null && finishEffect.skeletonDataAsset != null)
             {
                 try
                 {
+                    var fxTf = finishEffect.transform as RectTransform;
+                    if (fxTf != null)
+                    {
+                        // 保证在瓶身之上，且有足够的绘制区域。
+                        fxTf.SetAsLastSibling();
+                        if (fxTf.sizeDelta.x < 10f || fxTf.sizeDelta.y < 10f)
+                            fxTf.sizeDelta = new Vector2(200f, 300f);
+                    }
+
                     finishEffect.gameObject.SetActive(true);
-                    if (finishEffect.AnimationState == null)
-                        finishEffect.Initialize(true);
-                    TrackEntry trackEntry = finishEffect.AnimationState?.SetAnimation(0, "guang", false);
-                    if (trackEntry != null)
-                        trackEntry.Complete += _ => { finished = true; };
+                    finishEffect.enabled = true;
+                    finishEffect.freeze = false;
+                    finishEffect.color = Color.white;
+                    finishEffect.raycastTarget = false;
+                    finishEffect.UpdateMode = UpdateMode.FullUpdate;
+                    finishEffect.UpdateTiming = UpdateTiming.InUpdate;
+
+                    // 从 inactive 激活后强制重建，否则可能无 AnimationState / 无网格。
+                    finishEffect.Initialize(true);
+                    if (!finishEffect.IsValid || finishEffect.AnimationState == null)
+                    {
+                        Debug.LogWarning("[Bottle] finishEffect Initialize failed (IsValid=false).");
+                    }
                     else
-                        finished = true;
+                    {
+                        // 材质丢失时 Spine 有 AnimationState 但看不见。
+                        if (finishEffect.material == null
+                            && finishEffect.SkeletonDataAsset != null
+                            && finishEffect.SkeletonDataAsset.atlasAssets != null
+                            && finishEffect.SkeletonDataAsset.atlasAssets.Length > 0)
+                        {
+                            var atlas = finishEffect.SkeletonDataAsset.atlasAssets[0];
+                            if (atlas != null && atlas.MaterialCount > 0)
+                                finishEffect.material = atlas.PrimaryMaterial;
+                        }
+
+                        var anim = finishEffect.SkeletonDataAsset.GetSkeletonData(false)?.FindAnimation("guang");
+                        finishEffect.AnimationState.ClearTracks();
+                        finishEffect.Skeleton?.SetToSetupPose();
+
+                        TrackEntry trackEntry = anim != null
+                            ? finishEffect.AnimationState.SetAnimation(0, anim, false)
+                            : finishEffect.AnimationState.SetAnimation(0, "guang", false);
+
+                        // 立刻出第一帧，避免等 LateUpdate 才看到。
+                        finishEffect.Update(0f);
+                        finishEffect.UpdateMesh();
+
+                        if (trackEntry != null)
+                        {
+                            waitSeconds = Mathf.Max(trackEntry.Animation.Duration, trackEntry.AnimationEnd, 0.2f);
+                            trackEntry.Complete += _ => finished = true;
+                            played = true;
+                        }
+                        else
+                        {
+                            Debug.LogWarning("[Bottle] finishEffect SetAnimation('guang') returned null.");
+                        }
+                    }
                 }
                 catch (Exception e)
                 {
                     Debug.LogWarning($"[Bottle] DoCollected effect failed: {e.Message}");
-                    finished = true;
+                    played = false;
                 }
             }
             else
             {
-                finished = true;
+                Debug.LogWarning("[Bottle] finishEffect missing or skeletonDataAsset is null.");
             }
 
-            var elapsed = 0f;
-            while (!finished && elapsed < 2f)
+            if (played)
             {
-                elapsed += Time.deltaTime;
-                yield return null;
+                float elapsed = 0f;
+                while (!finished && elapsed < waitSeconds + 0.15f)
+                {
+                    elapsed += Time.deltaTime;
+                    yield return null;
+                }
+
+                if (finishEffect != null)
+                    finishEffect.gameObject.SetActive(false);
+                yield break;
             }
 
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(waitSeconds);
         }
 
         void EnsureFinishEffect()
@@ -1286,8 +1348,8 @@ namespace AsGame.Water
             if (finishEffect != null)
                 return;
 
-            var finishTr = transform.Find("content/finishEffect")
-                            ?? transform.Find("finishEffect");
+            var finishTr = transform.Find("finishEffect")
+                            ?? transform.Find("content/finishEffect");
             if (finishTr == null)
                 finishTr = FindChildUtility.FindChild(transform, "finishEffect")?.transform;
             if (finishTr != null)

@@ -377,7 +377,16 @@ namespace WZSDK
                 return;
             }
 
-            UIManager.instance.ShowView(GameDefines.ifIAA ? EUIType.GameView : EUIType.GamePlayerView);
+            // UseHostGameplayHud：主界面走宿主 UIGamePlay，不再打开 GamePlayerView/GameView。
+            if (WaterSortWZBridge.UsesWzGameplayHud)
+                UIManager.instance.ShowView(GameDefines.ifIAA ? EUIType.GameView : EUIType.GamePlayerView);
+            else
+            {
+                WaterSortWZBridge.EnsureHostUiCamera();
+                // 把 WZ 侧 ifIAA 同步到宿主，再刷新 UIGamePlay。
+                WaterSortWZBridge.InitializeOrSync();
+            }
+
             TDAnalyticsMgr.Instance.EnterMainUI();
             TDAnalyticsMgr.Instance.LoginSuccess();
             UIManager.instance.ShowView(EUIType.Tutorial);
@@ -390,6 +399,7 @@ namespace WZSDK
             StartLevelTimer();
             ResetPouringTimerState();
             TryShowStage5CompensationLuckySpin(currentStage);
+            RefreshHostGameplayHud();
         }
 
         void SetFirstData()
@@ -671,15 +681,17 @@ namespace WZSDK
             XrCode.FacadePlayer.SetLevel?.Invoke(hostLevel);
             XrCode.FacadeGamePlay.StartLevel?.Invoke();
 
-            if (!WaterSortWZBridge.HostDriven && uiManager != null)
+            if (WaterSortWZBridge.UsesWzGameplayHud && uiManager != null)
             {
                 if (GameDefines.ifIAA)
                     uiManager.GetView<GameView>(EUIType.GameView)?.InitView();
                 else
                     uiManager.GetView<GamePlayerView>(EUIType.GamePlayerView)?.InitView();
-                UpdateBoosterState();
-                StartLevelTimer();
             }
+
+            UpdateBoosterState();
+            StartLevelTimer();
+            RefreshHostGameplayHud();
         }
 
         IEnumerator ShowStage2CashOutTutorialWhenReady()
@@ -769,10 +781,10 @@ namespace WZSDK
 
         void RefreshStageUI()
         {
-            // Game2 / 宿主 HUD：刷新移植到 UIGamePlay 的 LuckyRoot/Stage3Root。
+            // 宿主 UIGamePlay：刷新移植的 LuckyRoot/Stage3Root。
             XrCode.FacadeGamePlay.RefreshWzStageHud?.Invoke();
 
-            if (uiManager == null)
+            if (!WaterSortWZBridge.UsesWzGameplayHud || uiManager == null)
                 return;
 
             if (GameDefines.ifIAA)
@@ -1764,6 +1776,15 @@ namespace WZSDK
         #region 道具系统
         void UpdateBoosterState()
         {
+            if (!WaterSortWZBridge.UsesWzGameplayHud)
+            {
+                // 宿主 UIGamePlay 道具显隐由宿主玩法模块自行管理。
+                XrCode.FacadeGamePlay.SetProp1CountShow?.Invoke();
+                XrCode.FacadeGamePlay.SetProp2CountShow?.Invoke();
+                XrCode.FacadeGamePlay.SetProp3CountShow?.Invoke();
+                return;
+            }
+
             object gameView = GameDefines.ifIAA ?
                 uiManager.GetView<GameView>(EUIType.GameView) :
                 uiManager.GetView<GamePlayerView>(EUIType.GamePlayerView);
@@ -1924,7 +1945,8 @@ namespace WZSDK
 
         void RefreshBottleCountUI()
         {
-            if (uiManager == null) return;
+            XrCode.FacadeGamePlay.SetProp1CountShow?.Invoke();
+            if (!WaterSortWZBridge.UsesWzGameplayHud || uiManager == null) return;
 
             if (GameDefines.ifIAA)
                 uiManager.GetView<GameView>(EUIType.GameView)?.RefreshBottleCount();
@@ -1934,7 +1956,8 @@ namespace WZSDK
 
         void RefreshClearInfoUI()
         {
-            if (uiManager == null) return;
+            XrCode.FacadeGamePlay.SetProp2CountShow?.Invoke();
+            if (!WaterSortWZBridge.UsesWzGameplayHud || uiManager == null) return;
 
             if (GameDefines.ifIAA)
                 uiManager.GetView<GameView>(EUIType.GameView)?.RefreshClearInfo();
@@ -1944,7 +1967,8 @@ namespace WZSDK
 
         void RefreshUndoInfoUI()
         {
-            if (uiManager == null) return;
+            XrCode.FacadeGamePlay.SetProp3CountShow?.Invoke();
+            if (!WaterSortWZBridge.UsesWzGameplayHud || uiManager == null) return;
 
             if (GameDefines.ifIAA)
                 uiManager.GetView<GameView>(EUIType.GameView)?.RefreshUndoInfo();
@@ -2043,7 +2067,12 @@ namespace WZSDK
 
         public void UpdateCoinUI()
         {
-            if (uiManager == null) return;
+            // 宿主 UIGamePlay 余额 / Stage HUD。
+            XrCode.FacadeGamePlay.SetCurMoneyShow?.Invoke();
+            XrCode.FacadeGamePlay.RefreshWzStageHud?.Invoke();
+
+            if (!WaterSortWZBridge.UsesWzGameplayHud || uiManager == null)
+                return;
 
             if (GameDefines.ifIAA)
             {
@@ -2058,15 +2087,13 @@ namespace WZSDK
                 if (gameView?.coinTxt != null)
                     gameView.coinTxt.text = FacadePayTypeExtend.RegionalChangeHandle(currentCoin);
                 gameView?.UpdateWithdrawPrompt();
-
-                // Game2 宿主 HUD：同步 UIGamePlay.CurMoneyText。
-                XrCode.FacadeGamePlay.SetCurMoneyShow?.Invoke();
             }
         }
 
         public void UpdateGemUI()
         {
-            if (uiManager == null) return;
+            if (!WaterSortWZBridge.UsesWzGameplayHud || uiManager == null)
+                return;
 
             if (GameDefines.ifIAA)
             {
@@ -2191,13 +2218,22 @@ namespace WZSDK
             ResetPouringTimerState();
             levelGen.InitLvGen();
 
-            // WZ LevelManager 已移除：Game2/HostDriven 都要推进宿主关卡，否则棋盘空白。
+            // WZ LevelManager 已移除：Game2 / 宿主 HUD 都要推进宿主关卡，否则棋盘空白。
             // 第2关后 defer：只同步关卡号，等 Mission Continue。
-            if (TryAdvanceHostGameplayLevel() && (WaterSortWZBridge.HostDriven || deferHostLevelLoad || stage2CashGuidePending))
+            if (TryAdvanceHostGameplayLevel() && (WaterSortWZBridge.HostDriven || WaterSortWZBridge.UseHostGameplayHud || deferHostLevelLoad || stage2CashGuidePending))
+            {
+                UpdateBoosterState();
+                RefreshHostGameplayHud();
                 return;
+            }
 
-            if (WaterSortWZBridge.HostDriven)
+            if (WaterSortWZBridge.HostDriven || WaterSortWZBridge.UseHostGameplayHud)
+            {
+                UpdateBoosterState();
+                StartLevelTimer();
+                RefreshHostGameplayHud();
                 return;
+            }
 
             if (GameDefines.ifIAA)
                 uiManager.GetView<GameView>(EUIType.GameView).InitView();
@@ -2224,7 +2260,7 @@ namespace WZSDK
             replaceSuccessWithWithdraw = false;
             successViewEpoch++;
             CloseActiveSuccessViews();
-            if (WaterSortWZBridge.HostDriven && !stage2CashGuidePending)
+            if ((WaterSortWZBridge.HostDriven || WaterSortWZBridge.UseHostGameplayHud) && !stage2CashGuidePending)
                 CloseActiveTutorial();
            // LevelManager.Instance.LoadCurrentLevel();
             SetFirstData();
@@ -2232,13 +2268,22 @@ namespace WZSDK
             ResetPouringTimerState();
             levelGen.InitLvGen();
 
-            // HostDriven=false 时原先只刷 GamePlayerView，不建宿主瓶子 → 第2关空白。
+            // UseHostGameplayHud：只推进宿主关卡，不刷 WZ GamePlayerView。
             // 第2关后 defer：只同步关卡号，等 Mission Continue 再 CreateLevel。
-            if (TryAdvanceHostGameplayLevel() && (WaterSortWZBridge.HostDriven || deferHostLevelLoad || stage2CashGuidePending))
+            if (TryAdvanceHostGameplayLevel() && (WaterSortWZBridge.HostDriven || WaterSortWZBridge.UseHostGameplayHud || deferHostLevelLoad || stage2CashGuidePending))
+            {
+                UpdateBoosterState();
+                RefreshHostGameplayHud();
                 return;
+            }
 
-            if (WaterSortWZBridge.HostDriven)
+            if (WaterSortWZBridge.HostDriven || WaterSortWZBridge.UseHostGameplayHud)
+            {
+                UpdateBoosterState();
+                StartLevelTimer();
+                RefreshHostGameplayHud();
                 return;
+            }
 
             if (GameDefines.ifIAA)
                 uiManager.GetView<GameView>(EUIType.GameView).InitView();
@@ -2283,13 +2328,29 @@ namespace WZSDK
                 return true;
             }
 
-            if (!WaterSortWZBridge.HostDriven && !WaterSortWZBridge.IsWzEntryScene())
+            // UseHostGameplayHud / Game2：由宿主 CreateLevel 建瓶。
+            if (!WaterSortWZBridge.HostDriven
+                && !WaterSortWZBridge.UseHostGameplayHud
+                && !WaterSortWZBridge.IsWzEntryScene())
                 return false;
 
             int level = Mathf.Max(currentLv, 1);
             XrCode.FacadePlayer.SetLevel?.Invoke(level);
             XrCode.FacadeGamePlay.StartLevel?.Invoke();
             return true;
+        }
+
+        void RefreshHostGameplayHud()
+        {
+            if (!WaterSortWZBridge.UseHostGameplayHud && !WaterSortWZBridge.HostDriven)
+                return;
+
+            XrCode.FacadeGamePlay.SetLevelShow?.Invoke();
+            XrCode.FacadeGamePlay.SetCurMoneyShow?.Invoke();
+            XrCode.FacadeGamePlay.SetProp1CountShow?.Invoke();
+            XrCode.FacadeGamePlay.SetProp2CountShow?.Invoke();
+            XrCode.FacadeGamePlay.SetProp3CountShow?.Invoke();
+            XrCode.FacadeGamePlay.RefreshWzStageHud?.Invoke();
         }
         #endregion
 

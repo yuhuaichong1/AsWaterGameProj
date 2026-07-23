@@ -83,17 +83,7 @@ namespace XrCode
 
         private void InitShow()
         {
-            mMoneyIcon.gameObject.SetActive(!GameDefines.ifIAA);
-            mIAAMoneyIcon.gameObject.gameObject.SetActive(GameDefines.ifIAA);
-            mCMBtn.gameObject.SetActive(!GameDefines.ifIAA);
-            mCMDialog.gameObject.SetActive(!GameDefines.ifIAA);
-            // WLProgress 已停用，改用 WZ LuckyRoot / Stage3Root。
-            // mWLProgress.gameObject.SetActive(!GameDefines.ifIAA);
-            if (mWLProgress != null)
-                mWLProgress.gameObject.SetActive(false);
-            if (mWPrompt != null)
-                mWPrompt.gameObject.SetActive(false);
-            if(GameDefines.ifIAA) mReStartBtn.transform.position = mReStartBtnIAAPos.position;
+            ApplyIaaModeVisuals();
 
             string levelText = string.Format(FacadeLanguage.GetText?.Invoke("10016"), FacadePlayer.GetLevel());
             // mLTCurLevelText 挂在 WLProgress 下，一并停用。
@@ -106,6 +96,28 @@ namespace XrCode
             SetProp3CountShow();
             EnsureWzStageHud();
             RefreshWzStageHud();
+        }
+
+        /// <summary>
+        /// 按当前 ifIAA 刷新宿主 HUD 显隐（可在 WZ 服务器配置落地后再调）。
+        /// </summary>
+        private void ApplyIaaModeVisuals()
+        {
+            if (mMoneyIcon != null)
+                mMoneyIcon.gameObject.SetActive(!GameDefines.ifIAA);
+            if (mIAAMoneyIcon != null)
+                mIAAMoneyIcon.gameObject.SetActive(GameDefines.ifIAA);
+            if (mCMBtn != null)
+                mCMBtn.gameObject.SetActive(!GameDefines.ifIAA);
+            //if (mCMDialog != null)
+            //    mCMDialog.gameObject.SetActive(!GameDefines.ifIAA);
+            // WLProgress 已停用，改用 WZ LuckyRoot / Stage3Root。
+            if (mWLProgress != null)
+                mWLProgress.gameObject.SetActive(false);
+            if (mWPrompt != null)
+                mWPrompt.gameObject.SetActive(false);
+            if (GameDefines.ifIAA && mReStartBtn != null && mReStartBtnIAAPos != null)
+                mReStartBtn.transform.position = mReStartBtnIAAPos.position;
         }
 
         protected override void OnEnable()
@@ -122,6 +134,7 @@ namespace XrCode
         /// </summary>
         private void SetCurMoneyShow()
         {
+            ApplyIaaModeVisuals();
             RefreshCurMoneyText();
             // WLProgress / WPrompt 已停用。
             // if (FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.AmountOfMoney)
@@ -343,12 +356,12 @@ namespace XrCode
 
         private void OnSettingBtnClickHandle()
         {
-            UIManager.Instance.OpenAsync<UISetting>(EUIType.EUISetting);
+            WZSDK.UIManager.instance?.ShowView(WZSDK.EUIType.SettingsView);
         }
 
 	    private void OnReStartBtnClickHandle()
         {
-            UIManager.Instance.OpenAsync<UIReStart>(EUIType.EUIReStart);
+            WZSDK.UIManager.instance?.ShowView(WZSDK.EUIType.ReStartView);
         }
 
 	    private void OnBtn_Prop1ClickHandle()
@@ -437,31 +450,57 @@ namespace XrCode
         }
 
         /// <summary>
-        /// 滚动字幕显示
+        /// 滚动字幕显示。每轮按当前布局重算起终点，避免世界坐标烘焙导致飞到左下。
         /// </summary>
         private void ScrollingTipAnim()
         {
             if (FacadePlayer.GetLevel() <= 3 || GameDefines.ifIAA)
-            {
                 return;
-            }
 
-            if (scrollingTip == null)
+            scrollingTip?.Kill();
+            PlayScrollingTipLoop();
+        }
+
+        private void PlayScrollingTipLoop()
+        {
+            scrollingTip = BuildScrollingTipCycle();
+            scrollingTip.OnComplete(() =>
             {
-                scrollingTip = DOTween.Sequence();
-                scrollingTip.AppendCallback(SetRandomScrollingTipShow);
-                scrollingTip.AppendInterval(5);
-                scrollingTip.Append(mMarque1.transform.DOMove(mM1EndPos.transform.position, GameDefines.ScollingTipAnimTime).SetEase(Ease.Linear));
-                scrollingTip.Join(mMarque2.transform.DOMove(mM2EndPos.transform.position, GameDefines.ScollingTipAnimTime).SetEase(Ease.Linear));
-                scrollingTip.AppendInterval(GameDefines.ScollingTipAnimInterval - 5);
-                scrollingTip.SetLoops(-1);
-                scrollingTip.SetAutoKill(false);
-                scrollingTip.Play();
-            }
-            else
-            {
-                scrollingTip.Restart();
-            }
+                if (this == null || mGameObject == null || !mGameObject.activeInHierarchy)
+                    return;
+                if (FacadePlayer.GetLevel() <= 3 || GameDefines.ifIAA)
+                    return;
+                PlayScrollingTipLoop();
+            });
+            scrollingTip.Play();
+        }
+
+        private Sequence BuildScrollingTipCycle()
+        {
+            SetRandomScrollingTipShow();
+
+            Vector2 end1 = GetAnchoredPosInParent(mMarque1, mM1EndPos);
+            Vector2 end2 = GetAnchoredPosInParent(mMarque2, mM2EndPos);
+
+            var seq = DOTween.Sequence().SetAutoKill(true);
+            seq.AppendInterval(5f);
+            seq.Append(mMarque1.DOAnchorPos(end1, GameDefines.ScollingTipAnimTime).SetEase(Ease.Linear));
+            seq.Join(mMarque2.DOAnchorPos(end2, GameDefines.ScollingTipAnimTime).SetEase(Ease.Linear));
+            seq.AppendInterval(GameDefines.ScollingTipAnimInterval - 5f);
+            return seq;
+        }
+
+        /// <summary>
+        /// 把目标点换算到 marque 父节点下的 anchoredPosition（Start/End 与 Marque 不一定同父节点）。
+        /// </summary>
+        private static Vector2 GetAnchoredPosInParent(RectTransform marque, RectTransform target)
+        {
+            var parent = marque.parent as RectTransform;
+            if (parent == null || target == null)
+                return marque.anchoredPosition;
+
+            Vector3 local = parent.InverseTransformPoint(target.position);
+            return new Vector2(local.x, local.y);
         }
 
         /// <summary>
@@ -469,8 +508,8 @@ namespace XrCode
         /// </summary>
         private void SetRandomScrollingTipShow()
         {
-            mMarque1.transform.position = mM1StartPos.transform.position;
-            mMarque2.transform.position = mM2StartPos.transform.position;
+            mMarque1.anchoredPosition = GetAnchoredPosInParent(mMarque1, mM1StartPos);
+            mMarque2.anchoredPosition = GetAnchoredPosInParent(mMarque2, mM2StartPos);
 
             string name1 = FacadePlayer.GetRandomName();
             string name2 = FacadePlayer.GetRandomName();
@@ -488,10 +527,14 @@ namespace XrCode
 
         protected override void OnDisable()
         {
-        
+            scrollingTip?.Kill();
+            scrollingTip = null;
         }
+
         protected override void OnDispose()
         {
+            scrollingTip?.Kill();
+            scrollingTip = null;
             FacadeRemove();
         }
     }

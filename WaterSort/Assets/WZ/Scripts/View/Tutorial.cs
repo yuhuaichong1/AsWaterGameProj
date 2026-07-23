@@ -103,9 +103,24 @@ namespace WZSDK
         }
         void SetupType19Step0()
         {
-            GamePlayerView gamePlayerView = UIManager.instance.GetView<GamePlayerView>(EUIType.GamePlayerView);
-            Transform lastCap = gamePlayerView.CoinBoard.transform;
-            SetupHoleAndClickPos(lastCap);
+            // 主 HUD 走 UIGamePlay.CMBtn；旧 GamePlayerView.CoinBoard 仅作兜底。
+            RectTransform target = XrCode.FacadeGamePlay.GetCashOutBtnRect?.Invoke();
+            if (target == null)
+            {
+                GamePlayerView gamePlayerView = UIManager.instance.GetView<GamePlayerView>(EUIType.GamePlayerView);
+                if (gamePlayerView != null && gamePlayerView.CoinBoard != null)
+                    target = gamePlayerView.CoinBoard.transform as RectTransform;
+            }
+
+            if (target == null)
+            {
+                Debug.LogWarning("Tutorial TYPE19 step0: CashOut/CMBtn missing, close tutorial.");
+                UIManager.instance.CloseView(EUIType.Tutorial);
+                ForceHideGuideVisuals();
+                return;
+            }
+
+            SetupHoleAndClickPos(target);
             mask.SetActive(true);
             GuideTextFather.gameObject.SetActive(false);
             var GM = GameManagerWZ.instance;
@@ -245,7 +260,16 @@ namespace WZSDK
         }
         void SetupType3Step2()
         {
+            // 宿主 HUD 无独立 GemBoard 引导目标时跳过；旧 GamePlayerView 兜底。
             GamePlayerView gamePlayerView = UIManager.instance.GetView<GamePlayerView>(EUIType.GamePlayerView);
+            if (gamePlayerView == null || gamePlayerView.GemBoard == null)
+            {
+                Debug.LogWarning("Tutorial TYPE3 step2: GemBoard missing, skip step.");
+                UIManager.instance.CloseView(EUIType.Tutorial);
+                ForceHideGuideVisuals();
+                return;
+            }
+
             Transform lastCap = gamePlayerView.GemBoard.transform;
             SetupHoleAndClickPos(lastCap);
             mask.SetActive(true);
