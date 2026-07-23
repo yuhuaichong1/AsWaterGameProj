@@ -105,6 +105,8 @@ namespace XrCode
             sceneMod.Load();
             adModule.Load();
             withdrawalModule.Load();
+            // 模块 Load 可能覆盖 Facade；金钱再绑回 WZ。
+            WaterSortWZBridge.InitializeOrSync();
         }
 
         private void OpenHostGameplayUi()

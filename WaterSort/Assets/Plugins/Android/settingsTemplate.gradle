@@ -16,6 +16,22 @@ dependencyResolutionManagement {
         **ARTIFACTORYREPOSITORY**
         google()
         mavenCentral()
+// Android Resolver Repos Start
+        def unityProjectPath = $/file:///**DIR_UNITYPROJECT**/$.replace("\\", "/")
+        maven {
+            url (unityProjectPath + "/Assets/GeneratedLocalRepo/WZ/Firebase/m2repository") // Assets/WZ/Firebase/Editor/AppDependencies.xml:22, Assets/WZ/Firebase/Editor/MessagingDependencies.xml:24
+        }
+        maven {
+            url "https://artifact.bytedance.com/repository/pangle" // Assets/WZ/MaxSdk/Mediation/ByteDance/Editor/Dependencies.xml:8
+        }
+        maven {
+            url "https://cboost.jfrog.io/artifactory/chartboost-ads/" // Assets/WZ/MaxSdk/Mediation/Chartboost/Editor/Dependencies.xml:8
+        }
+        maven {
+            url "https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea" // Assets/WZ/MaxSdk/Mediation/Mintegral/Editor/Dependencies.xml:8
+        }
+        mavenLocal()
+// Android Resolver Repos End
         flatDir {
             dirs "${project(':unityLibrary').projectDir}/libs"
         }

@@ -836,14 +836,38 @@ namespace XrCode
 
         private void AddFlyMoney(Transform startPos)
         {
-            // HostDriven：货币/兑现由 WZ 接管，宿主不再加钱、不飞宿主余额。
-            if (WaterSortWZBridge.HostDriven)
+            // 暂时关闭：瓶子装满飞向 Pocket 后的金钱奖励与飞钱特效。
+            return;
+
+            var gm = WZSDK.GameManagerWZ.instance;
+            if (gm == null)
                 return;
 
-            //float moneyCount = GameDefines.ifIAA ? GameDefines.IAA_Elimination_Money : GameDefines.Elimination_Money;
-            float moneyCount = FacadeWithdraw.GetEliminationReward();
-            FacadePlayer.AddMoney(moneyCount);
-            FacadeEffect.PlayFlyMoney(startPos, GameDefines.FlyMoney_FlyMoneyCount, moneyCount, () => { FacadeGamePlay.SetCurMoneyShow(); });
+            // 装袋奖励统一走 WZ 金钱（AddCoinTem：不受前两关禁发限制，余额立刻进 currentCoin）。
+            float moneyCount = GameDefines.ifIAA
+                ? WZSDK.GameDefines.IAA_Elimination_Money
+                : WZSDK.GameDefines.Elimination_Money;
+            gm.AddCoinTem(moneyCount);
+            gm.AddEliminationCount(1);
+
+            int flyCount = GameDefines.FlyMoney_FlyMoneyCount;
+            if (WZSDK.FacadeEffectExtend.PlayFlyMoneyHandle != null)
+            {
+                WZSDK.FacadeEffectExtend.PlayFlyMoneyHandle.Invoke(
+                    startPos,
+                    flyCount,
+                    moneyCount,
+                    () => FacadeGamePlay.SetCurMoneyShow?.Invoke(),
+                    WZSDK.ERewardType.Money);
+            }
+            else
+            {
+                FacadeEffect.PlayFlyMoney?.Invoke(
+                    startPos,
+                    flyCount,
+                    moneyCount,
+                    () => FacadeGamePlay.SetCurMoneyShow?.Invoke());
+            }
         }
 
         static void ResetSlotAsPacked(CupData slot)

@@ -5,8 +5,52 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.core:core:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.0'
+// Android Resolver Dependencies Start
+    implementation 'androidx.recyclerview:recyclerview:1.2.1' // Assets/WZ/MaxSdk/Mediation/Mintegral/Editor/Dependencies.xml:9
+    implementation 'com.android.installreferrer:installreferrer:2.1' // Assets/WZ/AppsFlyer/Editor/AppsFlyerDependencies.xml:7
+    implementation 'com.android.support:customtabs:28.+' // Assets/WZ/MaxSdk/Mediation/InMobi/Editor/Dependencies.xml:7
+    implementation 'com.android.support:recyclerview-v7:28.+' // Assets/WZ/MaxSdk/Mediation/InMobi/Editor/Dependencies.xml:6
+    implementation 'com.applovin.mediation:bigoads-adapter:5.5.2.0' // Assets/WZ/MaxSdk/Mediation/BigoAds/Editor/Dependencies.xml:4
+    implementation 'com.applovin.mediation:bytedance-adapter:7.8.0.9.0' // Assets/WZ/MaxSdk/Mediation/ByteDance/Editor/Dependencies.xml:8
+    implementation 'com.applovin.mediation:chartboost-adapter:9.10.0.0' // Assets/WZ/MaxSdk/Mediation/Chartboost/Editor/Dependencies.xml:8
+    implementation 'com.applovin.mediation:facebook-adapter:[6.20.0.0]' // Assets/WZ/MaxSdk/Mediation/Facebook/Editor/Dependencies.xml:8
+    implementation 'com.applovin.mediation:fyber-adapter:8.4.0.0' // Assets/WZ/MaxSdk/Mediation/Fyber/Editor/Dependencies.xml:4
+    implementation 'com.applovin.mediation:google-adapter:[23.1.0.0]' // Assets/WZ/MaxSdk/Mediation/Google/Editor/Dependencies.xml:5
+    implementation 'com.applovin.mediation:inmobi-adapter:10.8.8.0' // Assets/WZ/MaxSdk/Mediation/InMobi/Editor/Dependencies.xml:4
+    implementation 'com.applovin.mediation:ironsource-adapter:9.0.0.0.0' // Assets/WZ/MaxSdk/Mediation/IronSource/Editor/Dependencies.xml:4
+    implementation 'com.applovin.mediation:mintegral-adapter:16.10.11.0' // Assets/WZ/MaxSdk/Mediation/Mintegral/Editor/Dependencies.xml:8
+    implementation 'com.applovin.mediation:unityads-adapter:4.16.3.0' // Assets/WZ/MaxSdk/Mediation/UnityAds/Editor/Dependencies.xml:4
+    implementation 'com.applovin.mediation:vungle-adapter:7.6.0.0' // Assets/WZ/MaxSdk/Mediation/Vungle/Editor/Dependencies.xml:4
+    implementation 'com.applovin.mediation:yandex-adapter:7.18.1.0' // Assets/WZ/MaxSdk/Mediation/Yandex/Editor/Dependencies.xml:4
+    implementation 'com.applovin:applovin-sdk:13.3.0' // Assets/WZ/MaxSdk/AppLovin/Editor/Dependencies.xml:4
+    implementation 'com.appsflyer:af-android-sdk:6.17.3' // Assets/WZ/AppsFlyer/Editor/AppsFlyerDependencies.xml:5
+    implementation 'com.appsflyer:purchase-connector:2.1.0' // Assets/WZ/AppsFlyer/Editor/AppsFlyerDependencies.xml:8
+    implementation 'com.appsflyer:unity-wrapper:6.17.3' // Assets/WZ/AppsFlyer/Editor/AppsFlyerDependencies.xml:6
+    // implementation 'com.google.android.gms:play-services-base:16.1.0' // Assets/WZ/MaxSdk/Mediation/Chartboost/Editor/Dependencies.xml:9
+    implementation 'com.google.android.gms:play-services-base:18.6.0' // Assets/WZ/Firebase/Editor/AppDependencies.xml:17
+    implementation 'com.google.firebase:firebase-analytics:22.4.0' // Assets/WZ/Firebase/Editor/MessagingDependencies.xml:15
+    implementation 'com.google.firebase:firebase-app-unity:12.10.0' // Assets/WZ/Firebase/Editor/AppDependencies.xml:22
+    implementation 'com.google.firebase:firebase-common:21.0.0' // Assets/WZ/Firebase/Editor/AppDependencies.xml:13
+    implementation 'com.google.firebase:firebase-iid:21.1.0' // Assets/WZ/Firebase/Editor/MessagingDependencies.xml:17
+    implementation 'com.google.firebase:firebase-messaging:24.1.1' // Assets/WZ/Firebase/Editor/MessagingDependencies.xml:13
+    implementation 'com.google.firebase:firebase-messaging-unity:12.10.0' // Assets/WZ/Firebase/Editor/MessagingDependencies.xml:24
+    implementation 'com.google.flatbuffers:flatbuffers-java:1.12.0' // Assets/WZ/Firebase/Editor/MessagingDependencies.xml:19
+    implementation 'com.squareup.picasso:picasso:2.71828' // Assets/WZ/MaxSdk/Mediation/InMobi/Editor/Dependencies.xml:5
+// Android Resolver Dependencies End
 **DEPS**}
 
+// Android Resolver Exclusions Start
+android {
+  packagingOptions {
+      exclude ('/lib/armeabi/*' + '*')
+      exclude ('/lib/armeabi-v7a/*' + '*')
+      exclude ('/lib/mips/*' + '*')
+      exclude ('/lib/mips64/*' + '*')
+      exclude ('/lib/x86/*' + '*')
+      exclude ('/lib/x86_64/*' + '*')
+  }
+}
+// Android Resolver Exclusions End
 android {
     namespace "com.unity3d.player"
     ndkPath "**NDKPATH**"

@@ -360,6 +360,7 @@ namespace WZSDK
             CheckDailyLogin();
             RegisterStageEvents();
             RegisterFacadeUserHandles();
+            WaterSortWZBridge.InitializeOrSync();
             FacadePayTypeExtend.RegionalChangeHandle += RegionalChange;
             exchangeRate = 1;
             OnLoginDayChanged?.Invoke();

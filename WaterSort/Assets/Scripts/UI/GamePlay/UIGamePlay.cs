@@ -145,14 +145,14 @@ namespace XrCode
         }
 
         /// <summary>
-        /// 非 IAA：与 Stage HUD ProgressTxT 同源，显示 WZ currentCoin；IAA 仍用宿主金钱。
+        /// CurMoneyText 统一显示 WZ currentCoin。
         /// </summary>
         private void RefreshCurMoneyText()
         {
             if (mCurMoneyText == null)
                 return;
 
-            if (!GameDefines.ifIAA && WZSDK.GameManagerWZ.instance != null)
+            if (WZSDK.GameManagerWZ.instance != null)
             {
                 float coin = WZSDK.GameManagerWZ.instance.currentCoin;
                 if (WZSDK.FacadePayTypeExtend.RegionalChangeHandle != null)

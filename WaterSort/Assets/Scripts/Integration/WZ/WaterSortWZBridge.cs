@@ -80,6 +80,7 @@ public static class WaterSortWZBridge
     {
         SyncIaaFlag();
         WireFacades();
+        WireHostMoneyToWz();
         SyncLevelFromHost();
     }
 
@@ -254,7 +255,49 @@ public static class WaterSortWZBridge
         FacadeUserExtend.GetExpHandle = () => FacadePlayer.GetPlayerExp?.Invoke() ?? 0;
         FacadeUserExtend.AddExpHandle = value => FacadePlayer.AddPlayerExp?.Invoke(value);
 
+        WireHostMoneyToWz();
         WireInterstitialCallbacks();
+    }
+
+    /// <summary>
+    /// 宿主 FacadePlayer 金钱全部转到 WZ currentCoin（显示/加减一致）。
+    /// HostDriven=true 时仍用宿主 PlayerModule 本地金钱，不覆盖。
+    /// </summary>
+    private static void WireHostMoneyToWz()
+    {
+        if (HostDriven) return;
+        FacadePlayer.GetMoney = GetWzMoney;
+        FacadePlayer.SetMoney = SetWzMoney;
+        FacadePlayer.AddMoney = AddWzMoney;
+    }
+
+    private static double GetWzMoney()
+    {
+        return GameManagerWZ.instance != null ? GameManagerWZ.instance.currentCoin : 0d;
+    }
+
+    private static void SetWzMoney(double value)
+    {
+        var gm = GameManagerWZ.instance;
+        if (gm == null) return;
+
+        if (FacadeUserExtend.SetUserCoinHandle != null)
+        {
+            FacadeUserExtend.SetUserCoinHandle((float)value);
+            return;
+        }
+
+        float delta = (float)value - gm.currentCoin;
+        if (Mathf.Abs(delta) > 0.0001f)
+            gm.AddCoinTem(delta);
+    }
+
+    private static void AddWzMoney(double value)
+    {
+        var gm = GameManagerWZ.instance;
+        if (gm == null || Math.Abs(value) < 0.0000001d) return;
+        // 宿主奖励入口不走前两关禁发限制，直接改 WZ 余额。
+        gm.AddCoinTem((float)value);
     }
 
     private static void WireInterstitialCallbacks()

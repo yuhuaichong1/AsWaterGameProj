@@ -47,9 +47,13 @@ namespace XrCode
 
         private void FacadeAdd()
         {
-            FacadePlayer.GetMoney += GetMoney;
-            FacadePlayer.SetMoney += SetMoney;
-            FacadePlayer.AddMoney += AddMoney;
+            // HostDriven=false：金钱统一走 WZ currentCoin，由 WaterSortWZBridge 接管 FacadePlayer 金钱接口。
+            if (WaterSortWZBridge.HostDriven)
+            {
+                FacadePlayer.GetMoney += GetMoney;
+                FacadePlayer.SetMoney += SetMoney;
+                FacadePlayer.AddMoney += AddMoney;
+            }
 
             FacadePlayer.GetDiamond += GetDiamond;
             FacadePlayer.SetDiamond += SetDiamond;
@@ -89,9 +93,12 @@ namespace XrCode
 
         private void FacadeRemove() 
         {
-            FacadePlayer.GetMoney -= GetMoney;
-            FacadePlayer.SetMoney -= SetMoney;
-            FacadePlayer.AddMoney -= AddMoney;
+            if (WaterSortWZBridge.HostDriven)
+            {
+                FacadePlayer.GetMoney -= GetMoney;
+                FacadePlayer.SetMoney -= SetMoney;
+                FacadePlayer.AddMoney -= AddMoney;
+            }
 
             FacadePlayer.GetDiamond -= GetDiamond;
             FacadePlayer.SetDiamond -= SetDiamond;
