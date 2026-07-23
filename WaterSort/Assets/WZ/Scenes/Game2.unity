@@ -132,19 +132,23 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 177684386493564351, guid: 1b8d025a60dea8841a92f227c4d46913, type: 3}
       propertyPath: devKey
-      value: SYAnTWgcsW3x372Fxa5XyT
+      value: z9VSzyyxwDwQwHHjC2J88M
       objectReference: {fileID: 0}
     - target: {fileID: 620665411937381912, guid: 1b8d025a60dea8841a92f227c4d46913, type: 3}
       propertyPath: maxSdkKey
-      value: 2kl8NbEnx_AKcCe2f71QqawvLuED3eB3tofiyF9BnXX25PSNKTnTfL1Zk1aM_aA_GBK5rTudKtIvH6kTkOyI8m
+      value: VvlRQ4IeOKUC3JgtZL_7syq_tWQH9lQSILr6a8_Ty7RB1WBeUKHamFlncRngr1s06NpyZkwlxCfqrI_AzWUDls
+      objectReference: {fileID: 0}
+    - target: {fileID: 620665411937381912, guid: 1b8d025a60dea8841a92f227c4d46913, type: 3}
+      propertyPath: isTestMode
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 620665411937381912, guid: 1b8d025a60dea8841a92f227c4d46913, type: 3}
       propertyPath: maxRewardedAdUnitId
-      value: 71a30aef953c70de
+      value: 9bff0d742f686897
       objectReference: {fileID: 0}
     - target: {fileID: 620665411937381912, guid: 1b8d025a60dea8841a92f227c4d46913, type: 3}
       propertyPath: maxInterstitialAdUnitId
-      value: df4b42553bf4fa69
+      value: 03ceb44d5607c737
       objectReference: {fileID: 0}
     - target: {fileID: 3139444835954025762, guid: 1b8d025a60dea8841a92f227c4d46913, type: 3}
       propertyPath: m_Name
