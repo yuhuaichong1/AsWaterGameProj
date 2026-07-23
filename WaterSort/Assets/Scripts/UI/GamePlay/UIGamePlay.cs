@@ -116,8 +116,7 @@ namespace XrCode
                 mWLProgress.gameObject.SetActive(false);
             if (mWPrompt != null)
                 mWPrompt.gameObject.SetActive(false);
-            if (GameDefines.ifIAA && mReStartBtn != null && mReStartBtnIAAPos != null)
-                mReStartBtn.transform.position = mReStartBtnIAAPos.position;
+            // ReStartBtn 位置固定，不随 ifIAA 切换。
         }
 
         protected override void OnEnable()
