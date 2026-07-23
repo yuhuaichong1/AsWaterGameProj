@@ -168,8 +168,15 @@ namespace WZSDK
 
             if (mFlyMoney != null && mFlyMoneyTip != null)
             {
-                // 切勿把预制体上已有的币图覆盖成 null（本地化图缺失时会整屏白块）。
-                Sprite coinSprite = ResolveFlyMoneySprite(preserveTemplate: true);
+                // 非 IAA 飞币模板固定用 icon_qianbi，避免 ifIAA=true 时被刷成 IAA 图。
+                Sprite coinSprite = Resources.Load<Sprite>(GameDefines.ERFlyMoneyIconPath);
+                if (coinSprite == null)
+                {
+                    Image templateImage = mFlyMoney.GetComponent<Image>();
+                    if (templateImage != null)
+                        coinSprite = templateImage.sprite;
+                }
+
                 if (coinSprite != null)
                 {
                     Image flyMoneyImage = mFlyMoney.GetComponent<Image>();
@@ -184,10 +191,49 @@ namespace WZSDK
                         tipImage.sprite = coinSprite;
                 }
             }
+
+            // IAA 飞币模板：icon_qianbi_IAA_2
+            if (mFlyIAAMoney != null || mFlyIAAMoneyTip != null)
+            {
+                Sprite iaaCoinSprite = Resources.Load<Sprite>(GameDefines.ERFlyIAAMoneyIconPath);
+                if (iaaCoinSprite != null)
+                {
+                    if (mFlyIAAMoney != null)
+                    {
+                        Image flyIaaImage = mFlyIAAMoney.GetComponent<Image>();
+                        if (flyIaaImage != null)
+                            flyIaaImage.sprite = iaaCoinSprite;
+                    }
+
+                    if (mFlyIAAMoneyTip != null && mFlyIAAMoneyTip.childCount > 0
+                        && mFlyIAAMoneyTip.GetChild(0).childCount > 0)
+                    {
+                        Image tipIaaImage = mFlyIAAMoneyTip.GetChild(0).GetChild(0).GetComponent<Image>();
+                        if (tipIaaImage != null)
+                            tipIaaImage.sprite = iaaCoinSprite;
+                    }
+                }
+            }
         }
 
         private Sprite ResolveFlyMoneySprite(bool preserveTemplate = false)
         {
+            if (GameDefines.ifIAA)
+            {
+                Sprite iaaSprite = Resources.Load<Sprite>(GameDefines.ERFlyIAAMoneyIconPath);
+                if (iaaSprite != null)
+                    return iaaSprite;
+
+                if (preserveTemplate && mFlyIAAMoney != null)
+                {
+                    Image templateImage = mFlyIAAMoney.GetComponent<Image>();
+                    if (templateImage != null && templateImage.sprite != null)
+                        return templateImage.sprite;
+                }
+
+                return null;
+            }
+
             // 飞币只用 icon_qianbi，不用成功页的钱堆图。
             Sprite sprite = Resources.Load<Sprite>(GameDefines.ERFlyMoneyIconPath);
             if (sprite != null)
@@ -628,9 +674,9 @@ namespace WZSDK
                 {
                     if (iconSprite != null)
                         image.sprite = iconSprite;
-                    else if (image.sprite == null && mFlyMoney != null)
+                    else if (image.sprite == null)
                     {
-                        Image template = mFlyMoney.GetComponent<Image>();
+                        Image template = (GameDefines.ifIAA ? mFlyIAAMoney : mFlyMoney)?.GetComponent<Image>();
                         if (template != null && template.sprite != null)
                             image.sprite = template.sprite;
                     }

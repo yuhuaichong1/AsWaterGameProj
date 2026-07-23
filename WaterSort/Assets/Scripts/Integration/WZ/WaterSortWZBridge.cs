@@ -81,7 +81,7 @@ public static class WaterSortWZBridge
         SyncIaaFlag();
         WireFacades();
         WireHostMoneyToWz();
-        SyncLevelFromHost();
+        SyncLevelProgress();
     }
 
     public static void ReportSessionStart(int sessionId)
@@ -406,10 +406,30 @@ public static class WaterSortWZBridge
             WZSDK.GameDefines.ifIAA = global::GameDefines.ifIAA;
     }
 
-    private static void SyncLevelFromHost()
+    /// <summary>
+    /// ifIAA 分键存档：宿主可能在 ifIAA=false 时已读过 WS_level。
+    /// 这里按当前 ifIAA 重读宿主关卡，再与 WZ 取较大值写回两侧，避免 IAA 进度被覆盖成 1。
+    /// </summary>
+    private static void SyncLevelProgress()
     {
-        int hostLevel = FacadePlayer.GetLevel?.Invoke() ?? 1;
-        SyncLevelToWz(hostLevel);
+        ReloadHostLevelFromCurrentIaaPrefs();
+
+        int hostLevel = FacadePlayer.GetLevel?.Invoke() ?? 0;
+        int wzSaved = PlayerPrefs.GetInt(FacadePlayerPrefExtend.currentLevel, 0);
+        int wzMemory = GameManagerWZ.instance != null ? GameManagerWZ.instance.currentLv : 0;
+        int wzLevel = Mathf.Max(wzSaved, wzMemory);
+
+        int resolved = Mathf.Max(Mathf.Max(hostLevel, 1), Mathf.Max(wzLevel, 1));
+        SyncLevelToWz(resolved);
+        FacadePlayer.SetLevel?.Invoke(resolved);
+    }
+
+    private static void ReloadHostLevelFromCurrentIaaPrefs()
+    {
+        // PlayerPrefDefines.level 会随当前 GameDefines.ifIAA 切换 IAA_WS_level / WS_level。
+        int saved = SPlayerPrefs.GetInt(PlayerPrefDefines.level, 1);
+        if (FacadePlayer.SetLevel != null)
+            FacadePlayer.SetLevel.Invoke(saved);
     }
 
     private static void SyncLevelToWz(int level)
@@ -418,6 +438,7 @@ public static class WaterSortWZBridge
         int safe = Mathf.Max(level, 1);
         GameManagerWZ.instance.currentLv = safe;
         PlayerPrefs.SetInt(FacadePlayerPrefExtend.currentLevel, safe);
+        PlayerPrefs.Save();
     }
 
     public static bool IsWzEntryScene()

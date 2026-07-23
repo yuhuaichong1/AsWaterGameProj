@@ -190,9 +190,10 @@ namespace WZSDK
 
         #region 奖励特效小图标路径
 
-        public static string ERIAAMoneyIconPath = "UI/LuckySpinIcons/icon_qianbi_IAA";                      //一叠硬币
+        public static string ERIAAMoneyIconPath = "UI/Money/IAAStars";                                     //IAA 奖励项钱图标
         public static string ERMultCoinIconPath = "UI/Money/Multiple/coin_big_us";                          //成功页/奖励项钱堆
         public static string ERFlyMoneyIconPath = "UI/LuckySpinView/icon_qianbi";                           //飞币小图标
+        public static string ERFlyIAAMoneyIconPath = "UI/LuckySpinView/icon_qianbi_IAA_2";                  //IAA 飞币/飘字图标
         public static string ERAddSpaceIconPath = "UI/FuncIcon/SFuncIcon_Prop1";                         //添加瓶子
         public static string ERClearIconPath = "UI/FuncIcon/SFuncIcon_Prop2";                               //清除道具
         public static string ERHammerIconPath = "UI/FuncIcon/SFuncIcon_Prop3";                             //回退道具

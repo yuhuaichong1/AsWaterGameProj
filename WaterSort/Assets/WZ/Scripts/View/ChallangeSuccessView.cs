@@ -228,7 +228,8 @@ namespace WZSDK
 
         private void RefreshModeUI()
         {
-            bool shouldShowProgressRoot = !GameDefines.ifIAA;
+            bool isIaa = GameDefines.ifIAA;
+            bool shouldShowProgressRoot = !isIaa;
 
             if (ProgressRoot != null)
             {
@@ -238,6 +239,26 @@ namespace WZSDK
 
             if (!shouldShowProgressRoot)
                 ResetLuckySpinProgressState();
+
+            ApplyMoneyIconMode(isIaa);
+        }
+
+        /// <summary>
+        /// ifIAA：显示 IAAMoneyIcon（img_coinsIAA），隐藏 MoneyIcon；否则相反。
+        /// </summary>
+        private void ApplyMoneyIconMode(bool isIaa)
+        {
+            Transform[] transforms = GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < transforms.Length; i++)
+            {
+                Transform t = transforms[i];
+                if (t == null) continue;
+
+                if (t.name == "MoneyIcon")
+                    t.gameObject.SetActive(!isIaa);
+                else if (t.name == "IAAMoneyIcon")
+                    t.gameObject.SetActive(isIaa);
+            }
         }
 
         private void SetProgressRootRaycastEnabled(bool enabled)

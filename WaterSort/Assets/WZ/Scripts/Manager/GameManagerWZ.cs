@@ -1558,7 +1558,9 @@ namespace WZSDK
             {
                 currentLv++;
                 PlayerPrefs.SetInt(FacadePlayerPrefExtend.currentLevel, currentLv);
-              
+                PlayerPrefs.Save();
+                // 立刻写宿主关卡（IAA 键），避免成功页未 Continue 就退出时进度丢失。
+                XrCode.FacadePlayer.SetLevel?.Invoke(currentLv);
             }
             else
             {
