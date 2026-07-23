@@ -1841,8 +1841,14 @@ namespace WZSDK
 
         public void RewardHintBottle(int amount = 1)
         {
-            currentAddBottleCount += amount;
-            SaveAddBottleData();
+            // 道具走宿主：AddBottle → Prop1
+            if (FacadeUserExtend.AddAddSpacePropNumHandle != null)
+                FacadeUserExtend.AddAddSpacePropNumHandle(amount);
+            else
+            {
+                currentAddBottleCount += amount;
+                SaveAddBottleData();
+            }
             RefreshBottleCountUI();
         }
 
@@ -1853,15 +1859,27 @@ namespace WZSDK
 
         public void RewardClear(int amount = 1)
         {
-            currentClear += amount;
-            SaveClearData();
+            // 道具走宿主：Clear → Prop2
+            if (FacadeUserExtend.AddClearPropNumHandle != null)
+                FacadeUserExtend.AddClearPropNumHandle(amount);
+            else
+            {
+                currentClear += amount;
+                SaveClearData();
+            }
             RefreshClearInfoUI();
         }
 
         public void RewardUndo(int amount = 1)
         {
-            currentUndo += amount;
-            SaveUndoData();
+            // 道具走宿主：Undo → Prop3
+            if (FacadeUserExtend.AddHammerPropNumHandle != null)
+                FacadeUserExtend.AddHammerPropNumHandle(amount);
+            else
+            {
+                currentUndo += amount;
+                SaveUndoData();
+            }
             RefreshUndoInfoUI();
         }
 
