@@ -122,14 +122,35 @@ namespace XrCode
         /// </summary>
         private void SetCurMoneyShow()
         {
-            double money = FacadePlayer.GetMoney?.Invoke() ?? 0;
-            mCurMoneyText.text = FacadePayType.RegionalChange?.Invoke(money);
+            RefreshCurMoneyText();
             // WLProgress / WPrompt 已停用。
             // if (FacadeWithdraw.GetCurWithdrawTarget() == WithdrawTarget.AmountOfMoney)
             // {
             //     SetWPMsg();
             // }
             RefreshWzStageHud();
+        }
+
+        /// <summary>
+        /// 非 IAA：与 Stage HUD ProgressTxT 同源，显示 WZ currentCoin；IAA 仍用宿主金钱。
+        /// </summary>
+        private void RefreshCurMoneyText()
+        {
+            if (mCurMoneyText == null)
+                return;
+
+            if (!GameDefines.ifIAA && WZSDK.GameManagerWZ.instance != null)
+            {
+                float coin = WZSDK.GameManagerWZ.instance.currentCoin;
+                if (WZSDK.FacadePayTypeExtend.RegionalChangeHandle != null)
+                    mCurMoneyText.text = WZSDK.FacadePayTypeExtend.RegionalChangeHandle(coin);
+                else
+                    mCurMoneyText.text = FacadePayType.RegionalChange?.Invoke(coin);
+                return;
+            }
+
+            double money = FacadePlayer.GetMoney?.Invoke() ?? 0;
+            mCurMoneyText.text = FacadePayType.RegionalChange?.Invoke(money);
         }
 
         /// <summary>

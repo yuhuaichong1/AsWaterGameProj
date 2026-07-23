@@ -250,6 +250,8 @@ namespace XrCode
             if (!wzStageHudReady || HostGameDefines.ifIAA)
                 return;
 
+            // 与 ProgressTxT 同源：每次刷新 HUD 时同步上方 CurMoneyText。
+            RefreshCurMoneyText();
             RefreshLuckyProgress();
             UpdateWithdrawPrompt();
         }

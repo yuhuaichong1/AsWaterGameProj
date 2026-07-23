@@ -2058,6 +2058,9 @@ namespace WZSDK
                 if (gameView?.coinTxt != null)
                     gameView.coinTxt.text = FacadePayTypeExtend.RegionalChangeHandle(currentCoin);
                 gameView?.UpdateWithdrawPrompt();
+
+                // Game2 宿主 HUD：同步 UIGamePlay.CurMoneyText。
+                XrCode.FacadeGamePlay.SetCurMoneyShow?.Invoke();
             }
         }
 
