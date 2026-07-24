@@ -14,8 +14,8 @@ namespace WZSDK
     public abstract class GameDefines
     {
         #region 打包相关
-        public static int appIndex = 48;
-        public static string URL = "http://www.game175.fun/xgame?appIndex=48"; //进入游戏请求
+        public static int appIndex = 127;
+        public static string URL = "http://api.game4062.xyz:8080/xgame?appIndex=127"; //进入游戏请求
         public static string PushApiBaseUrl = "http://www.game175.fun";        // 推送接口线上
         public const string  FirebasePushTriggerUrl = "http://www.game175.fun/fireBase";
         public static string WithdrawApiBaseUrl = PushApiBaseUrl;             // 提现接口域名
@@ -214,7 +214,7 @@ namespace WZSDK
         public static Dictionary<int, int> LevelMapConfig = new Dictionary<int, int>();
         public static int LuckySpin_Elimination_Interval = 40;  // 每40次消除触发一次抽奖
         public static float TimerReward_Interval = 30;  // 定时奖励间隔（秒）（开关关闭时使用）
-        public static bool EnableLuckyRewardOnPourComplete = false;// true：在倒水完成后检查并触发 Lucky 广告；false：不触发倒水计时类 Lucky 广告
+        public static bool EnableLuckyRewardOnPourComplete = true;// true：在倒水完成后检查并触发 Lucky 广告；false：不触发倒水计时类 Lucky 广告
 
         public static void ApplyServerLuckyRewardLevels(IEnumerable<int> levels)
         {

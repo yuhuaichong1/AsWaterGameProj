@@ -679,8 +679,8 @@ namespace XrCode
         /// </summary>
         private void CheckOpenLuckySpin()
         {
-            // 以 WZ 为准：关闭宿主转盘
-            if (WaterSortWZBridge.HostDriven)
+            // 以 WZ 为准：关闭宿主 UILuckySpin，转盘走 WZ LuckySpinView。
+            if (!WaterSortWZBridge.HostDriven)
                 return;
 
             if (curLevelIndex > 3)
