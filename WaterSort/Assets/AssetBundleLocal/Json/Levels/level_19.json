@@ -1,411 +1,412 @@
 {
-    "level": 19,
-    "cups": [
-        {
-            "x": 90.0,
-            "y": 488.5,
-            "colors": [
-                1,
-                8,
-                7,
-                2
-            ],
-            "whNums": 0,
-            "whMask": 0,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": -94.0,
-            "y": 488.5,
-            "colors": [
-                7,
-                3,
-                7,
-                7
-            ],
-            "whNums": 0,
-            "whMask": 0,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": -232.0,
-            "y": 488.5,
-            "colors": [
-                1,
-                5
-            ],
-            "whNums": 0,
-            "whMask": 0,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": -370.0,
-            "y": 488.5,
-            "colors": [],
-            "whNums": 0,
-            "whMask": 0,
-            "isVideo": 1,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": 228.0,
-            "y": 488.5,
-            "colors": [
-                5
-            ],
-            "whNums": 0,
-            "whMask": 0,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": 366.0,
-            "y": 488.5,
-            "colors": [],
-            "whNums": 0,
-            "whMask": 0,
-            "isVideo": 1,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": 366.0,
-            "y": 185.25,
-            "colors": [
-                7,
-                2,
-                2
-            ],
-            "whNums": 0,
-            "whMask": 0,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": -232.0,
-            "y": 185.25,
-            "colors": [
-                6,
-                3,
-                8,
-                1
-            ],
-            "whNums": 2,
-            "whMask": 3,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": -370.0,
-            "y": 185.25,
-            "colors": [
-                7,
-                6,
-                1,
-                1
-            ],
-            "whNums": 0,
-            "whMask": 0,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": 228.0,
-            "y": 185.25,
-            "colors": [
-                4,
-                1,
-                1,
-                7
-            ],
-            "whNums": 3,
-            "whMask": 7,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": 90.0,
-            "y": -121.0,
-            "colors": [
-                4,
-                3,
-                8,
-                3
-            ],
-            "whNums": 2,
-            "whMask": 3,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": -94.0,
-            "y": -121.0,
-            "colors": [
-                4,
-                4,
-                4,
-                8
-            ],
-            "whNums": 2,
-            "whMask": 3,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": -232.0,
-            "y": -121.0,
-            "colors": [
-                5,
-                2,
-                1,
-                3
-            ],
-            "whNums": 0,
-            "whMask": 6,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": -370.0,
-            "y": -121.0,
-            "colors": [
-                6,
-                2,
-                8,
-                4
-            ],
-            "whNums": 0,
-            "whMask": 6,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": -370.0,
-            "y": -427.25,
-            "colors": [
-                2,
-                8,
-                3
-            ],
-            "whNums": 0,
-            "whMask": 0,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": 366.0,
-            "y": -121.0,
-            "colors": [
-                1,
-                8,
-                3,
-                2
-            ],
-            "whNums": 0,
-            "whMask": 0,
-            "isVideo": 0,
-            "isLock": 1,
-            "lockColor": 2,
-            "lockNums": 1,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": 90.0,
-            "y": -427.25,
-            "colors": [
-                3,
-                1,
-                2,
-                8
-            ],
-            "whNums": 0,
-            "whMask": 0,
-            "isVideo": 0,
-            "isLock": 1,
-            "lockColor": 4,
-            "lockNums": 1,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": -94.0,
-            "y": -427.25,
-            "colors": [
-                3,
-                1,
-                2,
-                8
-            ],
-            "whNums": 0,
-            "whMask": 0,
-            "isVideo": 0,
-            "isLock": 1,
-            "lockColor": 0,
-            "lockNums": 2,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": -232.0,
-            "y": -427.25,
-            "colors": [
-                3,
-                6
-            ],
-            "whNums": 0,
-            "whMask": 0,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": 228.0,
-            "y": -121.0,
-            "colors": [
-                2,
-                7,
-                3,
-                2
-            ],
-            "whNums": 0,
-            "whMask": 6,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": 228.0,
-            "y": -427.25,
-            "colors": [
-                3,
-                1,
-                2,
-                8
-            ],
-            "whNums": 0,
-            "whMask": 0,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": 366.0,
-            "y": -427.25,
-            "colors": [
-                8,
-                4,
-                4
-            ],
-            "whNums": 0,
-            "whMask": 0,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": -94.0,
-            "y": 185.25,
-            "colors": [
-                5
-            ],
-            "whNums": 0,
-            "whMask": 0,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        },
-        {
-            "x": 90.0,
-            "y": 185.25,
-            "colors": [
-                8
-            ],
-            "whNums": 0,
-            "whMask": 0,
-            "isVideo": 0,
-            "isLock": 0,
-            "lockColor": 0,
-            "lockNums": 0,
-            "isNull": 0,
-            "isEmptyCup": 0
-        }
-    ]
+  "level": 19,
+  "cups": [
+    {
+      "x": 90.0,
+      "y": 488.5,
+      "colors": [
+        1,
+        8,
+        7,
+        2
+      ],
+      "whNums": 0,
+      "whMask": 0,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": -94.0,
+      "y": 488.5,
+      "colors": [
+        7,
+        3,
+        7,
+        7
+      ],
+      "whNums": 0,
+      "whMask": 0,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": -232.0,
+      "y": 488.5,
+      "colors": [
+        1,
+        5
+      ],
+      "whNums": 0,
+      "whMask": 0,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": -370.0,
+      "y": 488.5,
+      "colors": [],
+      "whNums": 0,
+      "whMask": 0,
+      "isVideo": 1,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": 228.0,
+      "y": 488.5,
+      "colors": [
+        5
+      ],
+      "whNums": 0,
+      "whMask": 0,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": 366.0,
+      "y": 488.5,
+      "colors": [],
+      "whNums": 0,
+      "whMask": 0,
+      "isVideo": 1,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": 366.0,
+      "y": 185.25,
+      "colors": [
+        7,
+        2,
+        2
+      ],
+      "whNums": 0,
+      "whMask": 0,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": -232.0,
+      "y": 185.25,
+      "colors": [
+        6,
+        3,
+        8,
+        1
+      ],
+      "whNums": 2,
+      "whMask": 3,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": -370.0,
+      "y": 185.25,
+      "colors": [
+        7,
+        6,
+        1,
+        1
+      ],
+      "whNums": 0,
+      "whMask": 0,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": 228.0,
+      "y": 185.25,
+      "colors": [
+        4,
+        1,
+        1,
+        7
+      ],
+      "whNums": 3,
+      "whMask": 7,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": 90.0,
+      "y": -121.0,
+      "colors": [
+        4,
+        3,
+        8,
+        3
+      ],
+      "whNums": 2,
+      "whMask": 3,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": -94.0,
+      "y": -121.0,
+      "colors": [
+        4,
+        4,
+        4,
+        8
+      ],
+      "whNums": 2,
+      "whMask": 3,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": -232.0,
+      "y": -121.0,
+      "colors": [
+        5,
+        2,
+        1,
+        3
+      ],
+      "whNums": 0,
+      "whMask": 6,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": -370.0,
+      "y": -121.0,
+      "colors": [
+        6,
+        2,
+        8,
+        4
+      ],
+      "whNums": 0,
+      "whMask": 6,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": -370.0,
+      "y": -427.25,
+      "colors": [
+        2,
+        8,
+        3
+      ],
+      "whNums": 0,
+      "whMask": 0,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": 366.0,
+      "y": -121.0,
+      "colors": [
+        1,
+        8,
+        3,
+        2
+      ],
+      "whNums": 0,
+      "whMask": 0,
+      "isVideo": 0,
+      "isLock": 1,
+      "lockColor": 2,
+      "lockNums": 1,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": 90.0,
+      "y": -427.25,
+      "colors": [
+        3,
+        1,
+        2,
+        8
+      ],
+      "whNums": 0,
+      "whMask": 0,
+      "isVideo": 0,
+      "isLock": 1,
+      "lockColor": 4,
+      "lockNums": 1,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": -94.0,
+      "y": -427.25,
+      "colors": [
+        3,
+        1,
+        2,
+        8
+      ],
+      "whNums": 0,
+      "whMask": 0,
+      "isVideo": 0,
+      "isLock": 1,
+      "lockColor": 0,
+      "lockNums": 2,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": -232.0,
+      "y": -427.25,
+      "colors": [
+        3,
+        6
+      ],
+      "whNums": 0,
+      "whMask": 0,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": 228.0,
+      "y": -121.0,
+      "colors": [
+        2,
+        7,
+        3,
+        2
+      ],
+      "whNums": 0,
+      "whMask": 6,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": 228.0,
+      "y": -427.25,
+      "colors": [
+        3,
+        1,
+        2,
+        8
+      ],
+      "whNums": 0,
+      "whMask": 0,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": 366.0,
+      "y": -427.25,
+      "colors": [
+        8,
+        4,
+        4
+      ],
+      "whNums": 0,
+      "whMask": 0,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": -94.0,
+      "y": 185.25,
+      "colors": [
+        5
+      ],
+      "whNums": 0,
+      "whMask": 0,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    },
+    {
+      "x": 90.0,
+      "y": 185.25,
+      "colors": [
+        8
+      ],
+      "whNums": 0,
+      "whMask": 0,
+      "isVideo": 0,
+      "isLock": 0,
+      "lockColor": 0,
+      "lockNums": 0,
+      "isNull": 0,
+      "isEmptyCup": 0
+    }
+  ],
+  "_water4": "p8lghAGUWqckmGZp1+CRHK0HXN/pmy7kEhlg8bYVXCfEus5jTV3z82ZfyPZJajm3k5tXxwKuQoGO5/Mr4Y7x1LPZoNMGoZfblWAxVdkTeC/0Kh9JdAHndrZhQIVpwzeCQeQk18h3kPLb4qHjOcPXZNLchAf8k1/YEU8ZhhRqkjMXNstvuKxpA84gf8oOwX2HDAbRYNQ+Ot3GW4t0ZBdwYG4VUaZ80iMe0TpZUeW+qV4ihTkBVe9SxbR2jtqDbtjhtRVFyHM14sLDSHuyl7jG2Em8i+5Eh+1dyjbX02BsZZQOnyG3KiGbiVfPsxVoTvMgjJxZ7fmOAwGqJJE88uKnjD+ty16tB8ntD+uEGvaheyeWA049nYoU6M+8NC7eKEi6p4EkykaFf+A5whXCqs7zrPeAEqJev18GSz73AEigIza7FlDpKrbDbXuthyC15MzsKJHvifHwosgjyt/iYr1PBDPuBdFfwfCpMdqdBtedO3mPuCABjH8nwS7du2aA4WxHkA1LiFvPXgFsvThC06GHdCj2XzGpRrzXAXMK8f2zE0YkD64DzFeRbQaMdcKNYLmzDYrVAgoeQC1B0wGOaByUtVj4+MbC0hk8I1ZboEu5I0Dyk8++DZ+KqwBVj2DBH8ORqxhlcuHuL7slrVHYpq9707caMG9jB8U7A+SD1CO/x3E="
 }
