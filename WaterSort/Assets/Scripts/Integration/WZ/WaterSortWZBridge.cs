@@ -410,38 +410,81 @@ public static class WaterSortWZBridge
     }
 
     /// <summary>
-    /// ifIAA 分键存档：宿主可能在 ifIAA=false 时已读过 WS_level。
-    /// 这里按当前 ifIAA 重读宿主关卡，再与 WZ 取较大值写回两侧，避免 IAA 进度被覆盖成 1。
+    /// 合并宿主/WZ、IAA/非 IAA 两侧关卡存档，取最大值写回，避免 ifIAA 切换或启动时序导致进度回 1。
+    /// 可在建关前主动调用。
     /// </summary>
-    private static void SyncLevelProgress()
+    public static void SyncLevelProgress()
     {
-        ReloadHostLevelFromCurrentIaaPrefs();
-
-        int hostLevel = FacadePlayer.GetLevel?.Invoke() ?? 0;
-        int wzSaved = PlayerPrefs.GetInt(FacadePlayerPrefExtend.currentLevel, 0);
-        int wzMemory = GameManagerWZ.instance != null ? GameManagerWZ.instance.currentLv : 0;
-        int wzLevel = Mathf.Max(wzSaved, wzMemory);
-
-        int resolved = Mathf.Max(Mathf.Max(hostLevel, 1), Mathf.Max(wzLevel, 1));
-        SyncLevelToWz(resolved);
-        FacadePlayer.SetLevel?.Invoke(resolved);
+        int resolved = ResolvePersistedLevel();
+        PersistResolvedLevel(resolved);
     }
 
-    private static void ReloadHostLevelFromCurrentIaaPrefs()
+    /// <summary>
+    /// 通关后立刻持久化指定关卡（同时写 IAA / 非 IAA 键）。
+    /// </summary>
+    public static void PersistLevel(int level)
     {
-        // PlayerPrefDefines.level 会随当前 GameDefines.ifIAA 切换 IAA_WS_level / WS_level。
-        int saved = SPlayerPrefs.GetInt(PlayerPrefDefines.level, 1);
-        if (FacadePlayer.SetLevel != null)
-            FacadePlayer.SetLevel.Invoke(saved);
+        PersistResolvedLevel(Mathf.Max(level, 1));
+    }
+
+    private static int ResolvePersistedLevel()
+    {
+        int hostSaved = ReadMaxPrefLevel(
+            () => global::GameDefines.ifIAA,
+            v => global::GameDefines.ifIAA = v,
+            () => SPlayerPrefs.GetInt(PlayerPrefDefines.level, 0));
+
+        int wzSaved = ReadMaxPrefLevel(
+            () => WZSDK.GameDefines.ifIAA,
+            v => WZSDK.GameDefines.ifIAA = v,
+            () => PlayerPrefs.GetInt(FacadePlayerPrefExtend.currentLevel, 0));
+
+        int hostRuntime = FacadePlayer.GetLevel?.Invoke() ?? 0;
+        int wzMemory = GameManagerWZ.instance != null ? GameManagerWZ.instance.currentLv : 0;
+        return Mathf.Max(1, Mathf.Max(Mathf.Max(hostSaved, wzSaved), Mathf.Max(hostRuntime, wzMemory)));
+    }
+
+    private static int ReadMaxPrefLevel(System.Func<bool> getIaa, System.Action<bool> setIaa, System.Func<int> read)
+    {
+        bool prev = getIaa();
+        setIaa(false);
+        int nonIaa = read();
+        setIaa(true);
+        int iaa = read();
+        setIaa(prev);
+        return Mathf.Max(nonIaa, iaa);
+    }
+
+    private static void PersistResolvedLevel(int level)
+    {
+        int safe = Mathf.Max(level, 1);
+
+        bool hostPrev = global::GameDefines.ifIAA;
+        bool wzPrev = WZSDK.GameDefines.ifIAA;
+
+        global::GameDefines.ifIAA = false;
+        WZSDK.GameDefines.ifIAA = false;
+        SPlayerPrefs.SetInt(PlayerPrefDefines.level, safe);
+        PlayerPrefs.SetInt(FacadePlayerPrefExtend.currentLevel, safe);
+
+        global::GameDefines.ifIAA = true;
+        WZSDK.GameDefines.ifIAA = true;
+        SPlayerPrefs.SetInt(PlayerPrefDefines.level, safe);
+        PlayerPrefs.SetInt(FacadePlayerPrefExtend.currentLevel, safe);
+
+        global::GameDefines.ifIAA = hostPrev;
+        WZSDK.GameDefines.ifIAA = wzPrev;
+        PlayerPrefs.Save();
+
+        if (GameManagerWZ.instance != null)
+            GameManagerWZ.instance.currentLv = safe;
+
+        FacadePlayer.SetLevel?.Invoke(safe);
     }
 
     private static void SyncLevelToWz(int level)
     {
-        if (GameManagerWZ.instance == null) return;
-        int safe = Mathf.Max(level, 1);
-        GameManagerWZ.instance.currentLv = safe;
-        PlayerPrefs.SetInt(FacadePlayerPrefExtend.currentLevel, safe);
-        PlayerPrefs.Save();
+        PersistResolvedLevel(level);
     }
 
     public static bool IsWzEntryScene()

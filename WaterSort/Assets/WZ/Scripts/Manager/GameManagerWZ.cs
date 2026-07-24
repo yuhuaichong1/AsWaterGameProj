@@ -1560,14 +1560,13 @@ namespace WZSDK
             if (currentLv < totalLevels)
             {
                 currentLv++;
-                PlayerPrefs.SetInt(FacadePlayerPrefExtend.currentLevel, currentLv);
-                PlayerPrefs.Save();
-                // 立刻写宿主关卡（IAA 键），避免成功页未 Continue 就退出时进度丢失。
-                XrCode.FacadePlayer.SetLevel?.Invoke(currentLv);
+                // 同时写宿主/WZ、IAA/非 IAA 键，避免再次进游戏因 ifIAA 切换读回第 1 关。
+                WaterSortWZBridge.PersistLevel(currentLv);
             }
             else
             {
-                currentLv = PlayerPrefs.GetInt(FacadePlayerPrefExtend.currentLevel);
+                WaterSortWZBridge.SyncLevelProgress();
+                currentLv = Mathf.Max(currentLv, 1);
             }
             OnLevelChanged?.Invoke();
             OnCoinChanged?.Invoke();

@@ -86,6 +86,8 @@ namespace XrCode
         public void StartInPlace()
         {
             LoadAllModules();
+            // 建关前先合并关卡存档，避免 UIGamePlay.OnEnable→StartLevel 仍按默认第 1 关开局。
+            WaterSortWZBridge.SyncLevelProgress();
             OpenHostGameplayUi();
         }
 

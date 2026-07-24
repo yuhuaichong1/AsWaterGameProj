@@ -32,7 +32,8 @@ namespace XrCode
         {
             Instance = this;
             gameState = EGameState.Load;
-            if(!ifCheckNetwork)
+            // Game2 动态补的 Game 组件 ifIAA 默认为 false，不能覆盖 WZ；由 WaterSortWZBridge.SyncIaaFlag 统一。
+            if (!ifCheckNetwork && !WaterSortWZBridge.IsWzEntryScene())
                 GameDefines.ifIAA = ifIAA;
             Load();
         }

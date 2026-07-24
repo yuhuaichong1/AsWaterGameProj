@@ -146,6 +146,9 @@ namespace XrCode
         /// </summary>
         private void StartLevel()
         {
+            // 建关前再同步一次，兜住 WZ InitGame 尚未完成 / ifIAA 键不一致的情况。
+            WaterSortWZBridge.SyncLevelProgress();
+
             // 第2关后：先引导 + Mission，CreateLevel 延后到 Mission Continue。
             if (WaterSortWZBridge.ShouldDeferHostLevelCreate())
             {
