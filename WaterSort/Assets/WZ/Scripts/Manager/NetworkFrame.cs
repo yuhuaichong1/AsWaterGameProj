@@ -13,7 +13,6 @@ namespace WZSDK
         private const string ServerConfigLogPrefix = "[ServerConfig]";
         private const string ServerResponseCacheKey = "server_config_raw";
         private const string ServerResponseTimeCacheKey = "server_config_time";
-        private const int MaxServerRequestAttempts = 3;
         private const float ServerRetryDelaySeconds = 1f;
         private const string LocalSettingsResourcePath = "LocalSettings/LocalSettings";
         private bool loginSuccessed;
@@ -57,8 +56,11 @@ namespace WZSDK
 
         private IEnumerator FetchDataCoroutine(string url, string currentVersion)
         {
-            for (int attempt = 1; attempt <= MaxServerRequestAttempts; attempt++)
+            int attempt = 0;
+            // 网络一直不通则无限重试，不回调、不进游戏，LoadingView 保持卡住。
+            while (true)
             {
+                attempt++;
                 using (UnityWebRequest webReq = UnityWebRequest.Get(url))
                 {
                     webReq.timeout = 16;
@@ -66,28 +68,56 @@ namespace WZSDK
 
                     yield return webReq.SendWebRequest();
 
-                    if (webReq.result == UnityWebRequest.Result.Success)
+                    if (webReq.result == UnityWebRequest.Result.Success
+                        && TryAcceptServerResponse(webReq.downloadHandler?.text, currentVersion, out var parsed))
                     {
-                        string jsonData = webReq.downloadHandler.text;
-                        CacheServerResponse(jsonData);
-                        var (iaaValue, isVersionMatch, forcedUpload) = ParseServerResponse(jsonData, currentVersion);
-                        onRequestComplete?.Invoke(iaaValue, isVersionMatch, forcedUpload);
+                        GameManagerWZ.instance?.SetNetworkErrorTipVisible(false);
+                        CacheServerResponse(webReq.downloadHandler.text);
+                        onRequestComplete?.Invoke(parsed.iaaValue, parsed.isVersionMatch, parsed.forcedUpload);
                         yield break;
                     }
 
-                    Debug.LogError($"请求失败：{webReq.error}");
-                    Debug.LogWarning($"{ServerConfigLogPrefix} 请求失败({attempt}/{MaxServerRequestAttempts}): url={url}");
+                    string error = webReq.result != UnityWebRequest.Result.Success
+                        ? webReq.error
+                        : "响应无效或无法解析";
+                    Debug.LogError($"请求失败：{error}");
+                    Debug.LogWarning($"{ServerConfigLogPrefix} 请求失败(第 {attempt} 次)，继续重试并停留 Loading: url={url}");
+                    GameManagerWZ.instance?.SetNetworkErrorTipVisible(true);
                 }
 
-                if (attempt < MaxServerRequestAttempts)
-                {
-                    yield return new WaitForSecondsRealtime(ServerRetryDelaySeconds);
-                }
+                yield return new WaitForSecondsRealtime(ServerRetryDelaySeconds);
             }
+        }
 
-            Debug.LogWarning($"{ServerConfigLogPrefix} 服务器请求连续失败 {MaxServerRequestAttempts} 次，回退本地配置: Resources/{LocalSettingsResourcePath}.json");
-            var localResult = ParseLocalSettingsResponse(currentVersion);
-            onRequestComplete?.Invoke(localResult.iaaValue, localResult.isVersionMatch, localResult.forcedUpload);
+        /// <summary>
+        /// 仅当响应为可解析的合法配置时才视为成功；否则继续重试，避免“假成功”直接进游戏。
+        /// </summary>
+        private bool TryAcceptServerResponse(
+            string jsonData,
+            string currentVersion,
+            out (bool iaaValue, bool isVersionMatch, bool forcedUpload) parsed)
+        {
+            parsed = (false, false, false);
+            if (string.IsNullOrEmpty(jsonData))
+                return false;
+
+            try
+            {
+                JObject rootObject = JObject.Parse(jsonData);
+                if (!rootObject.TryGetValue("data", StringComparison.OrdinalIgnoreCase, out _))
+                {
+                    Debug.LogWarning($"{ServerConfigLogPrefix} 响应缺少 data 字段，视为失败");
+                    return false;
+                }
+
+                parsed = ParseServerResponse(jsonData, currentVersion);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"{ServerConfigLogPrefix} 响应解析失败，视为失败: {e.Message}");
+                return false;
+            }
         }
 
         private void CacheServerResponse(string jsonData)

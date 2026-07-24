@@ -38,6 +38,8 @@ namespace XrCode
 
 
         private bool isLoaded = false;
+        private bool hostGameplayUiOpened;
+
         public void Load()
         {
             languageMod = new LanguageModule();
@@ -60,6 +62,7 @@ namespace XrCode
         {
             userMod.Dispose();
             isLoaded = false;
+            hostGameplayUiOpened = false;
             SceneMod.Dispose();
             notifyMod.Dispose();
             gamePlayModule.Dispose();
@@ -82,13 +85,21 @@ namespace XrCode
 
         /// <summary>
         /// 在当前场景就地启动（用于 WZ Game2 入口），不卸载当前场景去加载宿主 Game.unity。
+        /// 仅加载模块；宿主玩法 UI 等 WZ 服务器配置成功后再开。
         /// </summary>
         public void StartInPlace()
         {
             LoadAllModules();
-            // 建关前先合并关卡存档，避免 UIGamePlay.OnEnable→StartLevel 仍按默认第 1 关开局。
             WaterSortWZBridge.SyncLevelProgress();
-            OpenHostGameplayUi();
+            TryOpenHostGameplayUiAfterServerReady();
+        }
+
+        /// <summary>
+        /// WZ Loading / 服务器配置完成后回调：此时才允许打开 UIGamePlay。
+        /// </summary>
+        public void OnWzServerConfigReady()
+        {
+            TryOpenHostGameplayUiAfterServerReady();
         }
 
         private void LoadAllModules()
@@ -109,6 +120,22 @@ namespace XrCode
             withdrawalModule.Load();
             // 模块 Load 可能覆盖 Facade；金钱再绑回 WZ。
             WaterSortWZBridge.InitializeOrSync();
+        }
+
+        private void TryOpenHostGameplayUiAfterServerReady()
+        {
+            if (!isLoaded || hostGameplayUiOpened)
+                return;
+
+            // Game2 入口：必须等 WZ 服务器配置成功，断网时停在 LoadingView。
+            if (WaterSortWZBridge.IsWzEntryScene())
+            {
+                if (WZSDK.GameManagerWZ.instance == null || !WZSDK.GameManagerWZ.instance.IsServerConfigResolved)
+                    return;
+            }
+
+            hostGameplayUiOpened = true;
+            OpenHostGameplayUi();
         }
 
         private void OpenHostGameplayUi()

@@ -99,6 +99,8 @@ namespace WZSDK
 
         public bool Stage2CashGuidePending => stage2CashGuidePending;
         public bool DeferHostLevelLoad => deferHostLevelLoad;
+        /// <summary>服务器配置是否已成功拉取（未成功前不应进入玩法）。</summary>
+        public bool IsServerConfigResolved => serverConfigResolved;
 
         /// <summary>
         /// Stage3 广告次数达标后：先弹 LuckyWallet，确认后再弹 WithdrawMissionView。
@@ -253,9 +255,11 @@ namespace WZSDK
             activeLoadingView = null;
             InitUI();
             UIManager.instance.CloseView(EUIType.LoadingView);
-         
+
             //LevelManager.Instance.LoadCurrentLevel();
             TDAnalyticsMgr.Instance.LoadFinish();
+            // Game2：宿主玩法 UI 必须等服务器配置成功后再开，否则断网也会直接进游戏。
+            XrCode.ModuleMgr.Instance?.OnWzServerConfigReady();
         }
 
         void Update()
@@ -270,7 +274,7 @@ namespace WZSDK
             ClearFacadeUserHandles();
         }
 
-        void SetNetworkErrorTipVisible(bool visible)
+        public void SetNetworkErrorTipVisible(bool visible)
         {
             if (NetworkErrorTip != null)
                 NetworkErrorTip.SetActive(visible);
