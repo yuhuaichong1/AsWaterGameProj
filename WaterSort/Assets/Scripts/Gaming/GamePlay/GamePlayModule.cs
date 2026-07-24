@@ -894,7 +894,7 @@ namespace XrCode
                 if (kv.Value != null)
                     yield return kv.Value.DisappearEmpty();
 
-            yield return new WaitForSeconds(0.4f);
+            yield return new WaitForSeconds(0.3f);
 
             IfLevelGuide();
             LRTimer.Stop();

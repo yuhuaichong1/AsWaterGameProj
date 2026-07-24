@@ -1499,7 +1499,7 @@ namespace WZSDK
 
         IEnumerator ShowFinishLevelIE()
         {
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.2f);
 
             PrepareLevelCompletion();
 
@@ -1635,7 +1635,7 @@ namespace WZSDK
             if (ShouldSkipSuccessForWithdrawFlow())
                 yield break;
 
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(0.2f);
 
             if (epoch != successViewEpoch || ShouldSkipSuccessForWithdrawFlow())
                 yield break;
