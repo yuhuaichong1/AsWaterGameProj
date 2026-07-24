@@ -1,7 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
+using XrCode;
+
 namespace WZSDK
 {
     public class SettingsView : BaseView
@@ -57,61 +57,75 @@ namespace WZSDK
 
         public override void Update()
         {
-
         }
 
         private void RefreshUserData()
         {
-            if (GameManagerWZ.instance != null)
-            {
-                mUserNameText.text = $"{GameManagerWZ.instance.userName}";
-                mUserIDText.text = $"ID:{GameManagerWZ.instance.userID.Replace("-", "").Substring(0, 16)}";
-                mUserLv.text = $"LV.{GameManagerWZ.instance.userLevel + 1}";
+            string userName = FacadePlayer.GetPlayerName?.Invoke();
+            if (string.IsNullOrEmpty(userName))
+                userName = Gm != null ? Gm.userName : string.Empty;
+            mUserNameText.text = userName ?? string.Empty;
 
-               // mWRBtn.gameObject.SetActive(!GameDefines.ifIAA && GameManagerWZ.instance.currentLv > 1);
+            string userId = FacadePlayer.GetPlayerID?.Invoke();
+            if (string.IsNullOrEmpty(userId) && Gm != null)
+                userId = Gm.userID;
+            userId = userId ?? string.Empty;
+            string idPreview = userId.Length > 13 ? userId.Substring(0, 13) + "..." : userId;
+            string idFmt = FacadeLanguage.GetText?.Invoke("10040");
+            mUserIDText.text = !string.IsNullOrEmpty(idFmt) && idFmt != "10040"
+                ? string.Format(idFmt, idPreview)
+                : $"ID:{idPreview}";
+
+            int userLevel = FacadePlayer.GetPlayerLevel?.Invoke()
+                ?? (Gm != null ? Gm.userLevel : 0);
+            string lvFmt = FacadeLanguage.GetText?.Invoke("10041");
+            mUserLv.text = !string.IsNullOrEmpty(lvFmt) && lvFmt != "10041"
+                ? string.Format(lvFmt, userLevel + 1)
+                : $"LV.{userLevel + 1}";
+
+            // 不展示 Withdrawal History。
+            if (mWRBtn != null)
                 mWRBtn.gameObject.SetActive(false);
-            }
         }
 
         private void InitializeToggleStates()
         {
-            if (SoundManager.Instance != null)
+            // 对齐 UISetting：开关状态以宿主 FacadeAudio 为准（局内音效/BGM/震动都走它）。
+            bool soundOn = FacadeAudio.GetEffectsVolume?.Invoke() == 1f
+                || FacadeAudio.GetMusicVolume?.Invoke() == 1f;
+            bool vibrateOn = FacadeAudio.GetVibrate?.Invoke() == true;
+
+            if (mS_Toggle != null)
             {
-                if (mM_Toggle != null)
-                {
-                    bool musicIsOn = SoundManager.Instance.musicState == 1;
-                    mM_Toggle.SetIsOnWithoutNotify(musicIsOn);
-                }
+                mS_Toggle.SetIsOnWithoutNotify(soundOn);
+                UpdateSoundToggleVisual(soundOn);
+            }
 
-                if (mS_Toggle != null)
-                {
-                    bool soundIsOn = HasDedicatedMusicToggle()
-                        ? SoundManager.Instance.soundState == 1
-                        : SoundManager.Instance.musicState == 1;
+            if (mV_Toggle != null)
+            {
+                mV_Toggle.SetIsOnWithoutNotify(vibrateOn);
+                UpdateVibrationToggleVisual(vibrateOn);
+            }
 
-                    mS_Toggle.SetIsOnWithoutNotify(soundIsOn);
-                    UpdateSoundToggleVisual(soundIsOn);
-                }
-
-                if (mV_Toggle != null)
-                {
-                    bool vibrationIsOn = SoundManager.Instance.hapticState == 1;
-                    mV_Toggle.SetIsOnWithoutNotify(vibrationIsOn);
-                    UpdateVibrationToggleVisual(vibrationIsOn);
-                }
+            // Muslc 预制体默认隐藏；若启用则同步 BGM。
+            if (mM_Toggle != null && mM_Toggle.gameObject.activeInHierarchy)
+            {
+                bool musicOn = FacadeAudio.GetMusicVolume?.Invoke() == 1f;
+                mM_Toggle.SetIsOnWithoutNotify(musicOn);
             }
         }
 
         protected void BindButtonEvent()
         {
             if (mIsEventsBound)
-            {
                 RemoveButtonEvents();
-            }
+
             mExitBtn.onClick.AddListener(OnExitBtnClickHandle);
             mUserLevelBtn.onClick.AddListener(OnUserLevelBtnClickHandle);
-            mWRBtn.onClick.AddListener(OnWRButtonBtnClickHandle);
-            mM_Toggle.onValueChanged.AddListener(OnM_ToggleValueChange);
+            if (mWRBtn != null)
+                mWRBtn.onClick.AddListener(OnWRButtonBtnClickHandle);
+            if (mM_Toggle != null)
+                mM_Toggle.onValueChanged.AddListener(OnM_ToggleValueChange);
             mS_Toggle.onValueChanged.AddListener(OnS_ToggleValueChange);
             mV_Toggle.onValueChanged.AddListener(OnV_ToggleValueChange);
             mIsEventsBound = true;
@@ -121,37 +135,18 @@ namespace WZSDK
         {
             mExitBtn.onClick.RemoveAllListeners();
             mUserLevelBtn.onClick.RemoveAllListeners();
-            mWRBtn.onClick.RemoveAllListeners();
-            mM_Toggle.onValueChanged.RemoveAllListeners();
+            if (mWRBtn != null)
+                mWRBtn.onClick.RemoveAllListeners();
+            if (mM_Toggle != null)
+                mM_Toggle.onValueChanged.RemoveAllListeners();
             mS_Toggle.onValueChanged.RemoveAllListeners();
             mV_Toggle.onValueChanged.RemoveAllListeners();
         }
 
         private void OnWRButtonBtnClickHandle()
         {
-            int lv = Gm.currentLv;
-            double coin = Gm.GetCoin();
-            int stage = Gm.currentStage;
-
-            DataModel dataModel = new DataModel();
-            var playerName = Gm.getPlayerName();
-            var phone = Gm.getPlayerPhone();
-            var email = Gm.getPlayerEmail();
-
-            dataModel.Name = playerName;
-            dataModel.Phone = phone;
-            dataModel.Email = email;
-            dataModel.Level = lv - 1;
-            dataModel.Money = coin;
-            dataModel.CloseType = 1;
-
-            var historyList = SPlayerPrefs.GetListTem<HistoryModel>(FacadePlayerPrefExtend.History);
-
-            if (historyList == null || historyList.Count == 0)
-            {
-                return;
-            }
-            GameApp.viewManager.Open(ViewType.WithDrawHistory, dataModel);
+            // 预留：当前不开放 Withdrawal History。
+            SoundManager.Instance?.PlayUIClickSFX();
         }
 
         private void OnExitBtnClickHandle()
@@ -169,67 +164,50 @@ namespace WZSDK
 
         private void OnM_ToggleValueChange(bool b)
         {
-            if (SoundManager.Instance != null)
-            {
-                SoundManager.Instance.ToogleMusic(b);
-            }
+            FacadeAudio.SetMusicVolume?.Invoke(b ? 1f : 0f);
+            SoundManager.Instance?.ToogleMusic(b);
         }
 
         private void OnS_ToggleValueChange(bool b)
         {
-            if (SoundManager.Instance != null)
-            {
-                if (HasDedicatedMusicToggle())
-                {
-                    SoundManager.Instance.ToogleSound(b);
-                }
-                else
-                {
-                    SoundManager.Instance.ToogleAllAudio(b);
-                }
-            }
-
+            // 对齐 UISetting：Sound 开关同时控制音效 + 音乐。
+            FacadeAudio.SetEffectsVolume?.Invoke(b ? 1f : 0f);
+            FacadeAudio.SetMusicVolume?.Invoke(b ? 1f : 0f);
+            SoundManager.Instance?.ToogleAllAudio(b);
             UpdateSoundToggleVisual(b);
         }
 
         private void OnV_ToggleValueChange(bool b)
         {
-            if (SoundManager.Instance != null)
-            {
-                SoundManager.Instance.ToogleHaptic(b);
-            }
-
+            FacadeAudio.SetVibrate?.Invoke(b);
+            SoundManager.Instance?.ToogleHaptic(b);
             UpdateVibrationToggleVisual(b);
-        }
-
-        private bool HasDedicatedMusicToggle()
-        {
-            return mM_Toggle != null && mM_Toggle.gameObject.activeInHierarchy;
         }
 
         private void UpdateSoundToggleVisual(bool isOn)
         {
-            SoundBackground.gameObject.SetActive(!isOn);
-            mS_Icon.localPosition = new Vector3(isOn ? 88 : -88, 36, 0);
+            if (SoundBackground != null)
+                SoundBackground.gameObject.SetActive(!isOn);
+            if (mS_Icon != null)
+                mS_Icon.localPosition = new Vector3(isOn ? 88 : -88, 36, 0);
         }
 
         private void UpdateVibrationToggleVisual(bool isOn)
         {
-            VibrationBackground.gameObject.SetActive(!isOn);
-            mV_Icon.localPosition = new Vector3(88 * (isOn ? 1 : -1), 36, 0);
+            if (VibrationBackground != null)
+                VibrationBackground.gameObject.SetActive(!isOn);
+            if (mV_Icon != null)
+                mV_Icon.localPosition = new Vector3(88 * (isOn ? 1 : -1), 36, 0);
         }
 
         private void OnDestroy()
         {
             if (mIsEventsBound)
-            {
                 RemoveButtonEvents();
-            }
         }
 
         public override void Start()
         {
-
         }
     }
 }

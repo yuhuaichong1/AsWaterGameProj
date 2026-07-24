@@ -1,7 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
+using XrCode;
+
 namespace WZSDK
 {
     public class UserLevelView : BaseView
@@ -31,74 +31,71 @@ namespace WZSDK
             RefreshLevelData();
         }
 
-
-
         /// <summary>
-        /// 刷新等级数据
+        /// 刷新等级数据（对齐 UIUserLevel：读宿主 FacadePlayer + TBUserLevel）。
         /// </summary>
         private void RefreshLevelData()
         {
-            if (GameManagerWZ.instance == null)
-            {
-                Debug.LogWarning("GameManager.instance is null");
-                return;
-            }
-            int curUserLevel = GameManagerWZ.instance.userLevel;
+            int curUserLevel = FacadePlayer.GetPlayerLevel?.Invoke() ?? 0;
+            int currentExp = FacadePlayer.GetPlayerExp?.Invoke() ?? 0;
 
+            if (GameManagerWZ.instance != null)
+            {
+                GameManagerWZ.instance.userLevel = curUserLevel;
+                GameManagerWZ.instance.userExp = currentExp;
+            }
+
+            int displayLevel = curUserLevel + 1;
             if (mCurLevelText != null)
             {
-                mCurLevelText.text = string.Format(LocalizationManager.Instance.GetText("2128"), curUserLevel + 1);
+                string fmt = FacadeLanguage.GetText?.Invoke("10048");
+                if (string.IsNullOrEmpty(fmt) || fmt == "10048")
+                    fmt = LocalizationManager.Instance != null
+                        ? LocalizationManager.Instance.GetText("2128")
+                        : "当前级别：{0}";
+                mCurLevelText.text = string.Format(fmt, displayLevel);
             }
 
-            int currentExp = GameManagerWZ.instance.userExp;
             int nextLevelExp = GetNextLevelNeedExp(curUserLevel);
-            float progress = 0f;
-
-            if (nextLevelExp > 0)
-            {
-                progress = currentExp * 1f / nextLevelExp;
-                progress = Mathf.Clamp01(progress);
-            }
-            else
-            {
-                progress = 1.0f;
-            }
+            float progress = nextLevelExp > 0
+                ? Mathf.Clamp01(currentExp * 1f / nextLevelExp)
+                : 1f;
 
             if (mLevelProgress != null)
-            {
                 mLevelProgress.value = progress;
-            }
 
             if (mLevelProgressText != null)
-            {
                 mLevelProgressText.text = $"{(int)(progress * 100)}%";
-            }
-
-            Debug.Log($"刷新等级数据: Lv.{curUserLevel + 1}, Exp:{currentExp}/{nextLevelExp}, 进度:{progress:P0}");
         }
 
-        /// <summary>
-        /// 获取下一级所需经验
-        /// </summary>
         private int GetNextLevelNeedExp(int currentLevel)
         {
+            // 对齐 UIUserLevel / PlayerModule：TBUserLevel 以 Sn（0 基等级）取值。
+            var tables = ConfigModule.Instance != null ? ConfigModule.Instance.Tables : null;
+            if (tables != null && tables.TBUserLevel != null)
+            {
+                var conf = tables.TBUserLevel.GetOrDefault(currentLevel);
+                if (conf != null)
+                    return Mathf.Max(conf.NextLvNeedExp, 1);
+            }
+
             if (UserDataManager.Instance != null)
             {
-                return UserDataManager.Instance.GetNextLevelNeedExp();
+                int need = UserDataManager.Instance.GetNextLevelNeedExp();
+                if (need > 0)
+                    return need;
             }
+
             return 100;
         }
 
         protected void BindButtonEvent()
         {
             if (mIsEventsBound)
-            {
                 UnBindButtonEvent();
-            }
 
             mExitBtn.onClick.AddListener(OnExitBtnClickHandle);
             mKeepPlayingBtn.onClick.AddListener(OnKeepPlayingBtnClickHandle);
-
             mIsEventsBound = true;
         }
 
@@ -110,30 +107,28 @@ namespace WZSDK
 
         private void OnExitBtnClickHandle()
         {
+            SoundManager.Instance?.PlayUIClickSFX();
             UIManager.instance.CloseView(EUIType.UserLevelView);
         }
 
         private void OnKeepPlayingBtnClickHandle()
         {
+            SoundManager.Instance?.PlayUIClickSFX();
             UIManager.instance.CloseView(EUIType.UserLevelView);
         }
 
         private void OnDestroy()
         {
             if (mIsEventsBound)
-            {
                 UnBindButtonEvent();
-            }
         }
 
         public override void Start()
         {
-
         }
 
         public override void Update()
         {
-
         }
     }
 }

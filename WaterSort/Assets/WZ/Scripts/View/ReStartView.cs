@@ -1,8 +1,8 @@
 ﻿
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using XrCode;
+
 namespace WZSDK
 {
     public class ReStartView : BaseView
@@ -29,20 +29,16 @@ namespace WZSDK
 
         public override void Start()
         {
-
         }
 
         public override void Update()
         {
-
         }
 
         protected void BindButtonEvent()
         {
             if (mIsEventsBound)
-            {
                 UnBindButtonEvent();
-            }
 
             mExitBtn.onClick.AddListener(OnExitBtnClickHandle);
             ContinueBtn.onClick.AddListener(OnExitBtnClickHandle);
@@ -52,21 +48,23 @@ namespace WZSDK
 
         private void OnExitBtnClickHandle()
         {
-            UIManager.instance.CloseView(EUIType.ReStartView);
             SoundManager.Instance?.PlayUIClickSFX();
+            UIManager.instance.CloseView(EUIType.ReStartView);
         }
 
         private void OnReStartBtnClickHandle()
         {
-           // LevelManager.Instance.LoadCurrentLevel();
-            // GameManagerWZ.instance.ReplayGame();
-            UIManager.instance.CloseView(EUIType.ReStartView);
             SoundManager.Instance?.PlayUIClickSFX();
+            UIManager.instance.CloseView(EUIType.ReStartView);
+            // 对齐 UIReStart：关闭后重开本关。
+            GameManagerWZ.instance?.RestartLevelTimer();
+            FacadeGamePlay.RePlay?.Invoke();
         }
 
         protected void UnBindButtonEvent()
         {
             mExitBtn.onClick.RemoveAllListeners();
+            ContinueBtn.onClick.RemoveAllListeners();
             mReStartBtn.onClick.RemoveAllListeners();
             mIsEventsBound = false;
         }
@@ -74,9 +72,7 @@ namespace WZSDK
         private void OnDestroy()
         {
             if (mIsEventsBound)
-            {
                 UnBindButtonEvent();
-            }
         }
     }
 }
