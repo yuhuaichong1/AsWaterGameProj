@@ -260,7 +260,7 @@ namespace WZSDK
 
         void Update()
         {
-            STimerManager.Instance.UpdateInstance();
+            // STimer 统一由 Game.Update → STimerManager.UpdateInstance 推进，这里不要再调一次，否则会 2 倍速。
             ManageTimerBasedOnUI();
         }
 
@@ -303,7 +303,7 @@ namespace WZSDK
 
 
         /// <summary>
-        /// 每次消除后调用判断是否30秒打开RewardView面板
+        /// 每次点击瓶子后调用，判断计时是否已到并打开 RewardView 面板
         /// </summary>
         public void OnPourCompleteForLuckyReward()
         {
@@ -1354,12 +1354,15 @@ namespace WZSDK
                 if (level <= configLevel)
                 {
                     GameDefines.TimerReward_Interval = GameDefines.LevelTimerConfig[configLevel];
+                    Debug.LogError(GameDefines.TimerReward_Interval);
                     return GameDefines.TimerReward_Interval;
                 }
             }
 
             if (configLevels.Count > 0)
                 GameDefines.TimerReward_Interval = GameDefines.LevelTimerConfig[configLevels[configLevels.Count - 1]];
+
+            
 
             return GameDefines.TimerReward_Interval;
         }

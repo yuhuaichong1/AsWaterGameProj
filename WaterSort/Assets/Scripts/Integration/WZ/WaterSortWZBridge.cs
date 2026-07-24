@@ -111,7 +111,10 @@ public static class WaterSortWZBridge
         GameManagerWZ.instance.CheckIfAllAnimationsCompleted();
     }
 
-    public static void ReportBottlePacked(int amount = 1)
+    /// <summary>
+    /// 点击瓶子时上报：用于 WZ 定时 RewardView 的触发检查。
+    /// </summary>
+    public static void ReportBottleClicked(int amount = 1)
     {
         if (!IsReady || GameManagerWZ.instance == null) return;
         for (int i = 0; i < amount; i++)

@@ -433,6 +433,8 @@ namespace XrCode
         private void OnCupClick(Bottle cup)
         {
             CheckOpenLuckyReward();
+            // WZ RewardView：计时满足后，在点击瓶子时检查弹出（不再等装满）。
+            WaterSortWZBridge.ReportBottleClicked();
 
             if (cup.IsVideo())
             {
@@ -802,7 +804,6 @@ namespace XrCode
 
             AddFlyMoney(pocket.transform);
             _collected++;
-            WaterSortWZBridge.ReportBottlePacked();
             FacadeGamePlay.AbleProp3Btn(GetEmptySlotId() != null);
             SchedulePocketPack(pocket, packedColor);
         }

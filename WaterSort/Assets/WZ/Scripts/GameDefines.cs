@@ -214,7 +214,7 @@ namespace WZSDK
         public static Dictionary<int, int> LevelMapConfig = new Dictionary<int, int>();
         public static int LuckySpin_Elimination_Interval = 40;  // 每40次消除触发一次抽奖
         public static float TimerReward_Interval = 30;  // 定时奖励间隔（秒）（开关关闭时使用）
-        public static bool EnableLuckyRewardOnPourComplete = true;// true：在倒水完成后检查并触发 Lucky 广告；false：不触发倒水计时类 Lucky 广告
+        public static bool EnableLuckyRewardOnPourComplete = true;// true：在点击瓶子后检查并触发定时 RewardView；false：不触发该类奖励面板
 
         public static void ApplyServerLuckyRewardLevels(IEnumerable<int> levels)
         {
