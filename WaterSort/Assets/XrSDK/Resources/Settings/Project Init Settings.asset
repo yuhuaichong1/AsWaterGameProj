@@ -1,5 +1,27 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-5275504084213476535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8e4f2a91b7d4650a3e6f9081726354a, type: 3}
+  m_Name: XrSDK.FirebasePushModConfig
+  m_EditorClassIdentifier: 
+  moduleName: 
+  BackendMode: 0
+  RequestPermissionOnStart: 0
+  SubscribeDefaultTopic: 1
+  DefaultTopic: all_users
+  EnableAnonymousAuth: 1
+  SaveTokenToFirestore: 1
+  UsersCollection: users
+  LocalTokenRegisterUrl: 
+  ReportTokenToLocalServer: 1
 --- !u!114 &-2925520760120835995
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36,28 +58,7 @@ MonoBehaviour:
   modules:
   - {fileID: 7997446465353116629}
   - {fileID: -2925520760120835995}
-  - {fileID: 5520880820735433615}
---- !u!114 &5520880820735433615
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 77e54ab1a91f55f49abec055d88257dc, type: 3}
-  m_Name: XrSDK.ThinkingDataModulePendant
-  m_EditorClassIdentifier: 
-  moduleName: 
-  EnableLog: 0
-  NetworkType: 1
-  APPID: 3bbf919eaa514574929efe383639b6de
-  SERVERURL: https://shushu.xgame.xin:9991
-  MODE: 0
-  TimeZone: 1
-  AutoTrackType: 243
-  AutoRL: 1
+  - {fileID: -5275504084213476535}
 --- !u!114 &7997446465353116629
 MonoBehaviour:
   m_ObjectHideFlags: 0
