@@ -1,7 +1,6 @@
 <dependencies>
   <packages>
     <package>androidx.recyclerview:recyclerview:1.2.1</package>
-    <package>com.android.installreferrer:installreferrer:2.1</package>
     <package>com.android.support:customtabs:28.+</package>
     <package>com.android.support:recyclerview-v7:28.+</package>
     <package>com.applovin.mediation:bigoads-adapter:5.9.0.0</package>
@@ -17,9 +16,6 @@
     <package>com.applovin.mediation:vungle-adapter:7.7.4.0</package>
     <package>com.applovin.mediation:yandex-adapter:8.1.0.0</package>
     <package>com.applovin:applovin-sdk:13.3.0</package>
-    <package>com.appsflyer:af-android-sdk:6.17.3</package>
-    <package>com.appsflyer:purchase-connector:2.1.0</package>
-    <package>com.appsflyer:unity-wrapper:6.17.3</package>
     <package>com.google.android.gms:play-services-base:16.1.0</package>
     <package>com.squareup.picasso:picasso:2.71828</package>
   </packages>
