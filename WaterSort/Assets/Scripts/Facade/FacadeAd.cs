@@ -5,14 +5,12 @@ public static class FacadeAd
 {
     #region 播放广告
 
-    public static Action<EAdSource, Action<int>, Action<string>, Action> PlayRewardAd;                          //播放激励广告
+    public static Action<EAdSource, Action<int>, Action<string>> PlayRewardAd;                                  //播放激励广告
     public static Action<EAdSource, Action<int>, Action<string>> PlayInterAd;                                   //播放插屏广告
     public static Action<EAdSource, Action<int>, Action<string>> PlayBannerAd;                                  //播放横幅广告
     public static Action<EAdSource> StopBannerAd;                                                               //停止横幅广告
     public static Action<EAdSource, Action<int>, Action<string>> PlayAppOpenAd;                                 //播放开屏广告
-    public static Action<EAdSource, bool, Action<int>, Action<string>, Action> PlayROIAd;                       //选择播放激励or插屏
-    public static Action<EAdSource, Action<int>, Action<string>, Action> PlayROIAdByRevenue;                    //根据广告收入选择播放激励or插屏
-    public static Action<EAdSource, Action<int>, Action<string>, Action, Vector2, int> PlayROIAdByWeight;       //根据权重选择播放激励or插屏
+    public static Action<EAdSource, Action<int>, Action<string>, Vector2, int> PlayROIAdByWeight;               //根据权重选择播放激励or插屏
     public static Func<bool> GetROIAdRevenue;                                                                   //获取激励or插屏的收入并进行比较（ture时为激励）
     public static Func<bool> GetRewardAdReady;                                                                  //激励广告是否准备完毕
     public static Func<bool> GetInterAdReady;                                                                   //插屏广告是否准备完毕
@@ -142,7 +140,7 @@ public static class FacadeAd
 
     #region 扩充
 
-    public static Action<EAdSource, Action<int>, Action<string>, Action> AdRefuse;                              //拒绝X次后强制看广告
+    public static Action<EAdSource, Action<int>, Action<string>> AdRefuse;                              //拒绝X次后强制看广告
     public static Func<int> GetTotalAdwatch;                                                                    //获取总广告观看次数
 
     #endregion

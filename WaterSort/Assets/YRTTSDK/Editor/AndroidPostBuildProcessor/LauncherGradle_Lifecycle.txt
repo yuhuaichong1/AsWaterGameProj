@@ -1,0 +1,15 @@
+// UNITY_FORCE_LIFECYCLE_VERSION_START
+configurations.all {
+    resolutionStrategy {
+        force 'androidx.lifecycle:lifecycle-runtime:2.7.0'
+        force 'androidx.lifecycle:lifecycle-runtime-android:2.7.0'
+        force 'androidx.lifecycle:lifecycle-common:2.7.0'
+        force 'androidx.lifecycle:lifecycle-common-jvm:2.7.0'
+        force 'androidx.lifecycle:lifecycle-livedata-core:2.7.0'
+        force 'androidx.lifecycle:lifecycle-viewmodel:2.7.0'
+        force 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
+        force 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0'
+        force 'androidx.lifecycle:lifecycle-runtime-compose:2.7.0'
+    }
+}
+// UNITY_FORCE_LIFECYCLE_VERSION_END

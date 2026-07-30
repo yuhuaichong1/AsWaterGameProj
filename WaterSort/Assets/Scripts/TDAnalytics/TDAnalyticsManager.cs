@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using YRTT;
 
 namespace XrCode
 {
@@ -188,6 +189,7 @@ namespace XrCode
             Dictionary<string, object> properties = new Dictionary<string, object>();
 
             ThinkingDataDefines.Track("Enter_MainUI", properties);
+            YRTTSDK.Instance.EnterHomePage();
         }
 
         #endregion

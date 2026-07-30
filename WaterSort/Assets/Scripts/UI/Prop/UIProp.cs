@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using YRTT;
 
 namespace XrCode
 {
@@ -58,8 +59,10 @@ namespace XrCode
             int weightId = GameDefines.AdLvArr.ToList().GetRangeIndex(FacadePlayer.GetLevel());
             int weight = GameDefines.AdWeightArr[weightId];
 
-            FacadeAd.PlayROIAdByWeight(EAdSource.Prop, (count) => { GetProp(1); }, (errMsg) => { GetProp(1); }, () => { GetProp(1); }, GameDefines.WeightAdRange, weight);
+            FacadeAd.PlayROIAdByWeight(EAdSource.Prop, (count) => { GetProp(1); }, (errMsg) => { GetProp(1); }, GameDefines.WeightAdRange, weight);
             //FacadeAd.PlayRewardAd(EAdSource.Prop, GetProp, null, null);
+            YRTTSDK.Instance.EnterAdScene(EAdSource.Prop.ToString());
+
         }
 
         /// <summary>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using YRTT;
 
 namespace XrCode
 {
@@ -60,8 +61,6 @@ namespace XrCode
             FacadeAd.PlayInterAd += PlayInterAd;
             FacadeAd.PlayBannerAd += PlayBannerAd;
             FacadeAd.StopBannerAd += StopBannerAd;
-            FacadeAd.PlayROIAd += PlayROIAd;
-            FacadeAd.PlayROIAdByRevenue += PlayROIAdByRevenue;
             FacadeAd.PlayROIAdByWeight += PlayROIAdByWeight;
             FacadeAd.PlayAppOpenAd += PlayAppOpenAd;
 
@@ -115,9 +114,7 @@ namespace XrCode
             FacadeAd.PlayRewardAd -= PlayRewardAd;
             FacadeAd.PlayInterAd -= PlayInterAd;
             FacadeAd.PlayBannerAd -= PlayBannerAd;
-            FacadeAd.StopBannerAd -= StopBannerAd;
-            FacadeAd.PlayROIAd -= PlayROIAd;
-            FacadeAd.PlayROIAdByRevenue -= PlayROIAdByRevenue;
+            FacadeAd.StopBannerAd -= StopBannerAd;            
             FacadeAd.PlayROIAdByWeight -= PlayROIAdByWeight;
             FacadeAd.PlayAppOpenAd -= PlayAppOpenAd;
 
@@ -176,7 +173,7 @@ namespace XrCode
         /// <param name="eAdSource">广告源</param>
         /// <param name="successAction">成功回调</param>
         /// <param name="failAction">失败回调</param>
-        private void PlayRewardAd(EAdSource eAdSource, Action<int> successAction, Action<string> failAction, Action rewardHideAction)
+        private void PlayRewardAd(EAdSource eAdSource, Action<int> successAction, Action<string> failAction)
         {
             rewardAdScore = eAdSource;
 
@@ -194,15 +191,25 @@ namespace XrCode
                 else
                     rewardFailActions[eAdSource] = failAction;
 
-                if(FacadeAd.ShowRewardAd != null)
+                //if(FacadeAd.ShowRewardAd != null)
+                //{
+                //    FacadeAd.ShowRewardAd();
+                //}
+                //else
+                //{
+                //    failAction?.Invoke(AdFailMsg);
+                //    UIManager.Instance.OpenNotice2(AdFailMsg);
+                //}
+                YRTTSDK.Instance.ClickAdButton(eAdSource.ToString());
+                YRTTSDK.Instance.ShowRewardVideo(eAdSource.ToString(), () =>
                 {
-                    FacadeAd.ShowRewardAd();
-                }
-                else
+                    successAction?.Invoke(1);
+                }, () =>
                 {
                     failAction?.Invoke(AdFailMsg);
-                    UIManager.Instance.OpenNotice2(AdFailMsg);
-                }
+                    UIManager.Instance.OpenNotice(AdFailMsg);
+                });
+
             }
         }
 
@@ -230,15 +237,24 @@ namespace XrCode
                 else
                     interstitialFailActions[eAdSource] = failAction;
 
-                if (FacadeAd.ShowInterAd != null)
+                //if (FacadeAd.ShowInterAd != null)
+                //{
+                //    FacadeAd.ShowInterAd();
+                //}
+                //else
+                //{
+                //    failAction?.Invoke(AdFailMsg);
+                //    UIManager.Instance.OpenNotice2(AdFailMsg);
+                //}
+
+                YRTTSDK.Instance.ShowInterstitial(eAdSource.ToString(), () =>
                 {
-                    FacadeAd.ShowInterAd();
-                }
-                else
+                    successAction?.Invoke(1);
+                }, () =>
                 {
                     failAction?.Invoke(AdFailMsg);
-                    UIManager.Instance.OpenNotice2(AdFailMsg);
-                }
+                    UIManager.Instance.OpenNotice(AdFailMsg);
+                });
 
             }
         }
@@ -327,77 +343,6 @@ namespace XrCode
         }
 
         /// <summary>
-        /// 选择播放激励or插屏
-        /// </summary>
-        /// <param name="eAdSource">广告源</param>
-        /// <param name="roi">优先播激励/插屏</param>
-        /// <param name="successAction">成功回调</param>
-        /// <param name="failAction">失败回调</param>
-        private void PlayROIAd(EAdSource eAdSource, bool roi, Action<int> successAction, Action<string> failAction, Action rewardHideAction)
-        {
-            if (roi)//优先播激励
-            {
-                if (FacadeAd.GetRewardAdReady())//激励准备完毕
-                {
-                    PlayRewardAd(eAdSource, successAction, failAction, rewardHideAction);
-                }
-                else
-                {
-                    PlayInterAd(eAdSource, successAction, failAction);
-                }
-            }
-            else////优先播插屏
-            {
-                if (FacadeAd.GetInterAdReady())//插屏准备完毕
-                {
-                    PlayInterAd(eAdSource, successAction, failAction);
-                }
-                else
-                {
-                    PlayRewardAd(eAdSource, successAction, failAction, rewardHideAction);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 根据广告收入选择播放激励or插屏
-        /// </summary>
-        /// <param name="eAdSource">广告源</param>
-        /// <param name="successAction">成功回调</param>
-        /// <param name="failAction">失败回调</param>
-        private void PlayROIAdByRevenue(EAdSource eAdSource, Action<int> successAction, Action<string> failAction, Action rewardHideAction)
-        {
-            if(FacadeAd.GetROIAdRevenue == null)
-            {
-                failAction?.Invoke(AdFailMsg);
-                return;
-            }
-
-            if(FacadeAd.GetROIAdRevenue())//激励在比价中胜出
-            {
-                if(FacadeAd.GetRewardAdReady())//激励准备完毕
-                {
-                    PlayRewardAd(eAdSource, successAction, failAction, rewardHideAction);
-                }
-                else
-                {
-                    PlayInterAd(eAdSource, successAction, failAction);
-                }
-            }
-            else//插屏在比价中胜出
-            {
-                if (FacadeAd.GetInterAdReady())//插屏准备完毕
-                {
-                    PlayInterAd(eAdSource, successAction, failAction);
-                }
-                else
-                {
-                    PlayRewardAd(eAdSource, successAction, failAction, rewardHideAction);
-                }
-            }
-        }
-
-        /// <summary>
         /// 根据权重选择播放激励or插屏
         /// </summary>
         /// <param name="eAdSource">广告源</param>
@@ -406,7 +351,7 @@ namespace XrCode
         /// <param name="rewardHideAction">广告（激励）隐藏回调</param>
         /// <param name="WeightAdRange">权重范围</param>
         /// <param name="WeightAdBoundary">权重分界值</param>
-        private void PlayROIAdByWeight(EAdSource eAdSource, Action<int> successAction, Action<string> failAction, Action rewardHideAction, Vector2 WeightAdRange, int WeightAdBoundary)
+        private void PlayROIAdByWeight(EAdSource eAdSource, Action<int> successAction, Action<string> failAction, Vector2 WeightAdRange, int WeightAdBoundary)
         {
             if(FacadeAd.GetRewardAdReady == null)//一般情况下，GetRewardAdReady和GetInterAdReady会同时赋值
             {
@@ -418,9 +363,9 @@ namespace XrCode
 
             if (randomValue <= WeightAdBoundary)
             {
-                if (FacadeAd.GetRewardAdReady())
+                if (YRTTSDK.Instance.IsRewardVideoReady())
                 {
-                    PlayRewardAd(eAdSource, successAction, failAction, rewardHideAction);
+                    PlayRewardAd(eAdSource, successAction, failAction);
                 }
                 else
                 {
@@ -429,13 +374,13 @@ namespace XrCode
             }
             else
             {
-                if (FacadeAd.GetInterAdReady())
+                if (YRTTSDK.Instance.IsInterstitialReady())
                 {
                     PlayInterAd(eAdSource, successAction, failAction);
                 }
                 else
                 {
-                    PlayRewardAd(eAdSource, successAction, failAction, rewardHideAction);
+                    PlayRewardAd(eAdSource, successAction, failAction);
                 }
             }
         }
@@ -1151,7 +1096,7 @@ namespace XrCode
         /// <param name="successAction">成功回调</param>
         /// <param name="failAction">失败回调</param>
         /// <param name="rewardHideAction">激励隐藏回调</param>
-        private void AdRefuse(EAdSource eAdSource, Action<int> successAction, Action<string> failAction, Action rewardHideAction)
+        private void AdRefuse(EAdSource eAdSource, Action<int> successAction, Action<string> failAction)
         {
             curRefuseCount++;
 
@@ -1169,11 +1114,6 @@ namespace XrCode
                 {
                     TDAnalyticsManager.Instance.OnlyAdFailedCount();
                     failAction?.Invoke(errMsg); 
-                }, 
-                () =>
-                {
-                    curRefuseCount = 0;
-                    rewardHideAction?.Invoke();
                 }, GameDefines.WeightAdRange, weight);
             }
             else

@@ -1,4 +1,6 @@
-﻿namespace XrCode
+﻿using YRTT;
+
+namespace XrCode
 {
     //主场景
     public class MainScene : BaseScene

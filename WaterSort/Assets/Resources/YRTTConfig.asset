@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34065a02cd6cc0448a7caf5955bf34c, type: 3}
+  m_Name: YRTTConfig
+  m_EditorClassIdentifier: 
+  serverUrl: jxr.wboattetlresort.com
+  statUrl: rxj.wboattetlresort.com
+  appKey: 4E5A382D7EB676227ABE3D8F
+  appSecret: FD2AE8D906EE4A3CA3066FE9E7CB1069
+  umkAppId: 1279528969485438976
+  afDevKey: tqa4hZ6N6xk5HECa3YW6aU
+  iosAppId: 
+  oneLinkID: 
+  cloudProjectNumber: 
+  useLocalValueConfig: 1
+  forceLocalValueConfig: 0
+  localValueConfig: 'YRTTSDK.Instance.GetObjectConfig<T>("moduleName", "configName");
+
+    YRTTSDK.Instance.GetBoolConfig("moduleName",
+    "configName");
+
+    YRTTSDK.Instance.GetIntConfig("moduleName", "configName");
+
+    YRTTSDK.Instance.GetStringConfig("moduleName",
+    "configName");
+
+    YRTTSDK.Instance.GetDoubleConfig("moduleName", "configName");
+
+    YRTTSDK.Instance.GetBoolConfig("moduleName",
+    "configName");
+
+    YRTTSDK.Instance.GetExtraJson("moduleName");
+
+    YRTTSDK.Instance.GetExtraConfig<T>("moduleName");'
+  maxAppKey: 
+  maxAdReviewKey: Aqd9Lcier4GNZO4DuRJhwRGkAZtAr1EUWuSecdSTeLs_1PDTkbHVhruNPpBs3H5bTTQzkEA6F0tnMJ3059pKOe
+  adAppKey: GohNFxZcQJ-pywf81JwsraRu1haq0INkCMl6SUKHBFoh_NiqCf3t2wQtJ1H9qDrCRFE1z6FVE43Tqn8r5VkLtn
+  adAppID: 
+  selectedAdNetwork: Max
+  insUnitId: 5bc742ed4224fb66
+  videoUnitId: 7bf0da5a70611601
+  bannerUnitId: 
+  openUnitId: 
+  admobId: ca-app-pub-4351965474189577~9020493906
+  debug: 0
+  printLog: 1
+  privacyPolicyUri: https://docs.google.com/document/d/1EYQLK10-PJGT3cbf-_HIwWkTfB0dmLvE9bG7-OEQo0U/edit?usp=sharing
+  termsOfServiceUri: https://docs.google.com/document/d/1rnRZ4GT-QpUxaO_dpUKtch7HPRffSKMJ1jPeOjUf6p0/edit?usp=sharing

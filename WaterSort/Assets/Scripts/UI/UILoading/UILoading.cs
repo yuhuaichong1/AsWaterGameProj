@@ -23,6 +23,9 @@ namespace XrCode
             FacadeGamePlay.LoadingSilderMoveAnim += LoadingSilderMoveAnim;
         }
 
+        // 进度条加载完毕之后，开始进入游戏/开始进入游戏主逻辑
+        // 当游戏前期内容加载结束，进度条相应反馈
+
         private void LoadingSilderMoveAnim()
         {
             float curSliderValue = mLoadingSlider.value;

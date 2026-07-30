@@ -1,0 +1,54 @@
+// ------------------------------SDK插入开始------------------------------
+task modifyUnityActivity {
+    doLast {
+        def file = file("src/main/java/com/unity3d/player/UnityPlayerActivity.java")
+        if (!file.exists()) {
+            println "UnityPlayerActivity.java 文件不存在！请检查路径。"
+            return
+        }
+
+        def content = file.text
+
+        // 添加导入语句（如果不存在）
+        if (!content.contains("import com.abc.sdk.bridge.BridgeImpl;")) {
+            content = content.replaceFirst(
+                    /(package com\.unity3d\.player;)/,
+                    '$1\nimport com.abc.sdk.bridge.BridgeImpl;'
+            )
+            println "已添加 import com.abc.sdk.bridge.BridgeImpl;"
+        }
+
+        if (!content.contains("import com.unity3d.player.io.Bridge;")) {
+            content = content.replaceFirst(
+                    /(import com\.abc\.sdk\.bridge\.BridgeImpl;)/,
+                    '$1\nimport com.unity3d.player.io.Bridge;'
+            )
+            println "已添加 import com.unity3d.player.io.Bridge;"
+        }
+
+        // 添加方法调用（如果不存在）
+        def onCreatePattern = /@Override\s+protected\s+void\s+onCreate\s*\(Bundle savedInstanceState\)\s*\{([\s\S]*?)\}/
+        def onCreateMatcher = content =~ onCreatePattern
+
+        if (onCreateMatcher.find() && !onCreateMatcher.group(0).contains("Bridge.getInstance().addIAndroid2Other(BridgeImpl.getInstance());")) {
+            def onCreateBody = onCreateMatcher.group(1)
+            // 在 mUnityPlayer.requestFocus(); 之后添加代码
+            content = content.replace(
+                    onCreateBody,
+                    onCreateBody.replaceFirst(
+                            /(mUnityPlayer\.requestFocus\(\);)/,
+                            '$1\n        Bridge.getInstance().addIAndroid2Other(BridgeImpl.getInstance());'
+                    )
+            )
+            println "已添加 Bridge.getInstance().addIAndroid2Other(BridgeImpl.getInstance());"
+        }
+
+        // 写入修改后的内容
+        file.text = content
+        println "UnityPlayerActivity.java 修改完成！"
+    }
+}
+
+// 在编译前执行修改任务
+preBuild.dependsOn modifyUnityActivity
+// ------------------------------SDK插入结束------------------------------

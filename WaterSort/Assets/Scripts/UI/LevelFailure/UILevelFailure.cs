@@ -3,6 +3,7 @@ using cfg;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using YRTT;
 
 namespace XrCode
 {
@@ -40,13 +41,14 @@ namespace XrCode
 
         private void OnAdBtnClickHandle()
         {
+            YRTTSDK.Instance.EnterAdScene(EAdSource.LevelFailureTryAgain.ToString());
             FacadeAd.PlayRewardAd(EAdSource.LevelFailureTryAgain, (amount) => 
             {
                 HideAnim(mPlane, () =>
                 {
                     UIManager.Instance.CloseUI(EUIType.EUILevelFailure);
                 });
-            }, null, null);
+            }, null);
         }
 	    private void OnOnlyBtnClickHandle()
         {

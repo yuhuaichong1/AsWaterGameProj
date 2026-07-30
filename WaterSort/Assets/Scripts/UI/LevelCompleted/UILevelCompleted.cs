@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using YRTT;
 
 namespace XrCode
 {
@@ -60,7 +61,9 @@ namespace XrCode
             int weightId = GameDefines.AdLvArr.ToList().GetRangeIndex(FacadePlayer.GetLevel());
             int weight = GameDefines.AdWeightArr[weightId];
 
-            FacadeAd.PlayROIAdByWeight(EAdSource.LevelCompleted, (count) => { GetReward(); }, (errMsg) => { GetOnlyReward(); }, ()=> { GetOnlyReward(); }, GameDefines.WeightAdRange, weight);
+            FacadeAd.PlayROIAdByWeight(EAdSource.LevelCompleted, (count) => { GetReward(); }, (errMsg) => { GetOnlyReward(); }, GameDefines.WeightAdRange, weight);
+            YRTTSDK.Instance.EnterAdScene(EAdSource.LevelCompleted.ToString());
+
         }
 
         private void OnWithdrawBtnClickHandle()
@@ -71,9 +74,6 @@ namespace XrCode
         private void OnOnlyBtnClickHandle()
         {
             FacadeAd.AdRefuse(EAdSource.Refuse_LevelComplate, (count) => { GetReward(); }, (errMsg) => 
-            {
-                GetOnlyReward(); 
-            }, () => 
             {
                 GetOnlyReward(); 
             });
