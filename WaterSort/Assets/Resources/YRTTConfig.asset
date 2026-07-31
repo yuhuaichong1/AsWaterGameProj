@@ -21,7 +21,7 @@ MonoBehaviour:
   iosAppId: 
   oneLinkID: 
   cloudProjectNumber: 
-  useLocalValueConfig: 1
+  useLocalValueConfig: 0
   forceLocalValueConfig: 0
   localValueConfig: 'YRTTSDK.Instance.GetObjectConfig<T>("moduleName", "configName");
 

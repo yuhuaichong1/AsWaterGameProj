@@ -1,5 +1,18 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-4104167945962683483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 841296f80bd844b47a1fe9a079efdc1a, type: 3}
+  m_Name: XrSDK.YRTPendant
+  m_EditorClassIdentifier: Assembly-CSharp::XrSDK.YRTPendant
+  moduleName: 
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15,6 +28,7 @@ MonoBehaviour:
   coreModules: []
   modules:
   - {fileID: 5520880820735433615}
+  - {fileID: -4104167945962683483}
 --- !u!114 &5520880820735433615
 MonoBehaviour:
   m_ObjectHideFlags: 0

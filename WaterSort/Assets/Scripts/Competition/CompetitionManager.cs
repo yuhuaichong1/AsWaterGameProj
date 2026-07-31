@@ -33,6 +33,11 @@ namespace XrCode
             SkipCompetition(CompetitionKey.IFAF);
 #endif
 
+            CompetitionItem YRTTSDK = new CompetitionItem();
+            YRTTSDK.ReSet();
+            YRTTSDK.SetInfo(1, OnYRTTFinal);
+            competitionValues.Add(CompetitionKey.YRTT, YRTTSDK);
+
             CompetitionItem START = new CompetitionItem();
             START.ReSet();
             START.SetInfo(2, OnSTARTFinal);
@@ -86,6 +91,21 @@ namespace XrCode
             GameDefines.AFJustState = (bool)obj;
             if (attributionData == null) attributionData = new Dictionary<string, object>();
             TDAnalyticsManager.Instance.SetAttributionData(attributionData);
+        }
+
+        private void OnYRTTFinal(object obj)
+        {
+            bool result = (bool)obj;
+            GameDefines.YRTTState = result;
+            if (result)
+            {
+                Game.Instance.curPreLoadCount += 1;
+                FacadeGamePlay.LoadingSilderMoveAnim?.Invoke();
+            }
+            else
+            { 
+                
+            }
         }
 
         private void OnSTARTFinal(object obj)

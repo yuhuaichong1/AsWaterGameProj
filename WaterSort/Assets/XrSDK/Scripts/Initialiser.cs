@@ -3,20 +3,25 @@
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using XrCode;
+
 
 namespace XrSDK
 {
     [DefaultExecutionOrder(-999)]
-    public class Initialiser : MonoBehaviour
+    public class Initialiser : Singleton<Initialiser>,ILoad
     {
         private static ProjectInitSettings initSettings;
 
+        public Initialiser()
+        {
+        }
 
         public static bool IsInititalized { get; private set; }
 
-        public void Awake()
+        public void Load()
         {
-            DontDestroyOnLoad(gameObject);
+            //DontDestroyOnLoad(gameObject);
 
             if (!IsInititalized)
             {

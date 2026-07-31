@@ -29,7 +29,7 @@ namespace XrCode
         public UILoadingWaiting UILoadingWaiting;
 
         public int curPreLoadCount = 0;
-        public int maxPreLoadCount = 3;
+        public int maxPreLoadCount = 4;
 
         void Awake()
         {
@@ -53,6 +53,7 @@ namespace XrCode
                 AppConfig.LoadAssetWithServer = false;
             }
 
+            GameBootstrap.OnPreLoad?.Invoke();
             //if (ifCheckNetwork)
             //{
             //    RegistPreloadFunc(out CompetitionManager.Instance.OnFinished);

@@ -6,7 +6,6 @@ namespace XrSDK
 {
     [SetupTab("Init Settings", priority = 1, texture = "icon_puzzle")]
     [CreateAssetMenu(fileName = "Project Init Settings", menuName = "Settings/Project Init Settings")]
-    [HelpURL("https://docs.google.com/document/d/1ORNWkFMZ5_Cc-BUgu9Ds1DjMjR4ozMCyr6p_GGdyCZk")]
     public class ProjectInitSettings : ScriptableObject
     {
         [SerializeField] BaseModulePendant[] coreModules;

@@ -45,9 +45,12 @@ namespace XrSDK
                     };
 
                     //SCompetitionManager.Instance.CompetitionVariable("Attribution", "", 1);
-
+                    CompetitionManager.Instance.CompetitionVariable(CompetitionKey.YRTT, true, 0);
                 }
-                
+                else 
+                {
+                    CompetitionManager.Instance.CompetitionVariable(CompetitionKey.YRTT, false, 0);
+                }
             });
 
             
