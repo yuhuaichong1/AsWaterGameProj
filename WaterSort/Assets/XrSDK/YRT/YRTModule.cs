@@ -46,6 +46,11 @@ namespace XrSDK
 
                     //SCompetitionManager.Instance.CompetitionVariable("Attribution", "", 1);
                     CompetitionManager.Instance.CompetitionVariable(CompetitionKey.YRTT, true, 0);
+
+                    if (!YRTTSDK.Instance.HadNotifyPermission())
+                    {
+                        YRTTSDK.Instance.RequestNotifyPermission();
+                    }
                 }
                 else 
                 {

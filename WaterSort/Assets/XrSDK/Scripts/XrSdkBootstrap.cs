@@ -17,7 +17,7 @@ namespace XrSDK
         private static void OnGamePreLoad()
         {
             // Singleton.Instance 首次访问时会调用 ILoad.Load()
-            _ = Initialiser.Instance;
+            Initialiser.Instance.Load();
         }
     }
 }

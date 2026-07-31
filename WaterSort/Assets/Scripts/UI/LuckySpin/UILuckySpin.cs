@@ -115,8 +115,13 @@ namespace XrCode
 
             });
         }
-        	    private void OnLotteryBtnClickHandle()        {
-            RotateTable();        }        /// <summary>
+        
+	    private void OnLotteryBtnClickHandle()
+        {
+            RotateTable();
+        }
+
+        /// <summary>
         /// 开转！
         /// </summary>
         private void RotateTable()

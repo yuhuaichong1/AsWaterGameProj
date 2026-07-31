@@ -1,4 +1,4 @@
-/* 
+﻿/* 
  * 游戏定义脚本
  * 游戏中常量、枚举等内容请在这里统一定义
  */
@@ -108,7 +108,7 @@ public abstract class GameDefines
     public static float MinWithdrawalAmount = 3000;                                                         //最低兑现金额
     public static int DiffVal = 300;                                                                        //补钱阈值
 
-    public static int CheckInDay = 7;                                                                       //签到领奖天数
+    public static int CheckInDay = 5;                                                                       //签到领奖天数
     public static int CheckInLevel = 5;                                                                     //签到所需关卡
     public static string CheckInDayKey = "CheckInDayKey";                                                   //判断签到日是否刷新的key
     public static int CheckInBankDay = 5;                                                                   //银行审核日期

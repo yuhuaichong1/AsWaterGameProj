@@ -2,14 +2,12 @@
 
 using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using XrCode;
 
 
 namespace XrSDK
 {
-    [DefaultExecutionOrder(-999)]
-    public class Initialiser : Singleton<Initialiser>,ILoad
+    public class Initialiser : Singleton<Initialiser>, ILoad
     {
         private static ProjectInitSettings initSettings;
 
@@ -21,8 +19,6 @@ namespace XrSDK
 
         public void Load()
         {
-            //DontDestroyOnLoad(gameObject);
-
             if (!IsInititalized)
             {
                 IsInititalized = true;
@@ -53,28 +49,29 @@ namespace XrSDK
                 initModules = projectInitSettings.Modules;
             }
 
-            for (int i = 0; i < coreModules.Length; i++)
+            if (coreModules != null)
             {
-                if (coreModules[i].GetType() == moduleType)
+                for (int i = 0; i < coreModules.Length; i++)
                 {
-                    return true;
+                    if (coreModules[i] != null && coreModules[i].GetType() == moduleType)
+                    {
+                        return true;
+                    }
                 }
             }
 
-            for (int i = 0; i < initModules.Length; i++)
+            if (initModules != null)
             {
-                if (initModules[i].GetType() == moduleType)
+                for (int i = 0; i < initModules.Length; i++)
                 {
-                    return true;
+                    if (initModules[i] != null && initModules[i].GetType() == moduleType)
+                    {
+                        return true;
+                    }
                 }
             }
 
             return false;
-        }
-
-        private void OnDestroy()
-        {
-            IsInititalized = false;
         }
     }
 }
