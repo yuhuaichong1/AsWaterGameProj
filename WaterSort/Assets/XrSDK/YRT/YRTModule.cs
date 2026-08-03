@@ -37,15 +37,15 @@ namespace XrSDK
                         {"Uk", info.Uk},
                         {"ActiveDays", info.ActiveDays},
                         {"RegisterDays", info.RegisterDays},
-                        {"Channel", info.Channel},
+                        {"channel", info.Channel},
                         {"LastLoginTimeStamp", info.LastLoginTimeStamp},
-                        {"Now", info.Now},
                         {"Country", info.Country},
                         {"CreateTimeStamp", info.CreateTimeStamp}
                     };
 
                     //SCompetitionManager.Instance.CompetitionVariable("Attribution", "", 1);
                     CompetitionManager.Instance.CompetitionVariable(CompetitionKey.YRTT, true, 0);
+                    TDAnalyticsManager.Instance.SetAttributionData(AttributionInfo);
 
                     if (!YRTTSDK.Instance.HadNotifyPermission())
                     {

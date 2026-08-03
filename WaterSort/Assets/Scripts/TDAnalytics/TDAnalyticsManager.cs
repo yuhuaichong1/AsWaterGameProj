@@ -159,6 +159,7 @@ namespace XrCode
             properties.Add("regtime", DateTime.Now);
 
             ThinkingDataDefines.Track("Register_Finish", properties);
+            YRTTSDK.Instance.Track("Register_Finish");
         }
 
         /// <summary>
@@ -169,6 +170,8 @@ namespace XrCode
             Dictionary<string, object> properties = new Dictionary<string, object>();
 
             ThinkingDataDefines.Track("Login_Success", properties);
+            YRTTSDK.Instance.Track("Login_Success");
+
         }
 
         /// <summary>
@@ -190,6 +193,8 @@ namespace XrCode
 
             ThinkingDataDefines.Track("Enter_MainUI", properties);
             YRTTSDK.Instance.EnterHomePage();
+            YRTTSDK.Instance.Track("Enter_MainUI");
+
         }
 
         #endregion
@@ -206,6 +211,7 @@ namespace XrCode
             properties.Add("buttonpath", btnPath);
 
             ThinkingDataDefines.Track("ButtonClick", properties);
+
         }
 
         /// <summary>
@@ -218,6 +224,8 @@ namespace XrCode
             properties.Add("step", curStep);
 
             ThinkingDataDefines.Track("GuideStep", properties);
+            YRTTSDK.Instance.Track("GuideStep","step", curStep);
+
         }
 
         /// <summary>
@@ -230,6 +238,7 @@ namespace XrCode
             properties.Add("level", level);
 
             ThinkingDataDefines.Track("LevelComplated", properties);
+            //YRTTSDK.Instance.Track("LevelComplated", "level", level);
         }
 
         #endregion
@@ -311,8 +320,8 @@ namespace XrCode
         /// <param name="data">归因信息</param>
         public void SetAttributionData(Dictionary<string, object> data)
         {
-            Dictionary<string, object> BAP = BuildAttributionParameters(data);
-            ThinkingDataDefines.UserSetOnce(BAP);
+            //Dictionary<string, object> BAP = BuildAttributionParameters(data);
+            ThinkingDataDefines.UserSetOnce(data);
         }
 
         /// <summary>

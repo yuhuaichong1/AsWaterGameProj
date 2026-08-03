@@ -247,6 +247,7 @@ namespace XrCode
                 //    UIManager.Instance.OpenNotice2(AdFailMsg);
                 //}
 
+                YRTTSDK.Instance.ClickAdButton(eAdSource.ToString());
                 YRTTSDK.Instance.ShowInterstitial(eAdSource.ToString(), () =>
                 {
                     successAction?.Invoke(1);

@@ -21,7 +21,7 @@ namespace XrCode
             competitionValues = new Dictionary<CompetitionKey, CompetitionItem>();
             CompetitionItem IAACM  = new CompetitionItem();
             IAACM.ReSet();
-            IAACM.SetInfo(3, OnIAAFinal);
+            IAACM.SetInfo(2, OnIAAFinal);
             competitionValues.Add(CompetitionKey.IfIAA, IAACM);
             //SkipIAAFromAF();
 
