@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using YRTT;
 
 namespace XrCode
 {
@@ -14,6 +15,7 @@ namespace XrCode
         private EPayType ePayType;
         private EPOEType infoType;
         private InputField msgInputField;
+        private InputField cpfInputField;
 
         private string inputName;
         private string inputMsg;
@@ -68,11 +70,16 @@ namespace XrCode
                 mPY6Icon.sprite = payTypes[5].picture;
 
             mAreaCodeText.text = $"+{FacadePayType.GetNANP?.Invoke()}";
+            mPhoneCpfCodeText.text = $"+{FacadePayType.GetNANP?.Invoke()}";
 
             mNameInput.placeholder.gameObject.GetComponent<Text>().text = FacadeLanguage.GetText("10056");
             mAddressInput.placeholder.gameObject.GetComponent<Text>().text = FacadeLanguage.GetText("10058");
             mPhoneInput.placeholder.gameObject.GetComponent<Text>().text = FacadeLanguage.GetText("10057");
             mAddressOrPhoneInput.placeholder.gameObject.GetComponent<Text>().text = FacadeLanguage.GetText("10059");
+            //CPF
+            mCPFNameInput.placeholder.gameObject.GetComponent<Text>().text = FacadeLanguage.GetText("10056");
+            mPhoneAndCpfInput.placeholder.gameObject.GetComponent<Text>().text = FacadeLanguage.GetText("10057");
+            mCpfInput.placeholder.gameObject.GetComponent<Text>().text = FacadeLanguage.GetText("10139");
         }
 
         protected override void OnEnable() 
@@ -95,6 +102,10 @@ namespace XrCode
             mAddressInput.text = "";
             mPhoneInput.text = "";
             mAddressOrPhoneInput.text = "";
+
+            mCPFNameInput.text = "";
+            mPhoneAndCpfInput.text = "";
+            mCpfInput.text = "";
         }
 
         #region 按钮/开关回调
@@ -115,7 +126,8 @@ namespace XrCode
 
         private void OnConfirmBtnClickHandle()
         {
-            inputName = mNameInput.text;
+            if(infoType == EPOEType.PhoneAndCPF) inputName = mCPFNameInput.text;
+            else inputName = mNameInput.text;
             inputMsg = msgInputField.text;
 
             if (string.IsNullOrEmpty(inputName)) 
@@ -227,9 +239,11 @@ namespace XrCode
         /// <param name="infoType">指定的输入框</param>
         private void ShowInputFiled(EPOEType infoType)
         {
+            mNameInput.gameObject.SetActive(infoType != EPOEType.PhoneAndCPF);
             mAddressInput.gameObject.SetActive(infoType == EPOEType.Email);
             mPhone.gameObject.SetActive(infoType == EPOEType.Phone);
             mAddressOrPhoneInput.gameObject.SetActive(infoType == EPOEType.POE);
+            mPhoneAndCpf.gameObject.SetActive(infoType == EPOEType.PhoneAndCPF);
 
             switch(infoType) 
             { 
@@ -241,6 +255,10 @@ namespace XrCode
                     break;
                 case EPOEType.POE:
                     msgInputField = mAddressOrPhoneInput;
+                    break;
+                case EPOEType.PhoneAndCPF:
+                    msgInputField = mPhoneAndCpfInput;
+                    cpfInputField = mCpfInput;
                     break;
             }
         }
@@ -260,6 +278,9 @@ namespace XrCode
                     break;
                 case EPOEType.POE:
                     UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10059"));
+                    break;
+                case EPOEType.PhoneAndCPF:
+                    UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10140"));
                     break;
             }
         }
@@ -285,6 +306,10 @@ namespace XrCode
                 case EPOEType.POE:
                     b = msgInputField.text.IfEmail() || msgInputField.text.IfPhoneNumber();
                     lauguageId = "10062";
+                    break;
+                case EPOEType.PhoneAndCPF:       //这里只检查了电话号
+                    b = msgInputField.text.IfPhoneNumber() && cpfInputField.text.IsValidCpf();
+                    lauguageId = "10060";
                     break;
             }
 

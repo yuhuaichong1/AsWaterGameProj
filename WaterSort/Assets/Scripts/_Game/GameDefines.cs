@@ -12,6 +12,8 @@ public abstract class GameDefines
 
     #region 打包相关
     public static string URL = "http://api.game4475.xyz:8080/xgame?appIndex=131";                            //后台链接网址
+    public static string UserAgreementUrl = "https://docs.google.com/document/d/1rnRZ4GT-QpUxaO_dpUKtch7HPRffSKMJ1jPeOjUf6p0/edit?usp=sharing";             //用户协议
+    public static string PrivacyPolicyUrl = "https://docs.google.com/document/d/1EYQLK10-PJGT3cbf-_HIwWkTfB0dmLvE9bG7-OEQo0U/edit?usp=sharing";             //隐私信息
     public static bool ifIAA = true;                                                                        //是否为IAA模式
     public static bool ifDebug = true;                                                                      //是否是debug模式
     public static bool ifSkipAD = false;                                                                     //是否跳过广告
@@ -399,6 +401,7 @@ public enum EPOEType : int
     Email = 1,//邮箱
     Phone = 2,//电话
     POE = 3,//电话or邮箱
+    PhoneAndCPF = 4, //电话+税号
 }
 
 /// <summary>

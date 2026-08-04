@@ -52,6 +52,16 @@ namespace XrCode
             });
         }
 
+        private void OnBtnUserAgreementClickHandle()
+        {
+            WebDialogUtils.Open(GameDefines.UserAgreementUrl);
+        }
+
+        private void OnBtnPrivacyPolicyClickHandle()
+        {
+            WebDialogUtils.Open(GameDefines.PrivacyPolicyUrl);
+        }
+
         #region 控制（背景）音乐，目前不用（并入Sound）
         //private void OnM_ToggleValueChange(bool b)
         //{

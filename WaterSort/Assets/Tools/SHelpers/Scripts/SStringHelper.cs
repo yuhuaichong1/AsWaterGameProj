@@ -34,4 +34,66 @@ public static class SStringHelper
 
         return !Regex.IsMatch(phoneNumber, @"[^0-9]"); ;
     }
+
+
+    //验证CPF 测试示例：529.982.247-25
+    public static bool IsValidCpf(this string cpf)
+    {
+        if (string.IsNullOrWhiteSpace(cpf))
+            return false;
+
+        // 提取数字
+        char[] buffer = new char[11];
+        int count = 0;
+
+        for (int i = 0; i < cpf.Length; i++)
+        {
+            char c = cpf[i];
+
+            if (c >= '0' && c <= '9')
+            {
+                if (count >= 11)
+                    return false;
+
+                buffer[count] = c;
+                count++;
+            }
+        }
+
+        if (count != 11)
+            return false;
+
+        // 排除 00000000000、11111111111 等
+        bool allSame = true;
+        for (int i = 1; i < 11; i++)
+        {
+            if (buffer[i] != buffer[0])
+            {
+                allSame = false;
+                break;
+            }
+        }
+
+        if (allSame)
+            return false;
+
+        int sum = 0;
+        for (int i = 0; i < 9; i++)
+            sum += (buffer[i] - '0') * (10 - i);
+
+        int remainder = sum % 11;
+        int checkDigit1 = remainder < 2 ? 0 : 11 - remainder;
+
+        if ((buffer[9] - '0') != checkDigit1)
+            return false;
+
+        sum = 0;
+        for (int i = 0; i < 10; i++)
+            sum += (buffer[i] - '0') * (11 - i);
+
+        remainder = sum % 11;
+        int checkDigit2 = remainder < 2 ? 0 : 11 - remainder;
+
+        return (buffer[10] - '0') == checkDigit2;
+    }
 }
