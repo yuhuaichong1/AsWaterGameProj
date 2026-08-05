@@ -362,7 +362,7 @@ namespace XrCode
 
             int randomValue = (int)UnityEngine.Random.Range(WeightAdRange.x, WeightAdRange.y);
 
-            if (randomValue <= WeightAdBoundary)
+            if (randomValue < WeightAdBoundary)
             {
                 if (YRTTSDK.Instance.IsRewardVideoReady())
                 {
