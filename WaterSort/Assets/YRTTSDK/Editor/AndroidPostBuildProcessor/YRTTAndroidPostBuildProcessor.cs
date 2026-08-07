@@ -829,8 +829,12 @@ public class YRTTPostBuildProcessor : IPostGenerateGradleAndroidProject
         ReplaceNdkPathWithVersion(launcherGradle);
     }
 
-    // 保留 Unity 生成的 ndkPath，并把 ndkVersion 统一为该 NDK 的真实版本（动态检测），
-    // 避免硬编码一个本机未安装的 NDK 版本而触发下载/许可失败。
+    // 本工程强制要求的 NDK 版本
+    private const string ForcedNdkVersion = "29.0.14206865";
+
+    // 强制把 ndkVersion 固定为 ForcedNdkVersion，并移除 Unity 生成的 ndkPath，
+    // 避免 ndkPath 指向自带 NDK 而与强制的 ndkVersion 冲突。
+    // 前提：本机已安装该版本 NDK（位于 Android SDK 的 ndk/ 目录下），否则 gradle 会报找不到 NDK。
     private void ReplaceNdkPathWithVersion(string filePath)
     {
         try
@@ -843,15 +847,7 @@ public class YRTTPostBuildProcessor : IPostGenerateGradleAndroidProject
 
             string content = File.ReadAllText(filePath);
 
-            // 从文件中现有的 ndkPath 推导出真实 NDK 版本
-            string ndkVersion = DetectNdkVersionFromContent(content);
-            if (string.IsNullOrEmpty(ndkVersion))
-            {
-                Debug.Log($"未能从 {filePath} 检测到 NDK 版本，保持 Unity 原始 ndk 配置不变。");
-                return;
-            }
-
-            // 收敛重复/不一致的 ndkVersion：先移除所有 ndkVersion 行
+            // 先移除所有已存在的 ndkVersion 行，避免重复
             string updated = Regex.Replace(
                 content,
                 @"^[ \t]*ndkVersion\s*['""][^'""]+['""]\s*\r?\n",
@@ -859,7 +855,7 @@ public class YRTTPostBuildProcessor : IPostGenerateGradleAndroidProject
                 RegexOptions.Multiline
             );
 
-            // 在 ndkPath 行之后补一条正确的 ndkVersion
+            // 将 ndkPath 行替换为固定的 ndkVersion（保留原缩进，并删除 ndkPath）
             var ndkPathMatch = Regex.Match(
                 updated,
                 @"^([ \t]*)ndkPath\s*(?:=)?\s*[""'][^""']+[""'].*$",
@@ -869,53 +865,36 @@ public class YRTTPostBuildProcessor : IPostGenerateGradleAndroidProject
             if (ndkPathMatch.Success)
             {
                 string indent = ndkPathMatch.Groups[1].Value;
-                string insertion = ndkPathMatch.Value + Environment.NewLine + indent + $"ndkVersion '{ndkVersion}'";
+                string replacement = indent + $"ndkVersion '{ForcedNdkVersion}'";
                 updated = updated.Remove(ndkPathMatch.Index, ndkPathMatch.Length)
-                                 .Insert(ndkPathMatch.Index, insertion);
+                                 .Insert(ndkPathMatch.Index, replacement);
+            }
+            else
+            {
+                // 没有 ndkPath 行时，在 android { 之后补一条 ndkVersion
+                var androidMatch = Regex.Match(updated, @"^([ \t]*)android\s*\{", RegexOptions.Multiline);
+                if (androidMatch.Success)
+                {
+                    string indent = androidMatch.Groups[1].Value + "    ";
+                    int insertPos = androidMatch.Index + androidMatch.Length;
+                    updated = updated.Insert(insertPos, Environment.NewLine + indent + $"ndkVersion '{ForcedNdkVersion}'");
+                }
             }
 
             if (updated != content)
             {
                 File.WriteAllText(filePath, updated);
-                Debug.Log($"已在 {filePath} 中将 ndkVersion 统一为 '{ndkVersion}'（保留 ndkPath）。");
+                Debug.Log($"已在 {filePath} 中将 ndkVersion 强制固定为 '{ForcedNdkVersion}'（已移除 ndkPath）。");
             }
             else
             {
-                Debug.Log($"{filePath} 的 ndk 配置已正确，无需修改。");
+                Debug.Log($"{filePath} 的 ndk 配置已是 '{ForcedNdkVersion}'，无需修改。");
             }
         }
         catch (Exception e)
         {
             Debug.LogError($"替换 ndk 配置时出错 ({filePath}): {e.Message}");
         }
-    }
-
-    // 依据 gradle 文件中的 ndkPath 读取 source.properties 得到真实 NDK 版本
-    private string DetectNdkVersionFromContent(string content)
-    {
-        try
-        {
-            var match = Regex.Match(content, @"ndkPath\s*(?:=)?\s*[""']([^""']+)[""']");
-            if (!match.Success)
-                return null;
-
-            string ndkPath = match.Groups[1].Value;
-            string propsPath = Path.Combine(ndkPath, "source.properties");
-            if (!File.Exists(propsPath))
-                return null;
-
-            foreach (var line in File.ReadAllLines(propsPath))
-            {
-                var m = Regex.Match(line, @"Pkg\.Revision\s*=\s*(.+)");
-                if (m.Success)
-                    return m.Groups[1].Value.Trim();
-            }
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"检测 NDK 版本时出错: {e.Message}");
-        }
-        return null;
     }
 
     // 将 gradle-wrapper.properties 的 distributionUrl 固定为 gradle-8.13-bin.zip

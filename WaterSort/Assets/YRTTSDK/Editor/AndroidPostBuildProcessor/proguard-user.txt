@@ -30,3 +30,6 @@
 -dontoptimize
 #OpenSDK相关keep 结束
 #------------------------------SDK插入结束------------------------------
+
+# Unity 通过 AndroidJavaObject 字符串反射调用本工程 Java 插件，R8 开混淆后会改名导致 ClassNotFoundException
+-keep class com.sandroidplugin.** { *; }

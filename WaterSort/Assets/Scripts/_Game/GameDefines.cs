@@ -15,7 +15,7 @@ public abstract class GameDefines
     public static string UserAgreementUrl = "https://docs.google.com/document/d/1rnRZ4GT-QpUxaO_dpUKtch7HPRffSKMJ1jPeOjUf6p0/edit?usp=sharing";             //用户协议
     public static string PrivacyPolicyUrl = "https://docs.google.com/document/d/1EYQLK10-PJGT3cbf-_HIwWkTfB0dmLvE9bG7-OEQo0U/edit?usp=sharing";             //隐私信息
     public static bool ifIAA = true;                                                                        //是否为IAA模式
-    public static bool ifDebug = true;                                                                      //是否是debug模式
+    public static bool ifDebug = false;                                                                      //是否是debug模式
     public static bool ifSkipAD = false;                                                                     //是否跳过广告
     #endregion
 
@@ -213,6 +213,8 @@ public abstract class GameDefines
 
     #region 广告相关
 
+    public static bool IsJumpPsv = true;                                                                    //是否拒绝被动
+    public static bool CanChangeAd = false;                                                                 //能切广告吗
     public static Vector2 WeightAdRange = new Vector2(1, 101);                                              //权重广告随机区间
     public static int AdWeight = 50;                                                                        //权重广告随机分界（小于等于为激励，大于为插屏）
     public static int AdRefuseCount = 3;                                                                    //广告拒绝次数

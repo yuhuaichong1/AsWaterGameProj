@@ -22,6 +22,7 @@ namespace XrSDK
 
             AddFacade();
 
+            Debug.Log("SDK 开始初始化");
             YRTTSDK.Instance.Init((success, info) =>
             {
                 Debug.Log(success ? "SDK 初始化成功" : "SDK 初始化失败");

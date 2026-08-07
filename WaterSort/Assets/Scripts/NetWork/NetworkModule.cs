@@ -181,6 +181,7 @@ namespace XrCode
                         Debug.LogError(":::::: 获取到服务器数据 :::::: ");
                         ReciveveMessage(webReq.downloadHandler.text);
                         OnFinished?.Invoke();
+                        D.Error("[Final]:______________________________________________ net");
                         Game.Instance.curPreLoadCount += 1;
                         FacadeGamePlay.LoadingSilderMoveAnim?.Invoke();
                     }
@@ -295,6 +296,14 @@ namespace XrCode
                 if (adDic.TryGetValue("AdWeightArr", out object awa))
                 {
                     GameDefines.AdWeightArr = Array.ConvertAll(awa.ToString().Split(','), int.Parse);
+                }
+                if (adDic.TryGetValue("CanChangeAd", out object CanChangeAd)) 
+                {
+                    GameDefines.CanChangeAd = bool.Parse(CanChangeAd.ToString());
+                }
+                if (adDic.TryGetValue("IsJumpPsv", out object IsJumpPsv)) 
+                {
+                    GameDefines.IsJumpPsv = bool.Parse(IsJumpPsv.ToString());
                 }
             }
         }

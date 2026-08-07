@@ -173,7 +173,7 @@ namespace XrCode
         /// <param name="eAdSource">广告源</param>
         /// <param name="successAction">成功回调</param>
         /// <param name="failAction">失败回调</param>
-        private void PlayRewardAd(EAdSource eAdSource, Action<int> successAction, Action<string> failAction)
+        private void PlayRewardAd(EAdSource eAdSource, Action<int> successAction, Action<string> failAction,bool isAct)
         {
             rewardAdScore = eAdSource;
 
@@ -191,15 +191,7 @@ namespace XrCode
                 else
                     rewardFailActions[eAdSource] = failAction;
 
-                //if(FacadeAd.ShowRewardAd != null)
-                //{
-                //    FacadeAd.ShowRewardAd();
-                //}
-                //else
-                //{
-                //    failAction?.Invoke(AdFailMsg);
-                //    UIManager.Instance.OpenNotice2(AdFailMsg);
-                //}
+
                 YRTTSDK.Instance.ClickAdButton(eAdSource.ToString());
                 YRTTSDK.Instance.ShowRewardVideo(eAdSource.ToString(), () =>
                 {
@@ -207,7 +199,7 @@ namespace XrCode
                 }, () =>
                 {
                     failAction?.Invoke(AdFailMsg);
-                    UIManager.Instance.OpenNotice(AdFailMsg);
+                    if(isAct) UIManager.Instance.OpenNotice(AdFailMsg);
                 });
 
             }
@@ -219,7 +211,7 @@ namespace XrCode
         /// <param name="eAdSource">广告源</param>
         /// <param name="successAction">成功回调</param>
         /// <param name="failAction">失败回调</param>
-        private void PlayInterAd(EAdSource eAdSource, Action<int> successAction, Action<string> failAction)
+        private void PlayInterAd(EAdSource eAdSource, Action<int> successAction, Action<string> failAction, bool isAct)
         {
             interstitialAdScore = eAdSource;
 
@@ -237,15 +229,7 @@ namespace XrCode
                 else
                     interstitialFailActions[eAdSource] = failAction;
 
-                //if (FacadeAd.ShowInterAd != null)
-                //{
-                //    FacadeAd.ShowInterAd();
-                //}
-                //else
-                //{
-                //    failAction?.Invoke(AdFailMsg);
-                //    UIManager.Instance.OpenNotice2(AdFailMsg);
-                //}
+
 
                 YRTTSDK.Instance.ClickAdButton(eAdSource.ToString());
                 YRTTSDK.Instance.ShowInterstitial(eAdSource.ToString(), () =>
@@ -254,7 +238,7 @@ namespace XrCode
                 }, () =>
                 {
                     failAction?.Invoke(AdFailMsg);
-                    UIManager.Instance.OpenNotice(AdFailMsg);
+                    if(isAct) UIManager.Instance.OpenNotice(AdFailMsg);
                 });
 
             }
@@ -354,9 +338,45 @@ namespace XrCode
         /// <param name="WeightAdBoundary">权重分界值</param>
         private void PlayROIAdByWeight(EAdSource eAdSource, Action<int> successAction, Action<string> failAction, Vector2 WeightAdRange, int WeightAdBoundary)
         {
-            if(FacadeAd.GetRewardAdReady == null)//一般情况下，GetRewardAdReady和GetInterAdReady会同时赋值
+            int randomValue = (int)UnityEngine.Random.Range(WeightAdRange.x, WeightAdRange.y);
+
+            if (randomValue < WeightAdBoundary)
             {
-                failAction?.Invoke(AdFailMsg);
+                if (YRTTSDK.Instance.IsRewardVideoReady())
+                {
+                    PlayRewardAd(eAdSource, successAction, failAction,true);
+                }
+                else
+                {
+                    PlayInterAd(eAdSource, successAction, failAction,true);
+                }
+            }
+            else
+            {
+                if (YRTTSDK.Instance.IsInterstitialReady())
+                {
+                    PlayInterAd(eAdSource, successAction, failAction,true);
+                }
+                else
+                {
+                    PlayRewardAd(eAdSource, successAction, failAction, true);
+                }
+            }
+        }
+
+        /// 根据权重选择播放激励or插屏
+        /// </summary>
+        /// <param name="eAdSource">广告源</param>
+        /// <param name="successAction">成功回调</param>
+        /// <param name="failAction">失败回调</param>
+        /// <param name="rewardHideAction">广告（激励）隐藏回调</param>
+        /// <param name="WeightAdRange">权重范围</param>
+        /// <param name="WeightAdBoundary">权重分界值</param>
+        private void PlayROIAdByWeightPsv(EAdSource eAdSource, Action<int> successAction, Action<string> failAction, Vector2 WeightAdRange, int WeightAdBoundary)
+        {
+            if (!GameDefines.CanChangeAd)
+            {
+                PlayInterAd(eAdSource, successAction, failAction,false);
                 return;
             }
 
@@ -366,22 +386,22 @@ namespace XrCode
             {
                 if (YRTTSDK.Instance.IsRewardVideoReady())
                 {
-                    PlayRewardAd(eAdSource, successAction, failAction);
+                    PlayRewardAd(eAdSource, successAction, failAction,false);
                 }
                 else
                 {
-                    PlayInterAd(eAdSource, successAction, failAction);
+                    PlayInterAd(eAdSource, successAction, failAction, false);
                 }
             }
             else
             {
                 if (YRTTSDK.Instance.IsInterstitialReady())
                 {
-                    PlayInterAd(eAdSource, successAction, failAction);
+                    PlayInterAd(eAdSource, successAction, failAction, false);
                 }
                 else
                 {
-                    PlayRewardAd(eAdSource, successAction, failAction);
+                    PlayRewardAd(eAdSource, successAction, failAction, false);
                 }
             }
         }
@@ -1101,13 +1121,13 @@ namespace XrCode
         {
             curRefuseCount++;
 
-            if (curRefuseCount >= GameDefines.AdRefuseCount)
+            if (curRefuseCount >= GameDefines.AdRefuseCount && !GameDefines.IsJumpPsv)
             {
                 TDAnalyticsManager.Instance.OnlyAdCount();
                 int weightId = GameDefines.AdLvArr.ToList().GetRangeIndex(FacadePlayer.GetLevel());
                 int weight = GameDefines.AdWeightArr[weightId];
 
-                PlayROIAdByWeight(eAdSource, (count) =>
+                PlayROIAdByWeightPsv(eAdSource, (count) =>
                 {
                     curRefuseCount = 0;
                     successAction?.Invoke(count);

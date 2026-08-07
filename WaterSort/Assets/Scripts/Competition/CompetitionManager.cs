@@ -10,9 +10,9 @@ namespace XrCode
 
         private Dictionary<CompetitionKey, CompetitionItem> competitionValues;
 
-        #region ÆäËû
+        #region ï¿½ï¿½ï¿½ï¿½
 
-        public Dictionary<string, object> attributionData;//¹éÒòÊý¾Ý
+        public Dictionary<string, object> attributionData;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
         #endregion
 
@@ -45,11 +45,11 @@ namespace XrCode
         }
 
         /// <summary>
-        /// ¾ºÕùÖµÉèÖÃ
+        /// ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="key">¼üÃû</param>
-        /// <param name="value">¾ºÕùÖµ</param>
-        /// <param name="level">¾ºÕùµÈ¼¶</param>
+        /// <param name="key">ï¿½ï¿½ï¿½ï¿½</param>
+        /// <param name="value">ï¿½ï¿½ï¿½ï¿½Öµ</param>
+        /// <param name="level">ï¿½ï¿½ï¿½ï¿½ï¿½È¼ï¿½</param>
         public void CompetitionVariable(CompetitionKey key, object value, int level)
         {
             if (competitionValues.ContainsKey(key))
@@ -63,9 +63,9 @@ namespace XrCode
         }
 
         /// <summary>
-        /// Ìø¹ýÄ³´Î¾ºÕù£¨·Ç½áÊø£©
+        /// ï¿½ï¿½ï¿½ï¿½Ä³ï¿½Î¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç½ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="key">¼üÃû</param>
+        /// <param name="key">ï¿½ï¿½ï¿½ï¿½</param>
         public void SkipCompetition(CompetitionKey key)
         {
             if (competitionValues.ContainsKey(key))
@@ -84,6 +84,7 @@ namespace XrCode
             OnFinished?.Invoke();
             Game.Instance.curPreLoadCount += 1;
             FacadeGamePlay.LoadingSilderMoveAnim?.Invoke();
+            D.Error("[Final]:______________________________________________ iaa");
         }
 
         private void OnAFFinal(object obj)
@@ -91,6 +92,7 @@ namespace XrCode
             GameDefines.AFJustState = (bool)obj;
             if (attributionData == null) attributionData = new Dictionary<string, object>();
             TDAnalyticsManager.Instance.SetAttributionData(attributionData);
+            D.Error("[Final]:______________________________________________ af");
         }
 
         private void OnYRTTFinal(object obj)
@@ -101,10 +103,11 @@ namespace XrCode
             {
                 Game.Instance.curPreLoadCount += 1;
                 FacadeGamePlay.LoadingSilderMoveAnim?.Invoke();
+                D.Error("[Final]:______________________________________________ YRTT succ");
             }
             else
-            { 
-                
+            {
+                D.Error("[Final]:______________________________________________ YRTT fail");
             }
         }
 
@@ -112,15 +115,16 @@ namespace XrCode
         {
             UIManager.Instance.OpenAsync<UILoading>(EUIType.EUILoading, UIOpenType.None, (BaseUI) => 
             {
+                D.Error("[Final]:______________________________________________ start");
                 Game.Instance.curPreLoadCount += 1;
                 FacadeGamePlay.LoadingSilderMoveAnim();
             });
         }
 
-        #region ÆäËûÄÚÈÝ
+        #region ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
         /// <summary>
-        /// Èç¹ûafÒ»Ö±Ã»ÓÐÖµ£¬¾ÍÖ±½ÓÌø¹ýÄÇ´Î¾ºÕù
+        /// ï¿½ï¿½ï¿½afÒ»Ö±Ã»ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç´Î¾ï¿½ï¿½ï¿½
         /// </summary>
         private void SkipIAAFromAF()
         {

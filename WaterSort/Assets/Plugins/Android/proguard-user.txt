@@ -1,0 +1,35 @@
+#------------------------------SDK插入开始------------------------------
+-dontpreverify
+-dontoptimize
+-optimizationpasses 5
+-repackageclasses '' #替换包名为默认包名
+-dontusemixedcaseclassnames
+-dontskipnonpubliclibraryclasses
+-dontpreverify
+-verbose
+-dontskipnonpubliclibraryclassmembers
+-ignorewarnings
+#openSDK相关keep 开始
+-keep class com.google.gson.internal.** {*;}
+-keep class com.facebook.internal.** {*;}
+-keep class com.osdk.open.** {*;}
+-keep class com.osdk.cpl.** { public *; }
+-keep class O0OOo0O0oo0OO0oo0.** {*;}
+-keep class OO0OOOOO0o.** {*;}
+-keep class OO0OOOOO0o0.** {*;}
+-keep class OO0OOOOO0Oo.** {*;}
+-keep class OO0OOOOO0oO.** {*;}
+-keep class OO0OOOOO0oo.** {*;}
+-keep class OO0OOOOOO0o.** {*;}
+-keep class OO0OOOOOOo.** {*;}
+-keep class OO0OOOOOOOo.** {*;}
+-keep class OOOOOOOOOo0.** {*;}
+-keep class OOOOOOOOOOOo.** {*;}
+-keepattributes Signature, InnerClasses, EnclosingMethod, Exceptions
+-dontshrink
+-dontoptimize
+#OpenSDK相关keep 结束
+#------------------------------SDK插入结束------------------------------
+
+# Unity 通过 AndroidJavaObject 字符串反射调用本工程 Java 插件，R8 开混淆后会改名导致 ClassNotFoundException
+-keep class com.sandroidplugin.** { *; }

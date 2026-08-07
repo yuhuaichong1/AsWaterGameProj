@@ -48,7 +48,7 @@ namespace XrCode
                 {
                     UIManager.Instance.CloseUI(EUIType.EUILevelFailure);
                 });
-            }, null);
+            }, null,true);
         }
 	    private void OnOnlyBtnClickHandle()
         {

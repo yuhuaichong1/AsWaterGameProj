@@ -5,8 +5,8 @@ public static class FacadeAd
 {
     #region 播放广告
 
-    public static Action<EAdSource, Action<int>, Action<string>> PlayRewardAd;                                  //播放激励广告
-    public static Action<EAdSource, Action<int>, Action<string>> PlayInterAd;                                   //播放插屏广告
+    public static Action<EAdSource, Action<int>, Action<string>, bool> PlayRewardAd;                                  //播放激励广告
+    public static Action<EAdSource, Action<int>, Action<string>, bool> PlayInterAd;                                   //播放插屏广告
     public static Action<EAdSource, Action<int>, Action<string>> PlayBannerAd;                                  //播放横幅广告
     public static Action<EAdSource> StopBannerAd;                                                               //停止横幅广告
     public static Action<EAdSource, Action<int>, Action<string>> PlayAppOpenAd;                                 //播放开屏广告
