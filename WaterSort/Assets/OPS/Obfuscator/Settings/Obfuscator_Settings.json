@@ -95,12 +95,6 @@
           "Key" : "Obfuscate_Assembly_In_Assets_AssemblyDefinitionFiles",
           "Value" : "True",
           "Values" : null
-        },
-        {
-          "Type" : "Bool",
-          "Key" : "Obfuscate_Assembly_In_Packages_AssemblyDefinitionFiles",
-          "Value" : "True",
-          "Values" : null
         }
       ]
     },
@@ -182,8 +176,7 @@
           "Values" : [
             "XrCode",
             "XrSDK",
-            "cfg",
-            "YRTT"
+            "cfg"
           ]
         }
       ]
@@ -630,7 +623,7 @@
     {
       "Type" : "Bool",
       "Key" : "Global_Enable_Obfuscation",
-      "Value" : "True",
+      "Value" : "False",
       "Values" : null
     }
   ]
