@@ -281,6 +281,8 @@ public enum EUIType
     EUIWithdrawTarget = 24,
     EUINewGamePlay = 25,
     EUIDateShow = 26,
+    EUIUserAgreement = 27,
+    EUIPrivacyPolicy = 28,
 }
 
 /// <summary>

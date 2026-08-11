@@ -85,7 +85,7 @@ namespace Assets.Editor.AssetBundle
 
                 if (fullBuild)
                 {
-                    D.Log("AssetBundle Build Success!");
+                    UnityEngine.Debug.Log("AssetBundle Build Success!");
                 }
                 else
                 {

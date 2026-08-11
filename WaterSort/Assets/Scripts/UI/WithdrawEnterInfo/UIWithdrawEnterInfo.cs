@@ -70,7 +70,7 @@ namespace XrCode
                 mPY6Icon.sprite = payTypes[5].picture;
 
             mAreaCodeText.text = $"+{FacadePayType.GetNANP?.Invoke()}";
-            mPhoneCpfCodeText.text = $"+{FacadePayType.GetNANP?.Invoke()}";
+
 
             mNameInput.placeholder.gameObject.GetComponent<Text>().text = FacadeLanguage.GetText("10056");
             mAddressInput.placeholder.gameObject.GetComponent<Text>().text = FacadeLanguage.GetText("10058");
@@ -78,7 +78,7 @@ namespace XrCode
             mAddressOrPhoneInput.placeholder.gameObject.GetComponent<Text>().text = FacadeLanguage.GetText("10059");
             //CPF
             mCPFNameInput.placeholder.gameObject.GetComponent<Text>().text = FacadeLanguage.GetText("10056");
-            mPhoneAndCpfInput.placeholder.gameObject.GetComponent<Text>().text = FacadeLanguage.GetText("10057");
+            mPhoneAndCpfInput.placeholder.gameObject.GetComponent<Text>().text = FacadeLanguage.GetText("10143");
             mCpfInput.placeholder.gameObject.GetComponent<Text>().text = FacadeLanguage.GetText("10139");
         }
 
@@ -280,7 +280,7 @@ namespace XrCode
                     UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10059"));
                     break;
                 case EPOEType.PhoneAndCPF:
-                    UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10140"));
+                    UIManager.Instance.OpenNotice2(FacadeLanguage.GetText("10145"));
                     break;
             }
         }
@@ -307,9 +307,17 @@ namespace XrCode
                     b = msgInputField.text.IfEmail() || msgInputField.text.IfPhoneNumber();
                     lauguageId = "10062";
                     break;
-                case EPOEType.PhoneAndCPF:       //这里只检查了电话号
-                    b = msgInputField.text.IfPhoneNumber() && cpfInputField.text.IsValidCpf();
-                    lauguageId = "10060";
+                case EPOEType.PhoneAndCPF:
+                    bool isPixPhone = msgInputField.text.IsPixPhone();
+                    bool isEmail = msgInputField.text.IfEmail();
+                    bool isCpfAsKey = msgInputField.text.IsValidCpf();
+                    bool isCnpj = msgInputField.text.IsCnpj();
+
+                    bool isCpf = cpfInputField.text.IsValidCpf();
+
+                    b = (isPixPhone || isEmail || isCpfAsKey || isCnpj) && isCpf;
+
+                    lauguageId = "10146";
                     break;
             }
 

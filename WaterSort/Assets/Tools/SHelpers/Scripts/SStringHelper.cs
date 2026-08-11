@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Linq;
+using System.Text.RegularExpressions;
 
 public static class SStringHelper
 {
@@ -95,5 +96,63 @@ public static class SStringHelper
         int checkDigit2 = remainder < 2 ? 0 : 11 - remainder;
 
         return (buffer[10] - '0') == checkDigit2;
+    }
+    private static readonly Regex PixPhoneRegex = new Regex(@"^\+?55[1-9][0-9]9[0-9]{8}$", RegexOptions.Compiled);
+    /// <summary>
+    /// 判断是否为合法的巴西 Pix 手机号（带不带 + 都接受）。
+    /// </summary>
+    public static bool IsPixPhone(this string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return false;
+        // 去掉空格、连字符、括号等常见分隔符，但保留 +
+        string cleaned = Regex.Replace(input, @"[\s\-\(\)]", "");
+        return PixPhoneRegex.IsMatch(cleaned);
+    }
+    /// <summary>
+    /// 校验并归一化为标准 Pix 密钥格式（带 + 的 E.164）。
+    /// 返回 null 表示非法。
+    /// </summary>
+    public static string NormalizeToPixKey(string input)
+    {
+        if (!IsPixPhone(input))
+            return null;
+        string digits = Regex.Replace(input, @"[^\d]", ""); // 只留数字
+        return "+" + digits;                                 // 统一补上 +
+    }
+
+    /// <summary>
+    /// 判断传入文本是否为合法的巴西 CNPJ（企业税号）。
+    /// 支持带标点（12.345.678/0001-95）或纯数字（12345678000195）两种输入。
+    /// </summary>
+    public static bool IsCnpj(this string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return false;
+        // 只保留数字
+        string digits = Regex.Replace(input, @"[^\d]", "");
+        // CNPJ 必须是 14 位
+        if (digits.Length != 14)
+            return false;
+        // 排除全部相同数字的非法情况（如 00000000000000）
+        if (digits.All(c => c == digits[0]))
+            return false;
+        // 第一位校验码
+        int[] weights1 = { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+        if (CalcCheckDigit(digits, weights1) != (digits[12] - '0'))
+            return false;
+        // 第二位校验码
+        int[] weights2 = { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+        if (CalcCheckDigit(digits, weights2) != (digits[13] - '0'))
+            return false;
+        return true;
+    }
+    private static int CalcCheckDigit(string digits, int[] weights)
+    {
+        int sum = 0;
+        for (int i = 0; i < weights.Length; i++)
+            sum += (digits[i] - '0') * weights[i];
+        int remainder = sum % 11;
+        return remainder < 2 ? 0 : 11 - remainder;
     }
 }

@@ -54,12 +54,22 @@ namespace XrCode
 
         private void OnBtnUserAgreementClickHandle()
         {
-            WebDialogUtils.Open(GameDefines.UserAgreementUrl);
+            //WebDialogUtils.Open(GameDefines.UserAgreementUrl);
+            HideAnim(mPlane, () =>
+            {
+                UIManager.Instance.CloseUI(EUIType.EUISetting);
+                UIManager.Instance.OpenAsync<UIUserAgreementPanel>(EUIType.EUIUserAgreement);
+            });
         }
 
         private void OnBtnPrivacyPolicyClickHandle()
         {
-            WebDialogUtils.Open(GameDefines.PrivacyPolicyUrl);
+            //WebDialogUtils.Open(GameDefines.PrivacyPolicyUrl);
+            HideAnim(mPlane, () =>
+            {
+                UIManager.Instance.CloseUI(EUIType.EUISetting);
+                UIManager.Instance.OpenAsync<UIPrivacyPolicyPanel>(EUIType.EUIPrivacyPolicy);
+            });
         }
 
         #region 控制（背景）音乐，目前不用（并入Sound）

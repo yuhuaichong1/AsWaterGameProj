@@ -29,7 +29,6 @@ namespace XrCode
 	protected Button mConfirmBtn;
 	protected RectTransform mPlane;
 	protected RectTransform mPhoneAndCpf;
-	protected Text mPhoneCpfCodeText;
 	protected InputField mPhoneAndCpfInput;
 	protected InputField mCpfInput;
 	protected InputField mCPFNameInput;
@@ -61,7 +60,6 @@ namespace XrCode
 		mConfirmBtn = mTransform.Find("Plane/ConfirmBtn").GetComponent<Button>();
 		mPlane = mTransform.Find("Plane").GetComponent<RectTransform>();
 		mPhoneAndCpf = mTransform.Find("Plane/PhoneAndCpf").GetComponent<RectTransform>();
-		mPhoneCpfCodeText = mTransform.Find("Plane/PhoneAndCpf/PhoneAreaCode/PhoneCpfCodeText").GetComponent<Text>();
 		mPhoneAndCpfInput = mTransform.Find("Plane/PhoneAndCpf/PhoneAndCpfInput").GetComponent<InputField>();
 		mCpfInput = mTransform.Find("Plane/PhoneAndCpf/CpfInput").GetComponent<InputField>();
 		mCPFNameInput = mTransform.Find("Plane/PhoneAndCpf/CPFNameInput").GetComponent<InputField>();
