@@ -159,7 +159,7 @@ namespace XrCode
             properties.Add("regtime", DateTime.Now);
 
             ThinkingDataDefines.Track("Register_Finish", properties);
-            YRTTSDK.Instance.Track("Register_Finish");
+            YRTDefines.RegisterFinish?.Invoke();
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace XrCode
             Dictionary<string, object> properties = new Dictionary<string, object>();
 
             ThinkingDataDefines.Track("Login_Success", properties);
-            YRTTSDK.Instance.Track("Login_Success");
+            YRTDefines.LoginSuccess?.Invoke();
 
         }
 
@@ -192,8 +192,7 @@ namespace XrCode
             Dictionary<string, object> properties = new Dictionary<string, object>();
 
             ThinkingDataDefines.Track("Enter_MainUI", properties);
-            YRTTSDK.Instance.EnterHomePage();
-            YRTTSDK.Instance.Track("Enter_MainUI");
+            YRTDefines.EnterMainUI?.Invoke();
 
         }
 
@@ -224,7 +223,7 @@ namespace XrCode
             properties.Add("step", curStep);
 
             ThinkingDataDefines.Track("GuideStep", properties);
-            YRTTSDK.Instance.Track("GuideStep","step", curStep);
+            YRTDefines.GuideStepFinish?.Invoke(curStep);
 
         }
 
@@ -238,7 +237,6 @@ namespace XrCode
             properties.Add("level", level);
 
             ThinkingDataDefines.Track("LevelComplated", properties);
-            //YRTTSDK.Instance.Track("LevelComplated", "level", level);
         }
 
         #endregion

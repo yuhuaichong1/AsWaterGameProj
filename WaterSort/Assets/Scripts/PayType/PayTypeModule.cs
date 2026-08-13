@@ -40,7 +40,6 @@ namespace XrCode
             CultureInfo currentCulture = CultureInfo.CurrentCulture;
             countryCode = currentCulture.Name.Split("-")[1];
             List<ConfPayRegion> payRegionList = ConfigModule.Instance.Tables.TBPayRegion.DataList;
-            countryCode = "BR";
             foreach (ConfPayRegion payRegion in payRegionList) 
             {
                 if (payRegion.Code == countryCode)

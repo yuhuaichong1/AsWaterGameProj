@@ -68,12 +68,22 @@ namespace XrSDK
         {
             YRTDefines.GetAttributionInfo += GetAttributionInfo;
             YRTDefines.GetInitSuccess += GetInitSuccess;
+
+            YRTDefines.EnterMainUI += EnterMainUI;
+            YRTDefines.LoginSuccess += LoginSuccess;
+            YRTDefines.EnterMainUI += EnterMainUI;
+            YRTDefines.GuideStepFinish += GuideStep;
         }
 
         private void RemoveFacade()
         {
             YRTDefines.GetAttributionInfo -= GetAttributionInfo;
             YRTDefines.GetInitSuccess -= GetInitSuccess;
+
+            YRTDefines.EnterMainUI -= EnterMainUI;
+            YRTDefines.LoginSuccess -= LoginSuccess;
+            YRTDefines.EnterMainUI -= EnterMainUI;
+            YRTDefines.GuideStepFinish -= GuideStep;
         }
 
         #endregion
@@ -94,6 +104,52 @@ namespace XrSDK
 
             RemoveFacade();
         }
+
+        #region 事件
+
+
+        /// <summary>
+        /// 引导步骤
+        /// </summary>
+        /// <param name="curStep">当前引导步骤</param>
+        public void GuideStep(int curStep)
+        {
+            if (!initSuccess) return;
+            YRTTSDK.Instance.Track("GuideStep", "step", curStep);
+
+        }
+
+        /// <summary>
+        /// 游戏进入了主界面
+        /// </summary>
+        public void EnterMainUI()
+        {
+            if (!initSuccess) return;
+            YRTTSDK.Instance.EnterHomePage();
+            YRTTSDK.Instance.Track("Enter_MainUI");
+
+        }
+
+        /// <summary>
+        /// 玩家登录成功
+        /// </summary>
+        public void LoginSuccess()
+        {
+            if (!initSuccess) return;
+            YRTTSDK.Instance.Track("Login_Success");
+        }
+
+        /// <summary>
+        /// 玩家注册成功
+        /// </summary>
+        /// <param name="userId">玩家Id</param>
+        public void RegisterFinish()
+        {
+            if (!initSuccess) return;
+            YRTTSDK.Instance.Track("Register_Finish");
+        }
+
+        #endregion
     }
 }
 

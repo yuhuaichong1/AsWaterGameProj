@@ -95,6 +95,12 @@
           "Key" : "Obfuscate_Assembly_In_Assets_AssemblyDefinitionFiles",
           "Value" : "True",
           "Values" : null
+        },
+        {
+          "Type" : "Bool",
+          "Key" : "Obfuscate_Assembly_In_Packages_AssemblyDefinitionFiles",
+          "Value" : "True",
+          "Values" : null
         }
       ]
     },
