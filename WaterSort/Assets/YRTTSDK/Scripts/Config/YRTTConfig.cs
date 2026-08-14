@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using YRTT;
 using UnityEditor;
 using UnityEngine;
@@ -9,7 +8,7 @@ namespace YRTT
     [System.Serializable]
     public class YRTTConfig : ScriptableObject
     {
-        public const string sdk_Version_Name = "6.12.2.1";
+        public const string sdk_Version_Name = "6.10.5.1";
         public string serverUrl = string.Empty;
         public string statUrl = string.Empty;
         public string appKey = string.Empty;
@@ -20,21 +19,12 @@ namespace YRTT
         public string iosAppId = string.Empty;
         public string oneLinkID = string.Empty;
 
-        // 新增 GMS 认证配置
-        public string cloudProjectNumber = string.Empty;
-
         public bool useLocalValueConfig = false;
         public bool forceLocalValueConfig = false;
         public string localValueConfig = string.Empty;
 
         public string maxAppKey = "";
         public string maxAdReviewKey = "";
-
-        // 新增通用广告字段（保留原来的 max 字段以兼容）
-        public string adAppKey = "";
-        public string adAppID = "";
-        public string selectedAdNetwork = "Max";
-
         public string insUnitId = "";
         public string videoUnitId = "";
         public string bannerUnitId = "";
@@ -59,10 +49,7 @@ namespace YRTT
               $"{nameof(afDevKey)}: {afDevKey}, \n" +
               $"{nameof(iosAppId)}: {iosAppId}, \n" +
               $"{nameof(oneLinkID)}: {oneLinkID}, \n" +
-              $"{nameof(cloudProjectNumber)}: {cloudProjectNumber}, \n" +
               $"{nameof(maxAppKey)}: {MaxAppKey}, \n" +
-              $"{nameof(adAppKey)}: {adAppKey}, \n" +
-              $"{nameof(adAppID)}: {adAppID}, \n" +
               $"{nameof(maxAdReviewKey)}: {maxAdReviewKey}, \n" +
               $"{nameof(insUnitId)}: {insUnitId}, \n" +
               $"{nameof(videoUnitId)}: {videoUnitId}, \n" +
@@ -72,41 +59,34 @@ namespace YRTT
               $"{nameof(privacyPolicyUri)}: {privacyPolicyUri}, \n" +
               $"{nameof(termsOfServiceUri)}: {termsOfServiceUri}, \n" +
               $"{nameof(debug)}: {debug}, \n" +
-              $"{nameof(printLog)}: {printLog}, \n" +
-              $"{nameof(selectedAdNetwork)}: {selectedAdNetwork}";
+              $"{nameof(printLog)}: {printLog}";
         }
 
 #if UNITY_EDITOR
 
         public string ToJson()
         {
-            var obj = new JObject
-            {
-                [nameof(appKey)] = appKey ?? string.Empty,
-                [nameof(appSecret)] = appSecret ?? string.Empty,
-                [nameof(umkAppId)] = umkAppId ?? string.Empty,
-                [nameof(afDevKey)] = afDevKey ?? string.Empty,
-                [nameof(iosAppId)] = iosAppId ?? string.Empty,
-                [nameof(oneLinkID)] = oneLinkID ?? string.Empty,
-                [nameof(cloudProjectNumber)] = cloudProjectNumber ?? string.Empty,
-                [nameof(serverUrl)] = serverUrl ?? string.Empty,
-                [nameof(statUrl)] = statUrl ?? string.Empty,
-                [nameof(privacyPolicyUri)] = privacyPolicyUri ?? string.Empty,
-                [nameof(termsOfServiceUri)] = termsOfServiceUri ?? string.Empty,
-                [nameof(adAppKey)] = adAppKey ?? string.Empty,
-                [nameof(adAppID)] = adAppID ?? string.Empty,
-                [nameof(selectedAdNetwork)] = selectedAdNetwork ?? string.Empty,
-                [nameof(maxAppKey)] = maxAppKey ?? string.Empty,
-                [nameof(maxAdReviewKey)] = maxAdReviewKey ?? string.Empty,
-                [nameof(videoUnitId)] = videoUnitId ?? string.Empty,
-                [nameof(insUnitId)] = insUnitId ?? string.Empty,
-                [nameof(bannerUnitId)] = bannerUnitId ?? string.Empty,
-                [nameof(openUnitId)] = openUnitId ?? string.Empty,
-                [nameof(admobId)] = admobId ?? string.Empty,
-                ["packageName"] = PlayerSettings.applicationIdentifier ?? string.Empty
-            };
-            // 返回压缩后的 JSON（没有空格、换行）
-            return obj.ToString(Formatting.None);
+            return
+                 "{" +
+               $"\"{nameof(appKey)}\": \"{appKey}\", \n" +
+               $"\"{nameof(appSecret)}\": \"{appSecret}\", \n" +
+               $"\"{nameof(umkAppId)}\":\"{umkAppId}\", \n" +
+               $"\"{nameof(afDevKey)}\":\"{afDevKey}\", \n" +
+               $"\"{nameof(iosAppId)}\":\"{iosAppId}\", \n" +
+               $"\"{nameof(oneLinkID)}\": \"{oneLinkID}\", \n" +
+               $"\"{nameof(serverUrl)}\": \"{serverUrl}\",\n" +
+               $"\"{nameof(statUrl)}\": \"{statUrl}\", \n" +
+               $"\"{nameof(privacyPolicyUri)}\": \"{privacyPolicyUri}\", \n" +
+               $"\"{nameof(termsOfServiceUri)}\": \"{termsOfServiceUri}\", \n" +
+               $"\"{nameof(maxAppKey)}\":\"{maxAppKey}\", \n" +
+               $"\"{nameof(maxAdReviewKey)}\":\"{maxAdReviewKey}\", \n" +
+               $"\"{nameof(videoUnitId)}\": \"{videoUnitId}\", \n" +
+               $"\"{nameof(insUnitId)}\": \"{insUnitId}\", \n" +
+               $"\"{nameof(bannerUnitId)}\": \"{bannerUnitId}\", \n" +
+               $"\"{nameof(openUnitId)}\": \"{openUnitId}\",\n" +
+               $"\"{nameof(admobId)}\": \"{admobId}\",\n" +
+               $"\"{"packageName"}\": \"{PlayerSettings.applicationIdentifier}\",\n" +
+                 "}";
         }
 
 #endif
@@ -122,17 +102,10 @@ namespace YRTT
                 Instance.afDevKey = cf.afDevKey;
                 Instance.iosAppId = cf.iosAppId;
                 Instance.oneLinkID = cf.oneLinkID;
-                Instance.cloudProjectNumber = cf.cloudProjectNumber;
                 Instance.serverUrl = cf.serverUrl;
                 Instance.statUrl = cf.statUrl;
                 Instance.privacyPolicyUri = cf.privacyPolicyUri;
                 Instance.termsOfServiceUri = cf.termsOfServiceUri;
-
-                // 广告相关：adAppKey 优先使用，若为空则回退到老字段 maxAppKey（兼容）
-                Instance.adAppKey = string.IsNullOrEmpty(cf.adAppKey) ? cf.maxAppKey : cf.adAppKey;
-                Instance.adAppID = cf.adAppID;
-                Instance.selectedAdNetwork = string.IsNullOrEmpty(cf.selectedAdNetwork) ? "Max" : cf.selectedAdNetwork;
-
                 Instance.maxAppKey = cf.maxAppKey;
                 Instance.videoUnitId = cf.videoUnitId;
                 Instance.insUnitId = cf.insUnitId;
@@ -228,31 +201,14 @@ namespace YRTT
             get => Instance.oneLinkID.Trim();
         }
 
-        public static string CloudProjectNumber
-        {
-            get => Instance.cloudProjectNumber.Trim();
-        }
-
         public static string MaxAppKey
         {
             get => Instance.maxAppKey.Trim();
         }
-
         public static string MaxAdReviewKey
         {
             get => Instance.maxAdReviewKey.Trim();
         }
-
-        public static string AdAppKey
-        {
-            get => Instance.adAppKey.Trim();
-        }
-
-        public static string AdAppID
-        {
-            get => Instance.adAppID.Trim();
-        }
-
         public static string VideoUnitId
         {
             get => Instance.videoUnitId.Trim();
@@ -306,11 +262,6 @@ namespace YRTT
         public static string SDKVersionName
         {
             get => sdk_Version_Name;
-        }
-
-        public static string SelectedAdNetworkName
-        {
-            get => Instance.selectedAdNetwork;
         }
     }
 }

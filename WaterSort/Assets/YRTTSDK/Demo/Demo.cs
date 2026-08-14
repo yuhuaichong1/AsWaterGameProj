@@ -21,8 +21,9 @@ public class Demo : MonoBehaviour, IYRTTChannelChangedListener
         {
             btnOpenOffer.gameObject.SetActive(false);
             string initResult = "SDK"+(success ? "初始化成功" : "初始化失败");
-            sdkInitText.text = initResult;
             ShowLogAndToast(initResult);
+            sdkInitText.text = initResult;
+            
             ShowLogAndToast(YRTTSDK.Instance.IsReward() ? "激励用户" : "非激励用户");
             ShowLogAndToast($"版本号：{YRTTSDK.Instance.GetVersionCode()}版本名称：{YRTTSDK.Instance.GetVersionName()}");
             ShowLogAndToast($"是否代理网络：{YRTTSDK.Instance.IsProxy()}");
@@ -49,10 +50,6 @@ public class Demo : MonoBehaviour, IYRTTChannelChangedListener
             {
                 ShowLogAndToast($"广告变现回调:{adInfo.ToJson()}");
             };
-            Events.onFCMMessage += (message) =>
-            {
-                ShowLogAndToast($"收到FCM消息:{message}");
-            };  
             Events.AdInfo info1111 = new Events.AdInfo();
             info1111.adSource = "TestSource";
             info1111.adUnitID = "TestUnitID";
@@ -232,25 +229,26 @@ public class Demo : MonoBehaviour, IYRTTChannelChangedListener
 
     public void ShowToponDebugger()
     {
-        ShowLogAndToast("SDK Unity Demo:showToponDebugger:" + YRTTConfig.IsDebug);
-        if (YRTTConfig.IsDebug)
-        {
-            string debugKey = inputFieldToponTestDebugKey.text;
-            ShowLogAndToast("SetToponDebugKey success, debugKey: " + debugKey);
-            if (!string.IsNullOrEmpty(debugKey))
-            {
-                YRTTSDK.Instance.ShowToponTestUI(debugKey);
+        //ShowLogAndToast("SDK Unity Demo:showToponDebugger:" + YRTTConfig.IsDebug);
+        //if (YRTTConfig.IsDebug)
+        //{
+        //    string debugKey = inputFieldToponTestDebugKey.text;
+        //    ShowLogAndToast("SetToponDebugKey success, debugKey: " + debugKey);
+        //    if (!string.IsNullOrEmpty(debugKey))
+        //    {
+        //        YRTTSDK.Instance.ShowToponTestUI(debugKey);
                 
-            }
-            else {
-                YRTTSDK.Instance.ShowToponTestUI("");
-            }
-        }
+        //    }
+        //    else {
+        //        YRTTSDK.Instance.ShowToponTestUI("");
+        //    }
+        //}
     }
-    public void StartAuth(){
+
+    public void StartAuth(){ 
         YRTTAuthSDK.Instance.StartAuth((result) =>
         {
-            ShowLogAndToast("人脸认证结果回调: " + result.ToString());
+            ShowLogAndToast("认证结果回调: " + result.ToString());
         });
     }
 
@@ -489,9 +487,16 @@ public class Demo : MonoBehaviour, IYRTTChannelChangedListener
 
     public void FCMNotify()
     {
-        YRTTSDK.Instance.AddNotification("testuniqueid", 10, "Test Title", "Test Content", "{\"test\":\"tss\"}", (bool suc, BaseJsonResponseBean data) =>
+        YRTTSDK.Instance.AddNotification("testuniqueid", 10, "Test Title", "Test Content", "{}", (bool suc, BaseJsonResponseBean data) =>
         {
-            ShowLogAndToast("FCMNotify:通知回调 success: " + suc + ", data: " + data?.data);
+            ShowLogAndToast("FCMNotify:通知回调 success: " + suc + ", data: " + data.data);
+        });
+    }
+
+    public void CancelNotify()
+    {
+        YRTTSDK.Instance.RemoveNotification("testuniqueid",(bool suc, BaseJsonResponseBean data) => {
+            ShowLogAndToast("CancelNotify:取消通知回调 success: " + suc + ", data: " + data.data);
         });
     }
 

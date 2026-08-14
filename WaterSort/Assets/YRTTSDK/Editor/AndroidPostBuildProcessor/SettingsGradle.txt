@@ -15,24 +15,17 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         google()
-        jcenter()
         mavenCentral()
+        jcenter() 
         flatDir { dirs "${project(':unityLibrary').projectDir}/libs" }
-        maven {url "https://bitbucket.org/sdkcenter/sdkcenter/raw/release"}
-        maven {url "https://jfrog.anythinktech.com/artifactory/debugger"}
-        maven {url "https://jfrog.anythinktech.com/artifactory/overseas_sdk"}
-        maven {url "https://repo.pubmatic.com/artifactory/public-repos"}
-        maven {url "https://verve.jfrog.io/artifactory/verve-gradle-release"}
+        // 补充所有第三方仓库
         maven { url 'https://artifacts.applovin.com/android'; content { includeGroupByRegex 'com.applovin.*' } }
         maven { url "https://jitpack.io" }
-        maven { url "https://maven.google.com" }
         maven { url "https://artifactory.bidmachine.io/bidmachine" }
         maven { url "https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea" }
         maven { url "https://artifact.bytedance.com/repository/pangle" }
         maven { url "https://verve.jfrog.io/artifactory/verve-gradle-release" }
         maven { url "https://android-sdk.is.com/" }
         maven { url "https://cboost.jfrog.io/artifactory/chartboost-ads/" }
-        maven {url "https://cboost.jfrog.io/artifactory/chartboost-mediation"}
-        maven {url "https://cboost.jfrog.io/artifactory/chartboost-core"}
     }
 }

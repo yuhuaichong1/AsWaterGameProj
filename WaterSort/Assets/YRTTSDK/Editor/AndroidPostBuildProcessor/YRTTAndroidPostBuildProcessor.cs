@@ -363,50 +363,10 @@ public class YRTTPostBuildProcessor : IPostGenerateGradleAndroidProject
                 return;
             }
 
-            string originalContent = File.ReadAllText(filePath);
-            string template = ReadEditorFile("YRTTSDK/Editor/AndroidPostBuildProcessor/SettingsGradle.txt");
-            if (string.IsNullOrEmpty(template))
-            {
-                Debug.LogError("SettingsGradle.txt 内容为空，跳过覆盖");
-                return;
-            }
-
-            // Unity 会为 *.androidlib 等生成额外 include，整文件覆盖会弄丢导致 Gradle 找不到子工程
-            var extraIncludes = new System.Collections.Generic.List<string>();
-            foreach (var rawLine in originalContent.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None))
-            {
-                string trimmed = rawLine.Trim();
-                if (!trimmed.StartsWith("include ", StringComparison.Ordinal))
-                    continue;
-
-                // 模板里已有的基础 include 跳过
-                if (trimmed.Contains(":launcher") && trimmed.Contains(":unityLibrary") &&
-                    !trimmed.Contains(":unityLibrary:"))
-                    continue;
-
-                if (!template.Contains(trimmed) && !extraIncludes.Contains(trimmed))
-                    extraIncludes.Add(trimmed);
-            }
-
-            string content = template;
-            if (extraIncludes.Count > 0)
-            {
-                const string marker = "include ':launcher', ':unityLibrary'";
-                int idx = content.IndexOf(marker, StringComparison.Ordinal);
-                if (idx >= 0)
-                {
-                    int insertPos = idx + marker.Length;
-                    content = content.Insert(insertPos,
-                        Environment.NewLine + string.Join(Environment.NewLine, extraIncludes));
-                }
-                else
-                {
-                    content += Environment.NewLine + string.Join(Environment.NewLine, extraIncludes);
-                }
-            }
-
+            string content = ReadEditorFile("YRTTSDK/Editor/AndroidPostBuildProcessor/SettingsGradle.txt");
+            // 覆盖写入最新内容
             File.WriteAllText(filePath, content);
-            Debug.Log($"settings.gradle 更新内容（保留额外 include {extraIncludes.Count} 条）");
+            Debug.Log($"settings.gradle 更新内容");
         }
         catch (Exception e)
         {
@@ -570,31 +530,33 @@ public class YRTTPostBuildProcessor : IPostGenerateGradleAndroidProject
 
             if (match.Success)
             {
-                bool hasFirebasePlugin = fileContent.Contains("com.google.gms.google-services") ||
-                                         fileContent.Contains("com.google.firebase.crashlytics");
+                bool hasFirebasePlugin = fileContent.Contains("com.google.gms.google-services") || fileContent.Contains("com.google.firebase.crashlytics");
                 bool hasAppLovinPlugin = fileContent.Contains("apply plugin: 'applovin-quality-service'");
 
-                var insertBuilder = new System.Text.StringBuilder();
-                if (!hasFirebasePlugin)
-                    insertBuilder.Append("\n").Append(pluginsToInsert);
-
-                if (!hasAppLovinPlugin)
-                {
-                    string appLovinConfig = BuildAppLovinQualityServiceConfig();
-                    if (!string.IsNullOrEmpty(appLovinConfig))
-                        insertBuilder.Append("\n").Append(appLovinConfig);
-                }
-
-                if (insertBuilder.Length > 0)
+                if (!hasFirebasePlugin || !hasAppLovinPlugin)
                 {
                     int insertPos = match.Index + match.Length;
-                    string modifiedContent = fileContent.Insert(insertPos, insertBuilder.ToString());
+                    string modifiedContent = fileContent.Insert(insertPos, "\n" + pluginsToInsert);
+
+                    // 插入 AppLovin 配置（追加到 Firebase 插件配置之后）
+                    string appLovinConfig = BuildAppLovinQualityServiceConfig();
+                    int appLovinInsertPos = modifiedContent.IndexOf(pluginsToInsert, StringComparison.Ordinal);
+                    if (appLovinInsertPos != -1)
+                    {
+                        appLovinInsertPos += pluginsToInsert.Length;
+                        modifiedContent = modifiedContent.Insert(appLovinInsertPos, "\n" + appLovinConfig);
+                    }
+                    else
+                    {
+                        modifiedContent = appLovinConfig + modifiedContent;
+                    }
+
                     File.WriteAllText(filePath, modifiedContent);
-                    Debug.Log("已插入缺失的 Firebase / AppLovin Quality Service 插件到 launcher/build.gradle");
+                    Debug.Log("已插入 Firebase 插件和 AppLovin Quality Service 到 launcher/build.gradle");
                 }
                 else
                 {
-                    Debug.Log("Firebase 与 AppLovin 插件均已存在，无需重复插入");
+                    Debug.Log("Firebase 或 AppLovin 插件已存在，无需重复插入");
                 }
             }
             else
@@ -611,11 +573,8 @@ public class YRTTPostBuildProcessor : IPostGenerateGradleAndroidProject
     private string BuildAppLovinQualityServiceConfig()
     {
         string appLovinApiKey = GetAppLovinApiKey();
-        if (string.IsNullOrEmpty(appLovinApiKey)) {
-            return "";
-        }
         return
-          "apply plugin: 'applovin-quality-service'\n" +
+            "apply plugin: 'applovin-quality-service'\n" +
             "applovin {\n" +
             $"    apiKey '{appLovinApiKey}'\n" +
             "}\n";
@@ -829,12 +788,8 @@ public class YRTTPostBuildProcessor : IPostGenerateGradleAndroidProject
         ReplaceNdkPathWithVersion(launcherGradle);
     }
 
-    // 本工程强制要求的 NDK 版本
-    private const string ForcedNdkVersion = "29.0.14206865";
-
-    // 强制把 ndkVersion 固定为 ForcedNdkVersion，并移除 Unity 生成的 ndkPath，
-    // 避免 ndkPath 指向自带 NDK 而与强制的 ndkVersion 冲突。
-    // 前提：本机已安装该版本 NDK（位于 Android SDK 的 ndk/ 目录下），否则 gradle 会报找不到 NDK。
+    // 将所有 ndkPath "..." 或 ndkPath '...' 替换为 ndkVersion '29.0.14206865'
+    // 并将已存在的 ndkVersion 统一为目标版本
     private void ReplaceNdkPathWithVersion(string filePath)
     {
         try
@@ -846,49 +801,32 @@ public class YRTTPostBuildProcessor : IPostGenerateGradleAndroidProject
             }
 
             string content = File.ReadAllText(filePath);
+            string updated = content;
 
-            // 先移除所有已存在的 ndkVersion 行，避免重复
-            string updated = Regex.Replace(
-                content,
-                @"^[ \t]*ndkVersion\s*['""][^'""]+['""]\s*\r?\n",
-                string.Empty,
-                RegexOptions.Multiline
-            );
-
-            // 将 ndkPath 行替换为固定的 ndkVersion（保留原缩进，并删除 ndkPath）
-            var ndkPathMatch = Regex.Match(
+            // 统一已存在的 ndkVersion
+            updated = Regex.Replace(
                 updated,
-                @"^([ \t]*)ndkPath\s*(?:=)?\s*[""'][^""']+[""'].*$",
+                @"^\s*ndkVersion\s*['""][^'""]+['""]",
+                "ndkVersion '29.0.14206865'",
                 RegexOptions.Multiline
             );
 
-            if (ndkPathMatch.Success)
-            {
-                string indent = ndkPathMatch.Groups[1].Value;
-                string replacement = indent + $"ndkVersion '{ForcedNdkVersion}'";
-                updated = updated.Remove(ndkPathMatch.Index, ndkPathMatch.Length)
-                                 .Insert(ndkPathMatch.Index, replacement);
-            }
-            else
-            {
-                // 没有 ndkPath 行时，在 android { 之后补一条 ndkVersion
-                var androidMatch = Regex.Match(updated, @"^([ \t]*)android\s*\{", RegexOptions.Multiline);
-                if (androidMatch.Success)
-                {
-                    string indent = androidMatch.Groups[1].Value + "    ";
-                    int insertPos = androidMatch.Index + androidMatch.Length;
-                    updated = updated.Insert(insertPos, Environment.NewLine + indent + $"ndkVersion '{ForcedNdkVersion}'");
-                }
-            }
+            // 替换 ndkPath（支持单双引号以及可能的等号写法）
+            updated = Regex.Replace(
+                updated,
+                @"^\s*ndkPath\s*(?:=)?\s*[""'][^""']+[""']",
+                "ndkVersion '29.0.14206865'",
+                RegexOptions.Multiline
+            );
 
             if (updated != content)
             {
                 File.WriteAllText(filePath, updated);
-                Debug.Log($"已在 {filePath} 中将 ndkVersion 强制固定为 '{ForcedNdkVersion}'（已移除 ndkPath）。");
+                Debug.Log($"已在 {filePath} 中将 ndkPath/ndkVersion 统一为 ndkVersion '29.0.14206865'");
             }
             else
             {
-                Debug.Log($"{filePath} 的 ndk 配置已是 '{ForcedNdkVersion}'，无需修改。");
+                Debug.Log($"未在 {filePath} 检测到需要替换的 ndkPath/ndkVersion，或已是目标值。");
             }
         }
         catch (Exception e)

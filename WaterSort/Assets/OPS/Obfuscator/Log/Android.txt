@@ -3421,6 +3421,7 @@
   - D:\UnityProj\_Project\AsWaterGameProj\WaterSort\Library\ScriptAssemblies
   - D:\UnityProj\_Project\AsWaterGameProj\WaterSort\Library\PackageCache\com.unity.visualscripting@8bed5ad90189\Editor\VisualScripting.Core\Dependencies\YamlDotNet
   - D:\UnityProj\_Project\AsWaterGameProj\WaterSort\Library\PackageCache\com.unity.ext.nunit@d8c07649098d\net40\unity-custom
+  - D:\UnityProj\_Project\AsWaterGameProj\WaterSort\Assets\YRTTSDK\Plugins
   - D:\UnityProj\_Project\AsWaterGameProj\WaterSort\Assets\OPS\Editor\Plugins\Mono.Cecil
   - D:\UnityProj\_Project\AsWaterGameProj\WaterSort\Assets\Tools\SqlLite\Plugins
   - D:\UnityProj\_Project\AsWaterGameProj\WaterSort\Assets\Plugins\Demigiant\DOTween\Editor
@@ -3428,7 +3429,6 @@
   - D:\UnityProj\_Project\AsWaterGameProj\WaterSort\Library\PackageCache\com.unity.visualscripting@8bed5ad90189\Editor\VisualScripting.Core\Dependencies\DotNetZip
   - D:\UnityProj\_Project\AsWaterGameProj\WaterSort\Assets\Plugins\Demigiant\DOTween
   - D:\UnityProj\_Project\AsWaterGameProj\WaterSort\Assets\OPS\Editor\Plugins\System
-  - D:\UnityProj\_Project\AsWaterGameProj\WaterSort\Assets\YRTTSDK\Plugins
   - D:\UnityProj\_Project\AsWaterGameProj\WaterSort\Library\PackageCache\com.unity.visualscripting@8bed5ad90189\Runtime\VisualScripting.Flow\Dependencies\NCalc
   - D:\UnityProj\_Project\AsWaterGameProj\WaterSort\Assets\YRTTSDK\Plugins\JsonNet
   - D:\UnityProj\_Project\AsWaterGameProj\WaterSort\Assets\OPS\Plugins\Json
@@ -3436,9 +3436,9 @@
   - D:\UnityProj\_Project\AsWaterGameProj\WaterSort\Library\PackageCache\com.unity.visualscripting@8bed5ad90189\Editor\VisualScripting.Core\EditorAssetResources
   - D:\UnityProj\_Project\AsWaterGameProj\WaterSort\Assets\OPS\Editor\Plugins\GUPS.Assets.Editor
   - C:\Program Files\Unity\Hub\Editor\6000.3.15f1\Editor\Data\PlaybackEngines\AndroidPlayer\Variations\il2cpp\Managed
+  - Assets\YRTTSDK\Plugins
   - Assets\Tools\SqlLite\Plugins
   - Assets\Plugins\Demigiant\DOTween
-  - Assets\YRTTSDK\Plugins
   - Assets\YRTTSDK\Plugins\JsonNet
   - Assets\OPS\Plugins\Json
   - C:\Program Files\Unity\Hub\Editor\6000.3.15f1\Editor\Data\NetStandard\ref\2.1.0
@@ -16964,15 +16964,11 @@
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::afDevKey] Is in ScriptableObject and this ScriptableObject gets not obfuscated: Obfuscation of ScriptableObjects got deactivated by settings.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::iosAppId] Is in ScriptableObject and this ScriptableObject gets not obfuscated: Obfuscation of ScriptableObjects got deactivated by settings.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::oneLinkID] Is in ScriptableObject and this ScriptableObject gets not obfuscated: Obfuscation of ScriptableObjects got deactivated by settings.
-[Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::cloudProjectNumber] Is in ScriptableObject and this ScriptableObject gets not obfuscated: Obfuscation of ScriptableObjects got deactivated by settings.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.Boolean YRTT.YRTTConfig::useLocalValueConfig] Is in ScriptableObject and this ScriptableObject gets not obfuscated: Obfuscation of ScriptableObjects got deactivated by settings.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.Boolean YRTT.YRTTConfig::forceLocalValueConfig] Is in ScriptableObject and this ScriptableObject gets not obfuscated: Obfuscation of ScriptableObjects got deactivated by settings.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::localValueConfig] Is in ScriptableObject and this ScriptableObject gets not obfuscated: Obfuscation of ScriptableObjects got deactivated by settings.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::maxAppKey] Is in ScriptableObject and this ScriptableObject gets not obfuscated: Obfuscation of ScriptableObjects got deactivated by settings.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::maxAdReviewKey] Is in ScriptableObject and this ScriptableObject gets not obfuscated: Obfuscation of ScriptableObjects got deactivated by settings.
-[Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::adAppKey] Is in ScriptableObject and this ScriptableObject gets not obfuscated: Obfuscation of ScriptableObjects got deactivated by settings.
-[Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::adAppID] Is in ScriptableObject and this ScriptableObject gets not obfuscated: Obfuscation of ScriptableObjects got deactivated by settings.
-[Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::selectedAdNetwork] Is in ScriptableObject and this ScriptableObject gets not obfuscated: Obfuscation of ScriptableObjects got deactivated by settings.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::insUnitId] Is in ScriptableObject and this ScriptableObject gets not obfuscated: Obfuscation of ScriptableObjects got deactivated by settings.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::videoUnitId] Is in ScriptableObject and this ScriptableObject gets not obfuscated: Obfuscation of ScriptableObjects got deactivated by settings.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::bannerUnitId] Is in ScriptableObject and this ScriptableObject gets not obfuscated: Obfuscation of ScriptableObjects got deactivated by settings.
@@ -26001,8 +25997,6 @@
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::iosAppId] Because of the deactivated 'Obfuscate serializable classes' setting.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::oneLinkID] Because of compatibility component: Unity - Compatibility : The class is a Unity class (MonoBehaviour/...) and the setting 'Obfuscate Public unity fields' is deactivated.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::oneLinkID] Because of the deactivated 'Obfuscate serializable classes' setting.
-[Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::cloudProjectNumber] Because of compatibility component: Unity - Compatibility : The class is a Unity class (MonoBehaviour/...) and the setting 'Obfuscate Public unity fields' is deactivated.
-[Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::cloudProjectNumber] Because of the deactivated 'Obfuscate serializable classes' setting.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.Boolean YRTT.YRTTConfig::useLocalValueConfig] Because of compatibility component: Unity - Compatibility : The class is a Unity class (MonoBehaviour/...) and the setting 'Obfuscate Public unity fields' is deactivated.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.Boolean YRTT.YRTTConfig::useLocalValueConfig] Because of the deactivated 'Obfuscate serializable classes' setting.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.Boolean YRTT.YRTTConfig::forceLocalValueConfig] Because of compatibility component: Unity - Compatibility : The class is a Unity class (MonoBehaviour/...) and the setting 'Obfuscate Public unity fields' is deactivated.
@@ -26013,12 +26007,6 @@
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::maxAppKey] Because of the deactivated 'Obfuscate serializable classes' setting.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::maxAdReviewKey] Because of compatibility component: Unity - Compatibility : The class is a Unity class (MonoBehaviour/...) and the setting 'Obfuscate Public unity fields' is deactivated.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::maxAdReviewKey] Because of the deactivated 'Obfuscate serializable classes' setting.
-[Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::adAppKey] Because of compatibility component: Unity - Compatibility : The class is a Unity class (MonoBehaviour/...) and the setting 'Obfuscate Public unity fields' is deactivated.
-[Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::adAppKey] Because of the deactivated 'Obfuscate serializable classes' setting.
-[Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::adAppID] Because of compatibility component: Unity - Compatibility : The class is a Unity class (MonoBehaviour/...) and the setting 'Obfuscate Public unity fields' is deactivated.
-[Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::adAppID] Because of the deactivated 'Obfuscate serializable classes' setting.
-[Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::selectedAdNetwork] Because of compatibility component: Unity - Compatibility : The class is a Unity class (MonoBehaviour/...) and the setting 'Obfuscate Public unity fields' is deactivated.
-[Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::selectedAdNetwork] Because of the deactivated 'Obfuscate serializable classes' setting.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::insUnitId] Because of compatibility component: Unity - Compatibility : The class is a Unity class (MonoBehaviour/...) and the setting 'Obfuscate Public unity fields' is deactivated.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::insUnitId] Because of the deactivated 'Obfuscate serializable classes' setting.
 [Info][OPS.OBF][OnAnalyse_Assemblies] Skip Field [[Config] System.String YRTT.YRTTConfig::videoUnitId] Because of compatibility component: Unity - Compatibility : The class is a Unity class (MonoBehaviour/...) and the setting 'Obfuscate Public unity fields' is deactivated.

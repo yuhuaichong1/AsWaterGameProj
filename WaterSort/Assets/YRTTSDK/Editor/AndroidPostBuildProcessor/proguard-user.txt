@@ -1,14 +1,9 @@
 #------------------------------SDK插入开始------------------------------
--dontpreverify
--dontoptimize
--optimizationpasses 5
--repackageclasses '' #替换包名为默认包名
--dontusemixedcaseclassnames
--dontskipnonpubliclibraryclasses
--dontpreverify
--verbose
--dontskipnonpubliclibraryclassmembers
--ignorewarnings
+-keep class com.abc.sdk.**{*;}
+-keep class com.abcsdk.**{*;}
+-keepclassmembers class com.abcsdk.net.util.ABCRequestCompleted{ *; }
+-keep class com.abcsdk.net.util.ABCRequestCompleted
+
 #openSDK相关keep 开始
 -keep class com.google.gson.internal.** {*;}
 -keep class com.facebook.internal.** {*;}
@@ -30,6 +25,3 @@
 -dontoptimize
 #OpenSDK相关keep 结束
 #------------------------------SDK插入结束------------------------------
-
-# Unity 通过 AndroidJavaObject 字符串反射调用本工程 Java 插件，R8 开混淆后会改名导致 ClassNotFoundException
--keep class com.sandroidplugin.** { *; }
