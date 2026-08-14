@@ -9,8 +9,8 @@ dependencies {
 
 android {
     namespace "**NAMESPACE**"
-    ndkPath "**NDKPATH**"
-    ndkVersion "**NDKVERSION**"
+    // 强制使用 SDK 要求的 NDK 版本；不写 ndkPath，交由 ndkVersion 从 SDK/ndk 下按版本号解析
+    ndkVersion "29.0.14206865"
 
     compileSdk **APIVERSION**
     buildToolsVersion = "**BUILDTOOLS**"

@@ -4,4 +4,6 @@
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node= "remove"/>
   <!-- READ_PHONE_STATE 移除所有变体 -->
   <uses-permission android:name="android.permission.READ_PHONE_STATE" tools:node= "remove"/>
+  <!-- USE_FULL_SCREEN_INTENT 移除 -->
+  <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" tools:node= "remove"/>
 <!--Unity移除权限，插入结束-->
