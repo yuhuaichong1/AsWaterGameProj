@@ -27,20 +27,23 @@ task modifyUnityActivity {
         }
 
         // 添加方法调用（如果不存在）
-        def onCreatePattern = /@Override\s+protected\s+void\s+onCreate\s*\(Bundle savedInstanceState\)\s*\{([\s\S]*?)\}/
-        def onCreateMatcher = content =~ onCreatePattern
-
-        if (onCreateMatcher.find() && !onCreateMatcher.group(0).contains("Bridge.getInstance().addIAndroid2Other(BridgeImpl.getInstance());")) {
-            def onCreateBody = onCreateMatcher.group(1)
-            // 在 mUnityPlayer.requestFocus(); 之后添加代码
-            content = content.replace(
-                    onCreateBody,
-                    onCreateBody.replaceFirst(
-                            /(mUnityPlayer\.requestFocus\(\);)/,
-                            '$1\n        Bridge.getInstance().addIAndroid2Other(BridgeImpl.getInstance());'
-                    )
-            )
-            println "已添加 Bridge.getInstance().addIAndroid2Other(BridgeImpl.getInstance());"
+        // Unity 6 使用 mUnityPlayer.getFrameLayout().requestFocus(); 旧版为 mUnityPlayer.requestFocus();
+        if (!content.contains("Bridge.getInstance().addIAndroid2Other(BridgeImpl.getInstance());")) {
+            if (content.contains("mUnityPlayer.getFrameLayout().requestFocus();")) {
+                content = content.replace(
+                        "mUnityPlayer.getFrameLayout().requestFocus();",
+                        "mUnityPlayer.getFrameLayout().requestFocus();\n        Bridge.getInstance().addIAndroid2Other(BridgeImpl.getInstance());"
+                )
+                println "已添加 Bridge.getInstance().addIAndroid2Other(BridgeImpl.getInstance());"
+            } else if (content.contains("mUnityPlayer.requestFocus();")) {
+                content = content.replace(
+                        "mUnityPlayer.requestFocus();",
+                        "mUnityPlayer.requestFocus();\n        Bridge.getInstance().addIAndroid2Other(BridgeImpl.getInstance());"
+                )
+                println "已添加 Bridge.getInstance().addIAndroid2Other(BridgeImpl.getInstance());"
+            } else {
+                println "未找到 requestFocus 插入点，跳过 Bridge 注入"
+            }
         }
 
         // 写入修改后的内容
